@@ -17,7 +17,7 @@ sys.path.append(".")
 # Import RTM module
 import RTC
 import OpenRTM_aist
-from xml2dict import  *
+#from xml2dict import  *
 
 # Import Service implementation class
 # <rtc-template block="service_impl">
