@@ -17,7 +17,6 @@ sys.path.append(".")
 # Import RTM module
 import RTC
 import OpenRTM_aist
-#from xml2dict import  *
 
 # Import Service implementation class
 # <rtc-template block="service_impl">
@@ -197,7 +196,6 @@ class Controller(OpenRTM_aist.DataFlowComponentBase):
 			v = self._velInIn.read()
 			print "Vel %f %f %f" % (v.data.vx, v.data.vy, v.data.va)
 			
-			#vstr = """<DataPortPacket name="velOut"><Member name="data"><Member name="vx">%f</Member><Member name="vy">%f</Member><Member name="va">%f</Member></Member></DataPortPacket>""" % (v.data.vx, v.data.vy, v.data.va)
 			vstr = "<data><vx>%f</vx><vy>%f</vy><va>%f</va></data>" % (v.data.vx, v.data.vy, v.data.va)
 			print vstr
 			self._d_octetOut.data = vstr
@@ -206,6 +204,7 @@ class Controller(OpenRTM_aist.DataFlowComponentBase):
 		
 		if self._octetInIn.isNew():
 			d = self._octetInIn.read()
+			doc = minidom.parseString(d.data)
 			vx = doc.childNodes[0].childNodes[0].childNodes[0].wholeText
 			vy = doc.childNodes[0].childNodes[1].childNodes[0].wholeText
 			va = doc.childNodes[0].childNodes[2].childNodes[0].wholeText
