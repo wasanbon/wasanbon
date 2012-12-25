@@ -1,0 +1,94 @@
+2012-12-25 17:00:50,665 manager INFO 1.1.0
+2012-12-25 17:00:50,666 manager INFO Copyright (C) 2003-2010
+2012-12-25 17:00:50,666 manager INFO   Noriaki Ando
+2012-12-25 17:00:50,666 manager INFO   Intelligent Systems Research Institute, AIST
+2012-12-25 17:00:50,666 manager INFO Manager starting.
+2012-12-25 17:00:50,666 manager INFO Starting local logging.
+2012-12-25 17:00:50,666 manager TRACE Manager.initORB()
+2012-12-25 17:00:50,667 manager DEBUG corba.args: 
+2012-12-25 17:00:50,667 manager DEBUG corba.endpoint: 
+2012-12-25 17:00:50,667 manager DEBUG manager.is_master: YES
+2012-12-25 17:00:50,667 manager DEBUG corba.id: omniORB
+2012-12-25 17:00:50,667 manager DEBUG Endpoint is : :2810
+2012-12-25 17:00:50,668 manager PARANOID ORB options:  -ORBendPoint giop:tcp::2810
+2012-12-25 17:00:50,669 manager TRACE Manager.initNaming()
+2012-12-25 17:00:50,669 manager TRACE Register Naming Server: corba/localhost:2809
+2012-12-25 17:00:50,669 manager.namingmanager TRACE NamingManager::registerNameServer(corba, localhost:2809)
+2012-12-25 17:00:50,670 manager.namingmanager TRACE createNamingObj(method = corba, nameserver = localhost:2809)
+2012-12-25 17:00:50,670 manager TRACE Manager.getORB()
+2012-12-25 17:00:50,671 manager.namingmanager INFO NameServer connection succeeded: corba/localhost:2809
+2012-12-25 17:00:50,671 manager TRACE Manager.initFactories()
+2012-12-25 17:00:50,672 manager TRACE Manager.initExecContext()
+2012-12-25 17:00:50,672 manager TRACE Manager.registerECFactory(PeriodicExecutionContext)
+2012-12-25 17:00:50,672 manager TRACE Manager.registerECFactory(ExtTrigExecutionContext)
+2012-12-25 17:00:50,672 manager TRACE Manager.registerECFactory(OpenHRPExecutionContext)
+2012-12-25 17:00:50,672 manager TRACE Manager.initComposite()
+2012-12-25 17:00:50,672 manager TRACE Manager.registerFactory(PeriodicECSharedComposite)
+2012-12-25 17:00:50,672 manager TRACE Manager.initManagerServant()
+2012-12-25 17:00:50,675 ManagerServant TRACE This manager is master.
+2012-12-25 17:00:50,675 manager TRACE Manager.getORB()
+2012-12-25 17:00:50,675 ManagerServant TRACE Manager CORBA servant was successfully created.
+2012-12-25 17:00:50,676 manager.namingmanager TRACE NamingManager::bindManagerObject(asura.local.host_cxt/manager.mgr)
+2012-12-25 17:00:50,676 manager.namingoncorba TRACE bindObject(name = asura.local.host_cxt/manager.mgr, rtobj or mgr)
+2012-12-25 17:00:50,676 manager TRACE Manager.activateManager()
+2012-12-25 17:00:50,676 manager TRACE Manager.getPOAManager()
+2012-12-25 17:00:50,676 manager TRACE POA Manager activated.
+2012-12-25 17:00:50,677 ModuleManager TRACE load(fname = rtcs/controller/Controller.py)
+2012-12-25 17:00:50,678 manager ERROR Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/Manager.py", line 392, in activateManager
+    self._module.load(mods[i], basename)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/ModuleManager.py", line 276, in load
+    raise ModuleManager.InvalidArguments, "Invalid file name."
+InvalidArguments: <OpenRTM_aist.ModuleManager.InvalidArguments instance at 0x10fe8f638>
+
+2012-12-25 17:00:50,678 manager ERROR Module load error: ControllerInit
+2012-12-25 17:00:50,678 manager ERROR Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/Manager.py", line 2187, in __try_direct_load
+    mo = __import__(import_name)
+ImportError: No module named ControllerInit
+
+2012-12-25 17:00:50,678 manager TRACE Manager.createComponent(Controller)
+2012-12-25 17:00:50,678 manager TRACE RTC basic profile vendor: 
+2012-12-25 17:00:50,679 manager TRACE RTC basic profile category: 
+2012-12-25 17:00:50,679 manager TRACE RTC basic profile implementation_id: Controller
+2012-12-25 17:00:50,679 manager TRACE RTC basic profile version: 
+2012-12-25 17:00:50,679 manager ERROR createComponent: Factory not found: Controller
+2012-12-25 17:00:50,680 manager INFO 0 loadable modules found
+2012-12-25 17:00:50,680 manager ERROR No module for Controller in loadable modules list
+2012-12-25 17:00:50,680 manager TRACE Manager.runManager(): blocking mode
+2012-12-25 17:00:51,675 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:51,675 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:52,696 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:52,696 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:53,706 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:53,706 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:54,715 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:54,715 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:55,725 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:55,725 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:56,734 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:56,734 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:57,744 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:57,744 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:58,753 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:58,753 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:00:59,763 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:00:59,764 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:01:00,773 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:01:00,773 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:01:00,774 manager.namingmanager TRACE NamingManager::update()
+2012-12-25 17:01:00,774 manager.namingoncorba TRACE isAlive()
+2012-12-25 17:01:00,775 manager TRACE Manager.shutdown()
+2012-12-25 17:01:00,775 manager TRACE Manager.shutdownComponents()
+2012-12-25 17:01:00,775 manager TRACE Manager.shutdownNaming()
+2012-12-25 17:01:00,775 manager.namingmanager TRACE NamingManager::unbindAll(): 0 names.
+2012-12-25 17:01:00,775 manager.namingmanager TRACE NamingManager::unbindObject(asura.local.host_cxt/manager.mgr)
+2012-12-25 17:01:00,775 manager.namingoncorba TRACE unbindObject(name  = asura.local.host_cxt/manager.mgr)
+2012-12-25 17:01:00,776 manager TRACE Manager.shutdownORB()
+2012-12-25 17:01:00,776 manager DEBUG No pending works of ORB. Shutting down POA and ORB.
+2012-12-25 17:01:00,776 manager DEBUG POA Manager was deactivated.
+2012-12-25 17:01:00,776 manager DEBUG POA was destroyed.
+2012-12-25 17:01:00,776 manager DEBUG ORB was shutdown.
+2012-12-25 17:01:00,777 manager TRACE Manager.shutdownManager()
+2012-12-25 17:01:00,876 manager TRACE Manager.wait()
+2012-12-25 17:01:00,876 manager TRACE Manager.shutdownLogger()

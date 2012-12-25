@@ -302,7 +302,7 @@ def MyModuleInit(manager):
 
 def main():
 	mgr = OpenRTM_aist.Manager.init(sys.argv)
-	#mgr.setModuleInitProc(MyModuleInit)
+	mgr.setModuleInitProc(MyModuleInit)
 	mgr.activateManager()
 	mgr.runManager()
 

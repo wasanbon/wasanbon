@@ -1,0 +1,109 @@
+2012-12-25 17:03:39,077 manager INFO 1.1.0
+2012-12-25 17:03:39,077 manager INFO Copyright (C) 2003-2010
+2012-12-25 17:03:39,077 manager INFO   Noriaki Ando
+2012-12-25 17:03:39,077 manager INFO   Intelligent Systems Research Institute, AIST
+2012-12-25 17:03:39,077 manager INFO Manager starting.
+2012-12-25 17:03:39,077 manager INFO Starting local logging.
+2012-12-25 17:03:39,077 manager TRACE Manager.initORB()
+2012-12-25 17:03:39,077 manager DEBUG corba.args: 
+2012-12-25 17:03:39,078 manager DEBUG corba.endpoint: 
+2012-12-25 17:03:39,078 manager DEBUG manager.is_master: YES
+2012-12-25 17:03:39,078 manager DEBUG corba.id: omniORB
+2012-12-25 17:03:39,078 manager DEBUG Endpoint is : :2810
+2012-12-25 17:03:39,078 manager PARANOID ORB options:  -ORBendPoint giop:tcp::2810
+2012-12-25 17:03:39,079 manager TRACE Manager.initNaming()
+2012-12-25 17:03:39,079 manager TRACE Register Naming Server: corba/localhost:2809
+2012-12-25 17:03:39,079 manager.namingmanager TRACE NamingManager::registerNameServer(corba, localhost:2809)
+2012-12-25 17:03:39,079 manager.namingmanager TRACE createNamingObj(method = corba, nameserver = localhost:2809)
+2012-12-25 17:03:39,080 manager TRACE Manager.getORB()
+2012-12-25 17:03:39,081 manager.namingmanager INFO NameServer connection succeeded: corba/localhost:2809
+2012-12-25 17:03:39,081 manager TRACE Manager.initFactories()
+2012-12-25 17:03:39,081 manager TRACE Manager.initExecContext()
+2012-12-25 17:03:39,081 manager TRACE Manager.registerECFactory(PeriodicExecutionContext)
+2012-12-25 17:03:39,081 manager TRACE Manager.registerECFactory(ExtTrigExecutionContext)
+2012-12-25 17:03:39,081 manager TRACE Manager.registerECFactory(OpenHRPExecutionContext)
+2012-12-25 17:03:39,081 manager TRACE Manager.initComposite()
+2012-12-25 17:03:39,082 manager TRACE Manager.registerFactory(PeriodicECSharedComposite)
+2012-12-25 17:03:39,082 manager TRACE Manager.initManagerServant()
+2012-12-25 17:03:39,089 ManagerServant TRACE This manager is master.
+2012-12-25 17:03:39,089 manager TRACE Manager.getORB()
+2012-12-25 17:03:39,090 ManagerServant TRACE Manager CORBA servant was successfully created.
+2012-12-25 17:03:39,090 manager.namingmanager TRACE NamingManager::bindManagerObject(asura.local.host_cxt/manager.mgr)
+2012-12-25 17:03:39,090 manager.namingoncorba TRACE bindObject(name = asura.local.host_cxt/manager.mgr, rtobj or mgr)
+2012-12-25 17:03:40,108 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:40,108 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:41,118 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:41,118 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:42,128 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:42,128 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:43,138 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:43,138 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:44,150 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:44,150 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:44,499 manager TRACE Manager.activateManager()
+2012-12-25 17:03:44,499 manager TRACE Manager.getPOAManager()
+2012-12-25 17:03:44,499 manager TRACE POA Manager activated.
+2012-12-25 17:03:44,500 ModuleManager TRACE load(fname = rtcs/controller/Controller.py)
+2012-12-25 17:03:44,501 manager ERROR Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/Manager.py", line 392, in activateManager
+    self._module.load(mods[i], basename)
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/ModuleManager.py", line 276, in load
+    raise ModuleManager.InvalidArguments, "Invalid file name."
+InvalidArguments: <OpenRTM_aist.ModuleManager.InvalidArguments instance at 0x10ad9c758>
+
+2012-12-25 17:03:44,501 manager ERROR Module load error: ControllerInit
+2012-12-25 17:03:44,502 manager ERROR Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/OpenRTM_aist/Manager.py", line 2187, in __try_direct_load
+    mo = __import__(import_name)
+ImportError: No module named ControllerInit
+
+2012-12-25 17:03:44,502 manager TRACE Manager.createComponent(Controller)
+2012-12-25 17:03:44,502 manager TRACE RTC basic profile vendor: 
+2012-12-25 17:03:44,502 manager TRACE RTC basic profile category: 
+2012-12-25 17:03:44,502 manager TRACE RTC basic profile implementation_id: Controller
+2012-12-25 17:03:44,502 manager TRACE RTC basic profile version: 
+2012-12-25 17:03:44,503 manager ERROR createComponent: Factory not found: Controller
+2012-12-25 17:03:44,503 manager INFO 0 loadable modules found
+2012-12-25 17:03:44,503 manager ERROR No module for Controller in loadable modules list
+2012-12-25 17:03:45,158 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:45,158 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:46,168 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:46,168 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:47,177 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:47,177 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:48,186 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:48,186 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:48,771 manager TRACE Manager.runManager(): blocking mode
+2012-12-25 17:03:49,195 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:49,195 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:49,195 manager.namingmanager TRACE NamingManager::update()
+2012-12-25 17:03:49,195 manager.namingoncorba TRACE isAlive()
+2012-12-25 17:03:50,205 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:50,206 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:51,224 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:51,224 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:51,773 ManagerServant TRACE get_profile()
+2012-12-25 17:03:51,778 manager TRACE Manager.getComponents()
+2012-12-25 17:03:51,779 ManagerServant DEBUG 0 slave managers exists.
+2012-12-25 17:03:51,779 ManagerServant TRACE get_loadable_modules()
+2012-12-25 17:03:51,779 manager TRACE Manager.getLoadableModules()
+2012-12-25 17:03:51,780 ManagerServant TRACE get_loaded_modules()
+2012-12-25 17:03:51,780 manager TRACE Manager.getLoadedModules()
+2012-12-25 17:03:52,234 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:52,235 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:53,244 manager VERBOSE Manager.cleanupComponents()
+2012-12-25 17:03:53,245 manager VERBOSE 0 components are marked as finalized.
+2012-12-25 17:03:53,972 manager TRACE Manager.shutdown()
+2012-12-25 17:03:53,972 manager TRACE Manager.shutdownComponents()
+2012-12-25 17:03:53,972 manager TRACE Manager.shutdownNaming()
+2012-12-25 17:03:53,972 manager.namingmanager TRACE NamingManager::unbindAll(): 0 names.
+2012-12-25 17:03:53,973 manager.namingmanager TRACE NamingManager::unbindObject(asura.local.host_cxt/manager.mgr)
+2012-12-25 17:03:53,973 manager.namingoncorba TRACE unbindObject(name  = asura.local.host_cxt/manager.mgr)
+2012-12-25 17:03:53,973 manager TRACE Manager.shutdownORB()
+2012-12-25 17:03:53,973 manager DEBUG No pending works of ORB. Shutting down POA and ORB.
+2012-12-25 17:03:53,973 manager DEBUG POA Manager was deactivated.
+2012-12-25 17:03:53,974 manager DEBUG POA was destroyed.
+2012-12-25 17:03:53,974 manager DEBUG ORB was shutdown.
+2012-12-25 17:03:53,974 manager TRACE Manager.shutdownManager()
+2012-12-25 17:03:54,053 manager TRACE Manager.wait()
+2012-12-25 17:03:54,053 manager TRACE Manager.shutdownLogger()
