@@ -8,7 +8,6 @@ del __path
 
 
 def import_module(name):
-    print name
     __import__(name)
     return sys.modules[name]
 

@@ -69,13 +69,11 @@ class Utility(object):
             subcommand = self.__argv[1]
         except IndexError:
             subcommand = 'help'
-
         if subcommand == 'help':
             sys.stdout.write(self.show_help_text() + '\n')
-        elif len(args) <= 2:
+        elif len(args) <= 1:
             sys.stdout.write(self.show_help_text() + '\n')
         else:
-            print 'args[2] = %s' % args[2]
             self.fetch_subcommand(subcommand).execute_with_argv(self.__argv)
 
     def show_help_text(self):
@@ -83,7 +81,6 @@ class Utility(object):
     
     def find_commands(self, dir):
         command_dir = os.path.join(dir, 'commands')
-        print 'command_dir=' + command_dir
         try:
             return [f[:-3] for f in os.listdir(command_dir) if not f.startswith('_') and f.endswith('.py')]
         except OSError:
@@ -92,7 +89,6 @@ class Utility(object):
                     
     def fetch_subcommand(self, subcommand):
         app_name = dict([(name, 'OpenTPR.core') for name in self.find_commands(OpenTPR.core.management.__path__[0])])
-        print 'cmd = %s' % subcommand
         module = OpenTPR.core.management.import_module('OpenTPR.core.management.commands.%s' %  subcommand)
         return module.Command()
     
