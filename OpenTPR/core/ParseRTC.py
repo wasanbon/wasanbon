@@ -34,7 +34,7 @@ def get_rtc_cpp_bin_name(rtc_name):
         return 'lib%s.%s' % (rtc_name.lower(), 'dylib')
     elif sys.platform == 'win32':
         return '%s.%s' % (rtc_name.lower(), 'dll')
-    elif sys.platform == 'linux':
+    elif sys.platform == 'linux2':
         return 'lib%s.%s' % (rtc_name.lower(), 'so')
     else:
         print 'ERROR:Unsupported Operating System(%s)' % sys.platform
@@ -42,17 +42,33 @@ def get_rtc_cpp_bin_name(rtc_name):
 def get_rtc_py_name(rtc_name):
     return '%s.py' % rtc_name
 
-def rtc_file_search(path, rtc_bin_name):
+def rtc_file_search(path, rtc_bin_name, rtc_name = ''):
+    #print 'rtc_search %s' % rtc_name
     files = os.listdir(path)
     for file in files:
         if os.path.isdir(path + '/' + file):
-            fullpath = rtc_file_search(path + '/' + file, rtc_bin_name)
-            if len(fullpath) > 0:
+            fullpath = rtc_file_search(path + '/' + file, rtc_bin_name, rtc_name)
+            if len(fullpath[0]) > 0:
                 return fullpath
         else:
             if file == rtc_bin_name:
-                return path + '/' + rtc_bin_name
-    return ''
+                if len(rtc_name) > 0:
+                    if sys.platform == 'darwin':
+                        ext = 'dylib'
+                    elif sys.platform == 'linux2':
+                        ext = 'so'
+                    else:
+                        print 'WARNING Unsupported System (%s)' % sys.platform
+                        raise
+
+                    if not os.path.isfile('%s/%s.%s' % (path, rtc_name, ext)):
+                        sys.stdout.write('Creating Static Link(%s/%s.%s)' % (path, rtc_name, ext))
+                        import subprocess
+                        cmd = ('ln', '%s/%s' % (path, rtc_bin_name),  '%s/%s.%s' % (path, rtc_name, ext))
+                        subprocess.call(cmd)
+                    return [path + '/', rtc_name + '.' + ext]
+                return [path + '/', rtc_bin_name]
+    return ['', '']
 
 
 
@@ -65,7 +81,6 @@ def install_rtc(rtc_conf_name, rtc_file_name, label_name, auto_uninstall = False
 
     while True:
         line = fin.readline()
-
         if not line:
             break
         if line.strip().startswith(label_name):
@@ -78,7 +93,7 @@ def install_rtc(rtc_conf_name, rtc_file_name, label_name, auto_uninstall = False
                 if file.strip() == rtc_file_name:
                     print '---%s is already installed' % rtc_file_name
                     preloaded_ = True
-                if os.path.isfile(file.strip()) or (not auto_uninstall):
+                if len(file.strip()) > 0 and (os.path.isfile(file.strip()) or (not auto_uninstall)):
                     if not first_flag:
                         line_output = line_output + ' ,'
                     first_flag = False
@@ -101,8 +116,9 @@ def install_rtc(rtc_conf_name, rtc_file_name, label_name, auto_uninstall = False
         print '---%s is installed' % rtc_file_name
         fout.write('%s: %s\n\n' % (label_name, rtc_file_name))
     fout.close()
-
     pass
+
+
 
 def parse_rtc_profile(rtc_profile_filepath):
     print '-Parsing RTC Profile(%s)' % rtc_profile_filepath
@@ -120,19 +136,24 @@ def parse_rtc_profile(rtc_profile_filepath):
             conf_file_name = rtcp.getName() + '.conf'
         else:
             pass
-        
+
+        # installing rtc
         sys.stdout.write( '--Searching %s... ' % rtc_file_name )
-        fullpath = rtc_file_search(rtc_profile_filepath, rtc_file_name)
+        [path, file] = rtc_file_search(rtc_profile_filepath, rtc_file_name,  rtcp.getName() if rtcp.getLanguage() == 'C++' else '')
+        fullpath = path + file
         if len(fullpath) > 0:
             print 'Found(%s)' % fullpath
             sys.stdout.write('--Parsing rtc.conf(%s)... ' % rtc_conf_name)
-            install_rtc(rtc_conf_name, fullpath, 'manager.modules.preload', True)
+            install_rtc(rtc_conf_name, path, 'manager.modules.load_path')
+            install_rtc(rtc_conf_name, file, 'manager.modules.preload')
         else:
             print 'Not Found'
             return
 
+        # installing conf file
         sys.stdout.write( '--Searching %s... ' % conf_file_name )
-        fullpath = rtc_file_search(rtc_profile_filepath, conf_file_name)
+        [path, file] = rtc_file_search(rtc_profile_filepath, conf_file_name)
+        fullpath = path + file
         if len(fullpath) > 0:
             print 'Found(%s)' % fullpath
             sys.stdout.write('--Parsing rtc.conf(%s)... ' % rtc_conf_name)
@@ -142,6 +163,7 @@ def parse_rtc_profile(rtc_profile_filepath):
             print 'Not Found'
             print 'WARNING:RTC(%s) does not have its own .conf file.' % rtcp.getName()
 
+        # setting precreate config
         sys.stdout.write('--Activating installed RTC(%s)' % rtcp.getName())
         install_rtc(rtc_conf_name, rtcp.getName(), 'manager.components.precreate')
 
