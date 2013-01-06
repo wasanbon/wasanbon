@@ -4,6 +4,13 @@ import OpenTPR
 import OpenRTM_aist
 import subprocess
 import os
+import signal
+
+rtm_dir='rtm/'
+rtm_java_jardir='%s1.1/jar/' % rtm_dir
+rtm_java_classpath='%sOpenRTM-aist-1.1.0.jar:%scommons-cli-1.1.jar:%srtcd.jar' % (rtm_java_jardir, rtm_java_jardir, rtm_java_jardir)
+
+
 def start_cpp_rtcd():
     print '-Starting rtcd_cpp'
     cpp_env = os.environ.copy()
@@ -17,26 +24,50 @@ def start_python_rtcd():
 def start_java_rtcd():
     print '-Starting rtcd_java'
     java_env = os.environ.copy()
-    if "CLASSPATH" in java_env.keys():
-        print 'No CLASSPATH set'
-        java_env["CLASSPATH"]='rtm/1.1/jar/OpenRTM-aist-1.1.0.jar:rtm/1.1/jar/commons-cls-1.1.jar:rtm/1.1/jar/rtcd.jar'
+    if not "CLASSPATH" in java_env.keys():
+        java_env["CLASSPATH"]='.'
+    java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':' + rtm_java_classpath
     return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
-    
+
+endflag = False
+
+def signal_action(num, frame):
+    print 'SIGINT captured'
+    global endflag
+    endflag = True
+    pass
+
 class Command(object):
     def __init__(self):
         pass
 
     def execute_with_argv(self, argv):
         print 'Starting rtcd processes'
-        cpp_process = start_cpp_rtcd()
-        py_process  = start_python_rtcd()
-        java_process = start_java_rtcd()
-        while True:
-            cpp_process.poll()
-            py_process.poll()
-            if cpp_process.returncode != None and py_process.returncode != None:
+        signal.signal(signal.SIGINT, signal_action)
+
+
+        process = {
+            'cpp' : start_cpp_rtcd(),
+            'python' : start_python_rtcd(),
+            'java' : start_java_rtcd()
+            }
+
+        process_state = {}
+        for key in {'cpp', 'python', 'java'}: #process.keys():
+            process_state[key] = False #process[key].returncode != None
+
+        global endflag
+        while not endflag:
+            for key in process.keys():
+                process[key].poll()
+                if process_state[key] == False and process[key].returncode != None:
+                    print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
+                    process_state[key] = True
+            if all(process_state.values()):
+                print 'All rtcd stopped'
                 break
 
+        for p in process.values():
+            p.terminate()
         print 'All rtcd process terminated.'
         pass
-    
