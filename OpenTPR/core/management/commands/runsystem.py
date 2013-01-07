@@ -6,28 +6,32 @@ import subprocess
 import os
 import signal
 
-rtm_dir='rtm/'
-rtm_java_jardir='%s1.1/jar/' % rtm_dir
-rtm_java_classpath='%sOpenRTM-aist-1.1.0.jar:%scommons-cli-1.1.jar:%srtcd.jar' % (rtm_java_jardir, rtm_java_jardir, rtm_java_jardir)
+rtm_dir='rtm'
+rtm_java_jardir=os.path.join(os.getcwd(), rtm_dir, '1.1', 'jar')
+openrtm_java=os.path.join(rtm_java_jardir, 'OpenRTM-aist-1.1.0.jar')
+commons_cli=os.path.join(rtm_java_jardir, 'commons-cli-1.1.jar')
+rtcd_jar=os.path.join(rtm_java_jardir, 'rtcd.jar')
+rtm_java_classpath='%s;%s;%s' % (openrtm_java, commons_cli, rtcd_jar)
 
 
 def start_cpp_rtcd():
     print '-Starting rtcd_cpp'
     cpp_env = os.environ.copy()
-    return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env)
+    return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, creationflags=512)
 
 def start_python_rtcd():
     print '-Starting rtcd_py'
     py_env = os.environ.copy()
-    return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env)
+    return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512)
 
 def start_java_rtcd():
     print '-Starting rtcd_java'
     java_env = os.environ.copy()
     if not "CLASSPATH" in java_env.keys():
         java_env["CLASSPATH"]='.'
-    java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':' + rtm_java_classpath
-    return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
+    java_env["CLASSPATH"]=java_env["CLASSPATH"] + ';' + rtm_java_classpath
+    print java_env["CLASSPATH"]
+    return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env, creationflags=512)
 
 endflag = False
 
@@ -53,7 +57,7 @@ class Command(object):
             }
 
         process_state = {}
-        for key in {'cpp', 'python', 'java'}: #process.keys():
+        for key in process.keys():
             process_state[key] = False #process[key].returncode != None
 
         global endflag
@@ -67,7 +71,8 @@ class Command(object):
                 print 'All rtcd stopped'
                 break
 
+        print 'Terminating All Process....'
         for p in process.values():
-            p.terminate()
+            p.kill()
         print 'All rtcd process terminated.'
         pass

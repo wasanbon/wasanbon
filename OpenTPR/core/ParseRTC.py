@@ -72,6 +72,7 @@ def rtc_file_search(path, rtc_bin_name, rtc_name = ''):
 
 
 
+
 def install_rtc(rtc_conf_name, rtc_file_name, label_name, auto_uninstall = False):
     preloaded_ = False
     print '--Installing RTC(%s)' % rtc_file_name

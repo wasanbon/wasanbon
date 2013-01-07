@@ -6,8 +6,7 @@ import platform
 import subprocess
 import zipfile
 
-rtm_dir='rtm/'
-rtm_java_filename = 'OpenRTM-aist-Java-1.1.0-RC1-jar.zip'
+rtm_dir='rtm'
 
 linux_package = {
     'Ubuntu' : { 
@@ -34,8 +33,18 @@ linux_package = {
     }
 
 
+rtm_java_filename = 'OpenRTM-aist-Java-1.1.0-RC1-jar.zip'
 java_package = (
-    'http://www.openrtm.org/pub/OpenRTM-aist/java/1.1.0/%s' % rtm_java_filename, '%s%s' % (rtm_dir, rtm_java_filename))
+    'http://www.openrtm.org/pub/OpenRTM-aist/java/1.1.0/%s' % rtm_java_filename,  os.path.join(rtm_dir, rtm_java_filename))
+
+rtm_cpp_win_filename = 'OpenRTM-aist-1.1.0-RELEASE_vc10.msi'
+cpp_win_package = (
+    'http://www.openrtm.org/pub/Windows/OpenRTM-aist/cxx/1.1/%s' % rtm_cpp_win_filename, os.path.join(rtm_dir, rtm_cpp_win_filename))
+
+
+rtm_py_win_filename = 'OpenRTM-aist-Python-1.1.0-RC1.msi'
+py_win_package = (
+    'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/%s' % rtm_py_win_filename, os.path.join(rtm_dir, rtm_py_win_filename))
 
 class Command(object):
     def __init__(self):
@@ -46,6 +55,9 @@ class Command(object):
         
         if(argv[2] == 'install'):
             print 'Installing OpenRTM-aist'
+            if not os.path.isdir(rtm_dir):
+                os.mkdir(rtm_dir)
+
             p = platform.dist()
             if platform.system() == 'Linux':
                 for cmd in linux_package[p[0]]['common']:
@@ -55,15 +67,34 @@ class Command(object):
                     cmd = linux_package[p[0]]['install-cmd'] + tuple([pac])
                     print '-Installing with command = ' + str(cmd)
                     subprocess.call(cmd)
-            if not os.path.isdir(rtm_dir):
-                os.mkdir(rtm_dir)
+            elif platform.system() == 'Windows':
+                if not os.path.isfile(cpp_win_package[1]):
+                    print '-Downloading OpenRTM-aist C++'
+                    urllib.urlretrieve(cpp_win_package[0], cpp_win_package[1])
+                if not 'RTM_ROOT' in os.environ.keys():
+                    print '-Installing OpenRTM-aist C++'
+                    cmd = ('msiexec', '/i', os.path.join(os.getcwd(), cpp_win_package[1]))
+                    subprocess.call(cmd)
+                try:
+                    import OpenRTM_aist
+                except ImportError, e:
+                    if not os.path.isfile(py_win_package[1]):
+                        print '-Downloading OpenRTM-aist Python'
+                        urllib.urlretrieve(py_win_package[0], py_win_package[1])
+                    print '-Installing OpenRTM-aist Python'
+                    cmd = ('msiexec', '/i', os.path.join(os.getcwd(), py_win_package[1]))
+                    subprocess.call(cmd)
+
+            # Download RTM Java Version 
             if not os.path.isfile(java_package[1]):
+                print '-Downloading OpenRTM-aist Java'
                 urllib.urlretrieve(java_package[0], java_package[1])
+            print '-Uncompressing OpenRTM-aist Java Package'
             zf = zipfile.ZipFile(java_package[1])
             for filename in zf.namelist():
-                path=rtm_dir + filename.lstrip('OpenRTM-aist/')
+                path= os.path.join(rtm_dir, filename.lstrip('OpenRTM-aist/'))
                 directory, fname = os.path.split(path)
-                if not os.path.isdir(directory):
+                if not os.path.isdir(directory) and len(directory)>0:
                     os.makedirs(directory)
 
                 if len(fname) > 0:
