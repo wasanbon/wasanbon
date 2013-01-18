@@ -49,7 +49,6 @@ py_win_package = (
 def install_rtm():
     if not os.path.isdir(rtm_dir):
         os.mkdir(rtm_dir)
-        
 
     if platform.system() == 'Linux':
         install_rtm_linux()
@@ -64,6 +63,7 @@ def install_rtm():
 
 def install_rtm_darwin():
     print 'Current Version does not available in Darwin'
+    install_rtm_java()
     pass
 
 def install_rtm_win():

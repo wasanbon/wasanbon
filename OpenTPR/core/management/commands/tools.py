@@ -10,6 +10,5 @@ class Command(object):
     def execute_with_argv(self, argv):
         
         if(argv[2] == 'install'):
-            print 'Installing OpenRTM-aist'
-            install_rtm()
-
+            print 'Installing Tools'
+            install_tools()

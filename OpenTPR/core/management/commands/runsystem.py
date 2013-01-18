@@ -4,6 +4,7 @@ import OpenTPR
 import OpenRTM_aist
 import subprocess
 import os
+import platform
 import signal
 
 rtm_dir='rtm'
@@ -11,27 +12,43 @@ rtm_java_jardir=os.path.join(os.getcwd(), rtm_dir, '1.1', 'jar')
 openrtm_java=os.path.join(rtm_java_jardir, 'OpenRTM-aist-1.1.0.jar')
 commons_cli=os.path.join(rtm_java_jardir, 'commons-cli-1.1.jar')
 rtcd_jar=os.path.join(rtm_java_jardir, 'rtcd.jar')
-rtm_java_classpath='%s;%s;%s' % (openrtm_java, commons_cli, rtcd_jar)
 
+if platform.system() == 'Windows':
+    rtm_java_classpath='%s;%s;%s' % (openrtm_java, commons_cli, rtcd_jar)
+else:
+    rtm_java_classpath='%s:%s:%s' % (openrtm_java, commons_cli, rtcd_jar)
 
 def start_cpp_rtcd():
     print '-Starting rtcd_cpp'
     cpp_env = os.environ.copy()
-    return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, creationflags=512)
+
+    if platform.system() == 'Windows':
+        return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, creationflags=512)
+    else:
+        return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env)
 
 def start_python_rtcd():
     print '-Starting rtcd_py'
     py_env = os.environ.copy()
-    return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512)
+    if platform.system() == 'Windows':
+        return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512)
+    else:
+        return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env)
 
 def start_java_rtcd():
     print '-Starting rtcd_java'
     java_env = os.environ.copy()
     if not "CLASSPATH" in java_env.keys():
         java_env["CLASSPATH"]='.'
-    java_env["CLASSPATH"]=java_env["CLASSPATH"] + ';' + rtm_java_classpath
+    if platform.system() == 'Windows':
+        java_env["CLASSPATH"]=java_env["CLASSPATH"] + ';' + rtm_java_classpath
+    else:
+        java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':' + rtm_java_classpath        
     print java_env["CLASSPATH"]
-    return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env, creationflags=512)
+    if platform.system() == 'Windows':
+        return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env, creationflags=512)
+    else:
+        return subprocess.Popen(['java', 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
 
 endflag = False
 
@@ -73,6 +90,7 @@ class Command(object):
 
         print 'Terminating All Process....'
         for p in process.values():
-            p.kill()
+            if p.returncode == None:
+                p.kill()
         print 'All rtcd process terminated.'
         pass

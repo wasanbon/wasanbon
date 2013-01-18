@@ -17,9 +17,17 @@ eclipse_linux64_package = (
     'http://www.ysuga.net/openrtm/rtmtools/%s' % eclipse_linux64_filename,
     os.path.join(rtm_dir, eclipse_linux64_filename))
 
+eclipse_darwin_filename = 'eclipse_rtmtools_juno_mac_120901.tar.gz'
+eclipse_darwin_package = (
+    'http://www.ysuga.net/openrtm/rtmtools/%s' % eclipse_darwin_filename,
+    os.path.join(rtm_dir, eclipse_darwin_filename))
+
 def install_tools():
+
     if not os.path.isdir(rtm_dir):
         os.mkdir(rtm_dir)
+
+    print 'Installing tools in %s' % platform.system()
 
     if platform.system() == 'Linux':
         install_tools_linux()
@@ -34,6 +42,24 @@ def install_tools():
 
 
 def install_tools_win():
+    pass
+
+def install_tools_darwin():
+    if not os.path.isfile(eclipse_darwin_package[1]):
+        print '-Downloading eclipse-all-in-one'
+        urllib.urlretrieve(eclipse_darwin_package[0], eclipse_darwin_package[1])
+
+    print '-Uncompressing Eclipse-All-In-One'
+    command = ('tar', 'zxf', eclipse_darwin_package[1], '-C', rtm_dir)
+    subprocess.call(command)
+    
+    git_install(rtctree_github, 'rtm/rtctree')
+    git_install(rtsprofile_github, 'rtm/rtsprofile')
+    git_install(rtshell_github, 'rtm/rtshell')
+
+    f = open(os.path.join(os.environ['HOME'],'.bashrc'), 'a')
+    f.write('\n\nsource /usr/local/share/rtshell/shell_support\n')
+    f.close()
     pass
 
 def install_tools_linux():
@@ -54,8 +80,6 @@ def install_tools_linux():
     f.close()
     pass
 
-def install_tools_darwin():
-    pass
 
 
 def git_install(url_, dir_):
