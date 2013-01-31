@@ -53,13 +53,25 @@ def install_tools_darwin():
     command = ('tar', 'zxf', eclipse_darwin_package[1], '-C', rtm_dir)
     subprocess.call(command)
     
-    git_install(rtctree_github, 'rtm/rtctree')
-    git_install(rtsprofile_github, 'rtm/rtsprofile')
-    git_install(rtshell_github, 'rtm/rtshell')
-
-    f = open(os.path.join(os.environ['HOME'],'.bashrc'), 'a')
-    f.write('\n\nsource /usr/local/share/rtshell/shell_support\n')
-    f.close()
+    try:
+        import rtctree
+    except ImportError, e:
+        print '-Installing rtctree'
+        git_install(rtctree_github, 'rtm/rtctree')
+    try:
+        import rtsprofile
+    except ImportError, e:
+        print '-Installing rtsprofile'
+        git_install(rtsprofile_github, 'rtm/rtsprofile')
+    try:
+        import rtshell
+    except ImportError, e:
+        print '-Installing rtshell'
+        git_install(rtshell_github, 'rtm/rtshell')
+        f = open(os.path.join(os.environ['HOME'],'.bashrc'), 'a')
+        f.write('\nsource /Library/Frameworks/Python.framework/Version/2.7/share/rtshell/shell_support\n')
+        subprocess.call('source /Library/Frameworks/Python.framework/Version/2.7/share/rtshell/shell_support', shell=True)
+        f.close()
     pass
 
 def install_tools_linux():
@@ -71,13 +83,26 @@ def install_tools_linux():
     command = ('tar', 'zxf', eclipse_linux64_package[1], '-C', rtm_dir)
     subprocess.call(command)
 
-    git_install(rtctree_github, 'rtm/rtctree')
-    git_install(rtsprofile_github, 'rtm/rtsprofile')
-    git_install(rtshell_github, 'rtm/rtshell')
+    try:
+        import rtctree
+    except ImportError, e:
+        print '-Installing rtctree'
+        git_install(rtctree_github, 'rtm/rtctree')
+    try:
+        import rtsprofile
+    except ImportError, e:
+        print '-Installing rtsprofile'
+        git_install(rtsprofile_github, 'rtm/rtsprofile')
+    try:
+        import rtshell
+    except ImportError, e:
+        print '-Installing rtshell'
+        git_install(rtshell_github, 'rtm/rtshell')
 
-    f = open(os.path.join(os.environ['HOME'],'.bashrc'), 'a')
-    f.write('\n\nsource /usr/local/share/rtshell/shell_support\n')
-    f.close()
+        f = open(os.path.join(os.environ['HOME'],'.bashrc'), 'a')
+        f.write('\n\nsource /usr/local/share/rtshell/shell_support\n')
+        subprocss.call('source /usr/local/share/rtshell/shell_support', shell=True)
+        f.close()
     pass
 
 

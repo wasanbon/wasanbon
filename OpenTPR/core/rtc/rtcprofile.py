@@ -11,7 +11,6 @@ rtc_cpp_conf_filename = 'rtc_cpp.conf'
 rtc_java_conf_filename = 'rtc_java.conf'
 
 
-
 def get_rtc_cpp_name_list(rtc_name):
     if sys.platform == 'darwin':
         return ['%s.%s' % (rtc_name, 'dylib')]
@@ -107,6 +106,11 @@ class RTCProfile(object):
         else:
             self.rtcfile = on_multiple_rtcfile(self, rtcs_files)
 
+        pass
+    def __str__(self):
+        return self.getName() + " in " + self.getLanguage()
+        pass
+
     def getRTCProfileFileName(self):
         return self.filename
 
@@ -118,6 +122,7 @@ class RTCProfile(object):
 
     def getLanguage(self):
         return self.language
+
 
 def on_multiple_conffile(rtcprofile, conffiles):
     raise InvalidRTCProfileError('Multiple %s.conf file' % rtcprofile.getName())

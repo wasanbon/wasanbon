@@ -8,10 +8,10 @@ from xml.dom import minidom, Node
 
 import xml.etree.ElementTree
 
-root_dir_name = 'rtcs'
+root_dir_name = 'rtc'
 rtcprofile_filename = 'RTC.xml'
 
-def parse_rtcs():
+def parse_rtcs(argv):
     print 'Parsing default rtc directory (%s)' % root_dir_name
 
     """
