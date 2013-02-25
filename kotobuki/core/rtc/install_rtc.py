@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
-from OpenTPR.core.rtc.rtcprofile import *
+from kotobuki.core.rtc.rtcprofile import *
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
 

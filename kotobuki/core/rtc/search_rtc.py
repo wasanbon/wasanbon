@@ -3,7 +3,6 @@
 import os
 import sys
 from rtcprofile import RTCProfile
-#import OpenTPR.core.rtc.rtcprofile.RTCProfile
 from xml.dom import minidom, Node
 
 import xml.etree.ElementTree

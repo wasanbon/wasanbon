@@ -4,9 +4,7 @@ import os
 import sys
 import optparse
 
-
-
-class TPROptionParser(optparse.OptionParser):
+class OptionParserEx(optparse.OptionParser):
     
     def error(self, msg):
         pass

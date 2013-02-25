@@ -2,12 +2,11 @@
 
 import os
 import sys
-import OpenTPR
 
-import OpenTPR.core.management.commands
-from OpenTPR import *
+from kotobuki import *
+import kotobuki.core.management.commands
 from optparse import OptionParser, make_option, NO_DEFAULT 
-from TPROptionParser import *
+from OptionParserEx import *
 
 
 option_list = (
@@ -51,7 +50,7 @@ class Utility(object):
 
 
     def execute(self):
-        parser = TPROptionParser(usage="%prog subcommand [options] [args]",
+        parser = OptionParserEx(usage="%prog subcommand [options] [args]",
                                  version=get_version(),
                                  option_list=option_list)
         
@@ -88,8 +87,8 @@ class Utility(object):
         pass
                     
     def fetch_subcommand(self, subcommand):
-        app_name = dict([(name, 'OpenTPR.core') for name in self.find_commands(OpenTPR.core.management.__path__[0])])
-        module = OpenTPR.core.management.import_module('OpenTPR.core.management.commands.%s' %  subcommand)
+        app_name = dict([(name, 'kotobuki.core') for name in self.find_commands(kotobuki.core.management.__path__[0])])
+        module = kotobuki.core.management.import_module('kotobuki.core.management.commands.%s' %  subcommand)
         return module.Command()
     
 

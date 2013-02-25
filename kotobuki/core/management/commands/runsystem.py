@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import OpenTPR
 import OpenRTM_aist
 import subprocess
 import os

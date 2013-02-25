@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from OpenTPR.core.rtc.search_rtc import *
-from OpenTPR.core.rtc.rtcprofile import *
+from kotobuki.core.rtc.search_rtc import *
+from kotobuki.core.rtc.rtcprofile import *
 
 def print_rtc_profile(rtcp):
     str ='-RTC name=' + rtcp.getName() + '\''

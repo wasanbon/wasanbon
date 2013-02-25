@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from OpenTPR.core.rtm.install_rtm import *
-from OpenTPR.core.rtm.install_tools import *
+from kotobuki.core.rtm.install_rtm import *
+from kotobuki.core.rtm.install_tools import *
 
 class Command(object):
     def __init__(self):
@@ -13,3 +13,6 @@ class Command(object):
             print 'Installing OpenRTM-aist'
             install_rtm()
 
+        if(argv[2] == 'status'):
+            print 'OpenRTM-aist Status'
+            status_rtm()
