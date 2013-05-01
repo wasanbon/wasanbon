@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from kotobuki.core.rtm.install_rtm import *
-from kotobuki.core.rtm.install_tools import *
+from wasanbon.core.rtm.install_rtm import *
+from wasanbon.core.rtm.install_tools import *
 
 class Command(object):
     def __init__(self):
