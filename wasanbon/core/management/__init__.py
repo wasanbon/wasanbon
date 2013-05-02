@@ -1,4 +1,5 @@
-# ADD PATH                                                                                                                                                                           
+#!/usr/bin/env python
+
 import sys, os
 
 __path = os.path.join(os.path.dirname(__file__), "TPR_CORE_PATH")
