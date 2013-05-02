@@ -4,15 +4,17 @@ import os
 import sys
 from rtcprofile import RTCProfile
 from xml.dom import minidom, Node
-
 import xml.etree.ElementTree
+import kotobuki.core.management.import_tools as importer
+settings = importer.import_setting()
+packages = importer.import_packages()
 
-root_dir_name = 'rtc'
+root_dir_name = settings.application['RTC_DIR']
+
 rtcprofile_filename = 'RTC.xml'
 
 def parse_rtcs(argv):
     print 'Parsing default rtc directory (%s)' % root_dir_name
-
     """
     rtcs_dir = os.listdir(root_dir_name)
     for sub_dir_name in rtcs_dir:

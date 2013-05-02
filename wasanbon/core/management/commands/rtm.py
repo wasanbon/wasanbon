@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from wasanbon.core.rtm.install_rtm import *
-from wasanbon.core.rtm.install_tools import *
+import wasanbon
+from wasanbon.core.rtm import *
 
 class Command(object):
     def __init__(self):
@@ -11,8 +11,8 @@ class Command(object):
         
         if(argv[2] == 'install'):
             print 'Installing OpenRTM-aist'
-            install_rtm()
+            wasanbon.core.rtm.install_rtm()
 
         if(argv[2] == 'status'):
             print 'OpenRTM-aist Status'
-            status_rtm()
+            print wasanbon.core.rtm.get_status()
