@@ -79,7 +79,7 @@ setup(
     packages = packages,
     cmdclass = cmdclasses,
     data_files = data_files,
-    scripts = ['wasanbon/bin/wasanbon.py'],
+    scripts = ['wasanbon/bin/wasanbon-admin.py'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

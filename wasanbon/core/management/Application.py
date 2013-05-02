@@ -2,6 +2,7 @@
 
 import os
 import sys
+import yaml
 
 from wasanbon import *
 import wasanbon.core.management.commands
@@ -19,6 +20,26 @@ option_list = (
         make_option('--traceback', action='store_true',
             help='Print traceback on exception'),
     )
+
+
+
+def import_setting():
+    #module = __import__(kotobuki.app_name + '.' +  "setting")
+    #setting = getattr(module, "setting")
+    #return setting
+    f = open(os.path.join(kotobuki.app_name, "setting.yaml"), 'r')
+    class o:
+        def __init__(self, fn):
+            self.yaml = yaml.load(open(fn, 'r'))
+            
+    return o
+#return yaml.load(f)
+        
+def import_packages():
+    module = __import__(kotobuki.app_name + '.' +  "packages")
+    packs = getattr(module, "packages")
+    return packs
+
 
 def autocomplete(self):
     if 'TPR_AUTO_COMPLETE' not in os.environ:
@@ -47,9 +68,7 @@ def autocomplete(self):
 def show_help_text():
     sys.stdout.write("Help");
 
-def execute(appname):
-    import wasanbon
-    wasanbon.app_name = app_name
+def execute():
 
     parser = OptionParserEx(usage="%prog subcommand [options] [args]",
                             version=get_version(),

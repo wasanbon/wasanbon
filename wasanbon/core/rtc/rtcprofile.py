@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
 import search_rtc
@@ -11,15 +12,6 @@ rtc_cpp_conf_filename = 'rtc_cpp.conf'
 rtc_java_conf_filename = 'rtc_java.conf'
 
 
-def get_rtc_cpp_name_list(rtc_name):
-    if sys.platform == 'darwin':
-        return ['%s.%s' % (rtc_name, 'dylib')]
-    elif sys.platform == 'win32':
-        return ['%s.%s' % (rtc_name.lower(), 'dll')]
-    elif sys.platform == 'linux2':
-        return ['%s.%s' % (rtc_name, 'so')]
-    else:
-        raise InstallError('ERROR:Unsupported Operating System(%s)' % sys.platform)
 
 def get_rtc_py_name_list(rtc_name):
     return ['%s.py' % rtc_name]
@@ -46,7 +38,9 @@ class DataPort(object):
         return '%s:%s' % (self.name, self.type)
 
 class RTCProfile(object):
-    
+
+    """
+    """
     def __init__(self, filename_):
         try:
             self.filename = filename_
@@ -66,6 +60,7 @@ class RTCProfile(object):
         except Exception, e:
             raise InvalidRTCProfileError(filename, 'Parsing Error')
 
+        """"
         if self.getLanguage() == 'C++':
             rtc_conf_name = rtc_cpp_conf_filename
             rtc_file_name_list = get_rtc_cpp_name_list(self.getName())
@@ -105,7 +100,7 @@ class RTCProfile(object):
             self.rtcfile = None
         else:
             self.rtcfile = on_multiple_rtcfile(self, rtcs_files)
-
+        """
         pass
     def __str__(self):
         return self.getName() + " in " + self.getLanguage()
