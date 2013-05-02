@@ -47,7 +47,7 @@ def autocomplete(self):
 def show_help_text():
     sys.stdout.write("Help");
 
-def execute(app_name):
+def execute(appname):
     import wasanbon
     wasanbon.app_name = app_name
 
