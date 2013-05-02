@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from wasanbon.core.management import Utility
+import wasanbon.core.management
 
 if __name__ == '__main__':
-    utility = Utility(None)
-    utility.execute()
+    Application.execute()
     
