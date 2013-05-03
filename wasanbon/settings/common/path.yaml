@@ -1,0 +1,3 @@
+RTM_HOME : '$HOME/rtm'
+RTM_ROOT_JAVA : '$RTM_HOME/jar'
+RTM_TEMP : '$RTM_HOME/temp'
