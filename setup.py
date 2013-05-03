@@ -4,6 +4,17 @@ from distutils.command.install import INSTALL_SCHEMES
 import os
 import sys
 
+# if yaml is not installed, install pyyaml in thirdparty directory
+try:
+    import yaml
+except:
+    curdir = os.getcwd()
+    import subprocess
+    os.chdir(os.path.join(curdir, 'thirdparty', 'PyYAML-3.10'))
+    subprocess.call(['python', 'setup.py', 'install'])
+    os.chdir(curdir)
+
+
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
     # which is wrong. Python 2.5 supplied with MacOS 10.5 has an Apple-specific fix
