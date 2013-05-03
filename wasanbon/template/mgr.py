@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-from wasanbon.core.management import Application
-
-import $APPNAME as app
-from $APPNAME.setting import *
+import wasanbon
+from wasanbon.core import management
 
 if __name__ == '__main__':
-    Application.execute(application["name"])
-
+    management.Application.execute()
     
