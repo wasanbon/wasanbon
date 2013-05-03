@@ -1,0 +1,4 @@
+c++: 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/cxx/1.1/OpenRTM-aist-1.1.0-RELEASE_vc10.msi'
+python: 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/OpenRTM-aist-Python-1.1.0-RC1.msi'
+eclipse: 'http://www.ysuga.net/openrtm/rtmtools/eclipse_rtmtools_juno_win32_120901.tar.gz'
+  

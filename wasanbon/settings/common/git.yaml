@@ -1,0 +1,3 @@
+rtctree: 'git://github.com/gbiggs/rtctree.git'
+rtshell: 'git://github.com/gbiggs/rtshell.git'
+rtsprofile: 'git://github.com/gbiggs/rtsprofile.git'
