@@ -1,13 +1,8 @@
-rtm : 
-    RTM_ROOT : /Users/ysuga/rtm
-    RTM_ROOT_JAVA : /Users/ysuga/rtm/jar
-    TOOLS_ROOT : /Users/ysuga/rtm/tools
-    JAR_FILE : OpenRTM-aist-1.1.0.jar
 application :
-    name : dummy
-    RTC_DIR : rtc
-    conf.C++ : conf/rtc_cpp.conf
-    conf.Python  : conf/rtc_py.conf
-    conf.Java: conf/rtc_java.conf
-    system : rtc/practice1/DummySystem.xml
+  name : $APP
+  RTC_DIR : rtc
+  conf.C++ : conf/rtc_cpp.conf
+  conf.Python  : conf/rtc_py.conf
+  conf.Java: conf/rtc_java.conf
+  system : rtc/DefaultSystem.xml
 

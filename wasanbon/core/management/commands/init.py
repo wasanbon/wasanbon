@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+import wasanbon
+from wasanbon.core.management import *
+from wasanbon.core.template import *
+import os
+import yaml
+
+
+def search_cmake(hints):
+    cmd = 'cmake'
+    for path in os.environ['PATH'].split(':'):
+        fullpath = os.path.join(path, cmd)
+        if os.path.isfile(fullpath):
+            return path
+
+    for hint in hints:
+        if os.path.isfile(hint):
+            return hint
+    return ""
+
+def search_git(hints):
+    cmd = 'git'
+    for path in os.environ['PATH'].split(':'):
+        fullpath = os.path.join(path, cmd)
+        if os.path.isfile(fullpath):
+            return path
+    return ""
+
+def search_doxygen(hints):
+    cmd = 'doxygen'
+    for path in os.environ['PATH'].split(':'):
+        fullpath = os.path.join(path, cmd)
+        if os.path.isfile(fullpath):
+            return path
+    return ""
+
+
+def init_tools_path():
+    setting = load_settings()
+    rtm_home = setting['common']['path']['RTM_HOME']
+    filename = os.path.join(rtm_home, 'setting.yaml')
+    tempfile = os.path.join(rtm_home, 'setting.yaml.bak')
+    os.rename(filename, tempfile)
+    fin = open(tempfile, 'r')
+    fout = open(filename, 'w')
+    y = yaml.load(fin)
+
+    y['cmake_path']   = search_cmake(setting[sys.platform]['hints'])
+    y['git_path']     = search_git(setting[sys.platform]['hints'])
+    y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints'])
+
+    yaml.dump(y, fout, encoding='utf8', allow_unicode=True)
+
+    fin.close()
+    fout.close()
+    os.remove(tempfile)
+
+class Command(object):
+    def __init__(self):
+        pass
+
+    def execute_with_argv(self, argv):
+        setting = load_settings()
+        repo = setting['common']['repository']['wasanbon']
+        rtm_home = setting['common']['path']['RTM_HOME']
+        if not os.path.isdir(rtm_home):
+            os.mkdir(rtm_home)
+        rtm_temp = setting['common']['path']['RTM_TEMP']
+        if not os.path.isdir(rtm_temp):
+            os.mkdir(rtm_temp)
+        rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
+        if not os.path.isdir(rtm_root_java):
+            os.mkdir(rtm_root_java)
+        
+        if os.path.isfile(os.path.join(rtm_home, 'setting.yaml')):
+            if yes_no('There seems to be a setting file in %s. Do you want to initialize?' % rtm_home) == 'yes':
+                os.remove(os.path.join(rtm_home, 'setting.yaml'))
+                print 'start init'
+
+        fin = open(os.path.join(wasanbon.core.template.__path__[0], 'setting.yaml'), 'r')
+        fout = open(os.path.join(rtm_home, 'setting.yaml'), 'w')
+
+        for line in fin:
+            fout.write(line)
+
+        fin.close()
+        fout.close()
+
+        init_tools_path()

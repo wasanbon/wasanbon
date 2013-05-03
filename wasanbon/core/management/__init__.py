@@ -13,6 +13,16 @@ def import_module(name):
     return sys.modules[name]
 
 
+def yes_no(msg):
+    print '%s (y/n)' % msg
+    while True:
+        c = raw_input()
+        if c[0] == 'y':
+            return 'yes'
+        else:
+            return 'no'
+
+
 from platform import *
 from Application import *
 from OptionParserEx import OptionParserEx
