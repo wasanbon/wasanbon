@@ -66,6 +66,9 @@ def install_cpprtm_osx():
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     download_and_install(setting['darwin']['packages']['c++'])
+    
+    cmd = ['cp', '-R', '/usr/local/lib/python2.7/site-packages/*', os.path.split(wasanbon.__path__[0])[0] + '/']
+    subprocess.call(cmd)
     pass
 
 def install_pyrtm_osx():
@@ -76,12 +79,13 @@ def install_pyrtm_osx():
     old_dir = os.getcwd()
     os.chdir(rtm_temp)
     cmd = [os.path.join(y['svn_path'], 'svn'), 'co', setting['common']['svn']['python']]
-    ret = subprocess.check_output(cmd)
+    ret = subprocess.call(cmd)
     os.chdir('OpenRTM-aist-Python')
+    cmd = ['python', 'setup.py', 'build_core']
+    ret = subprocess.call(cmd)
     cmd = ['python', 'setup.py', 'install']
-    ret = subprocess.check_output(cmd)
+    ret = subprocess.call(cmd)
     os.chdir(old_dir)
-
 
 def install_rtm_linux():
     print '-Installing OpenRTM-aist in Linux'
