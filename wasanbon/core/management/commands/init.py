@@ -73,7 +73,7 @@ class Command(object):
                 os.remove(os.path.join(rtm_home, 'setting.yaml'))
                 print 'start init'
 
-        fin = open(os.path.join(wasanbon.core.template.__path__[0], 'setting.yaml'), 'r')
+        fin = open(os.path.join(wasanbon.__path__[0], 'settings/setting.yaml'), 'r')
         fout = open(os.path.join(rtm_home, 'setting.yaml'), 'w')
 
         for line in fin:
@@ -84,8 +84,9 @@ class Command(object):
 
         init_tools_path()
 
-        if argv[4] == '--install':
-            check_and_install_devtools()
+        if len(arg > 4):
+            if argv[3] == '--install':
+                check_and_install_devtools()
         else:
             if not check_devtools():
                 print 'If you want to install devtools, sudo python wasanbon-admin.py init --install'
