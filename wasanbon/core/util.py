@@ -1,5 +1,6 @@
 
-import wasanbon.core.management import *
+import urllib, subprocess
+from wasanbon.core.management import *
 
 
 def unpack_zip(filepath):
@@ -35,7 +36,7 @@ def download_and_unpack(url):
     pass
 
 def download(url, dist):
-    if not os.path.isfile(distpath):
+    if not os.path.isfile(dist):
         urllib.urlretrieve(url, dist)
     pass
 
@@ -63,7 +64,8 @@ def install_dmg(dmg):
     mountedVolume = [x.strip() for x in ret.split('\t') if x.startswith("/Volumes/")]
     if len(mountedVolume) != 1:
         print 'Error mounting %s' % dmg
-    cmd = ['installer', '-package', mountedVolume[0], '-target', '/Volumes/Macintosh HD']
+    pkgfiles = [x for x in os.listdir(mountedVolume[0]) if x.endswith('.pkg')]
+    cmd = ['installer', '-package', pkgfiles[0], '-target', '/Volumes/Macintosh HD']
     try:
         ret = subprocess.check_output(cmd)
         print 'Installing %s is successful. Message is below' % dmg

@@ -2,7 +2,7 @@
 
 import wasanbon
 from wasanbon.core.management import *
-from wasanbon.core.management.tools import *
+from wasanbon.core.tools import *
 from wasanbon.core.template import *
 import os
 import yaml
@@ -84,4 +84,8 @@ class Command(object):
 
         init_tools_path()
 
-        check_and_install()
+        if argv[4] == '--install':
+            check_and_install_devtools()
+        else:
+            if not check_devtools():
+                print 'If you want to install devtools, sudo python wasanbon-admin.py init --install'
