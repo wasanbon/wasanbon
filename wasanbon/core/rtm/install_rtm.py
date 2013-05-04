@@ -58,7 +58,7 @@ def install_rtm_win():
     pass
 """    
 
-def install_cpprtm_osx:
+def install_cpprtm_osx():
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     download_and_install(setting['darwin']['packages']['c++'])
