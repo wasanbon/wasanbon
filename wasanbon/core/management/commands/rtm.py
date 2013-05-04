@@ -10,7 +10,7 @@ class Command(object):
     def execute_with_argv(self, argv):
         if(argv[2] == 'install'):
             print 'Installing OpenRTM-aist'
-            wasanbon.core.rtm.install_rtm()
+            install_rtm.install_rtm()
         elif(argv[2] == 'status'):
             print 'OpenRTM-aist Status'
             print status.get_status()

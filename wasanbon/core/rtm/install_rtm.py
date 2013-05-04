@@ -1,38 +1,40 @@
 #!/usr/bin/env python
-import os
-import urllib
-import platform
+import os, sys
 import subprocess
-import zipfile
-from status_rtm import *
-import kotobuki.core.management.import_tools as importer
-settings = importer.import_setting()
-packages = importer.import_packages()
+#import zipfile
+from wasanbon.core import *
+from wasanbon.core.management import *
+from wasanbon.core.rtm.status import *
+
+import shutil
 
 def install_rtm():
-    print 'Installing OpenRTM on %s' % platform.system()
+    print 'Installing OpenRTM on %s' % sys.platform
     print '-C++ version:'
     if is_cpprtm_installed():
         print """Your system have RTM_ROOT environemntal variable.
-                May be you've installed OpenRTM C++ version."""
+        You've installed OpenRTM C++ version."""
     else:
         install_cpprtm()
 
     print '-Python version:'
     if is_pyrtm_installed():
         print """Your system have OpenRTM_aist package in PYTHONPATH.
-        May be you've installed OpenRTM Python version."""
+        You've installed OpenRTM Python version."""
     else:
         install_pyrtm()
     
     print '-Java version:'
     if is_javartm_installed():
         print """Your system have OpenRTM_aist java file.
-        May be you've installed OpenRTM Python version."""
+        You've installed OpenRTM Python version."""
     else:
         install_javartm()
     pass
 
+def install_cpprtm():
+    if sys.platform == 'darwin':
+        install_cpprtm_osx()
 
 """
 def install_rtm_win():
@@ -55,6 +57,14 @@ def install_rtm_win():
     install_rtm_java()
     pass
 """    
+
+def install_cpprtm_osx:
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    download_and_install(setting['darwin']['packages']['c++'])
+    pass
+
+
 def install_rtm_linux():
     print '-Installing OpenRTM-aist in Linux'
     p = platform.dist()
@@ -70,38 +80,17 @@ def install_rtm_linux():
 
 def install_javartm():
     # Download RTM Java Version 
-    javadir = (settings.rtm['RTM_ROOT_JAVA'])
-    if not os.path.isdir(javadir):
-        os.makedirs(javadir)
-        pass
-    zipfilename = os.path.basename(packages.packages[platform.system()]['java'])
-    tempdir = os.path.join(settings.rtm['RTM_ROOT'], 'temp')
-    if not os.path.isdir(tempdir):
-        os.makedirs(tempdir)
-        pass
-    tempfile = os.path.join(tempdir, zipfilename)
-    if not os.path.isfile(tempfile):
-        print '-Downloading OpenRTM-aist Java'
-        urllib.urlretrieve(packages.packages[platform.system()]['java'], tempfile)
-    print '-Uncompressing OpenRTM-aist Java Package'
-    zf = zipfile.ZipFile(tempfile)
-    for filename in zf.namelist():
-        path= os.path.join(tempdir, filename.lstrip('OpenRTM-aist/'))
-        print '#%s' % path
-        directory, fname = os.path.split(path)
-        if not os.path.isdir(directory) and len(directory)>0:
-            os.makedirs(directory)
-        if len(fname) > 0:
-            if not os.path.isfile(path):
-                f = file(path, 'wb')
-                f.write(zf.read(filename))
-                f.close()
-                
-            if filename.endswith('.jar'):
-                print 'Endswith jar'
-                jarfile = file( os.path.join(javadir, os.path.basename(filename)), 'wb')
-                jarfile.write(zf.read(filename))
-                jarfile.close()
-    zf.close()
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
+    if not os.path.isdir(rtm_root_java):
+        os.makedirs(rtm_root_java)
+
+    download_and_unpack(setting['common']['packages']['java'], rtm_temp)
+    for root, dirs, files in os.walk(os.path.join(rtm_temp, 'OpenRTM-aist')):
+        for file in files:
+            if file.endswith('.jar'):
+                shutil.copyfile(os.path.join(root, file),os.path.join(rtm_root_java, file))
+
     pass
 
