@@ -79,3 +79,6 @@ def install_dmg(dmg):
     pkgfiles = [x for x in os.listdir(mountedVolume[0]) if x.endswith('.pkg')]
     if len(pkgfiles) == 1:
         install_pkg(os.path.join(mountedVolume[0], pkgfiles[0]))
+
+    cmd = ['hdiutil', 'unmount', mountedVolume]
+    ret = subprocess.check_output(cmd)
