@@ -98,7 +98,7 @@ def unpack_dmg(dmg):
         for file in files:
             parse_package(os.path.join(root, file), nounpack=True)
 
-    cmd = ['hdiutil', 'unmount', mountedVolume]
+    cmd = ['hdiutil', 'unmount', mountedVolume[0]]
     ret = subprocess.check_output(cmd)
 
 def unpack_tgz(filepath, distpath):
