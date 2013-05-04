@@ -84,8 +84,13 @@ class Command(object):
 
         init_tools_path()
 
+<<<<<<< HEAD
         if len(argv) > 3:
             if argv[2] == '--install':
+=======
+        if len(argv) > 4:
+            if argv[3] == '--install':
+>>>>>>> 4488361bdf500f8421639ca6cab8ad33a0f894d7
                 check_and_install_devtools()
         else:
             if not check_devtools():
