@@ -65,7 +65,8 @@ def install_dmg(dmg):
     if len(mountedVolume) != 1:
         print 'Error mounting %s' % dmg
     pkgfiles = [x for x in os.listdir(mountedVolume[0]) if x.endswith('.pkg')]
-    cmd = ['installer', '-package', pkgfiles[0], '-target', '/Volumes/Macintosh HD']
+    print pkgfiles
+    cmd = ['sudo', 'apachectl', 'installer', '-package', pkgfiles[0], '-target', '/Volumes/Macintosh HD']
     try:
         ret = subprocess.check_output(cmd)
         print 'Installing %s is successful. Message is below' % dmg
