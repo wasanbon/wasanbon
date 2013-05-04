@@ -78,6 +78,7 @@ def install_app(app):
         print 'Installing %s is failed. Maybe this process must have done by super user.' % app
 
 def parse_package(file, nounpack=False):
+    print 'parsing %s' % file
     if file.startswith('.'):
         pass
     elif file.endswith(".pkg"):
