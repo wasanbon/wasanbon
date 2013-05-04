@@ -25,7 +25,11 @@ class Command(object):
         else:
             os.chdir('wasanbon')
             cmd = [os.path.join(home_setting['git_path'], 'git'), 'pull']
-            subprocess.call(cmd)
+            output = subprocess.check_output(cmd)
+            if output.strip() == 'Already up-to-date.':
+                print output
+                os.chdir(cwd)
+                return 0
         
         cmd = ['python', 'setup.py', 'install']
         subprocess.call(cmd)
