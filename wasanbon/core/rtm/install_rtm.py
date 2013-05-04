@@ -75,7 +75,6 @@ def install_cpprtm_osx():
             shutil.copy2(os.path.join(srcdir, file), os.path.join(distdir, file))
         elif os.path.isdir(filepath):
             shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
-
     pass
 
 def install_pyrtm_osx():

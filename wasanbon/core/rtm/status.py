@@ -12,6 +12,15 @@ def is_cpprtm_installed():
     #else:
     #  print 'Unknown System (%s)' % platform.system()
     #  return None
+    if sys.platform == 'darwin':
+        file = 'version.txt'
+        path = '/usr/local/include/openrtm-1.1/rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        path = '/usr/include/openrtm-1.1/rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        return False
     return ('RTM_ROOT' in os.environ.keys())
 
 def is_pyrtm_installed():
