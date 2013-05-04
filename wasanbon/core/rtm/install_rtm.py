@@ -70,9 +70,10 @@ def install_cpprtm_osx():
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
     for file in os.listdir(srcdir):
-        if os.path.isfile(file):
+        filepath = os.path.join(srcdir, file)
+        if os.path.isfile(filepath):
             shutil.copy2(os.path.join(srcdir, file), os.path.join(distdir, file))
-        elif os.path.isdir(file):
+        elif os.path.isdir(filepath):
             shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
 
     pass
