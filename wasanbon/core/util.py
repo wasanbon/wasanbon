@@ -1,4 +1,4 @@
-
+import zipfile
 import urllib, subprocess
 from wasanbon.core.management import *
 
@@ -83,9 +83,9 @@ def parse_package(file, nounpack=False):
     elif file.endswith(".app"):
         install_app(file)
     elif file.endswith(".zip") and not nounpack:
-        unpack_zip(distpath)
+        unpack_zip(file)
     elif file.endswith(".dmg") and not nounpack:
-        unpack_dmg(distpath)
+        unpack_dmg(file)
 
 def unpack_dmg(dmg):
     cmd = ['hdiutil', 'mount', dmg]
@@ -117,15 +117,15 @@ def unpack_zip(filepath, distpath = ""):
     if len(distpath) == 0:
         distpath = os.path.join(path, file[len(file)-4:])
     if not os.path.isdir(distpath):
-        os.mkdir(distdir)
+        os.mkdir(distpath)
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
-        fullpath = os.path.join(distdir, filepath)
+        fullpath = os.path.join(distpath, filepath)
         path, filename = os.path.split(fullpath)
         if not os.path.isdir(path) and len(path) > 0:
             os.makedirs(path)
         if not os.path.isfile(fullpath) and len(filename) > 0:
-            fout = file(fullpath, 'wb')
+            fout = open(fullpath, 'wb')
             fout.write(zf.read(filepath))
             fout.close()
     zf.close()
