@@ -12,3 +12,6 @@ git :
 jdk :
   - "/usr/local/bin"
   - "/usr/bin"
+svn :
+  - "/usr/local/bin"
+  - "/usr/bin"

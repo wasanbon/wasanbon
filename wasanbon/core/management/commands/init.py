@@ -34,6 +34,10 @@ def search_jdk(hints):
     cmd = 'javac'
     return search_command(cmd, hints)
 
+def search_svn(hints):
+    cmd = 'svn'
+    return search_command(cmd, hints)
+
 def init_tools_path():
     setting = load_settings()
     rtm_home = setting['common']['path']['RTM_HOME']
@@ -48,6 +52,7 @@ def init_tools_path():
     y['git_path']     = search_git(setting[sys.platform]['hints']['git'])
     y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints']['doxygen'])
     y['jdk_path']     = search_jdk(setting[sys.platform]['hints']['jdk'])
+    y['svn_path']     = search_svn(setting[sys.platform]['hints']['svn'])
 
     yaml.dump(y, fout, encoding='utf8', allow_unicode=True)
 

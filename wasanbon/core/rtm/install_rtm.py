@@ -36,6 +36,10 @@ def install_cpprtm():
     if sys.platform == 'darwin':
         install_cpprtm_osx()
 
+def install_pyrtm():
+    if sys.platform == 'darwin':
+        install_pyrtm_osx()
+
 """
 def install_rtm_win():
         if not os.path.isfile(cpp_win_package[1]):
@@ -63,6 +67,17 @@ def install_cpprtm_osx():
     rtm_temp = setting['common']['path']['RTM_TEMP']
     download_and_install(setting['darwin']['packages']['c++'])
     pass
+
+def install_pyrtm_osx():
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    rtm_home = setting['common']['path']['RTM_HOME']
+    y = yaml.load(open(os.path.join(rtm_home, 'setting.yaml'), 'r'))
+    old_dir = os.getcwd()
+    os.chdir(rtm_temp)
+    cmd = [os.path.join(y['svn_path'], 'svn'), 'co', setting['common']['svn']['python']]
+    ret = subprocess.check_output(cmd)
+    os.chdir(old_dir)
 
 
 def install_rtm_linux():

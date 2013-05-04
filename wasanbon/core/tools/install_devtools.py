@@ -28,6 +28,10 @@ def check_devtools():
     if len(y['jdk_path']) == 0:
         print 'JDK can not be found.'
         flag = True
+
+    if len(y['svn_path']) == 0:
+        print 'Subversion can not be found.'
+        flag = True
         
     return not flag
 
@@ -50,6 +54,9 @@ def check_and_install_devtools():
 
     if len(y['jdk_path']) == 0:
         install_jdk()
+
+    if len(y['svn_path']) == 0:
+        install_svn()
 
 def install_cmake():
     if sys.platform == 'darwin':
@@ -95,6 +102,17 @@ def install_jdk():
         print 'Unsupported system:%s' % sys.platform
     pass
 
+def install_svn():
+    if sys.platform == 'darwin':
+        install_svn_osx()
+    elif sys.platform == 'win32':
+        install_svn_win32()
+    elif sys.platform == 'linux2':
+        install_svn_linux()
+    else:
+        print 'Unsupported system:%s' % sys.platform
+    pass
+
 def install_cmake_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['cmake'])
@@ -113,3 +131,6 @@ def install_doxygen_osx():
 def install_jdk_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['jdk'])
+
+def install_svn_osx():
+    print 'Install Xcode commandline tool. Xcode -> Preference -> Download'
