@@ -4,23 +4,42 @@ from wasanbon.core.management import *
 
 
 
-def download_and_unpack(url):
+def download_and_unpack(url, dist=""):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     filename = os.path.basename(url)
     distpath = os.path.join(rtm_temp, filename)
 
+    if len(dist) == 0:
+        dist = rtm_temp
+
     # try to download
     download(url, distpath)
 
     if filename.endswith(".zip"):
-        unpack_zip(filepath)
+        unpack_zip(distpath, dist)
+    elif filename.endswith(".tar.gz"):
+        unpack_tgz(distpath, dist)
 
     pass
 
+class DownloadReport(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, read_blocks, block_size, total_bytes):
+        end = read_blocks * block_size / float(total_bytes) * 100.0
+        sys.stdout.write('\rProgress %3.2f [percent] ended' % end)
+        sys.stdout.flush()
+
+
 def download(url, dist):
+
     if not os.path.isfile(dist):
-        urllib.urlretrieve(url, dist)
+        sys.stdout.write("Downloading from URL: %s\n" % url)
+        urllib.urlretrieve(url, dist+'.part', DownloadReport())
+        sys.stdout.write("Saved in Directory  :%s\n" % dist)
+        os.rename(dist+'.part', dist)
     pass
 
 def download_and_install(url):
@@ -63,9 +82,9 @@ def parse_package(file, nounpack=False):
         install_pkg(file)
     elif file.endswith(".app"):
         install_app(file)
-    elif file.endswith(".zip"):
+    elif file.endswith(".zip") and not nounpack:
         unpack_zip(distpath)
-    elif file.endswith(".dmg") && not nounpack:
+    elif file.endswith(".dmg") and not nounpack:
         unpack_dmg(distpath)
 
 def unpack_dmg(dmg):
@@ -82,9 +101,21 @@ def unpack_dmg(dmg):
     cmd = ['hdiutil', 'unmount', mountedVolume]
     ret = subprocess.check_output(cmd)
 
-def unpack_zip(filepath):
+def unpack_tgz(filepath, distpath):
+    old_dir = os.getcwd()
+    dir, file = os.path.split(filepath)
+    os.chdir(dir)
+    cmd = ['tar', 'zxfv', filepath, '-C', distpath]
+    #subprocess.check_output(cmd)
+    subprocess.call(cmd)
+
+    os.chdir(old_dir)
+    pass
+
+def unpack_zip(filepath, distpath = ""):
     path, file = os.path.split(filepath)
-    distpath = os.path.join(path, file[len(file)-4:])
+    if len(distpath) == 0:
+        distpath = os.path.join(path, file[len(file)-4:])
     if not os.path.isdir(distpath):
         os.mkdir(distdir)
     zf = zipfile.ZipFile(filepath)
@@ -101,6 +132,6 @@ def unpack_zip(filepath):
 
     for root, dirs, files in os.walk(distpath):
         for file in files:
-            parse_package(os.path.join(root, file))
+            parse_package(os.path.join(root, file), nounpack=True)
 
     pass

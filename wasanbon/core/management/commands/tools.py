@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from OpenTPR.core.rtm.install_rtm import *
-from OpenTPR.core.rtm.install_tools import *
+from wasanbon.core.tools import *
 
 class Command(object):
     def __init__(self):
@@ -12,3 +11,6 @@ class Command(object):
         if(argv[2] == 'install'):
             print 'Installing Tools'
             install_tools()
+        if(argv[2] == 'eclipse'):
+            print 'Launching Eclipse'
+            launch_eclipse()
