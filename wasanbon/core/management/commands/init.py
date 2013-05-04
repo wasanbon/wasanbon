@@ -92,6 +92,7 @@ class Command(object):
         if len(argv) >= 3:
             if argv[2] == '--install':
                 check_and_install_devtools()
+                check_devtools()
         else:
             if not check_devtools():
                 print 'If you want to install devtools, sudo python wasanbon-admin.py init --install'
