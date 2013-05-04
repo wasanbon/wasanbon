@@ -1,2 +1,4 @@
 cmake :
-  -  /Applications/CMake 2.8-9.app/Contents/bin/cmake
+  -  /Applications/CMake 2.8-9.app/Contents/bin/
+doxygen : 
+  - /Applications/Doxygen.app/Contents/Resources/
