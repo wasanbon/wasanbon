@@ -1,0 +1,8 @@
+application :
+  name : app
+  RTC_DIR : rtc
+  conf.C++ : conf/rtc_cpp.conf
+  conf.Python  : conf/rtc_py.conf
+  conf.Java: conf/rtc_java.conf
+  system : rtc/DefaultSystem.xml
+

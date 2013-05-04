@@ -2,39 +2,33 @@
 
 import wasanbon
 from wasanbon.core.management import *
+from wasanbon.core.management.tools import *
 from wasanbon.core.template import *
 import os
 import yaml
 
 
-def search_cmake(hints):
-    cmd = 'cmake'
+def search_command(cmd, hints):
     for path in os.environ['PATH'].split(':'):
         fullpath = os.path.join(path, cmd)
         if os.path.isfile(fullpath):
             return path
-
     for hint in hints:
-        if os.path.isfile(hint):
+        if os.path.isfile(os.path.join(hint, cmd)):
             return hint
     return ""
+    
+def search_cmake(hints):
+    cmd = 'cmake'
+    return search_command(cmd, hints)
 
 def search_git(hints):
     cmd = 'git'
-    for path in os.environ['PATH'].split(':'):
-        fullpath = os.path.join(path, cmd)
-        if os.path.isfile(fullpath):
-            return path
-    return ""
+    return search_command(cmd, hints)
 
 def search_doxygen(hints):
     cmd = 'doxygen'
-    for path in os.environ['PATH'].split(':'):
-        fullpath = os.path.join(path, cmd)
-        if os.path.isfile(fullpath):
-            return path
-    return ""
-
+    return search_command(cmd, hints)
 
 def init_tools_path():
     setting = load_settings()
@@ -55,6 +49,7 @@ def init_tools_path():
     fin.close()
     fout.close()
     os.remove(tempfile)
+
 
 class Command(object):
     def __init__(self):
@@ -88,3 +83,5 @@ class Command(object):
         fout.close()
 
         init_tools_path()
+
+        check_and_install()
