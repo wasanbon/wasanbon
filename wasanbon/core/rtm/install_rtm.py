@@ -66,9 +66,9 @@ def install_cpprtm_osx():
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     download_and_install(setting['darwin']['packages']['c++'])
-    
-    cmd = ['cp', '-R', '/usr/local/lib/python2.7/site-packages/*', os.path.split(wasanbon.__path__[0])[0] + '/']
-    subprocess.call(cmd)
+
+    shutil.copytree('/usr/local/lib/python2.7/site-packages', os.path.split(wasanbon.__path__[0])[0])
+
     pass
 
 def install_pyrtm_osx():
