@@ -40,9 +40,9 @@ def init_tools_path():
     fout = open(filename, 'w')
     y = yaml.load(fin)
 
-    y['cmake_path']   = search_cmake(setting[sys.platform]['hints'])
-    y['git_path']     = search_git(setting[sys.platform]['hints'])
-    y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints'])
+    y['cmake_path']   = search_cmake(setting[sys.platform]['hints']['cmake'])
+    y['git_path']     = search_git(setting[sys.platform]['hints']['git'])
+    y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints']['doxygen'])
 
     yaml.dump(y, fout, encoding='utf8', allow_unicode=True)
 

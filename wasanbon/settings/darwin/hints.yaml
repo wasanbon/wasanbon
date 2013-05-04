@@ -1,4 +1,11 @@
 cmake :
-  -  /Applications/CMake 2.8-9.app/Contents/bin/
+  - "/usr/local/bin"
+  - "/usr/bin"
+  - "/Applications/CMake 2.8-9.app/Contents/bin/"
 doxygen : 
-  - /Applications/Doxygen.app/Contents/Resources/
+  - "/usr/local/bin"
+  - "/usr/bin"
+  - "/Applications/Doxygen.app/Contents/Resources/"
+git :
+  - "/usr/local/bin"
+  - "/usr/bin"
