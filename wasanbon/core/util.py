@@ -58,6 +58,18 @@ def download_and_install(url):
     pass
 
 
+def install_pkg(pkg):
+        cmd = ['installer', '-package', pkg, '-target', '/Volumes/Macintosh HD']
+        print cmd
+        try:
+            ret = subprocess.check_output(cmd)
+            print 'Installing %s is successful. Message is below' % pkg
+            print ret
+
+        except:
+            print 'Installing %s is failed. Maybe this process must have done by super user.' % pkg
+
+
 def install_dmg(dmg):
     cmd = ['hdiutil', 'mount', dmg]
     ret = subprocess.check_output(cmd)
@@ -65,14 +77,5 @@ def install_dmg(dmg):
     if len(mountedVolume) != 1:
         print 'Error mounting %s' % dmg
     pkgfiles = [x for x in os.listdir(mountedVolume[0]) if x.endswith('.pkg')]
-
-    cmd = ['installer', '-package', pkgfiles[0], '-target', '/Volumes/Macintosh HD']
-    print cmd
-    try:
-        ret = subprocess.check_output(cmd)
-        print 'Installing %s is successful. Message is below' % dmg
-        print ret
-
-    except:
-        print 'Installing %s is failed. Maybe this process must have done by super user.' % dmg
-
+    if pkgfiles == 1:
+        install_pkg(os.path.join(mountedVolume[0], pkgfiles[0]))
