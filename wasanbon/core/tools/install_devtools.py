@@ -25,6 +25,10 @@ def check_devtools():
         print 'Doxygen can not be found'
         flag = True
 
+    if len(y['jdk_path']) == 0:
+        print 'JDK can not be found.'
+        flag = True
+        
     return not flag
 
 
@@ -43,6 +47,9 @@ def check_and_install_devtools():
 
     if len(y['doxygen_path']) == 0:
         install_doxygen()
+
+    if len(y['jdk_path']) == 0:
+        install_jdk()
 
 def install_cmake():
     if sys.platform == 'darwin':
@@ -77,6 +84,17 @@ def install_doxygen():
         print 'Unsupported system:%s' % sys.platform
     pass
 
+def install_jdk():
+    if sys.platform == 'darwin':
+        install_jdk_osx()
+    elif sys.platform == 'win32':
+        install_jdk_win32()
+    elif sys.platform == 'linux2':
+        install_jdk_linux()
+    else:
+        print 'Unsupported system:%s' % sys.platform
+    pass
+
 def install_cmake_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['cmake'])
@@ -91,3 +109,7 @@ def install_doxygen_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['doxygen'])
     pass
+
+def install_jdk_osx():
+    setting = load_settings()
+    download_and_install(setting['darwin']['packages']['jdk'])

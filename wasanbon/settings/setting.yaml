@@ -1,3 +1,4 @@
 cmake_path : ""
 git_path : ""
 doxygen_path : ""
+jdk_path : ""
