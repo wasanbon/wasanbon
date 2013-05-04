@@ -67,7 +67,13 @@ def install_cpprtm_osx():
     rtm_temp = setting['common']['path']['RTM_TEMP']
     download_and_install(setting['darwin']['packages']['c++'])
 
-    shutil.copytree('/usr/local/lib/python2.7/site-packages', os.path.split(wasanbon.__path__[0])[0])
+    srcdir = '/usr/local/lib/python2.7/site-packages' 
+    distdir = os.path.split(wasanbon.__path__[0])[0]
+    for file in os.listdir(srcdir):
+        if os.path.isfile(file):
+            shutil.copy2(os.path.join(srcdir, file), os.path.join(distdir, file))
+        elif os.path.isdir(file):
+            shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
 
     pass
 
