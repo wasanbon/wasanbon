@@ -9,3 +9,6 @@ doxygen :
 git :
   - "/usr/local/bin"
   - "/usr/bin"
+jdk :
+  - "/usr/local/bin"
+  - "/usr/bin"
