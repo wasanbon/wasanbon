@@ -5,12 +5,34 @@ from wasanbon.core import *
 from wasanbon.core.management import *
 from wasanbon.core.template import *
 
-
-
-def check_and_install():
+def check_devtools():
     setting = load_settings()
     rtm_home = setting['common']['path']['RTM_HOME']
-    fin = open(rtm_home, 'r')
+    
+    fin = open(os.path.join(rtm_home, 'setting.yaml'), 'r')
+    y = yaml.load(fin)
+    
+    flag = False
+    if len(y['cmake_path']) == 0:
+        print 'CMake can not be found.'
+        flag = True
+    
+    if len(y['git_path']) == 0:
+        print 'Git can not be found.'
+        flag = True
+
+    if len(y['doxygen_path']) == 0:
+        print 'Doxygen can not be found'
+        flag = True
+
+    return not flag
+
+
+def check_and_install_devtools():
+    setting = load_settings()
+    rtm_home = setting['common']['path']['RTM_HOME']
+    
+    fin = open(os.path.join(rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
     
     if len(y['cmake_path']) == 0:
@@ -55,15 +77,17 @@ def install_doxygen():
         print 'Unsupported system:%s' % sys.platform
     pass
 
-
 def install_cmake_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['cmake'])
     pass
 
-
 def install_git_osx():
+    setting = load_settings()
+    download_and_install(setting['darwin']['packages']['git'])
     pass
 
 def install_doxygen_osx():
+    setting = load_settings()
+    download_and_install(setting['darwin']['packages']['doxygen'])
     pass
