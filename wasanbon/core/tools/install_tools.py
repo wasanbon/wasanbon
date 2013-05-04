@@ -5,25 +5,19 @@ import urllib
 import platform
 import subprocess
 import zipfile
+import sys
 import wasanbon.core.management.import_tools as importer
-settings = importer.import_setting()
-packages = importer.import_packages()
+from wasanbon.core.management  import *
+from wasanbon.core import *
 
 def install_tools():
-    rtm_dir = settings.rtm['TOOLS_ROOT']
-    if not os.path.isdir(os.path.join(rtm_dir, 'temp')):
-        os.makedirs(os.path.join(rtm_dir, 'temp'))
+    setting = load_settings()
+    rtm_home = setting['common']['path']['RTM_HOME']
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    url = setting[sys.platform]['packages']['eclipse']
+    download_and_unpack(url, rtm_home)
 
-    print 'Installing tools in %s' % platform.system()
-    url = packages.packages[platform.system()]['eclipse']
-    file = os.path.basename(packages.packages[platform.system()]['eclipse'])
-    temppath = os.path.join(rtm_dir, 'temp', file)
-    if not os.path.isfile(temppath):
-        print '-Downloading eclipse-all-in-one'
-        urllib.urlretrieve(url, temppath)
-    print '-Uncompressing Eclipse-All-In-One'
-    command = ('tar', 'zxf', temppath, '-C', rtm_dir)
-    subprocess.call(command)
+    """
     try:
         import rtctree
     except ImportError, e:
@@ -44,7 +38,7 @@ def install_tools():
         #subprocess.call('source /Library/Frameworks/Python.framework/Version/2.7/share/rtshell/shell_support', shell=True)
         #f.close()
     pass
-
+    """
 
 def git_install(url_, dir_):
     if os.path.isdir(dir_):
