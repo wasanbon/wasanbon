@@ -84,8 +84,8 @@ class Command(object):
 
         init_tools_path()
 
-        if len(arg > 4):
-            if argv[3] == '--install':
+        if len(argv) > 3:
+            if argv[2] == '--install':
                 check_and_install_devtools()
         else:
             if not check_devtools():
