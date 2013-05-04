@@ -98,6 +98,8 @@ def unpack_dmg(dmg):
         print 'Error mounting %s' % dmg
 
     for root, dirs, files in os.walk(mountedVolume[0]):
+        for dir in dirs:
+            parse_package(os.path.join(root, dir), nounpack=True)
         for file in files:
             parse_package(os.path.join(root, file), nounpack=True)
 
