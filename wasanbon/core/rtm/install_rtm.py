@@ -77,6 +77,9 @@ def install_pyrtm_osx():
     os.chdir(rtm_temp)
     cmd = [os.path.join(y['svn_path'], 'svn'), 'co', setting['common']['svn']['python']]
     ret = subprocess.check_output(cmd)
+    os.chdir('OpenRTM-aist-Python')
+    cmd = ['python', 'setup.py', 'install']
+    ret = subprocess.check_output(cmd)
     os.chdir(old_dir)
 
 
