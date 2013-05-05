@@ -53,7 +53,7 @@ def git_install(key):
     subprocess.call(command)
 
     crrdir = os.getcwd()
-    os.chdir(os.path.join(rtm_temp, key)
-    command = ('python', 'setup.py', 'install', '--record', 'installed_files.txt')
+    os.chdir(os.path.join(rtm_temp, key))
+    command = ['python', 'setup.py', 'install', '--record', 'installed_files.txt']
     subprocess.call(command)
     os.chdir(crrdir)
