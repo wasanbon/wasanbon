@@ -15,7 +15,7 @@ def install_tools():
     rtm_home = setting['common']['path']['RTM_HOME']
     rtm_temp = setting['common']['path']['RTM_TEMP']
     url = setting[sys.platform]['packages']['eclipse']
-    download_and_unpack(url, rtm_home)
+    download_and_unpack(url, rtm_home, unpackonly=True)
 
     """
     try:
