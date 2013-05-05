@@ -17,10 +17,13 @@ def launch_eclipse():
         cmd = [os.path.join(eclipse_dir, "eclipse")]
     else:
         y = yaml.load(open('setting.yaml', 'r'))
-        cmd = [os.path.join(eclipse_dir, "eclipse"), '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
+        if 'RTC_DIR' in y.keys():
+            cmd = [os.path.join(eclipse_dir, "eclipse"), '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
+        else:
+            cmd = [os.path.join(eclipse_dir, "eclipse")]
 
     if sys.platform == 'win32':
-        subprocess.Popen(cmd, creatioflags=512)
+        subprocess.Popen(cmd, creationflags=512)
     else:
         subprocess.Popen(cmd)
 
