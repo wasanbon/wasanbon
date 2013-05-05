@@ -35,32 +35,25 @@ def install_rtm():
 def install_cpprtm():
     if sys.platform == 'darwin':
         install_cpprtm_osx()
+    elif sys.platform == 'win32':
+        install_cpprtm_win()
+    
 
 def install_pyrtm():
     if sys.platform == 'darwin':
         install_pyrtm_osx()
 
-"""
-def install_rtm_win():
-        if not os.path.isfile(cpp_win_package[1]):
-            print '-Downloading OpenRTM-aist C++'
-            urllib.urlretrieve(cpp_win_package[0], cpp_win_package[1])
-        print '-Installing OpenRTM-aist C++'
-        cmd = ('msiexec', '/i', os.path.join(os.getcwd(), cpp_win_package[1]))
-        subprocess.call(cmd)
 
-    if is_pyrtm_installed():
-    else:
-        if not os.path.isfile(py_win_package[1]):
-            print '-Downloading OpenRTM-aist Python'
-            urllib.urlretrieve(py_win_package[0], py_win_package[1])
-        print '-Installing OpenRTM-aist Python'
-        cmd = ('msiexec', '/i', os.path.join(os.getcwd(), py_win_package[1]))
-        subprocess.call(cmd)
-        
-    install_rtm_java()
-    pass
-"""    
+def install_cpprtm_win():
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    download_and_install(setting['win32']['packages']['c++'])
+
+def install_pyrtm_win():
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    download_and_install(setting['win32']['packages']['python'])
+    
 
 def install_cpprtm_osx():
     setting = load_settings()
