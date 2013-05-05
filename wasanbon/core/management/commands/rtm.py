@@ -13,4 +13,8 @@ class Command(object):
             install_rtm.install_rtm()
         elif(argv[2] == 'status'):
             print 'OpenRTM-aist Status'
-            print status.get_status()
+            ret = status.get_status()
+            print ' - OpenRTM-aist C++    : %s' % ret['c++']
+            print ' - OpenRTM-aist Python : %s' % ret['python']
+            print ' - OpenRTM-aist Java   : %s' % ret['java']
+                
