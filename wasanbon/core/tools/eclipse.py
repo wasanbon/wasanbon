@@ -12,12 +12,19 @@ from wasanbon.core.management import *
 def launch_eclipse():
     setting = load_settings()
     eclipse_dir = os.path.join(setting['common']['path']['RTM_HOME'], 'eclipse')
-    
+    eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
+    if sys.platform == 'win32':
+        eclipse_cmd = eclipse_cmd + '.exe'
+    if not os.path.isfile(eclipse_cmd):
+        sys.stdout.write("Eclipse can not be found in %s.\n" % eclipse_cmd)
+        sys.stdout.write("Please install eclipse by 'wasanbon-admin.py tools install' command.\n")
+        return
+
     if not os.path.isfile("setting.yaml"):
-        cmd = [os.path.join(eclipse_dir, "eclipse")]
+        cmd = [eclipse_cmd]
     else:
         y = yaml.load(open('setting.yaml', 'r'))
-        cmd = [os.path.join(eclipse_dir, "eclipse"), '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
+        cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
 
     if sys.platform == 'win32':
         subprocess.Popen(cmd, creatioflags=512)
