@@ -9,12 +9,14 @@ import yaml
 
 
 def search_command(cmd, hints):
+    if sys.platform == 'win32':
+        cmd = cmd + '.exe'
     for path in os.environ['PATH'].split(':'):
         fullpath = os.path.join(path, cmd)
         if os.path.isfile(fullpath):
-            return path
+            return fullpath
     for hint in hints:
-        if os.path.isfile(os.path.join(hint, cmd)):
+        if os.path.isfile(hint):
             return hint
     return ""
     
