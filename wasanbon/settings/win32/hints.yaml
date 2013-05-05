@@ -1,2 +1,11 @@
 cmake :
-  -  /Applications/CMake 2.8-9.app/Contents/bin/cmake
+  - "C:\\Program Files (x86)\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake 2.8\\bin\\cmake.exe"
+doxygen :
+  - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
+git : 
+  - "C:\\Program Files (x86)\\Git\\bin\\git.exe"
+jdk : 
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\javac.exe"
+svn :
+  - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"

@@ -1,17 +1,17 @@
 cmake :
-  - "/usr/local/bin"
-  - "/usr/bin"
-  - "/Applications/CMake 2.8-9.app/Contents/bin/"
+  - "/usr/local/bin/cmake"
+  - "/usr/bin/cmake"
+  - "/Applications/CMake 2.8-9.app/Contents/bin/cmake"
 doxygen : 
-  - "/usr/local/bin"
-  - "/usr/bin"
-  - "/Applications/Doxygen.app/Contents/Resources/"
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
+  - "/Applications/Doxygen.app/Contents/Resources/doxygen"
 git :
-  - "/usr/local/bin"
-  - "/usr/bin"
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
 jdk :
-  - "/usr/local/bin"
-  - "/usr/bin"
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
 svn :
-  - "/usr/local/bin"
-  - "/usr/bin"
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
