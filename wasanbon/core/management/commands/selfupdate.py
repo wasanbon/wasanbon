@@ -25,7 +25,8 @@ class Command(object):
         else:
             os.chdir('wasanbon')
             cmd = [home_setting['git_path'], 'pull']
-            output = subprocess.check_output(cmd)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            output = p.stdout.readline()
             if output.strip() == 'Already up-to-date.':
                 print output
                 os.chdir(cwd)
