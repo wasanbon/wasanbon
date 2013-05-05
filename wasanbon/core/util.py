@@ -55,6 +55,24 @@ def download_and_install(url):
         
     pass
 
+def install_msi(msi):
+    cmd = ('msiexec', '/i', msi)
+    try:
+        ret = subprocess.check_output(cmd)
+        print 'Installing %s is successful. Message is below' % msi
+        print ret
+    except:
+        print 'Installing %s is failed.' % msi
+    pass
+
+def install_exe(exe):
+    cmd = [exe]
+    try:
+        ret = subprocess.check_output(cmd)
+        print 'Installing %s is successful. Message is below' % exe
+        print ret
+    except:
+        print 'Installing %s is failed.' % exe
 
 def install_pkg(pkg):
     cmd = ['installer', '-package', pkg, '-target', '/Volumes/Macintosh HD']
@@ -77,17 +95,22 @@ def install_app(app):
     except:
         print 'Installing %s is failed. Maybe this process must have done by super user.' % app
 
-def parse_package(file, nounpack=False):
+def parse_package(file, nounpack=False, ):
     if file.startswith('.'):
         pass
     elif file.endswith(".pkg"):
         install_pkg(file)
     elif file.endswith(".app"):
         install_app(file)
+    elif file.endswith(".exe"):
+        install_exe(file)
+    elif file.endswith(".msi"):
+        install_msi(file)
     elif file.endswith(".zip") and not nounpack:
         unpack_zip(file)
     elif file.endswith(".dmg") and not nounpack:
         unpack_dmg(file)
+
 
 def unpack_dmg(dmg):
     cmd = ['hdiutil', 'mount', dmg]
