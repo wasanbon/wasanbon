@@ -20,12 +20,14 @@ def launch_eclipse():
         sys.stdout.write("Please install eclipse by 'wasanbon-admin.py tools install' command.\n")
         return
 
-    if not os.path.isfile("setting.yaml"):
-            cmd = [eclipse_cmd]
+    if not os.path.isfile(os.path.join(os.getcwd(), "setting.yaml")):
+        cmd = [eclipse_cmd]
     else:
         y = yaml.load(open('setting.yaml', 'r'))
-        if 'RTC_DIR' in y.keys():
-            cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
+        if 'application' in y.keys():
+            if 'RTC_DIR' in y['application'].keys():
+                sys.stdout.write("Starting eclipse in current project directory.\n")
+                cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), y['application']['RTC_DIR'])]
         else:
             cmd = [eclipse_cmd]
 

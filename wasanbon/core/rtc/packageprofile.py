@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 import os
-import kotobuki.core.rtc.status_rtc as stat
+#import wasanbon.core.rtc.status_rtc as stat
+
+from wasanbon.core import *
+
+def parse_package_profile(rtcp):
+    return PackageProfile(rtcp)
 
 class PackageProfile(object):
-
     """
     """
     def __init__(self, rtcp):
         [self.path, dummy] = os.path.split(rtcp.filename)
-        self.bin = stat.find_rtc_bin(rtcp)
-        self.conf = stat.find_rtc_conf(rtcp)
+        self.bin = find_rtc_bin(rtcp)
+        self.conf = find_rtc_conf(rtcp)
         if self.bin == None:
             self.bin = ''
         if self.conf == None:
@@ -23,3 +27,76 @@ class PackageProfile(object):
 
     def getConfFilePath(self):
         return self.conf
+
+
+def find_rtc_bin(rtcp):
+    if rtcp.getLanguage() == 'C++':
+        if sys.platform == 'win32':
+            bin_ext = 'dll'
+        elif sys.platform == 'linux2':
+            bin_ext = 'so'
+        elif sys.platform == 'darwin':
+            bin_ext = 'dylib'
+        else:
+            sys.stdout.write('Unsupported platform %s' % sys.platform)
+            return
+        rtc_file_name_list = rtcp.getName() + '.' + bin_ext
+    elif rtcp.getLanguage() == 'Python':
+        rtc_file_name_list = rtcp.getName() + '.py'
+    elif self.getLanguage() == 'Java':
+        rtc_file_name_list = rtcp.getName() + '.jar'
+    else:
+        raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % getLanguage())
+
+    [path, file] = os.path.split(rtcp.filename)
+
+    rtcs_files = search_file(path, rtc_file_name_list)
+    rtcs_files_available = []
+        
+    for file in rtcs_files:
+        if file.count('Debug') > 0:
+            sys.stdout.write('RTC file (%s) seems to build in Debug mode.\n' % file)
+            sys.stdout.write('Debug mode binary is not available.\n')
+        else:
+            rtcs_files_available.append(file)
+
+    rtcs_files = rtcs_files_available
+
+    if len(rtcs_files) == 1:
+        return rtcs_files[0]
+    elif len(rtcs_files) == 0:
+        return ""
+    else:
+        return on_multiple_rtcfile(rtcs_files)
+
+    
+def on_multiple_rtcfile(files):
+    for f in files:
+        print '--' + f
+    
+    print 'Current Version cannot handle this warning.'
+    print 'Use %s' % files[0]
+    return files[0]
+
+
+def find_rtc_conf(rtcp):
+    conf_file_name = rtcp.getName() + '.conf'
+    [path, file] = os.path.split(rtcp.filename)
+    conf_files = search_file(path, conf_file_name)
+    if len(conf_files) == 1:
+        return conf_files[0]
+    elif len(conf_files) == 0:
+        return ""
+    else:
+        return on_multiple_conffile(conf_files)
+
+def on_multiple_conffile(files):
+    print 'Multiple RTC.conf files are found:'
+    for f in files:
+        print '--' + f
+    
+    print 'Current Version cannot handle this warning.'
+    print 'Use %s' % files[0]
+    return files[0]
+
+
