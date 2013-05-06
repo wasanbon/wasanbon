@@ -33,6 +33,10 @@ def check_devtools():
         print 'Subversion can not be found.'
         flag = True
         
+    if len(y['emacs_path']) == 0:
+        print 'Emacs can not be found.'
+        flag = True
+        
     return not flag
 
 
@@ -57,6 +61,9 @@ def check_and_install_devtools():
 
     if len(y['svn_path']) == 0:
         install_svn()
+
+    if len(y['emacs_path']) == 0:
+        install_emacs()
 
 def install_cmake():
     if sys.platform == 'darwin':
@@ -113,9 +120,21 @@ def install_svn():
         print 'Unsupported system:%s' % sys.platform
     pass
 
+def install_emacs():
+    if sys.platform == 'win32':
+        install_emacs_win32()
+    else:
+        print 'Unsupported system:%s' % sys.platform
+    pass
+
 def install_cmake_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['cmake'])
+    pass
+
+def install_cmake_win32():
+    setting = load_settings()
+    download_and_install(setting['win32']['packages']['cmake'])
     pass
 
 def install_git_osx():
@@ -123,14 +142,37 @@ def install_git_osx():
     download_and_install(setting['darwin']['packages']['git'])
     pass
 
+def install_git_win32():
+    setting = load_settings()
+    download_and_install(setting['win32']['packages']['git'])
+    pass
+
 def install_doxygen_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['doxygen'])
+    pass
+
+def install_doxygen_win32():
+    setting = load_settings()
+    download_and_install(setting['win32']['packages']['doxygen'])
     pass
 
 def install_jdk_osx():
     setting = load_settings()
     download_and_install(setting['darwin']['packages']['jdk'])
 
+def install_jdk_win32():
+    setting = load_settings()
+    download_and_install(setting['win32']['packages']['jdk'])
+
 def install_svn_osx():
     print 'Install Xcode commandline tool. Xcode -> Preference -> Download'
+
+def install_svn_win32():
+    setting = load_settings()
+    download_and_install(setting['win32']['packages']['svn'])
+
+def install_emacs_win32():
+    setting = load_settings()
+    #print setting['win32']['packages']['emacs']
+    download_and_unpack(setting['win32']['packages']['emacs'], dist=setting['common']['path']['RTM_HOME'], unpackonly=True)

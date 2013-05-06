@@ -22,7 +22,7 @@ def search_file(rootdir, filename):
 
 
 
-def download_and_unpack(url, dist="", force=False):
+def download_and_unpack(url, dist="", force=False, unpackonly = False):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     filename = os.path.basename(url)

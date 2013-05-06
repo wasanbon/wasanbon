@@ -44,11 +44,16 @@ def search_msbuild(hints):
     cmd = 'msbuild'
     return search_command(cmd, hints)
 
+def search_emacs(hints):
+    cmd = 'emacs'
+    return search_command(cmd, hints)
+
 def init_tools_path():
     setting = load_settings()
     rtm_home = setting['common']['path']['RTM_HOME']
     filename = os.path.join(rtm_home, 'setting.yaml')
     tempfile = os.path.join(rtm_home, 'setting.yaml.bak')
+    os.remove(tempfile)
     os.rename(filename, tempfile)
     fin = open(tempfile, 'r')
     fout = open(filename, 'w')
@@ -59,6 +64,7 @@ def init_tools_path():
     y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints']['doxygen'])
     y['jdk_path']     = search_jdk(setting[sys.platform]['hints']['jdk'])
     y['svn_path']     = search_svn(setting[sys.platform]['hints']['svn'])
+    y['emacs_path']   = search_emacs(setting[sys.platform]['hints']['emacs'])
 
     if sys.platform == 'win32':
         y['msbuild_path'] = search_msbuild(setting[sys.platform]['hints']['msbuild'])
