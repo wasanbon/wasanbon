@@ -5,52 +5,26 @@ import sys
 from rtcprofile import RTCProfile
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
-import kotobuki.core.management.import_tools as importer
-settings = importer.import_setting()
-packages = importer.import_packages()
-
-root_dir_name = settings.application['RTC_DIR']
+from wasanbon.core.rtc import *
+from wasanbon.core import *
+import yaml
 
 rtcprofile_filename = 'RTC.xml'
 
 def parse_rtcs(argv):
-    print 'Parsing default rtc directory (%s)' % root_dir_name
-    """
-    rtcs_dir = os.listdir(root_dir_name)
-    for sub_dir_name in rtcs_dir:
-        files = os.listdir('%s/%s' % (root_dir_name, sub_dir_name))
-        if rtc_profile_filename in files:
-            parse_rtc_profile('%s/%s' % (root_dir_name, sub_dir_name))
-    """
-    rtcprofiles_ = find_rtc_profiles(os.path.join(os.getcwd(), root_dir_name))
-    rtcps_ = []
-    for fullpath_ in rtcprofiles_:
-        print 'Found RTCProfile in %s' % fullpath_
+    y = yaml.load(open('setting.yaml','r'))
+    rtc_dir = os.path.join(os.getcwd(), y['application']['RTC_DIR'])
+    rtcprofiles = find_rtc_profiles(rtc_dir)
+    rtcps = []
+    for fullpath in rtcprofiles:
         try:
-            rtcp_ = RTCProfile(fullpath_)
-            rtcps_.append(rtcp_)
+            rtcp = RTCProfile(fullpath)
+            rtcps.append(rtcp)
         except Exception, e:
             print str(e)
             print '-Error Invalid RTCProfile file[%s]' % fullpath_
-    return rtcps_
+    return rtcps
 
-def search_file(rootdir, filename):
-    found_files_ = []
-    if type(filename) is list:
-        for file_ in filename:
-            found_files_ = found_files_ + search_file(rootdir, file_)
-        return found_files_
-
-    files = os.listdir(rootdir)
-
-    for file_ in files:
-        fullpath_ = os.path.join(rootdir, file_)
-        if os.path.isdir(fullpath_):
-            found_files_ = found_files_ + search_file(fullpath_, filename)
-        else:
-            if file_ == filename:
-                found_files_.append(fullpath_)
-    return found_files_
     
 def find_rtc_profiles(rootdir):
     return search_file(rootdir, rtcprofile_filename)
