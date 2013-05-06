@@ -1,5 +1,7 @@
 *.pyc
-*.py~
+*~
 *.yaml~
+*.log
+*.lck
 build/*
 temp/*
