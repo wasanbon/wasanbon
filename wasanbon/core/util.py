@@ -4,7 +4,7 @@ from wasanbon.core.management import *
 
 
 
-def download_and_unpack(url, dist=""):
+def download_and_unpack(url, dist="",  unpackonly=False):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     filename = os.path.basename(url)
@@ -17,9 +17,9 @@ def download_and_unpack(url, dist=""):
     download(url, distpath)
 
     if filename.endswith(".zip"):
-        unpack_zip(distpath, dist)
+        unpack_zip(distpath, dist, noinstall=(unpackonly))
     elif filename.endswith(".tar.gz"):
-        unpack_tgz(distpath, dist)
+        unpack_tgz(distpath, dist, noinstall=(unpackonly))
 
     pass
 
@@ -95,16 +95,16 @@ def install_app(app):
     except:
         print 'Installing %s is failed. Maybe this process must have done by super user.' % app
 
-def parse_package(file, nounpack=False, ):
+def parse_package(file, nounpack=False, noinstall=False):
     if file.startswith('.'):
         pass
-    elif file.endswith(".pkg"):
+    elif file.endswith(".pkg") and not noinstall:
         install_pkg(file)
-    elif file.endswith(".app"):
+    elif file.endswith(".app") and not noinstall:
         install_app(file)
-    elif file.endswith(".exe"):
+    elif file.endswith(".exe") and not noinstall:
         install_exe(file)
-    elif file.endswith(".msi"):
+    elif file.endswith(".msi") and not noinstall:
         install_msi(file)
     elif file.endswith(".zip") and not nounpack:
         unpack_zip(file)
@@ -128,7 +128,7 @@ def unpack_dmg(dmg):
     cmd = ['hdiutil', 'unmount', mountedVolume[0]]
     ret = subprocess.check_output(cmd)
 
-def unpack_tgz(filepath, distpath):
+def unpack_tgz(filepath, distpath, noinstall=False):
     old_dir = os.getcwd()
     dir, file = os.path.split(filepath)
     os.chdir(dir)
@@ -139,7 +139,8 @@ def unpack_tgz(filepath, distpath):
     os.chdir(old_dir)
     pass
 
-def unpack_zip(filepath, distpath = ""):
+def unpack_zip(filepath, distpath = "", noinstall=False):
+    sys.stdout.write("Unpacking %s\n" % filepath)
     path, file = os.path.split(filepath)
     if len(distpath) == 0:
         distpath = os.path.join(path, file[len(file)-4:])
@@ -147,6 +148,7 @@ def unpack_zip(filepath, distpath = ""):
         os.mkdir(distpath)
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
+        sys.stdout.write(" - %s\n" % filepath)
         fullpath = os.path.join(distpath, filepath)
         path, filename = os.path.split(fullpath)
         if not os.path.isdir(path) and len(path) > 0:
@@ -159,6 +161,6 @@ def unpack_zip(filepath, distpath = ""):
 
     for root, dirs, files in os.walk(distpath):
         for file in files:
-            parse_package(os.path.join(root, file), nounpack=True)
+            parse_package(os.path.join(root, file), nounpack=True, noinstall=noinstall)
 
     pass
