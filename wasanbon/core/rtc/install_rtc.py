@@ -41,10 +41,9 @@ def is_installed_rtc(rtcp):
 
     
 def install_rtc(rtcp):
-    print '--Installing RTC(%s)' % rtcp.getName()
     rtcc = RTCConf(settings.application['conf.' + rtcp.getLanguage()])
     pp = PackageProfile(rtcp)
-    if pp.getRTCFilePath() == None:
+    if len(pp.getRTCFilePath()) == 0 :
         print '--Executable of RTC (%s) is not found.' % rtcp.getName()
         return
 
@@ -53,11 +52,9 @@ def install_rtc(rtcp):
     rtcc.append('manager.modules.load_path', path_)
     rtcc.append('manager.modules.preload', file_)
     rtcc.append('manager.components.precreate', rtcp.getName())
-
     rtcc.sync()
     
 def uninstall_rtc(rtcp):
-    print '--Uninstalling RTC(%s)' % rtcp.getName()
     rtcc = RTCConf(settings.application['conf.' + rtcp.getLanguage()])
     pp = PackageProfile(rtcp)
     if sys.platform == 'win32':
@@ -70,7 +67,7 @@ def uninstall_rtc(rtcp):
         print '---Unsupported System (%s)' % sys.platform
         return 
 
-    if pp.getRTCFilePath() == None:
+    if len(pp.getRTCFilePath()) == 0:
         filename = rtcp.getName() + fileext
         print '---Guessing RTCFileName = %s' % filename
     filename = os.path.basename(pp.getRTCFilePath())

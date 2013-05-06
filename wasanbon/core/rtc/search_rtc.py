@@ -29,27 +29,9 @@ def parse_rtcs(argv):
 def find_rtc_profiles(rootdir):
     return search_file(rootdir, rtcprofile_filename)
 
-                            
-def is_rtcprofile(filepath_):
-    path_, file_ = os.path.split(filepath_)
-    if file_ == rtcprofile_filename:
-        return True
-    return False
-
-
-def scanNode(obj, node, level = 0):
-    msg = node.__class__.__name__
-    if node.nodeType == Node.ELEMENT_NODE:
-        msg += ", tag: " + node.tagName
-    if node.nodeType == Node.TEXT_NODE:
-        msg += " (" + node.wholeText + ")"
-    print " " * level * 4, msg
-    if node.hasChildNodes:
-        for child in node.childNodes:
-            scanNode(child, level + 1)
 
 def rtc_file_search(path, rtc_bin_name, rtc_name = ''):
-    #print 'rtc_search %s' % rtc_name
+    print 'rtc_search %s' % rtc_name
     files = os.listdir(path)
     for file in files:
         if os.path.isdir(path + '/' + file):
@@ -63,6 +45,8 @@ def rtc_file_search(path, rtc_bin_name, rtc_name = ''):
                         ext = 'dylib'
                     elif sys.platform == 'linux2':
                         ext = 'so'
+                    elif sys.platform == 'win32':
+                        ext = 'dll'
                     else:
                         print 'WARNING Unsupported System (%s)' % sys.platform
                         raise
