@@ -79,13 +79,7 @@ def install_cpprtm_osx(force):
             shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
     pass
 
-<<<<<<< HEAD
-
-
-def install_pyrtm_osx():
-=======
 def install_pyrtm_osx(force):
->>>>>>> 31225026f4e47da011d4a7cf91c6dbea96a28ce7
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     rtm_home = setting['common']['path']['RTM_HOME']
