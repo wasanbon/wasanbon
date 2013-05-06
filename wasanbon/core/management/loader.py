@@ -22,12 +22,27 @@ def load_settings():
 
         #if type(setting) is types.DictType:
         #setting = parse_yaml(setting)
+    
+    replace_tag_recursive(setting)
     return setting
 
 def update_tagdict(hash):
     for key in hash.keys():
         if hash[key].find('$') < 0:
             tagdict['$'+key] = hash[key]
+
+def replace_tag_recursive(hash):
+    if type(hash) is types.DictType:
+        for key in hash.keys():
+            hash[key] = replace_tag_recursive(hash[key])
+        return hash
+    elif type(hash) is types.ListType:
+        new_hash = []
+        for v in hash:
+            new_hash.append(replace_tag_recursive(v))
+        return new_hash
+    else:
+        return replace_tag(hash)
 
 def replace_tag(str):
     global tagdict

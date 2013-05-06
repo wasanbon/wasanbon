@@ -11,3 +11,5 @@ svn :
   - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
 msbuild :
   - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe"
+emacs : 
+  - "$HOME\\rtm\\emacs-23.4\\bin\\emacs.exe"

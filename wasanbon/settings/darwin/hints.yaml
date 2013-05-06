@@ -15,3 +15,6 @@ jdk :
 svn :
   - "/usr/local/bin/doxygen"
   - "/usr/bin/doxygen"
+emacs :
+  - "/usr/local/bin/emacs"
+  - "/usr/bin/emacs"

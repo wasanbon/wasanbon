@@ -14,6 +14,7 @@ class PackageProfile(object):
         [self.path, dummy] = os.path.split(rtcp.filename)
         self.bin = find_rtc_bin(rtcp)
         self.conf = find_rtc_conf(rtcp)
+        self.sources = find_rtc_srcs(rtcp)
         if self.bin == None:
             self.bin = ''
         if self.conf == None:
@@ -28,6 +29,19 @@ class PackageProfile(object):
     def getConfFilePath(self):
         return self.conf
 
+    def getSourceFiles(self):
+        return self.sources
+
+def find_rtc_srcs(rtcp):
+    [path, file] = os.path.split(rtcp.filename)
+    if rtcp.getLanguage() == 'Python':
+        return search_file(path, rtcp.getName() + '.py')
+    elif rtcp.getLanguage() == 'Java':
+        return search_file(path, rtcp.getName() + '.java')
+    elif rtcp.getLanguage() == 'C++':
+        hdrs = search_file(path, rtcp.getName() + '.h')
+        srcs = search_file(path, rtcp.getName() + '.cpp')
+        return hdrs + srcs
 
 def find_rtc_bin(rtcp):
     if rtcp.getLanguage() == 'C++':

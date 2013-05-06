@@ -5,5 +5,4 @@ git : 'https://msysgit.googlecode.com/files/Git-1.8.1.2-preview20130201.exe'
 doxygen : 'http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.3.1-setup.exe'
 jdk : 'http://www.sugarsweetrobotics.com/pub/Win32/jdk/jdk-7u21-windows-i586.exe'
 python : 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/OpenRTM-aist-Python-1.1.0-RC1.msi'
-
-
+emacs : 'http://ftp.jaist.ac.jp/pub/GNU/emacs/windows/emacs-23.4-bin-i386.zip'
