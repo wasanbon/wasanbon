@@ -53,7 +53,8 @@ def init_tools_path():
     rtm_home = setting['common']['path']['RTM_HOME']
     filename = os.path.join(rtm_home, 'setting.yaml')
     tempfile = os.path.join(rtm_home, 'setting.yaml.bak')
-    os.remove(tempfile)
+    if os.path.isfile(tempfile):
+        os.remove(tempfile)
     os.rename(filename, tempfile)
     fin = open(tempfile, 'r')
     fout = open(filename, 'w')
