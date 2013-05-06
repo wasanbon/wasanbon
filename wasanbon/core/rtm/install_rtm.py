@@ -77,6 +77,8 @@ def install_cpprtm_osx():
             shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
     pass
 
+
+
 def install_pyrtm_osx():
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
@@ -90,6 +92,8 @@ def install_pyrtm_osx():
     cmd = ['python', 'setup.py', 'build_core']
     ret = subprocess.call(cmd)
     cmd = ['python', 'setup.py', 'install']
+    ret = subprocess.call(cmd)
+    cmd = ['python', 'setup.py', 'install_example']
     ret = subprocess.call(cmd)
     os.chdir(old_dir)
 
