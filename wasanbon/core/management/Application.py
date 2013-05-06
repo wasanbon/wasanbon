@@ -22,25 +22,6 @@ option_list = (
     )
 
 
-
-def import_setting():
-    #module = __import__(kotobuki.app_name + '.' +  "setting")
-    #setting = getattr(module, "setting")
-    #return setting
-    f = open(os.path.join(kotobuki.app_name, "setting.yaml"), 'r')
-    class o:
-        def __init__(self, fn):
-            self.yaml = yaml.load(open(fn, 'r'))
-            
-    return o
-#return yaml.load(f)
-        
-def import_packages():
-    module = __import__(kotobuki.app_name + '.' +  "packages")
-    packs = getattr(module, "packages")
-    return packs
-
-
 def autocomplete(self):
     if 'TPR_AUTO_COMPLETE' not in os.environ:
         return
@@ -65,11 +46,19 @@ def autocomplete(self):
     pass
 
 
-def show_help_text():
-    sys.stdout.write("Help");
+def show_help_text(command):
+    sys.stdout.write("Usage : %s [subcommand] [args...]\n" % os.path.basename(command))
+    sys.stdout.write(" - subcommand : \n")
+    for subcommand in get_subcommand_list():
+        sys.stdout.write("   - %s\n" % subcommand)
+    
+def get_subcommand_list():
+    import wasanbon.core.management.commands
+    ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], 'commands')) if x.endswith('.py') and not x.startswith("__")]
+    ret.append('help')
+    return ret
 
 def execute():
-
     parser = OptionParserEx(usage="%prog subcommand [options] [args]",
                             version=get_version(),
                             option_list=option_list)
@@ -90,24 +79,22 @@ def execute():
         pass
 
     if subcommand == 'help':
-        show_help_text()
+        show_help_text(sys.argv[0])
+        return
     elif len(args) <= 1:
-        show_help_text()
-    else:
-        fetch_subcommand(subcommand).execute_with_argv(sys.argv[:])
-        pass
-    pass
+        show_help_text(sys.argv[0])
+        return
+    elif not subcommand in get_subcommand_list():
+        show_help_text(sys.argv[0])
+        return 
 
-def fetch_subcommand(subcommand):
-    """
-    Fetch command directory to find implemented commands.
-    You can add command by adding ***.py file.
-    """
-    command_dir = os.path.join(wasanbon.core.management.__path__[0], 'commands')
-    commands = [f[:-3] for f in os.listdir(command_dir) if not f.startswith('_') and f.endswith('.py')]
-    app_name = dict([(name, 'wasanbon.core') for name in commands])
     module_name =  'wasanbon.core.management.commands.%s' %  subcommand
     __import__(module_name)
-    return sys.modules[module_name].Command()
+    comm = sys.modules[module_name].Command()
+
+    comm.execute_with_argv(sys.argv[:])
+    pass
+
+
 
     

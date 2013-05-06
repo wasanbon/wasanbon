@@ -10,7 +10,14 @@ class Command(object):
     def execute_with_argv(self, argv):
         if(argv[2] == 'install'):
             print 'Installing OpenRTM-aist'
-            install_rtm.install_rtm()
+            if len(argv) >= 4 and argv[3] == '--force':
+                install_rtm.install_rtm(True)
+            else:
+                install_rtm.install_rtm(False)
         elif(argv[2] == 'status'):
             print 'OpenRTM-aist Status'
-            print status.get_status()
+            ret = status.get_status()
+            print ' - OpenRTM-aist C++    : %s' % ret['c++']
+            print ' - OpenRTM-aist Python : %s' % ret['python']
+            print ' - OpenRTM-aist Java   : %s' % ret['java']
+                
