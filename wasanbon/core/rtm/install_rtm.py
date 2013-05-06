@@ -9,56 +9,65 @@ from wasanbon.core.rtm.status import *
 import shutil
 
 def install_rtm():
-    print 'Installing OpenRTM on %s' % sys.platform
-    print '-C++ version:'
-    if is_cpprtm_installed():
-        print """Your system have RTM_ROOT environemntal variable.
-        You've installed OpenRTM C++ version."""
-    else:
-        install_cpprtm()
-
-    print '-Python version:'
-    if is_pyrtm_installed():
-        print """Your system have OpenRTM_aist package in PYTHONPATH.
-        You've installed OpenRTM Python version."""
-    else:
-        install_pyrtm()
+    install_cpprtm()
+    install_pyrtm()
     
     print '-Java version:'
-    if is_javartm_installed():
-        print """Your system have OpenRTM_aist java file.
-        You've installed OpenRTM Python version."""
     else:
         install_javartm()
     pass
 
-def install_cpprtm():
+def install_cpprtm(arg=False):
+    if is_cpprtm_installed() and not arg:
+        print "Your system seems to have OpenRTM C++."
+        return False
     if sys.platform == 'darwin':
-        install_cpprtm_osx()
+        install_cpprtm_osx(arg)
     elif sys.platform == 'win32':
-        install_cpprtm_win()
-    
+        install_cpprtm_win(arg)
+    pass
 
-def install_pyrtm():
+def install_pyrtm(arg=False):
+    if is_pyrtm_installed() and not arg:
+        print "Your system has OpenRTM_aist package in PYTHONPATH."
+        return False
     if sys.platform == 'darwin':
-        install_pyrtm_osx()
+        install_pyrtm_osx(arg)
+    elif sys.platform == 'win32':
+        install_cpprtm_win(arg)
+    pass
 
-
-def install_cpprtm_win():
+def install_javartm(arg=False):
+    if is_javartm_installed() and not arg:
+        print "Your system have OpenRTM_aist java file in RTM_HOME directory."
+        return False
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
-    download_and_install(setting['win32']['packages']['c++'])
+    rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
+    if not os.path.isdir(rtm_root_java):
+        os.makedirs(rtm_root_java)
 
-def install_pyrtm_win():
+    download_and_unpack(setting['common']['packages']['java'], rtm_temp, force=arg)
+    for root, dirs, files in os.walk(os.path.join(rtm_temp, 'OpenRTM-aist')):
+        for file in files:
+            if file.endswith('.jar'):
+                shutil.copyfile(os.path.join(root, file),os.path.join(rtm_root_java, file))
+    pass
+
+def install_cpprtm_win(force):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
-    download_and_install(setting['win32']['packages']['python'])
-    
+    download_and_install(setting['win32']['packages']['c++'], force=force)
 
-def install_cpprtm_osx():
+def install_pyrtm_win(force):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
-    download_and_install(setting['darwin']['packages']['c++'])
+    download_and_install(setting['win32']['packages']['python'], force=force)
+
+def install_cpprtm_osx(force):
+    setting = load_settings()
+    rtm_temp = setting['common']['path']['RTM_TEMP']
+    download_and_install(setting['darwin']['packages']['c++'], force=force)
 
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
@@ -70,7 +79,7 @@ def install_cpprtm_osx():
             shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
     pass
 
-def install_pyrtm_osx():
+def install_pyrtm_osx(force):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     rtm_home = setting['common']['path']['RTM_HOME']
@@ -83,6 +92,8 @@ def install_pyrtm_osx():
     cmd = ['python', 'setup.py', 'build_core']
     ret = subprocess.call(cmd)
     cmd = ['python', 'setup.py', 'install']
+    ret = subprocess.call(cmd)
+    cmd = ['python', 'setup.py', 'install_example']
     ret = subprocess.call(cmd)
     os.chdir(old_dir)
 
@@ -97,21 +108,5 @@ def install_rtm_linux():
         print '-Installing with command = ' + str(cmd)
         subprocess.call(cmd)
     install_rtm_java()
-    pass
-
-def install_javartm():
-    # Download RTM Java Version 
-    setting = load_settings()
-    rtm_temp = setting['common']['path']['RTM_TEMP']
-    rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
-    if not os.path.isdir(rtm_root_java):
-        os.makedirs(rtm_root_java)
-
-    download_and_unpack(setting['common']['packages']['java'], rtm_temp)
-    for root, dirs, files in os.walk(os.path.join(rtm_temp, 'OpenRTM-aist')):
-        for file in files:
-            if file.endswith('.jar'):
-                shutil.copyfile(os.path.join(root, file),os.path.join(rtm_root_java, file))
-
     pass
 

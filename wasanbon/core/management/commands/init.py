@@ -72,13 +72,13 @@ class Command(object):
         repo = setting['common']['repository']['wasanbon']
         rtm_home = setting['common']['path']['RTM_HOME']
         if not os.path.isdir(rtm_home):
-            os.mkdir(rtm_home)
+            os.mkdir(rtm_home, 0777)
         rtm_temp = setting['common']['path']['RTM_TEMP']
         if not os.path.isdir(rtm_temp):
-            os.mkdir(rtm_temp)
+            os.mkdir(rtm_temp, 0777)
         rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
         if not os.path.isdir(rtm_root_java):
-            os.mkdir(rtm_root_java)
+            os.mkdir(rtm_root_java, 0777)
         
         if os.path.isfile(os.path.join(rtm_home, 'setting.yaml')):
             if yes_no('There seems to be a setting file in %s. Do you want to initialize?' % rtm_home) == 'yes':

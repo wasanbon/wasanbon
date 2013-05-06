@@ -3,8 +3,7 @@ import urllib, subprocess
 from wasanbon.core.management import *
 
 
-
-def download_and_unpack(url, dist="",  unpackonly=False):
+def download_and_unpack(url, dist="", force=False):
     setting = load_settings()
     rtm_temp = setting['common']['path']['RTM_TEMP']
     filename = os.path.basename(url)
@@ -14,7 +13,7 @@ def download_and_unpack(url, dist="",  unpackonly=False):
         dist = rtm_temp
 
     # try to download
-    download(url, distpath)
+    download(url, distpath, force=force)
 
     if filename.endswith(".zip"):
         unpack_zip(distpath, dist, noinstall=(unpackonly))
@@ -33,8 +32,9 @@ class DownloadReport(object):
         sys.stdout.flush()
 
 
-def download(url, dist):
-
+def download(url, dist, force=False):
+    if force and os.path.isfile(dist):
+        os.remove(dist)
     if not os.path.isfile(dist):
         sys.stdout.write("Downloading from URL: %s\n" % url)
         urllib.urlretrieve(url, dist+'.part', DownloadReport())
