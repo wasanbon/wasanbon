@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
+import subprocess
 import wasanbon
 
 def init_workspace(appname):
@@ -27,3 +28,8 @@ def init_workspace(appname):
             fin.close()
             fout.close()
     
+    if sys.platform == 'darwin' or sys.platform == 'linux2':
+        cmd = ['chmod', '755', os.path.join(appname, 'mgr.py')]
+        subprocess.call(cmd)
+    pass
+
