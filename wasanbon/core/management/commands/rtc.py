@@ -33,12 +33,6 @@ class Command(object):
                 pp = parse_package_profile(rtcp)
                 print_package_profile(pp)
 
-        if argv[2] == 'clean':
-            if len(argv) >= 3:
-                rtc_name = argv[3]
-                for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name:
-                        clean_rtc(rtcp)
         pass
 
     
