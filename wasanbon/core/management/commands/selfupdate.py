@@ -19,13 +19,14 @@ class Command(object):
         cwd = os.getcwd()
         os.chdir(rtm_temp)
         if not os.path.isdir('wasanbon'):
-            cmd = [os.path.join(home_setting['git_path'], 'git'), 'clone', setting['common']['repository']['wasanbon']]
+            cmd = [home_setting['git_path'], 'clone', setting['common']['repository']['wasanbon']]
             subprocess.call(cmd)
             os.chdir('wasanbon')
         else:
             os.chdir('wasanbon')
-            cmd = [os.path.join(home_setting['git_path'], 'git'), 'pull']
-            output = subprocess.check_output(cmd)
+            cmd = [home_setting['git_path'], 'pull']
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            output = p.stdout.readline()
             if output.strip() == 'Already up-to-date.':
                 print output
                 os.chdir(cwd)
