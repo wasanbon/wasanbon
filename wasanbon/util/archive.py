@@ -5,10 +5,6 @@ import subprocess
 def unpack_tgz(filepath, distpath, force=False):
     old_dir = os.getcwd()
     dir, file = os.path.split(filepath)
-    """
-    if os.path.isdir(distpath) and not force:
-        return
-        """
     os.chdir(dir)
     cmd = ['tar', 'zxfv', filepath, '-C', distpath]
     subprocess.call(cmd)
@@ -17,9 +13,6 @@ def unpack_tgz(filepath, distpath, force=False):
 
 def unpack_zip(filepath, distpath, force=False):
     path, file = os.path.split(filepath)
-    if os.path.isdir(distpath) and not force:
-        print 'seems to be installed.'
-        return
     if not os.path.isdir(distpath):
         os.mkdir(distpath)
     sys.stdout.write('Unpacking %s\n'% filepath)
