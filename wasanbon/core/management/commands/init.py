@@ -74,4 +74,4 @@ class Command(object):
         if platform.check_devtools():
             sys.stdout.write('Wasanbon initialization OK.\n')
         else:
-            sys.stdout.write('If you want to install devtools, sudo python wasanbon-admin.py init --install\n')
+            sys.stdout.write('If you want to install devtools, sudo wasanbon-admin.py init --install\n')
