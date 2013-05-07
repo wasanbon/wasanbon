@@ -15,6 +15,7 @@ except:
     os.chdir(curdir)
 
 
+
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
     # which is wrong. Python 2.5 supplied with MacOS 10.5 has an Apple-specific fix
@@ -109,3 +110,22 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
    ],
 )
+
+try:
+    import setuptools
+except:
+    from wasanbon import *
+    from wasanbon.core.management import *
+    from wasanbon.core import *
+    setting = load_settings()
+    download_and_install(setting[sys.platform]['packages']['setuptools'])
+    
+try:
+    import github
+except:
+    curdir = os.getcwd()
+    import subprocess
+    os.chdir(os.path.join(curdir, 'thirdparty', 'PyGithub'))
+    subprocess.call(['python', 'setup.py', 'install'])
+    os.chdir(curdir)
+
