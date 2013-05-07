@@ -13,10 +13,8 @@ class DownloadReport(object):
 def download(url, dist="", force=False):
     if len(dist) == 0:
         dist = os.path.basename(url)
-
     if force and os.path.isfile(dist):
         os.remove(dist)
-
     if not os.path.isfile(dist):
         if os.path.isfile(dist + '.part'):
             os.remove(dist+'.part')

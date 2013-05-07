@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
+import sys
 import wasanbon
-from wasanbon.core.rtm import *
+from wasanbon.core import rtm
 
 class Command(object):
     def __init__(self):
@@ -9,14 +10,14 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if(argv[2] == 'install'):
-            print 'Installing OpenRTM-aist'
+            sys.stdout.write('Installing OpenRTM-aist\n')
             if len(argv) >= 4 and argv[3] == '--force':
-                install_rtm.install_rtm(True)
+                rtm.install_rtm(True)
             else:
-                install_rtm.install_rtm(False)
+                rtm.install_rtm(False)
         elif(argv[2] == 'status'):
             print 'OpenRTM-aist Status'
-            ret = status.get_status()
+            ret = rtm.get_status()
             print ' - OpenRTM-aist C++    : %s' % ret['c++']
             print ' - OpenRTM-aist Python : %s' % ret['python']
             print ' - OpenRTM-aist Java   : %s' % ret['java']
