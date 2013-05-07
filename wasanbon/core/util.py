@@ -74,8 +74,20 @@ def download_and_install(url):
         
     pass
 
+
+def install_egg(egg):
+    cmd = ['sh', egg]
+    print cmd
+    try:
+        ret = subprocess.check_output(cmd)
+        print 'Installing %s is successful. Message is below' % egg
+        print ret
+    except:
+        print 'Installing %s is failed.' % egg
+    pass
+
 def install_msi(msi):
-    cmd = ('msiexec', '/i', msi)
+    cmd = ['msiexec', '/i', msi]
     try:
         ret = subprocess.check_output(cmd)
         print 'Installing %s is successful. Message is below' % msi
@@ -117,6 +129,8 @@ def install_app(app):
 def parse_package(file, nounpack=False, noinstall=False):
     if file.startswith('.'):
         pass
+    elif file.endswith(".egg") and not noinstall:
+        install_egg(file)
     elif file.endswith(".pkg") and not noinstall:
         install_pkg(file)
     elif file.endswith(".app") and not noinstall:
