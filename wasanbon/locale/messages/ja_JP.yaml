@@ -1,0 +1,12 @@
+help:
+  command : 
+    brief :
+      init : 'wasanbonの初期化．最初に呼ばれるべきコマンド'
+      selfupdate : '自己アップデート．sudoして呼んでください'
+      tools :  'eclipseやrtshellなどのツールの管理'
+      help : 'このヘルプの表示'
+      edit : 'エディタの実行．RTC固有のファイルを開く'
+      build : 'RTCのビルド'
+      runsystem : 'システムの実行'
+    description :
+      init : ''
