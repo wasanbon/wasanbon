@@ -4,10 +4,10 @@ import wasanbon
 from wasanbon import util
 from wasanbon.util import git
 
-def install_tools():
+def install_tools(force=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
     url = wasanbon.setting[sys.platform]['packages']['eclipse']
-    util.download_and_unpack(url, wasanbon.rtm_home)
+    util.download_and_unpack(url, wasanbon.rtm_home, force)
 
     try:
         import OpenRTM_aist

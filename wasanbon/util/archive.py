@@ -30,8 +30,3 @@ def unpack_zip(filepath, distpath, force=False):
     zf.close()
     pass
 
-    for root, dirs, files in os.walk(distpath):
-        for file in files:
-            parse_package(os.path.join(root, file), nounpack=True, noinstall=noinstall)
-
-    pass
