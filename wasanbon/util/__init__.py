@@ -32,7 +32,7 @@ def download_and_install(url, force=False):
 
     download.download(url, dist_file, force=force)
     
-    install(dist_File)
+    install(dist_file)
 
     pass
 
