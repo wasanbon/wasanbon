@@ -9,6 +9,11 @@ def install_tools():
     url = wasanbon.setting[sys.platform]['packages']['eclipse']
     util.download_and_unpack(url, wasanbon.rtm_home)
 
+    try:
+        import OpenRTM_aist
+    except ImportError, e:
+        sys.stdout.write('OpenRTM_aist can not be imported. Please install RTM first.\n')
+        return
 
     try:
         import rtctree
