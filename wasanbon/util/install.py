@@ -20,7 +20,7 @@ def install(file):
 
     try:
         ret = subprocess.check_output(cmd)
-        sys.stdout.write('Installing %s is successful. Message is below\n' % app)
+        sys.stdout.write('Installing %s is successful. Message is below\n' % file)
         sys.stdout.write(ret)
     except:
         sys.stdout.write('Installing %s is failed. Maybe this process must have done by super user.\n' % app)
