@@ -9,7 +9,7 @@ def check_devtools():
     flag = False    
     for key in y.keys():
         if len(y[key]) == 0:
-            sys.stdout.write('%s can not be found.\n')
+            sys.stdout.write('%s can not be found.\n' % key)
             flag = True
 
     return not flag
