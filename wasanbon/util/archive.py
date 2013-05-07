@@ -5,6 +5,9 @@ import subprocess
 def unpack_tgz(filepath, distpath, force=False):
     old_dir = os.getcwd()
     dir, file = os.path.split(filepath)
+    if os.path.isdir(distpath) and not force:
+        return
+
     os.chdir(dir)
     cmd = ['tar', 'zxfv', filepath, '-C', distpath]
     subprocess.call(cmd)
@@ -15,10 +18,8 @@ def unpack_zip(filepath, distpath, force=False):
     path, file = os.path.split(filepath)
     if os.path.isdir(distpath) and not force:
         return
-
     if not os.path.isdir(distpath):
         os.mkdir(distpath)
-
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
         sys.stdout.write(" - %s\n" % filepath)
