@@ -1,17 +1,16 @@
 #!/usr/bin/env python
-
+import os, sys, yaml, shutil
 import wasanbon
-from wasanbon.core.management import *
-from wasanbon.core.tools import *
-from wasanbon.core.template import *
-import os
-import yaml
-
+from wasanbon import util
+from wasanbon.core import platform
 
 def search_command(cmd, hints):
     if sys.platform == 'win32':
         cmd = cmd + '.exe'
-    for path in os.environ['PATH'].split(':'):
+    
+    path_splitter = ';' if sys.platform == 'win32' else (':' if sys.platform == 'darwin' else ':')
+
+    for path in os.environ['PATH'].split(path_splitter):
         fullpath = os.path.join(path, cmd)
         if os.path.isfile(fullpath):
             return fullpath
@@ -19,56 +18,25 @@ def search_command(cmd, hints):
         if os.path.isfile(hint):
             return hint
     return ""
-    
-def search_cmake(hints):
-    cmd = 'cmake'
-    return search_command(cmd, hints)
 
-def search_git(hints):
-    cmd = 'git'
-    return search_command(cmd, hints)
+def search_cmd_all(dict):
+    for cmd in dict.keys():
+        dict[cmd] = search_command(cmd, wasanbon.setting[sys.platform]['hints'][cmd])
 
-def search_doxygen(hints):
-    cmd = 'doxygen'
-    return search_command(cmd, hints)
-
-def search_jdk(hints):
-    cmd = 'javac'
-    return search_command(cmd, hints)
-
-def search_svn(hints):
-    cmd = 'svn'
-    return search_command(cmd, hints)
-
-def search_msbuild(hints):
-    cmd = 'msbuild'
-    return search_command(cmd, hints)
-
-def search_emacs(hints):
-    cmd = 'emacs'
-    return search_command(cmd, hints)
+    return dict
 
 def init_tools_path():
-    setting = load_settings()
-    rtm_home = setting['common']['path']['RTM_HOME']
-    filename = os.path.join(rtm_home, 'setting.yaml')
-    tempfile = os.path.join(rtm_home, 'setting.yaml.bak')
+    filename = os.path.join(wasanbon.rtm_home, 'setting.yaml')
+    tempfile = os.path.join(wasanbon.rtm_home, 'setting.yaml.bak')
     if os.path.isfile(tempfile):
         os.remove(tempfile)
+
     os.rename(filename, tempfile)
     fin = open(tempfile, 'r')
     fout = open(filename, 'w')
     y = yaml.load(fin)
 
-    y['cmake_path']   = search_cmake(setting[sys.platform]['hints']['cmake'])
-    y['git_path']     = search_git(setting[sys.platform]['hints']['git'])
-    y['doxygen_path'] = search_doxygen(setting[sys.platform]['hints']['doxygen'])
-    y['jdk_path']     = search_jdk(setting[sys.platform]['hints']['jdk'])
-    y['svn_path']     = search_svn(setting[sys.platform]['hints']['svn'])
-    y['emacs_path']   = search_emacs(setting[sys.platform]['hints']['emacs'])
-
-    if sys.platform == 'win32':
-        y['msbuild_path'] = search_msbuild(setting[sys.platform]['hints']['msbuild'])
+    y = search_cmd_all(y)
 
     yaml.dump(y, fout, encoding='utf8', allow_unicode=True)
 
@@ -82,38 +50,28 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv):
-        setting = load_settings()
-        repo = setting['common']['repository']['wasanbon']
-        rtm_home = setting['common']['path']['RTM_HOME']
-        if not os.path.isdir(rtm_home):
-            os.mkdir(rtm_home, 0777)
-        rtm_temp = setting['common']['path']['RTM_TEMP']
-        if not os.path.isdir(rtm_temp):
-            os.mkdir(rtm_temp, 0777)
-        rtm_root_java = setting['common']['path']['RTM_ROOT_JAVA']
-        if not os.path.isdir(rtm_root_java):
-            os.mkdir(rtm_root_java, 0777)
+        repo = wasanbon.setting['common']['repository']['wasanbon']
+        if not os.path.isdir(wasanbon.rtm_home):
+            os.mkdir(wasanbon.rtm_home, 0777)
+        if not os.path.isdir(wasanbon.rtm_temp):
+            os.mkdir(wasanbon.rtm_temp, 0777)
         
-        if os.path.isfile(os.path.join(rtm_home, 'setting.yaml')):
-            if yes_no('There seems to be a setting file in %s. Do you want to initialize?' % rtm_home) == 'yes':
-                os.remove(os.path.join(rtm_home, 'setting.yaml'))
-                print 'start init'
-
-        fin = open(os.path.join(wasanbon.__path__[0], 'settings/setting.yaml'), 'r')
-        fout = open(os.path.join(rtm_home, 'setting.yaml'), 'w')
-
-        for line in fin:
-            fout.write(line)
-
-        fin.close()
-        fout.close()
-
-        init_tools_path()
+        template_file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'setting.yaml')
+        local_setting_file = os.path.join(wasanbon.rtm_home, 'setting.yaml')
+        if os.path.isfile(local_setting_file):
+            if util.yes_no('There seems to be a setting file in %s. Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
+                os.remove(local_setting_file)
+                shutil.copyfile(template_file, local_setting_file)
+                init_tools_path()
+        else:
+            shutil.copyfile(template_file, local_setting_file)
+            init_tools_path()
 
         if len(argv) >= 3:
             if argv[2] == '--install':
-                check_and_install_devtools()
-                check_devtools()
+                platform.check_and_install_devtools()
+
+        if platform.check_devtools():
+            sys.stdout.write('Wasanbon initialization OK.\n')
         else:
-            if not check_devtools():
-                print 'If you want to install devtools, sudo python wasanbon-admin.py init --install'
+            sys.stdout.write('If you want to install devtools, sudo python wasanbon-admin.py init --install\n')

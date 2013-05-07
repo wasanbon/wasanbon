@@ -9,7 +9,10 @@ doxygen :
 git :
   - "/usr/local/bin/doxygen"
   - "/usr/bin/doxygen"
-jdk :
+java :
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
+javac :
   - "/usr/local/bin/doxygen"
   - "/usr/bin/doxygen"
 svn :

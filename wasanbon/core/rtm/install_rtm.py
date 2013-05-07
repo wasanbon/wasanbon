@@ -11,10 +11,7 @@ import shutil
 def install_rtm():
     install_cpprtm()
     install_pyrtm()
-    
-    print '-Java version:'
-    else:
-        install_javartm()
+    install_javartm()
     pass
 
 def install_cpprtm(arg=False):
