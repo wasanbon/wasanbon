@@ -25,13 +25,13 @@ def check_and_install_devtools():
 
 def install_cmd(cmd):
     if sys.platform == 'darwin':
-        download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
+        util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
     elif sys.platform == 'win32':
         if cmd == 'emacs':
-            download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
+            util.download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
                                 dist=wasanbon.setting['common']['path']['RTM_HOME'])
         else:
-            download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
+            util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
     else:
         print 'Unsupported System %s' % sys.platform
 
