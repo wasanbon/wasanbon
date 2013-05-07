@@ -1,5 +1,6 @@
 import os, sys, yaml
 import wasanbon
+from wasanbon import util
 from wasanbon.core.template import *
 
 def check_devtools():
