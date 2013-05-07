@@ -1,30 +1,25 @@
 #!/usr/bin/env python
 
 import wasanbon
-from wasanbon.core.management import *
-import subprocess
-import yaml
-import os
+import os, sys, subprocess
 
 class Command(object):
     def __init__(self):
         pass
 
     def execute_with_argv(self, argv):
-        setting = load_settings()
-        repo = setting['common']['repository']['wasanbon']
-        rtm_temp = setting['common']['path']['RTM_TEMP']
-        rtm_home = setting['common']['path']['RTM_HOME']
-        home_setting = yaml.load(open(os.path.join(rtm_home, 'setting.yaml'), 'r'))
         cwd = os.getcwd()
-        os.chdir(rtm_temp)
+        os.chdir(wasanbon.rtm_temp)
         if not os.path.isdir('wasanbon'):
-            cmd = [home_setting['git_path'], 'clone', setting['common']['repository']['wasanbon']]
+            cmd = [wasanbon.setting['local']['git'], 
+                   'clone', 
+                   wasanbon.setting['common']['repository']['wasanbon']]
             subprocess.call(cmd)
             os.chdir('wasanbon')
         else:
             os.chdir('wasanbon')
-            cmd = [home_setting['git_path'], 'pull']
+            cmd = [wasanbon.setting['local']['git'],
+                   'pull']
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             output = p.stdout.readline()
             if output.strip() == 'Already up-to-date.':
