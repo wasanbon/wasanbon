@@ -1,0 +1,4 @@
+help:
+  command : 
+    init : 'Initialization of wasanbon environment. This function must be called first.'
+    selfupdate : 'Selfupdating wasanbon libraries'

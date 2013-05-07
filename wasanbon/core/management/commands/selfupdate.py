@@ -23,7 +23,7 @@ class Command(object):
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             output = p.stdout.readline()
             if output.strip() == 'Already up-to-date.':
-                print output
+                sys.stdout.write(output)
                 os.chdir(cwd)
                 return 0
         
