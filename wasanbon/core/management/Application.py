@@ -47,10 +47,23 @@ def autocomplete(self):
 
 
 def show_help_text(command):
+    import locale, yaml, os
+    locale_name = locale.getdefaultlocale()[0]
+    filename = 'en_US.yaml'
+    path = os.path.join(wasanbon.__path__[0], 'locale', 'messages')
+    for file in os.listdir(path):
+
+        if file.endswith('.yaml'):
+            if file[:len(file)-5] == locale_name:
+                filename = locale_name + '.yaml'
+    y = yaml.load(open(os.path.join(path, filename), 'r'))
     sys.stdout.write("Usage : %s [subcommand] [args...]\n" % os.path.basename(command))
     sys.stdout.write(" - subcommand : \n")
     for subcommand in get_subcommand_list():
-        sys.stdout.write("   - %s\n" % subcommand)
+        desc = 'No information'
+        if subcommand in y['help']['command']['brief'].keys():
+            desc = y['help']['command']['brief'][subcommand]
+        sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, desc))
     
 def get_subcommand_list():
     import wasanbon.core.management.commands
