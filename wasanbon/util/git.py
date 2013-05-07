@@ -1,3 +1,5 @@
+import os, yaml, subprocess
+
 import wasanbon
 
 def clone_and_setup(url):
