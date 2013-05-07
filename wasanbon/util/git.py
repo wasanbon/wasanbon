@@ -2,10 +2,10 @@ import os, yaml, subprocess
 
 import wasanbon
 
-def clone_and_setup(distname, url):
+def clone_and_setup(url):
     #y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
-    distpath = os.path.join(wasanbon.rtm_temp, distname)
-    cmd = [wasanbon.setting['local']['git'], 'clone', url, wasanbon.rtm_temp, distpath]
+    cmd = [wasanbon.setting['local']['git'], 'clone', url, wasanbon.rtm_temp]
+    distpath = os.path.join(wasanbon.rtm_temp, os.basename(url)[:-4])
     subprocess.call(cmd)
 
     crrdir = os.getcwd()
