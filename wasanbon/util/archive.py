@@ -2,7 +2,7 @@ import os, sys
 import zipfile
 import subprocess
 
-def unpack_tgz(filepath, distpath):
+def unpack_tgz(filepath, distpath, force=False):
     old_dir = os.getcwd()
     dir, file = os.path.split(filepath)
     os.chdir(dir)
@@ -11,12 +11,14 @@ def unpack_tgz(filepath, distpath):
     os.chdir(old_dir)
     pass
 
-def unpack_zip(filepath, distpath):
+def unpack_zip(filepath, distpath, force=False):
     path, file = os.path.split(filepath)
-    if len(distpath) == 0:
-        distpath = os.path.join(path, file[len(file)-4:])
+    if os.path.isdir(distpath) and not force:
+        return
+
     if not os.path.isdir(distpath):
         os.mkdir(distpath)
+
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
         sys.stdout.write(" - %s\n" % filepath)
