@@ -1,69 +1,39 @@
-#!/usr/bin/env python
-
-import sys
-from wasanbon.core import *
-from wasanbon.core.management import *
+import os, sys, yaml
+import wasanbon
 from wasanbon.core.template import *
 
 def check_devtools():
-    setting = load_settings()
-    rtm_home = setting['common']['path']['RTM_HOME']
-    
-    fin = open(os.path.join(rtm_home, 'setting.yaml'), 'r')
+    fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
-    
-    flag = False
-    if len(y['cmake_path']) == 0:
-        print 'CMake can not be found.'
-        flag = True
-    
-    if len(y['git_path']) == 0:
-        print 'Git can not be found.'
-        flag = True
 
-    if len(y['doxygen_path']) == 0:
-        print 'Doxygen can not be found'
-        flag = True
+    flag = False    
+    for key in y.keys():
+        if len(y[key]) == 0:
+            sys.stdout.write('%s can not be found.\n')
+            flag = True
 
-    if len(y['jdk_path']) == 0:
-        print 'JDK can not be found.'
-        flag = True
-
-    if len(y['svn_path']) == 0:
-        print 'Subversion can not be found.'
-        flag = True
-        
-    if len(y['emacs_path']) == 0:
-        print 'Emacs can not be found.'
-        flag = True
-        
     return not flag
 
 
 def check_and_install_devtools():
-    setting = load_settings()
-    rtm_home = setting['common']['path']['RTM_HOME']
-    
-    fin = open(os.path.join(rtm_home, 'setting.yaml'), 'r')
+    fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
-    
-    if len(y['cmake_path']) == 0:
-        install_cmake()
-    
-    if len(y['git_path']) == 0:
-        install_git()
 
-    if len(y['doxygen_path']) == 0:
-        install_doxygen()
+    for key in y.keys():
+        if len(y[key]) == 0:
+            install_cmd(key)
 
-    if len(y['jdk_path']) == 0:
-        install_jdk()
-
-    if len(y['svn_path']) == 0:
-        install_svn()
-
-    if len(y['emacs_path']) == 0:
-        install_emacs()
+def install_cmd(cmd):
+    if sys.platform == 'darwin':
+        download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
+    elif sys.platform == 'win32':
+        if cmd == 'emacs':
+            download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
+                                dist=wasanbon.setting['common']['path']['RTM_HOME'])
+        else:
+            download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
+    else:
+        print 'Unsupported System %s' % sys.platform
 
 def install_cmake():
     if sys.platform == 'darwin':
@@ -175,4 +145,4 @@ def install_svn_win32():
 def install_emacs_win32():
     setting = load_settings()
     #print setting['win32']['packages']['emacs']
-    download_and_unpack(setting['win32']['packages']['emacs'], dist=setting['common']['path']['RTM_HOME'], unpackonly=True)
+
