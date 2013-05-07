@@ -12,17 +12,17 @@ def install_tools():
     try:
         import rtctree
     except ImportError, e:
-        url = setting['common']['git']['rtctree']
+        url = wasanbon.setting['common']['git']['rtctree']
         util.git.clone_and_setup(url)
     try:
         import rtsprofile
     except ImportError, e:
-        url = setting['common']['git']['rtsprofile']
+        url = wasanbon.setting['common']['git']['rtsprofile']
         util.git.clone_and_setup(url)
     try:
         import rtshell
     except ImportError, e:
-        url = setting['common']['git']['rtshell']
+        url = wasanbon.setting['common']['git']['rtshell']
         util.git.clone_and_setup(url)
     pass
 
