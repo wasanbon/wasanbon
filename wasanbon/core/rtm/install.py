@@ -20,13 +20,13 @@ def install_javartm(arg=False):
 
 
 def install_cpprtm_win(force):
-    download_and_install(wasanbon.setting['win32']['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting['win32']['packages']['c++'], force=force)
 
 def install_pyrtm_win(force):
-    download_and_install(wasanbon.setting['win32']['packages']['python'], force=force)
+    util.download_and_install(wasanbon.setting['win32']['packages']['python'], force=force)
 
 def install_cpprtm_osx(force):
-    download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
     for file in os.listdir(srcdir):
