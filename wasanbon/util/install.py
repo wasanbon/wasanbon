@@ -10,11 +10,11 @@ def install(file):
     elif file.endswith(".egg"):
         cmd = ['sh', file]
     elif file.endswith(".pkg"):
-        cmd = ['installer', '-package', pkg, '-target', '/Volumes/Macintosh HD']
+        cmd = ['installer', '-package', file, '-target', '/Volumes/Macintosh HD']
     elif file.endswith(".msi"):
-        cmd = ['msiexec', '/i', msi]
+        cmd = ['msiexec', '/i', file]
     elif file.endswith(".exe"):
-        cmd = [exe]
+        cmd = [file]
     else:
         return
 
