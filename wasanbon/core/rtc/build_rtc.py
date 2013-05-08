@@ -35,7 +35,6 @@ def clean_rtc_cpp(rtcp):
                 print 'removing %s' % fullpath
                 os.remove(os.path.join(root, file))
 
-
 def build_rtc_cpp(rtcp):
     rtc_name = rtcp.getName()
     rtc_dir, rtc_xml = os.path.split(rtcp.getRTCProfileFileName())

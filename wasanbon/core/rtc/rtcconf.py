@@ -53,7 +53,7 @@ class RTCConf(object):
         
     def append(self, key, value):
         if not key in self.dic.keys():
-            self.dic[key] = ''
+            self.dic[key] = value
         elif len(self.dic[key].strip()) == 0:
             self.dic[key] = value
         else:
@@ -80,6 +80,7 @@ class RTCConf(object):
         fin = open(self.filename + '.bak', 'r')
         fout = open(self.filename, 'w')
 
+        keys = self.dic.keys()[:]
         while True:
             line = fin.readline()
             if not line:
@@ -108,10 +109,14 @@ class RTCConf(object):
                 for v in nv[2:]:
                     nv[1] =  nv[1] + ':' + v
 
-            if nv[0] in self.dic.keys():
+            if nv[0] in keys:
                 fout.write(nv[0] + ':' + self.dic[nv[0]] + '\n')
+                keys.remove(nv[0])
             else:
                 fout.write(line)
+
+        for key in keys:
+            fout.write(key + ':' + self.dic[key] + '\n')
 
         fin.close()
         os.remove(self.filename + '.bak')

@@ -11,16 +11,17 @@ class Command(object):
         rtcps = rtc.parse_rtcs()
         if len(argv) < 3:
             print_usage()
+        rtc_name = argv[2]
 
         if len(argv) >= 4:
             if argv[3] == '--clean':
                 rtc_name = argv[2]
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name:
+                    if rtcp.getName() == rtc_name or rtc_name == 'all':
                         clean_rtc(rtcp)
                         return
-        rtc_name = argv[2]
+        
         for rtcp in rtcps:
-            if rtcp.getName() == rtc_name:
+            if rtcp.getName() == rtc_name or rtc_name == 'all':
                 build_rtc(rtcp)
 
