@@ -6,6 +6,7 @@ from search_rtc import *
 from build_rtc import *
 from packageprofile import *
 from rtcprofile import *
+from rtcconf import *
 import github
 
 def parse_rtcs():
@@ -40,4 +41,53 @@ def github_init(user, passwd, rtcp):
     cmd = [wasanbon.setting['local']['git'], 'push', '-u', 'origin', 'master']
     subprocess.call(cmd)
     os.chdir(current_dir)
+    
+    sys.stdout.write('Updating repository.yaml\n')
+    repo_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
+    temp_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml.bak')
+    os.rename(repo_file, temp_file)
+    repos = yaml.load(open(temp_file, 'r'))
+    repos[repo_name] = 'git@github.com:' + user + '/' + repo_name + '.git'
+    fout = open(repo_file, 'w')
+    yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
+    fout.close()
+
+
+def install(rtcp):
+    rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.getLanguage()])
+    pp = PackageProfile(rtcp)
+    if len(pp.getRTCFilePath()) == 0 :
+        print '--Executable of RTC (%s) is not found.' % rtcp.getName()
+        return
+
+    [path_, file_] = os.path.split(pp.getRTCFilePath())
+    if path_.startswith(os.getcwd()):
+        path_ = path_[len(os.getcwd())+1:]
+
+    rtcc.append('manager.modules.load_path', path_)
+    rtcc.append('manager.modules.preload', file_)
+    rtcc.append('manager.components.precreate', rtcp.getName())
+    rtcc.sync()
+    
+def uninstall_rtc(rtcp):
+    rtcc = RTCConf(settings['application']['conf.' + rtcp.getLanguage()])
+    pp = PackageProfile(rtcp)
+    if sys.platform == 'win32':
+        fileext = '.dll'
+    elif sys.platform == 'linux2':
+        fileext = '.so'
+    elif sys.platform == 'darwin':
+        fileext = '.dylib'
+    else:
+        print '---Unsupported System (%s)' % sys.platform
+        return 
+
+    if len(pp.getRTCFilePath()) == 0:
+        filename = rtcp.getName() + fileext
+        print '---Guessing RTCFileName = %s' % filename
+    filename = os.path.basename(pp.getRTCFilePath())
+    rtcc.remove('manager.components.precreate', rtcp.getName())
+    rtcc.remove('manager.modules.preload', filename)
+    rtcc.sync()
+    
 

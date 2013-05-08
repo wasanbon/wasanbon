@@ -40,40 +40,6 @@ def is_installed_rtc(rtcp):
     return flag
 
     
-def install_rtc(rtcp):
-    rtcc = RTCConf(settings.application['conf.' + rtcp.getLanguage()])
-    pp = PackageProfile(rtcp)
-    if len(pp.getRTCFilePath()) == 0 :
-        print '--Executable of RTC (%s) is not found.' % rtcp.getName()
-        return
-
-    [path_, file_] = os.path.split(pp.getRTCFilePath())
-
-    rtcc.append('manager.modules.load_path', path_)
-    rtcc.append('manager.modules.preload', file_)
-    rtcc.append('manager.components.precreate', rtcp.getName())
-    rtcc.sync()
-    
-def uninstall_rtc(rtcp):
-    rtcc = RTCConf(settings.application['conf.' + rtcp.getLanguage()])
-    pp = PackageProfile(rtcp)
-    if sys.platform == 'win32':
-        fileext = '.dll'
-    elif sys.platform == 'linux2':
-        fileext = '.so'
-    elif sys.platform == 'darwin':
-        fileext = '.dylib'
-    else:
-        print '---Unsupported System (%s)' % sys.platform
-        return 
-
-    if len(pp.getRTCFilePath()) == 0:
-        filename = rtcp.getName() + fileext
-        print '---Guessing RTCFileName = %s' % filename
-    filename = os.path.basename(pp.getRTCFilePath())
-    rtcc.remove('manager.components.precreate', rtcp.getName())
-    rtcc.remove('manager.modules.preload', filename)
-    rtcc.sync()
 
 
 def parse_rtc_profile(rtc_profile_filepath):
