@@ -50,6 +50,7 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv):
+        os.umask(0000)
         repo = wasanbon.setting['common']['repository']['wasanbon']
         if not os.path.isdir(wasanbon.rtm_home):
             os.mkdir(wasanbon.rtm_home, 0777)

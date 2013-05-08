@@ -10,4 +10,4 @@ class Command(object):
             tools.install_tools()
         if(argv[2] == 'eclipse'):
             print 'Launching Eclipse'
-            launch_eclipse()
+            tools.launch_eclipse()
