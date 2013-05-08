@@ -3,11 +3,23 @@ import os, sys, shutil
 import wasanbon
 from . import status
 from . import install
+
+rtm_root_hints = ['/usr/local/include/openrtm-1.1', '/usr/include/openrtm-1.1']
+
 def get_status():
     ret = {'c++' : status.is_cpprtm_installed() ,
            'python' : status.is_pyrtm_installed() ,
            'java' : status.is_javartm_installed() }
     return ret
+
+def get_rtm_root():
+    if 'RTM_ROOT' in os.environ.keys():
+        return os.environ['RTM_ROOT']
+    else:
+        for hint in rtm_root_hints:
+            if os.path.isfile(os.path.join(hint, 'rtm', 'version.txt')):
+                return hint
+        return ""
 
 def install_rtm(force=False):
     install_cpprtm(force)

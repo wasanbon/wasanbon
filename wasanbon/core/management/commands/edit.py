@@ -1,12 +1,8 @@
 #!/usr/bin/env python
+import os, sys, yaml, subprocess
+
 import wasanbon
-from wasanbon.core.management import *
-from wasanbon.core.tools import *
-from wasanbon.core.template import *
-from wasanbon.core.rtc import *
-import os
-import yaml
-import subprocess
+from wasanbon.core import rtc
 
 def print_usage():
     print 'use wasanbon-admin.py edit [RTC_NAME]'
@@ -20,19 +16,15 @@ class Command(object):
             print_usage()
             return
 
-        setting = load_settings()
-        rtm_home = setting['common']['path']['RTM_HOME']
-        if not os.path.isfile(os.path.join(rtm_home, 'setting.yaml')):
+        if not 'application' in wasanbon.setting.keys():
             print 'execute wasanbon-admin.py init command.'
             return
 
-        y = yaml.load(open(os.path.join(rtm_home, 'setting.yaml'), 'r'))
-
-        rtcps = parse_rtcs(argv)
+        rtcps = rtc.parse_rtcs()
         for rtcp in rtcps:
             if argv[2] == rtcp.getName():
-                cmd = [y['emacs_path'], '-nw']
-                pp = parse_package_profile(rtcp)
+                cmd = [wasanbon.setting['local']['emacs'], '-nw']
+                pp = rtc.PackageProfile(rtcp)
                 files = pp.getSourceFiles()
                 for file in files:
                     cmd.append(file)

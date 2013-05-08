@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 from wasanbon.core.rtc import *
-
+from wasanbon.core import rtc
 
 class Command(object):
     def __init__(self):
         pass
 
     def execute_with_argv(self, argv):
-        rtcps = parse_rtcs(argv)
+        rtcps = rtc.parse_rtcs()
         if len(argv) < 3:
             print_usage()
 

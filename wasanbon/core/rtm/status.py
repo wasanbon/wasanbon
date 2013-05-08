@@ -18,7 +18,19 @@ def is_cpprtm_installed():
         if os.path.isfile(os.path.join(path, file)):
             return True
         return False
+
+    elif sys.platform == 'linux2':
+        file = 'version.txt'
+        path = '/usr/local/include/openrtm-1.1/rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        path = '/usr/include/openrtm-1.1/rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        return False
+
     return ('RTM_ROOT' in os.environ.keys())
+
 
 def is_pyrtm_installed():
     try:
