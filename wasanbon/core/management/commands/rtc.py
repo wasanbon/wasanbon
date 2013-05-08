@@ -4,6 +4,7 @@ import os, sys
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
+from wasanbon.core.rtc import git
 rtcprofile_filename = 'RTC.xml'
 
 def print_usage():
@@ -41,8 +42,6 @@ def parse_rtcs():
             print '-Error Invalid RTCProfile file[%s]' % fullpath_
     return rtcps
 
-
-
 class Command(object):
     def __init__(self):
         pass
@@ -61,8 +60,8 @@ class Command(object):
             rtcname = argv[3]
             for rtcp in rtcps:
                 if rtcname == rtcp.getName():
-                    sys.stdout.write('Initializing GIT repository in %s' % rtcname)
-                    git_init(rtcp)
+                    sys.stdout.write('Initializing GIT repository in %s\n' % rtcname)
+                    git.git_init(rtcp)
         pass
 
     
