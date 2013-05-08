@@ -20,7 +20,6 @@ def get_version():
     return "0.0.1-2"
 
 
-
 def load_settings():
     global rtm_root, rtm_home
 
@@ -38,8 +37,6 @@ def load_settings():
         old_len = len(tagdict)
     
     __replace_tag_recursive(setting)
-
-
 
     return setting
 
@@ -98,3 +95,8 @@ __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
 if os.path.isfile(__local_setting_file):
     setting['local'] = yaml.load(open(__local_setting_file, 'r'))
     
+__application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
+if os.path.isfile(__application_setting_file):
+    appsetting = yaml.load(open(__application_setting_file, 'r'))
+    if 'application' in appsetting.keys():
+        setting['application'] = appsetting['application']
