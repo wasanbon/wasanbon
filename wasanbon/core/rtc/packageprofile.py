@@ -1,11 +1,7 @@
-#!/usr/bin/env python
-import os
-#import wasanbon.core.rtc.status_rtc as stat
-
+import os, sys
+from wasanbon import util
 from wasanbon.core import *
 
-def parse_package_profile(rtcp):
-    return PackageProfile(rtcp)
 
 class PackageProfile(object):
     """
@@ -35,12 +31,12 @@ class PackageProfile(object):
 def find_rtc_srcs(rtcp):
     [path, file] = os.path.split(rtcp.filename)
     if rtcp.getLanguage() == 'Python':
-        return search_file(path, rtcp.getName() + '.py')
+        return util.search_file(path, rtcp.getName() + '.py')
     elif rtcp.getLanguage() == 'Java':
-        return search_file(path, rtcp.getName() + '.java')
+        return util.search_file(path, rtcp.getName() + '.java')
     elif rtcp.getLanguage() == 'C++':
-        hdrs = search_file(path, rtcp.getName() + '.h')
-        srcs = search_file(path, rtcp.getName() + '.cpp')
+        hdrs = util.search_file(path, rtcp.getName() + '.h')
+        srcs = util.search_file(path, rtcp.getName() + '.cpp')
         return hdrs + srcs
 
 def find_rtc_bin(rtcp):
@@ -64,7 +60,7 @@ def find_rtc_bin(rtcp):
 
     [path, file] = os.path.split(rtcp.filename)
 
-    rtcs_files = search_file(path, rtc_file_name_list)
+    rtcs_files = util.search_file(path, rtc_file_name_list)
     rtcs_files_available = []
         
     for file in rtcs_files:
@@ -96,7 +92,7 @@ def on_multiple_rtcfile(files):
 def find_rtc_conf(rtcp):
     conf_file_name = rtcp.getName() + '.conf'
     [path, file] = os.path.split(rtcp.filename)
-    conf_files = search_file(path, conf_file_name)
+    conf_files = util.search_file(path, conf_file_name)
     if len(conf_files) == 1:
         return conf_files[0]
     elif len(conf_files) == 0:
