@@ -1,8 +1,10 @@
 import os, sys, subprocess
 import yaml
 import wasanbon
+import wasanbon.core
 from wasanbon import util
 from wasanbon.util import git
+from wasanbon.core import rtm
 
 def install_tools(force=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
@@ -36,6 +38,11 @@ def install_tools(force=False):
 def launch_eclipse():
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
+
+    env = os.environ
+    env['RTM_ROOT'] = rtm.get_rtm_root()
+    print rtm.get_rtm_root()
+
     if sys.platform == 'win32':
         eclipse_cmd = eclipse_cmd + '.exe'
     if not os.path.isfile(eclipse_cmd):
@@ -53,8 +60,8 @@ def launch_eclipse():
             cmd = [eclipse_cmd]
 
     if sys.platform == 'win32':
-        subprocess.Popen(cmd, creationflags=512)
+        subprocess.Popen(cmd, creationflags=512, env=env)
     else:
-        subprocess.Popen(cmd)
+        subprocess.Popen(cmd, env=env)
 
     

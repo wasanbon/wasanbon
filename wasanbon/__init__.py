@@ -74,7 +74,10 @@ def __parse_yaml(hash):
     return hash
 
 def __load_yaml(file):
-    return yaml.load(open(file, 'r'))
+    dict = yaml.load(open(file, 'r'))
+    if type(dict) == types.NoneType:
+        return {}
+    return dict
     
 def __load_subdir(root):
     ret = {}
@@ -91,12 +94,28 @@ setting = load_settings()
 rtm_home = setting['common']['path']['RTM_HOME']
 rtm_temp = setting['common']['path']['RTM_TEMP']
 
+repositories = dict(setting['common']['repository'], **setting[sys.platform]['repository'])
+
 __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
 if os.path.isfile(__local_setting_file):
     setting['local'] = yaml.load(open(__local_setting_file, 'r'))
-    
+
+__local_repository_file = os.path.join(rtm_home, 'repository.yaml')
+if os.path.isfile(__local_repository_file):
+    setting['local_repo'] = yaml.load(open(__local_repository_file, 'r'))
+    repositories = dict(repositories, **setting['local_repo'])
+
 __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
 if os.path.isfile(__application_setting_file):
     appsetting = yaml.load(open(__application_setting_file, 'r'))
     if 'application' in appsetting.keys():
         setting['application'] = appsetting['application']
+
+if 'application' in setting.keys():
+    __application_repository_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
+    if os.path.isfile(__application_repository_file):
+        app_repo = yaml.load(open(__application_repository_file, 'r'))
+        setting['app_repo'] = app_repo
+
+
+
