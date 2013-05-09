@@ -115,10 +115,11 @@ try:
     import setuptools
 except:
     from wasanbon import *
+    from wasanbon import util
     from wasanbon.core.management import *
     from wasanbon.core import *
     setting = load_settings()
-    download_and_install(setting[sys.platform]['packages']['setuptools'])
+    util.download_and_install(setting[sys.platform]['packages']['setuptools'], ".")
     
 try:
     import github

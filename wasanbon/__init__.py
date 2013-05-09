@@ -7,6 +7,10 @@ def get_home_path():
         return os.environ['HOME'] 
     elif sys.platform == 'win32':
         return os.path.join(os.environ['HOMEDRIVE'] , os.environ['HOMEPATH'])
+    elif sys.platform == 'linux2':
+        return os.environ['HOME'] 
+    else:
+        print 'Unsupported System %s' % sys.platform
     return ''
 
 tagdict = {'$HOME': get_home_path()}
@@ -103,7 +107,8 @@ if os.path.isfile(__local_setting_file):
 __local_repository_file = os.path.join(rtm_home, 'repository.yaml')
 if os.path.isfile(__local_repository_file):
     setting['local_repo'] = yaml.load(open(__local_repository_file, 'r'))
-    repositories = dict(repositories, **setting['local_repo'])
+    if type(setting['local_repo']) != types.NoneType:
+        repositories = dict(repositories, **setting['local_repo'])
 
 __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
 if os.path.isfile(__application_setting_file):
@@ -115,7 +120,8 @@ if 'application' in setting.keys():
     __application_repository_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
     if os.path.isfile(__application_repository_file):
         app_repo = yaml.load(open(__application_repository_file, 'r'))
-        setting['app_repo'] = app_repo
+        if type(app_repo) != types.NoneType:
+            setting['app_repo'] = app_repo
 
 
 
