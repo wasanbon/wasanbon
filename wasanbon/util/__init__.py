@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, subprocess
 import wasanbon
 from . import download, install, archive
 
@@ -21,10 +21,18 @@ def download_and_unpack(url, dist_path, force=False):
         archive.unpack_tgz(dist_file, dist_path)
     pass
 
+def apt_get(url):
+    cmd = url.split(' ')
+    subprocess.call(cmd)
 
-def download_and_install(url, force=False):
+def download_and_install(url, force=False, temp=""):
+    if url.startswith("apt-get"):
+        apt_get(url)
+        return
     filename = os.path.basename(url)
-    dist_file = os.path.join(wasanbon.rtm_temp, filename)
+    if len(temp)==0:
+        temp = wasanbon.rtm_temp
+    dist_file = os.path.join(temp, filename)
     download.download(url, dist_file, force=force)
     install.install(dist_file)
     pass
