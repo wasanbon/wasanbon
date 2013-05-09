@@ -1,0 +1,21 @@
+cmake :
+  - "/usr/local/bin/cmake"
+  - "/usr/bin/cmake"
+doxygen : 
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
+git :
+  - "/usr/local/bin/git"
+  - "/usr/bin/git"
+java :
+  - "/usr/local/bin/java"
+  - "/usr/bin/java"
+javac :
+  - "/usr/local/bin/javac"
+  - "/usr/bin/javac"
+svn :
+  - "/usr/local/bin/svn"
+  - "/usr/bin/svn"
+emacs :
+  - "/usr/local/bin/emacs"
+  - "/usr/bin/emacs"
