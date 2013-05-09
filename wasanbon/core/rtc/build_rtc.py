@@ -3,7 +3,7 @@
 from wasanbon.core import *
 from wasanbon.core.management import *
 
-import os, sys
+import os, sys, platform
 import yaml
 import subprocess
 import shutil
@@ -39,13 +39,17 @@ def build_rtc_cpp(rtcp):
     rtc_name = rtcp.getName()
     rtc_dir, rtc_xml = os.path.split(rtcp.getRTCProfileFileName())
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
+
+    if sys.platform == 'linux2' and platform.architecture()[0] == '64bit':
+        print ' - detected 64bit linux2. modify PKG_CONFIG_PATH environ.'
+        os.environ['PKG_CONFIG_PATH'] = '/usr/lib64/pkgconfig/:/usr/local/lib64/pkgconfig/'
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
     if not os.path.isdir(build_dir):
         os.makedirs(build_dir)
     os.chdir(build_dir)
     cmd = [setting['local']['cmake'], '..']
-    subprocess.call(cmd)
+    subprocess.call(cmd, env=os.environ)
 
     if sys.platform == 'win32':
         if '%s.sln' % rtcp.getName in os.listdir(os.getcwd()):
@@ -59,4 +63,11 @@ def build_rtc_cpp(rtcp):
             cmd = ['make']
             subprocess.call(cmd)
             return
+    elif sys.platform == 'linux2':
+        if 'Makefile' in os.listdir(os.getcwd()):
+            print 'Makefile is successfully generated.'
+            cmd = ['make']
+            subprocess.call(cmd)
+            return
+
 
