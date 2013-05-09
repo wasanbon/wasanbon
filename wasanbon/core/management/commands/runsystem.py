@@ -66,7 +66,7 @@ class Command(object):
         print 'Starting rtcd processes'
         signal.signal(signal.SIGINT, signal_action)
 
-        if os.path.isfile('log'):
+        if not os.path.isdir('log'):
             os.mkdir('log')
 
         process = {
