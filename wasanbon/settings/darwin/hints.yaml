@@ -8,14 +8,14 @@ doxygen :
   - "/usr/bin/doxygen"
   - "/Applications/Doxygen.app/Contents/Resources/doxygen"
 git :
-  - "/usr/local/bin/doxygen"
-  - "/usr/bin/doxygen"
+  - "/usr/local/bin/git"
+  - "/usr/bin/git"
 java :
-  - "/usr/local/bin/doxygen"
-  - "/usr/bin/doxygen"
+  - "/usr/local/bin/java"
+  - "/usr/bin/java"
 javac :
-  - "/usr/local/bin/doxygen"
-  - "/usr/bin/doxygen"
+  - "/usr/local/bin/javac"
+  - "/usr/bin/javac"
 svn :
   - "/usr/local/bin/doxygen"
   - "/usr/bin/doxygen"

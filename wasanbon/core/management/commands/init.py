@@ -69,7 +69,8 @@ class Command(object):
                 shutil.copyfile(template_repository_file, local_repository_file)
                 init_tools_path()
         else:
-            shutil.copyfile(template_file, local_setting_file)
+            shutil.copyfile(template_setting_file, local_setting_file)
+            shutil.copyfile(template_repository_file, local_repository_file)
             init_tools_path()
 
         if len(argv) >= 3:

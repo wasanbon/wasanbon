@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, subprocess, getpass
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
 from wasanbon.core.rtc import git
 
-import getpass
 rtcprofile_filename = 'RTC.xml'
 
 def print_usage(cmd=''):
@@ -61,15 +60,11 @@ class Command(object):
             if len(argv) < 4:
                 print_usage('git_clone')
             rtcname = argv[3]
-            distpath = os.path.join(wasanbon.rtm_temp, os.path.basename(url)[:-4])
+            url = wasanbon.repositories[rtcname]
+            print 'GIT cloning : %s' % url
+            distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
             cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
             subprocess.call(cmd)
-            crrdir = os.getcwd()
-            os.chdir(distpath)
-            cmd = ['python', 'setup.py', 'install', '--record', 'installed_files.txt']
-            subprocess.call(cmd)
-            os.chdir(crrdir)
-
             
         if argv[2] == 'git_commit':
             if len(argv) < 5:
