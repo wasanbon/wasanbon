@@ -64,14 +64,21 @@ class Command(object):
         if os.path.isfile(local_setting_file):
             if util.yes_no('There seems to be a setting file in %s. Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
                 os.remove(local_setting_file)
-                os.remove(local_repository_file)
                 shutil.copyfile(template_setting_file, local_setting_file)
-                shutil.copyfile(template_repository_file, local_repository_file)
-                init_tools_path()
+            else:
+                return
         else:
             shutil.copyfile(template_setting_file, local_setting_file)
+        if os.path.isfile(local_repository_file):
+            if util.yes_no('There seems to be a repository file in %s. Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
+                os.remove(local_repository_file)
+                shutil.copyfile(template_repository_file, local_repository_file)
+
+            else:
+                return
+        else:
             shutil.copyfile(template_repository_file, local_repository_file)
-            init_tools_path()
+        init_tools_path()
 
         if len(argv) >= 3:
             if argv[2] == '--install':
