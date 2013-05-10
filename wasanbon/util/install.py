@@ -19,11 +19,17 @@ def install(file):
         return
 
     try:
-        ret = subprocess.check_output(cmd)
+        if sys.platform == 'win32':
+            print 'cmd=%s' % cmd
+            ret = subprocess.Popen(cmd, env=os.environ)
+            ret.wait()
+            
+        else:
+            ret = subprocess.check_output(cmd)
         sys.stdout.write('Installing %s is successful. Message is below\n' % file)
         sys.stdout.write(ret)
     except:
-        sys.stdout.write('Installing %s is failed. Maybe this process must have done by super user.\n' % app)
+        sys.stdout.write('Installing %s is failed. Maybe this process must have done by super user.\n' % file)
 
 
 def install_dmg(dmg):
