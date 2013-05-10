@@ -1,6 +1,7 @@
 application :
   name : $APP
   RTC_DIR : rtc
+  RTS_DIR : system
   conf.C++ : conf/rtc_cpp.conf
   conf.Python  : conf/rtc_py.conf
   conf.Java: conf/rtc_java.conf

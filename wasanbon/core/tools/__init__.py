@@ -35,7 +35,7 @@ def install_tools(force=False):
     pass
 
 
-def launch_eclipse():
+def launch_eclipse(workbench):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
@@ -55,7 +55,7 @@ def launch_eclipse():
     else:
         if 'RTC_DIR' in wasanbon.setting['application'].keys():
             sys.stdout.write("Starting eclipse in current project directory.\n")
-            cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'])]
+            cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), wasanbon.setting['application'][workbench])]
         else:
             cmd = [eclipse_cmd]
 
