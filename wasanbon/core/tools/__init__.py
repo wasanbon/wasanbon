@@ -41,7 +41,7 @@ def launch_eclipse(workbench):
 
     env = os.environ
     env['RTM_ROOT'] = rtm.get_rtm_root()
-    print rtm.get_rtm_root()
+    #print rtm.get_rtm_root()
 
     if sys.platform == 'win32':
         eclipse_cmd = eclipse_cmd + '.exe'
