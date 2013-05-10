@@ -119,7 +119,8 @@ except:
     from wasanbon.core.management import *
     from wasanbon.core import *
     setting = load_settings()
-    util.download_and_install(setting[sys.platform]['packages']['setuptools'], ".")
+    util.download_and_install(setting[sys.platform]['packages']['setuptools'],
+                              temp=os.getcwd())
     
 try:
     import github

@@ -5,7 +5,9 @@ doxygen :
   - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
 git : 
   - "C:\\Program Files (x86)\\Git\\bin\\git.exe"
-jdk : 
+java : 
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\java.exe"
+javac : 
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\javac.exe"
 svn :
   - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
