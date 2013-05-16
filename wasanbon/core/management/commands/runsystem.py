@@ -91,13 +91,14 @@ class Command(object):
         manager.runManager(False)
 
         signal.signal(signal.SIGINT, signal_action)
-
+        print 'Process proceeding'
 
         process_state = {}
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
 
         rtsprofile =[ wasanbon.setting['application']['system'] ]
+        print 'rtresurrect'
         rtresurrect.main(rtsprofile)
         #rtstart.main(rtsprofile)
 
