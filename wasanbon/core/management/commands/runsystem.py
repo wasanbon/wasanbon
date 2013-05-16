@@ -11,6 +11,7 @@ from rtshell import rtresurrect, rtstart
 
 import wasanbon
 
+import OpenRTM_aist
 #if platform.system() == 'Windows':
 #    rtm_java_classpath='%s;%s;%s' % (openrtm_java, commons_cli, rtcd_jar)
 #else:
@@ -25,13 +26,6 @@ def start_cpp_rtcd():
     else:
         return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env)
 
-def start_python_rtcd():
-    print '-Starting rtcd_py'
-    py_env = os.environ.copy()
-    if platform.system() == 'Windows':
-        return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512)
-    else:
-        return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env)
 
 def start_java_rtcd():
     print '-Starting rtcd_java'
@@ -52,10 +46,15 @@ def start_java_rtcd():
 
 endflag = False
 
+
+manager = []
+
+
 def signal_action(num, frame):
     print 'SIGINT captured'
     global endflag
     endflag = True
+    manager.terminate()
     pass
 
 class Command(object):
@@ -64,16 +63,22 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         print 'Starting rtcd processes'
-        signal.signal(signal.SIGINT, signal_action)
+
 
         if not os.path.isdir('log'):
             os.mkdir('log')
 
         process = {
             'cpp' : start_cpp_rtcd(),
-            'python' : start_python_rtcd(),
             'java' : start_java_rtcd()
             }
+
+        global manager
+        manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_python.conf'])
+        manager.activateManager()
+        manager.runManager(False)
+        signal.signal(signal.SIGINT, signal_action)
+
 
         process_state = {}
         for key in process.keys():
@@ -100,6 +105,7 @@ class Command(object):
         print 'Terminating All Process....'
         for p in process.values():
             if p.returncode == None:
+                print 'Terminating process...'
                 p.kill()
         print 'All rtcd process terminated.'
         pass
