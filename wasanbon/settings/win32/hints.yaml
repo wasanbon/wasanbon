@@ -13,6 +13,7 @@ javac :
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_21\\bin\\javac.exe"
 svn :
   - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
+  - "C:\\Program Files\\SlikSvn\\bin\\svn.exe"
 msbuild :
   - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe"
 emacs : 
