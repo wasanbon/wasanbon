@@ -91,7 +91,8 @@ class Command(object):
         else:
             sys.stdout.write('If you want to install devtools, sudo wasanbon-admin.py init --install\n')
 
+        rtm.install_rtm(False)
 
         tools.install_tools()
 
-        rtm.install_rtm(False)
+
