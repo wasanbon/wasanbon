@@ -188,8 +188,8 @@
         <tags>newtablook</tags>
         <tags>org.eclipse.e4.primaryDataStack</tags>
         <tags>EditorStack</tags>
-        <children xsi:type="basic:Part" xmi:id="_YeXmcLh0EeKvMf2IsW3-_A" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="DefaultSystem.xml" iconURI="platform:/plugin/jp.go.aist.rtm.systemeditor/icons/on.png" tooltip="RTSE_Files/2013_05_09_03_48_47_343__DefaultSystem.xml" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;editor id=&quot;jp.go.aist.rtm.systemeditor.ui.editor.SystemDiagramEditor&quot;>&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/RTSE_Files/2013_05_09_03_48_47_343__DefaultSystem.xml&quot;/>&#xA;&lt;/editor>"/>
+        <children xsi:type="basic:Part" xmi:id="_YeXmcLh0EeKvMf2IsW3-_A" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="DefaultSystem.xml" iconURI="platform:/plugin/jp.go.aist.rtm.systemeditor/icons/on.png" tooltip="DefaultSystem.xml" closeable="true">
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;editor id=&quot;jp.go.aist.rtm.systemeditor.ui.editor.SystemDiagramEditor&quot;>&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/DefaultSystem.xml&quot;/>&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>jp.go.aist.rtm.systemeditor.ui.editor.SystemDiagramEditor</tags>
           <tags>removeOnHide</tags>
