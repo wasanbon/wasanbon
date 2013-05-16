@@ -9,6 +9,7 @@ import signal
 import rtsprofile.rts_profile
 import rtctree
 from rtshell import rtresurrect, rtstart
+import rtshell.option_store
 
 import wasanbon
 
@@ -97,7 +98,7 @@ class Command(object):
         process_state = {}
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
-
+        rtshell.option_store.OptionStore().verbose = False
         rtsp_filepath = wasanbon.setting['application']['system'] 
         with open(rtsp_filepath) as f:
             rtsp = rtsprofile.rts_profile.RtsProfile(xml_spec=f)
