@@ -98,6 +98,8 @@ class Command(object):
             process_state[key] = False #process[key].returncode != None
 
         rtsprofile =[ wasanbon.setting['application']['system'] ]
+        import time
+        time.sleep(10)
         print 'rtresurrect'
         rtresurrect.main(rtsprofile)
         #rtstart.main(rtsprofile)
