@@ -44,6 +44,6 @@ def install_pyrtm(arg=False):
     if sys.platform == 'darwin':
         install.install_pyrtm_osx(arg)
     elif sys.platform == 'win32':
-        install.install_cpprtm_win(arg)
+        install.install_pyrtm_win(arg)
     pass
 
