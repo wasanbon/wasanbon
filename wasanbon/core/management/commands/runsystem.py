@@ -27,6 +27,17 @@ def start_cpp_rtcd():
         return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env)
 
 
+def start_python_rtcd():
+    print '-Starting rtcd_py'
+    py_env = os.environ.copy()
+    if platform.system() == 'Windows':
+        p = subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
+        p.stdin.write('N')
+        return p
+    else:
+        return subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env)
+ 
+
 def start_java_rtcd():
     print '-Starting rtcd_java'
     rtm_java_classpath = os.path.join(wasanbon.rtm_home, 'jar')
@@ -84,10 +95,8 @@ class Command(object):
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
 
-
         rtsprofile =[ wasanbon.setting['application']['system'] ]
         rtresurrect.main(rtsprofile)
-
         rtstart.main(rtsprofile)
 
 
