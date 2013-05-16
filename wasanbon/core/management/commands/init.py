@@ -3,6 +3,10 @@ import os, sys, yaml, shutil
 import wasanbon
 from wasanbon import util
 from wasanbon.core import platform
+from wasanbon.core import tools
+from wasanbon.core import rtm
+
+
 
 def search_command(cmd, hints):
     if sys.platform == 'win32':
@@ -88,3 +92,8 @@ class Command(object):
             sys.stdout.write('Wasanbon initialization OK.\n')
         else:
             sys.stdout.write('If you want to install devtools, sudo wasanbon-admin.py init --install\n')
+
+
+        tools.install_tools()
+
+        rtm.install_rtm(False)
