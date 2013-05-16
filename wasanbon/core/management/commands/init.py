@@ -84,9 +84,7 @@ class Command(object):
             shutil.copyfile(template_repository_file, local_repository_file)
         init_tools_path()
 
-        if len(argv) >= 3:
-            if argv[2] == '--install':
-                platform.check_and_install_devtools()
+        platform.check_and_install_devtools()
 
         if platform.check_devtools():
             sys.stdout.write('Wasanbon initialization OK.\n')
