@@ -101,7 +101,8 @@ class Command(object):
         import time
         time.sleep(10)
         print 'rtresurrect'
-        rtresurrect.main(rtsprofile)
+        #rtresurrect.main(rtsprofile)
+        rtresurrect.resurrect(rtsprofile, org=manager.getORB())
         #rtstart.main(rtsprofile)
 
 
