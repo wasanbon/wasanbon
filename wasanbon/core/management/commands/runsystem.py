@@ -65,7 +65,7 @@ def signal_action(num, frame):
     print 'SIGINT captured'
     global endflag
     endflag = True
-    #manager.terminate()
+    manager.terminate()
     pass
 
 class Command(object):
@@ -81,16 +81,15 @@ class Command(object):
 
         process = {
             'cpp' : start_cpp_rtcd(),
-            'python' : start_python_rtcd(),
+            #'python' : start_python_rtcd(),
             'java' : start_java_rtcd()
             }
 
-        """
         global manager
         manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_py.conf'])
         manager.activateManager()
         manager.runManager(False)
-        """
+
         signal.signal(signal.SIGINT, signal_action)
 
 
@@ -100,7 +99,7 @@ class Command(object):
 
         rtsprofile =[ wasanbon.setting['application']['system'] ]
         rtresurrect.main(rtsprofile)
-        rtstart.main(rtsprofile)
+        #rtstart.main(rtsprofile)
 
 
         global endflag
