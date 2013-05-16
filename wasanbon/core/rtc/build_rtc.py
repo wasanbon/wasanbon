@@ -52,10 +52,12 @@ def build_rtc_cpp(rtcp):
     subprocess.call(cmd, env=os.environ)
 
     if sys.platform == 'win32':
-        if '%s.sln' % rtcp.getName in os.listdir(os.getcwd()):
+        sln = '%s.sln' % rtcp.getName()
+        if sln in os.listdir(os.getcwd()):
             print 'Solution is successfully generated.'
-            cmd = [setting['local']['msbuild'], file, '/p:Configuration=Release', '/p:Platform=Win32']
-            subprocess.call(cmd)
+            cmd = [setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
+            print cmd
+            subprocess.Popen(cmd)
             return
     elif sys.platform == 'darwin':
         if 'Makefile' in os.listdir(os.getcwd()):
