@@ -64,6 +64,8 @@ def install(rtcp):
     if path_.startswith(os.getcwd()):
         path_ = path_[len(os.getcwd())+1:]
 
+    if sys.platform == 'win32':
+        path_ = path_.replace('\\', '\\\\')
     rtcc.append('manager.modules.load_path', path_)
     rtcc.append('manager.modules.preload', file_)
     rtcc.append('manager.components.precreate', rtcp.getName())
