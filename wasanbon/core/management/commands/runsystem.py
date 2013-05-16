@@ -6,6 +6,7 @@ import os
 import platform
 import signal
 
+import rtsprofile.rts_profile
 import rtctree
 from rtshell import rtresurrect, rtstart
 
@@ -97,13 +98,19 @@ class Command(object):
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
 
-        rtsprofile =[ wasanbon.setting['application']['system'] ]
+        rtsp_filepath = wasanbon.setting['application']['system'] 
+        with open(rtsp_filepath) as f:
+            rtsp = rtsprofile.rts_profile.RtsProfile(xml_spec=f)
+        actions = rtresurrect.rebuild_system_actions(rtsp)
+        tree = rtctree.tree.RTCTree(paths=[rtctree.path.parse_path(
+                    '/' + c.path_uri)[0] for c in rtsp.components])
+        for a in actions:
+            a(tree)
         #import time
         #time.sleep(10)
         print 'rtresurrect'
         #rtresurrect.main(rtsprofile)
-        print rtsprofile
-        rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
+        #rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
         #rtstart.main(rtsprofile)
 
 
