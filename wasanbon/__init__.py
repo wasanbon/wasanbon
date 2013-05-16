@@ -31,6 +31,10 @@ def load_settings():
     setting = __load_subdir(root_dir)
     
     pathdict = setting['common']['path']
+    if sys.platform == 'win32':
+        for key in pathdict.keys():
+            pathdict[key] = pathdict[key].replace('/', '\\')
+
     old_len = len(tagdict)
     while True:
         for key in pathdict:
