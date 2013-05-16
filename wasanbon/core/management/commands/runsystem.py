@@ -102,7 +102,7 @@ class Command(object):
         #time.sleep(10)
         print 'rtresurrect'
         #rtresurrect.main(rtsprofile)
-        rtresurrect.resurrect(rtsprofile, orb=manager.getORB())
+        rtresurrect.resurrect(rtsprofile, rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
         #rtstart.main(rtsprofile)
 
 
