@@ -7,3 +7,4 @@ jdk : 'http://www.sugarsweetrobotics.com/pub/Win32/jdk/jdk-7u21-windows-i586.exe
 python : 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/OpenRTM-aist-Python-1.1.0-RC1.msi'
 emacs : 'http://ftp.jaist.ac.jp/pub/GNU/emacs/windows/emacs-23.4-bin-i386.zip'
 setuptools : 'https://pypi.python.org/packages/2.6/s/setuptools/setuptools-0.6c11.win32-py2.6.exe'
+svn : 'http://www.sliksvn.com/pub/Slik-Subversion-1.7.9-x64.msi'
