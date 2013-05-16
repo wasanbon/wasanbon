@@ -74,7 +74,7 @@ class Command(object):
             }
 
         global manager
-        manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_python.conf'])
+        manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_py.conf'])
         manager.activateManager()
         manager.runManager(False)
         signal.signal(signal.SIGINT, signal_action)
