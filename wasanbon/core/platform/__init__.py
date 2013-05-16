@@ -30,7 +30,7 @@ def install_cmd(cmd):
     elif sys.platform == 'win32':
         if cmd == 'emacs':
             util.download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
-                                dist=wasanbon.setting['common']['path']['RTM_HOME'])
+                                dist_path=wasanbon.setting['common']['path']['RTM_HOME'])
         else:
             util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
     else:
