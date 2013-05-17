@@ -134,8 +134,8 @@ class Command(object):
             a(tree)
             """
 
-        rtresurrect.rtresurrect.main(wasanbon.setting['application']['system'])
-        rtstart.rtstart.main(wasanbon.setting['application']['system'])
+        rtresurrect.main(wasanbon.setting['application']['system'])
+        rtstart.main(wasanbon.setting['application']['system'])
 
         #cmd_rtresurrect()
         #cmd_rtstart()
