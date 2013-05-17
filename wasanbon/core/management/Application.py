@@ -4,8 +4,10 @@ import os
 import sys
 import yaml
 
-from wasanbon import *
+
+import wasanbon
 import wasanbon.core.management.commands
+import wasanbon.core.management.admin
 from optparse import OptionParser, make_option, NO_DEFAULT 
 from OptionParserEx import *
 
@@ -45,25 +47,6 @@ def autocomplete(self):
         pass
     pass
 
-
-def show_help_text(command):
-    import locale, yaml, os
-    locale_name = locale.getdefaultlocale()[0]
-    filename = 'en_US.yaml'
-    path = os.path.join(wasanbon.__path__[0], 'locale', 'messages')
-    for file in os.listdir(path):
-
-        if file.endswith('.yaml'):
-            if file[:len(file)-5] == locale_name:
-                filename = locale_name + '.yaml'
-    y = yaml.load(open(os.path.join(path, filename), 'r'))
-    sys.stdout.write("Usage : %s [subcommand] [args...]\n" % os.path.basename(command))
-    sys.stdout.write(" - subcommand : \n")
-    for subcommand in get_subcommand_list():
-        desc = 'No information'
-        if subcommand in y['help']['command']['brief'].keys():
-            desc = y['help']['command']['brief'][subcommand]
-        sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, desc))
     
 def get_subcommand_list():
     import wasanbon.core.management.commands
@@ -71,9 +54,28 @@ def get_subcommand_list():
     ret.append('help')
     return ret
 
+def get_admincommand_list():
+    import wasanbon.core.management.admin
+    ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], 'admin')) if x.endswith('.py') and not x.startswith("__")]
+    ret.append('help')
+    return ret
+
+
+def show_help_brief(is_admin):
+    sys.stdout.write("\nUsage : %s [subcommand] [args...]\n"%  os.path.basename(sys.argv[0]))
+    sys.stdout.write(" - subcommand : \n")
+    if is_admin:
+        for subcommand in get_admincommand_list():
+            sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, wasanbon.get_help_text(['help','command', 'brief', subcommand])))
+    else:
+        for subcommand in get_subcommand_list():
+            sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, wasanbon.get_help_text(['help','command', 'brief', subcommand])))
+    print " "
+
+
 def execute():
     parser = OptionParserEx(usage="%prog subcommand [options] [args]",
-                            version=get_version(),
+                            version=wasanbon.get_version(),
                             option_list=option_list)
         
     try:
@@ -85,6 +87,12 @@ def execute():
     except:
         pass
 
+    command = os.path.basename(sys.argv[0])
+    if command == 'wasanbon-admin.py':
+        is_admin = True
+    else:
+        is_admin = False
+
     try:
         subcommand = sys.argv[1]
     except IndexError:
@@ -92,16 +100,26 @@ def execute():
         pass
 
     if subcommand == 'help':
-        show_help_text(sys.argv[0])
+        show_help_brief(is_admin=is_admin)
         return
     elif len(args) <= 1:
-        show_help_text(sys.argv[0])
+        show_help_brief(is_admin=is_admin)
         return
+    elif is_admin:
+        if not subcommand in get_admincommand_list():
+            show_help_brief(is_admin=is_admin)
+            return 
     elif not subcommand in get_subcommand_list():
-        show_help_text(sys.argv[0])
-        return 
+        show_help_brief(is_admin=is_admin)
+        return
 
-    module_name =  'wasanbon.core.management.commands.%s' %  subcommand
+    if len(sys.argv) >= 3 and sys.argv[2] == 'help':
+        wasanbon.show_help_description(subcommand)
+        return
+    if is_admin:
+        module_name =  'wasanbon.core.management.admin.%s' %  subcommand
+    else:
+        module_name =  'wasanbon.core.management.commands.%s' %  subcommand
     __import__(module_name)
     comm = sys.modules[module_name].Command()
 

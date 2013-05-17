@@ -53,7 +53,14 @@ class Command(object):
     def __init__(self):
         pass
 
+    def is_admin(self):
+        return True
+
     def execute_with_argv(self, argv):
+        if len(argv) > 3 and argv[2] == 'help':
+            wasanbon.show_help_description('init')
+
+
         os.umask(0000)
         repo = wasanbon.setting['common']['repository']['wasanbon']
         if not os.path.isdir(wasanbon.rtm_home):
