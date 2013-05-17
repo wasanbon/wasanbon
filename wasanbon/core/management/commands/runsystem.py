@@ -1,23 +1,17 @@
 #!/usr/bin/env python
-
-#import OpenRTM_aist
 import subprocess
-import os, sys
+import os, sys, time
 import platform
 import signal
 
-import rtsprofile.rts_profile
-import rtctree
-from rtshell import rtresurrect, rtstart
-import rtshell.option_store
+#import rtsprofile.rts_profile
+#import rtctree
+#from rtshell import rtresurrect, rtstart
+#import rtshell.option_store
 
 import wasanbon
 
 import OpenRTM_aist
-#if platform.system() == 'Windows':
-#    rtm_java_classpath='%s;%s;%s' % (openrtm_java, commons_cli, rtcd_jar)
-#else:
-#    rtm_java_classpath='%s:%s:%s' % (openrtm_java, commons_cli, rtcd_jar)
 
 def start_cpp_rtcd():
     print '-Starting rtcd_cpp'
@@ -33,7 +27,8 @@ def start_python_rtcd():
     print '-Starting rtcd_py'
     py_env = os.environ.copy()
     if platform.system() == 'Windows':
-        p = subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
+        #p = subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
+        p = subprocess.Popen(['c:\Python26\python.exe', 'rtcd.py', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
         p.stdin.write('N')
         return p
     else:
@@ -58,9 +53,32 @@ def start_java_rtcd():
         return subprocess.Popen([wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
 
 endflag = False
-
-
 manager = []
+
+
+def cmd_rtresurrect():
+    print 'rtresurrect'
+    if sys.platform == 'win32':
+        cmd = ['rtresurrect.bat', wasanbon.setting['application']['system']]
+    else:
+        cmd = ['rtresurrect', wasanbon.setting['application']['system']]
+    while True:
+        p = subprocess.Popen(cmd)
+        if p.wait() == 0:
+            break;
+        time.sleep(1)
+
+def cmd_rtstart():
+    print 'rtstart'
+    if sys.platform == 'win32':
+        cmd = ['rtstart.bat', wasanbon.setting['application']['system']]
+    else:
+        cmd = ['rtstart', wasanbon.setting['application']['system']]
+        
+    while True:
+        p = subprocess.Popen(cmd)
+        if p.wait() == 0:
+            time.sleep(1)
 
 
 def signal_action(num, frame):
@@ -83,14 +101,14 @@ class Command(object):
 
         process = {
             'cpp' : start_cpp_rtcd(),
-            #'python' : start_python_rtcd(),
+            'python' : start_python_rtcd(),
             'java' : start_java_rtcd()
             }
 
-        global manager
-        manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_py.conf'])
-        manager.activateManager()
-        manager.runManager(True)
+        #global manager
+        #manager = OpenRTM_aist.Manager.init(['rtcd_python', '-f', 'conf/rtc_py.conf'])
+        #manager.activateManager()
+        #manager.runManager(True)
 
         signal.signal(signal.SIGINT, signal_action)
         print 'Process proceeding'
@@ -100,7 +118,7 @@ class Command(object):
             process_state[key] = False #process[key].returncode != None
 
 
-            """
+        """
         rtshell.option_store.OptionStore().verbose = False
         rtsp_filepath = wasanbon.setting['application']['system'] 
         with open(rtsp_filepath) as f:
@@ -113,33 +131,9 @@ class Command(object):
         for a in actions:
             print a
             a(tree)
-"""
-        import time
-        #time.sleep(10)
-        print 'rtresurrect'
-        if sys.platform == 'win32':
-            cmd = ['rtresurrect.bat', wasanbon.setting['application']['system']]
-        else:
-            cmd = ['rtresurrect', wasanbon.setting['application']['system']]
-        while subprocess.call(cmd) != 0:
-            time.sleep(1)
-
-        print 'rtstart'
-        if sys.platform == 'win32':
-            cmd = ['rtstart.bat', wasanbon.setting['application']['system']]
-        else:
-            cmd = ['rtstart', wasanbon.setting['application']['system']]
-
-        while subprocess.call(cmd) != 0:
-            time.sleep(1)
-        #subprocess.call(cmd)
-        
-        #rtresurrect.main(rtsprofile)
-        #rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
-        #rtstart.main(rtsprofile)
-
-        
-
+        """
+        cmd_rtresurrect()
+        cmd_rtstart()
         
         
 
