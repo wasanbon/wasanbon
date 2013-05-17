@@ -117,12 +117,12 @@ class Command(object):
         #import time
         #time.sleep(10)
         print 'rtresurrect'
-        cmd = ['rtresurrect', wasanbon.setting['application']['system']]
-        subprocess.call(cmd)
+        #cmd = ['rtresurrect', wasanbon.setting['application']['system']]
+        #subprocess.call(cmd)
 
         print 'rtstart'
-        cmd = ['rtstart', wasanbon.setting['application']['system']]
-        subprocess.call(cmd)
+        #cmd = ['rtstart', wasanbon.setting['application']['system']]
+        #subprocess.call(cmd)
         
         #rtresurrect.main(rtsprofile)
         #rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
