@@ -7,7 +7,13 @@ class Command(object):
     def __init__(self):
         pass
 
+    def is_admin(self):
+        return True
+
     def execute_with_argv(self, argv):
+        if len(argv) >= 3 and argv[2] == 'help':
+            wasanbon.show_help_description('selfupdate')
+            return
         cwd = os.getcwd()
         os.chdir(wasanbon.rtm_temp)
         if not os.path.isdir('wasanbon'):

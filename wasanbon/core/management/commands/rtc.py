@@ -42,6 +42,9 @@ class Command(object):
     def __init__(self):
         pass
 
+    def is_admin(self):
+        return False
+
     def execute_with_argv(self, argv):
         if len(argv) < 3:
             print_usage()

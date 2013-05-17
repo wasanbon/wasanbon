@@ -1,6 +1,43 @@
-import sys, os
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+
+import sys, os, locale
 import yaml, types
 
+
+
+def show_help_description(subcommand):
+    sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
+    help =  get_help_text(['help','command', 'description', subcommand])
+    print " "
+    if type(help) is types.ListType:
+        for h in help:
+            print "     " +  h
+    else:
+        print "     " +  h
+
+    print " "
+
+
+def get_help_text(arg):
+    locale_name = locale.getdefaultlocale()[0]
+    filename = 'en_US.yaml'
+    path = os.path.join(__path__[0], 'locale', 'messages')
+    for file in os.listdir(path):
+        if file.endswith('.yaml'):
+            if file[:len(file)-5] == locale_name:
+                filename = locale_name + '.yaml'
+    y = data = yaml.load(open(os.path.join(path, filename), 'r'))
+    for key in arg:
+        if not key in y.keys():
+            return data['none']
+        y = y[key]
+
+    if not type(y) is types.DictType:
+        return y
+    return data['none']
+    
 
 def get_home_path():
     if sys.platform == 'darwin':
