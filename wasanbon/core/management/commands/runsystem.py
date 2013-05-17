@@ -86,7 +86,7 @@ def signal_action(num, frame):
     print 'SIGINT captured'
     global endflag
     endflag = True
-    manager.terminate()
+    #manager.terminate()
     pass
 
 class Command(object):
