@@ -104,6 +104,8 @@ class Command(object):
         with open(rtsp_filepath) as f:
             rtsp = rtsprofile.rts_profile.RtsProfile(xml_spec=f)
         actions = rtresurrect.rebuild_system_actions(rtsp)
+        print 'paths = '
+        print [rtctree.path.parse_path('/' + c.path_uri)[0] for c in rtsp.components]
         tree = rtctree.tree.RTCTree(orb=manager.getORB(), paths=[rtctree.path.parse_path(
                     '/' + c.path_uri)[0] for c in rtsp.components])
         for a in actions:
