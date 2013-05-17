@@ -2,6 +2,7 @@
 
 import wasanbon
 import os, sys, subprocess, shutil
+from wasanbon import util
 
 class Command(object):
     def __init__(self):
@@ -17,7 +18,7 @@ class Command(object):
             return
 
         elif len(argv) >= 3 and argv[2] == '--clean':
-            if not wasanbon.yes_no('Do you really want to cleanup and update wasanbon/') == 'yes':
+            if not util.yes_no('Do you really want to cleanup and update wasanbon/') == 'yes':
                 print 'Aborted.'
                 return
             else:
