@@ -2,7 +2,7 @@
 
 #import OpenRTM_aist
 import subprocess
-import os
+import os, sys
 import platform
 import signal
 
