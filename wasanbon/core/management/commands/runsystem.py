@@ -99,6 +99,8 @@ class Command(object):
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
 
+
+            """
         rtshell.option_store.OptionStore().verbose = False
         rtsp_filepath = wasanbon.setting['application']['system'] 
         with open(rtsp_filepath) as f:
@@ -111,9 +113,17 @@ class Command(object):
         for a in actions:
             print a
             a(tree)
+"""
         #import time
         #time.sleep(10)
         print 'rtresurrect'
+        cmd = ['rtresurrect', wasanbon.setting['application']['system']]
+        subprocess.call(cmd)
+
+        print 'rtstart'
+        cmd = ['rtstart', wasanbon.setting['application']['system']]
+        subprocess.call(cmd)
+        
         #rtresurrect.main(rtsprofile)
         #rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
         #rtstart.main(rtsprofile)
