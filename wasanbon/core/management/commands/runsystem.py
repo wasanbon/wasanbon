@@ -114,14 +114,24 @@ class Command(object):
             print a
             a(tree)
 """
-        #import time
+        import time
         #time.sleep(10)
         print 'rtresurrect'
-        #cmd = ['rtresurrect', wasanbon.setting['application']['system']]
-        #subprocess.call(cmd)
+        if sys.platform == 'win32':
+            cmd = ['rtresurrect.bat', wasanbon.setting['application']['system']]
+        else:
+            cmd = ['rtresurrect', wasanbon.setting['application']['system']]
+        while subprocess.call(cmd) != 0:
+            time.sleep(1)
 
         print 'rtstart'
-        #cmd = ['rtstart', wasanbon.setting['application']['system']]
+        if sys.platform == 'win32':
+            cmd = ['rtstart.bat', wasanbon.setting['application']['system']]
+        else:
+            cmd = ['rtstart', wasanbon.setting['application']['system']]
+
+        while subprocess.call(cmd) != 0:
+            time.sleep(1)
         #subprocess.call(cmd)
         
         #rtresurrect.main(rtsprofile)
