@@ -98,12 +98,13 @@ class Command(object):
         process_state = {}
         for key in process.keys():
             process_state[key] = False #process[key].returncode != None
+
         rtshell.option_store.OptionStore().verbose = False
         rtsp_filepath = wasanbon.setting['application']['system'] 
         with open(rtsp_filepath) as f:
             rtsp = rtsprofile.rts_profile.RtsProfile(xml_spec=f)
         actions = rtresurrect.rebuild_system_actions(rtsp)
-        tree = rtctree.tree.RTCTree(paths=[rtctree.path.parse_path(
+        tree = rtctree.tree.RTCTree(orb=manager.getORB(), paths=[rtctree.path.parse_path(
                     '/' + c.path_uri)[0] for c in rtsp.components])
         for a in actions:
             a(tree)
@@ -114,6 +115,10 @@ class Command(object):
         #rtresurrect.resurrect(rtsprofile[0], rtctree.tree.RTCTree(paths='/', orb=manager.getORB()))
         #rtstart.main(rtsprofile)
 
+        
+
+        
+        
 
         global endflag
         while not endflag:
