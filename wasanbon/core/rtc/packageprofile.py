@@ -53,7 +53,7 @@ def find_rtc_bin(rtcp):
         rtc_file_name_list = rtcp.getName() + '.' + bin_ext
     elif rtcp.getLanguage() == 'Python':
         rtc_file_name_list = rtcp.getName() + '.py'
-    elif self.getLanguage() == 'Java':
+    elif rtcp.getLanguage() == 'Java':
         rtc_file_name_list = rtcp.getName() + '.jar'
     else:
         raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % getLanguage())
