@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>RTSE_Files</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>2013_03_18_02_34_09_425__DummySystem.xml</name>
+			<type>1</type>
+			<location>/Users/ysuga/Development/rtm/kotobuki/temp/rtc/DummySystem.xml</location>
+		</link>
+		<link>
+			<name>2013_03_18_03_25_24_660__DummySystem.xml</name>
+			<type>1</type>
+			<location>/Users/ysuga/Development/rtm/kotobuki/temp/rtc/RTSE_Files/DummySystem.xml</location>
+		</link>
+	</linkedResources>
+</projectDescription>
