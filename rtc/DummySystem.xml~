@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rts:RtsProfile rts:updateDate="2013-03-18T14:34:09+09:00" rts:creationDate="2013-03-18T14:34:09+09:00" rts:version="0.2" rts:id="RTSystem:Sugar Sweet Robotics:DummySystem:1.0" xmlns:rtsExt="http://www.openrtp.org/namespaces/rts_ext" xmlns:rts="http://www.openrtp.org/namespaces/rts" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <rts:Components xsi:type="rtsExt:component_ext" rts:isRequired="true" rts:compositeType="None" rts:activeConfigurationSet="default" rts:instanceName="Controller0" rts:pathUri="localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/ControllerDummy_cpp/RTC.xml" rts:id="RTC:Sugar Sweet Robotics:Experimenta:Controller:1.0.0">
+        <rts:DataPorts xsi:type="rtsExt:dataport_ext" rts:name="Controller0.out"/>
+        <rts:DataPorts xsi:type="rtsExt:dataport_ext" rts:name="Controller0.in"/>
+        <rts:ConfigurationSets rts:id="default">
+            <rts:ConfigurationData rts:data="0" rts:name="conf_1"/>
+        </rts:ConfigurationSets>
+        <rts:ConfigurationSets rts:id="__constraints__"/>
+        <rts:ConfigurationSets rts:id="__widget__">
+            <rts:ConfigurationData rts:data="text" rts:name="conf_1"/>
+        </rts:ConfigurationSets>
+        <rts:ExecutionContexts xsi:type="rtsExt:execution_context_ext" rts:rate="1000.0" rts:kind="PERIODIC" rts:id="owned0"/>
+        <rtsExt:Location rtsExt:direction="RIGHT" rtsExt:width="-1" rtsExt:height="-1" rtsExt:y="60" rtsExt:x="135"/>
+    </rts:Components>
+    <rts:Components xsi:type="rtsExt:component_ext" rts:isRequired="true" rts:compositeType="None" rts:instanceName="Motor0" rts:pathUri="localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/MotorDummy/RTC.xml" rts:id="RTC:Sugar Sweet Robotics:Experimenta:Motor:1.0.0">
+        <rts:DataPorts xsi:type="rtsExt:dataport_ext" rts:name="Motor0.in"/>
+        <rts:ExecutionContexts xsi:type="rtsExt:execution_context_ext" rts:rate="1000.0" rts:kind="PERIODIC" rts:id="owned0"/>
+        <rtsExt:Location rtsExt:direction="RIGHT" rtsExt:width="-1" rtsExt:height="-1" rtsExt:y="127" rtsExt:x="274"/>
+    </rts:Components>
+    <rts:Components xsi:type="rtsExt:component_ext" rts:isRequired="true" rts:compositeType="None" rts:instanceName="Sensor0" rts:pathUri="/localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/SensorDummy_cpp/RTC.xml" rts:id="RTC:Sugar Sweet Robotics:Experimental:Sensor:1.0.0">
+        <rts:DataPorts xsi:type="rtsExt:dataport_ext" rts:name="Sensor0.out"/>
+        <rts:ExecutionContexts xsi:type="rtsExt:execution_context_ext" rts:rate="1000.0" rts:kind="PERIODIC" rts:id="owned0"/>
+        <rtsExt:Location rtsExt:direction="RIGHT" rtsExt:width="-1" rtsExt:height="-1" rtsExt:y="144" rtsExt:x="67"/>
+    </rts:Components>
+    <rts:DataPortConnectors xsi:type="rtsExt:dataport_connector_ext" rts:subscriptionType="flush" rts:dataflowType="push" rts:interfaceType="corba_cdr" rts:dataType="RTC::TimedLong" rts:name="Controller0.out_Motor0.in" rts:connectorId="46f15bbd-82ab-4638-a9ff-7b627734c9c4">
+        <rts:sourceDataPort xsi:type="rtsExt:target_port_ext" rts:portName="Controller0.out" rts:instanceName="Controller0" rts:componentId="RTC:Sugar Sweet Robotics:Experimenta:Controller:1.0.0">
+            <rtsExt:Properties rtsExt:value="/localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/ControllerDummy_cpp/RTC.xml" rtsExt:name="COMPONENT_PATH_ID"/>
+        </rts:sourceDataPort>
+        <rts:targetDataPort xsi:type="rtsExt:target_port_ext" rts:portName="Motor0.in" rts:instanceName="Motor0" rts:componentId="RTC:Sugar Sweet Robotics:Experimenta:Motor:1.0.0">
+            <rtsExt:Properties rtsExt:value="/localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/MotorDummy/RTC.xml" rtsExt:name="COMPONENT_PATH_ID"/>
+        </rts:targetDataPort>
+        <rtsExt:Properties rtsExt:value="all" rtsExt:name="dataport.publisher.push_policy"/>
+    </rts:DataPortConnectors>
+    <rts:DataPortConnectors xsi:type="rtsExt:dataport_connector_ext" rts:subscriptionType="flush" rts:dataflowType="push" rts:interfaceType="corba_cdr" rts:dataType="RTC::TimedLong" rts:name="Sensor0.out_Controller0.in" rts:connectorId="a4342fe1-1b49-4663-95c6-373f6bf760d7">
+        <rts:sourceDataPort xsi:type="rtsExt:target_port_ext" rts:portName="Sensor0.out" rts:instanceName="Sensor0" rts:componentId="RTC:Sugar Sweet Robotics:Experimental:Sensor:1.0.0">
+            <rtsExt:Properties rtsExt:value="/localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/SensorDummy_cpp/RTC.xml" rtsExt:name="COMPONENT_PATH_ID"/>
+        </rts:sourceDataPort>
+        <rts:targetDataPort xsi:type="rtsExt:target_port_ext" rts:portName="Controller0.in" rts:instanceName="Controller0" rts:componentId="RTC:Sugar Sweet Robotics:Experimenta:Controller:1.0.0">
+            <rtsExt:Properties rtsExt:value="/localhost/Users/ysuga/Development/rtm/kotobuki/temp/rtc/practice1/ControllerDummy_cpp/RTC.xml" rtsExt:name="COMPONENT_PATH_ID"/>
+        </rts:targetDataPort>
+        <rtsExt:Properties rtsExt:value="all" rtsExt:name="dataport.publisher.push_policy"/>
+    </rts:DataPortConnectors>
+</rts:RtsProfile>

@@ -1,0 +1,20 @@
+cmake :
+  - "C:\\Program Files (x86)\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake 2.8\\bin\\cmake.exe"
+doxygen :
+  - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
+git : 
+  - "C:\\Program Files (x86)\\Git\\bin\\git.exe"
+java : 
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\java.exe"
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_21\\bin\\java.exe"
+javac : 
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\javac.exe"
+  - "C:\\Program Files (x86)\\Java\\jdk1.7.0_21\\bin\\javac.exe"
+svn :
+  - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
+  - "C:\\Program Files\\SlikSvn\\bin\\svn.exe"
+msbuild :
+  - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe"
+emacs : 
+  - "$HOME\\rtm\\emacs-23.4\\bin\\emacs.exe"
