@@ -107,6 +107,7 @@ class Command(object):
         tree = rtctree.tree.RTCTree(orb=manager.getORB(), paths=[rtctree.path.parse_path(
                     '/' + c.path_uri)[0] for c in rtsp.components])
         for a in actions:
+            print a
             a(tree)
         #import time
         #time.sleep(10)
