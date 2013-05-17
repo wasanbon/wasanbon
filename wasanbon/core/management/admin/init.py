@@ -100,6 +100,8 @@ class Command(object):
 
         rtm.install_rtm(False)
 
+        platform.check_devtools():
+
         tools.install_tools()
 
 
