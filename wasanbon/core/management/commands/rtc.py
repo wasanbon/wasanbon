@@ -8,8 +8,6 @@ from wasanbon.core.rtc import git
 
 rtcprofile_filename = 'RTC.xml'
 
-def print_usage(cmd=''):
-    return
 
 def print_rtc_profile(rtcp):
     str = rtcp.getName() + ' : \n'
@@ -47,7 +45,9 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if len(argv) < 3:
-            print_usage()
+            wasanbon.show_help_description('rtc')
+            return
+
         rtcps = rtc.parse_rtcs()
 
         if argv[2] == 'list':
@@ -55,21 +55,31 @@ class Command(object):
                 print_rtc_profile(rtcp)
                 pp = rtc.PackageProfile(rtcp)
                 print_package_profile(pp)
+            return
+        elif argv[2] == 'repository':
+            url = wasanbon.repositories
+            for key, value in url.items():
+                print '  ' + key + ' ' * (24-len(key)) + ' : ' + value
+            return
 
         if argv[2] == 'git_init':
             git_init(rtcps, argv)
 
-        if argv[2] == 'git_clone':
+
+        if argv[2] == 'clone':
             if len(argv) < 4:
-                print_usage('git_clone')
+                wasanbon.show_help_description('rtc')
+                return
+
             rtcname = argv[3]
             url = wasanbon.repositories[rtcname]
             print 'GIT cloning : %s' % url
             distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
             cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
             subprocess.call(cmd)
+            return
             
-        if argv[2] == 'git_commit':
+        if argv[2] == 'commit':
             if len(argv) < 5:
                 print_usage()
             rtcname = argv[3]
@@ -79,7 +89,7 @@ class Command(object):
                     sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
                     git.git_commit(rtcp, comment)
 
-        if argv[2] == 'git_push':
+        if argv[2] == 'push':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
