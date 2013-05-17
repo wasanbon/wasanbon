@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
 
 import sys, os, locale
 import yaml, types
@@ -163,6 +161,6 @@ if 'application' in setting.keys():
         app_repo = yaml.load(open(__application_repository_file, 'r'))
         if type(app_repo) != types.NoneType:
             setting['app_repo'] = app_repo
-
+            repositories = dict(repositories, **setting['app_repo'])
 
 

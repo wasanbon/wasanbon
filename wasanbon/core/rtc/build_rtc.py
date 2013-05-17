@@ -48,14 +48,14 @@ def build_rtc_cpp(rtcp):
     if not os.path.isdir(build_dir):
         os.makedirs(build_dir)
     os.chdir(build_dir)
-    cmd = [setting['local']['cmake'], '..']
+    cmd = [wasanbon.setting['local']['cmake'], '..']
     subprocess.call(cmd, env=os.environ)
 
     if sys.platform == 'win32':
         sln = '%s.sln' % rtcp.getName()
         if sln in os.listdir(os.getcwd()):
             print 'Solution is successfully generated.'
-            cmd = [setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
+            cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
             print cmd
             subprocess.Popen(cmd)
             return

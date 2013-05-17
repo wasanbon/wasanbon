@@ -43,8 +43,8 @@ def github_init(user, passwd, rtcp):
     os.chdir(current_dir)
     
     sys.stdout.write('Updating repository.yaml\n')
-    repo_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
-    temp_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml.bak')
+    repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
+    temp_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml.bak')
     os.rename(repo_file, temp_file)
     repos = yaml.load(open(temp_file, 'r'))
     repos[repo_name] = 'git@github.com:' + user + '/' + repo_name + '.git'
