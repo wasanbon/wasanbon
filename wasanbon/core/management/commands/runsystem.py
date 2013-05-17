@@ -6,7 +6,7 @@ import signal
 
 #import rtsprofile.rts_profile
 #import rtctree
-#from rtshell import rtresurrect, rtstart
+from rtshell import rtresurrect, rtstart
 #import rtshell.option_store
 
 import wasanbon
@@ -119,7 +119,7 @@ class Command(object):
             process_state[key] = False #process[key].returncode != None
 
 
-        """
+            """
         rtshell.option_store.OptionStore().verbose = False
         rtsp_filepath = wasanbon.setting['application']['system'] 
         with open(rtsp_filepath) as f:
@@ -132,9 +132,13 @@ class Command(object):
         for a in actions:
             print a
             a(tree)
-        """
-        cmd_rtresurrect()
-        cmd_rtstart()
+            """
+
+        rtresurrect.rtresurrect.main(wasanbon.setting['application']['system'])
+        rtstart.rtstart.main(wasanbon.setting['application']['system'])
+
+        #cmd_rtresurrect()
+        #cmd_rtstart()
         
         
 
