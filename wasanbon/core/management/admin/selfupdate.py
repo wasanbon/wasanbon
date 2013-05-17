@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import wasanbon
-import os, sys, subprocess
+import os, sys, subprocess, shutil
 
 class Command(object):
     def __init__(self):
@@ -11,9 +11,20 @@ class Command(object):
         return True
 
     def execute_with_argv(self, argv):
+        clean_flag = False
         if len(argv) >= 3 and argv[2] == 'help':
             wasanbon.show_help_description('selfupdate')
             return
+
+        elif len(argv) >= 3 and argv[2] == '--clean':
+            if not wasanbon.yes_no('Do you really want to cleanup and update wasanbon/') == 'yes':
+                print 'Aborted.'
+                return
+            else:
+                clean_flag = True
+
+
+
         cwd = os.getcwd()
         os.chdir(wasanbon.rtm_temp)
         if not os.path.isdir('wasanbon'):
@@ -32,7 +43,8 @@ class Command(object):
                 sys.stdout.write(output)
                 os.chdir(cwd)
                 return 0
-        
+        if clean_flag:
+            shutil.rmtree(wasanbon.__path__[0])
         cmd = ['python', 'setup.py', 'install']
         subprocess.call(cmd)
         os.chdir(cwd)
