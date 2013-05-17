@@ -28,7 +28,7 @@ def start_python_rtcd():
     py_env = os.environ.copy()
     if platform.system() == 'Windows':
         #p = subprocess.Popen(['rtcd_python', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
-        p = subprocess.Popen(['c:\Python26\python.exe', 'rtcd.py', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
+        p = subprocess.Popen(['c:\\Python26\\python.exe', 'c:\\python26\\rtcd.py', '-f', 'conf/rtc_py.conf'], env=py_env, creationflags=512, stdin=subprocess.PIPE)
         p.stdin.write('N')
         return p
     else:
