@@ -78,7 +78,8 @@ def cmd_rtstart():
     while True:
         p = subprocess.Popen(cmd)
         if p.wait() == 0:
-            time.sleep(1)
+            break;
+        time.sleep(1)
 
 
 def signal_action(num, frame):
