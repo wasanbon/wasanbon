@@ -38,6 +38,10 @@ def install_cpprtm_osx(force):
     pass
 
 def install_pyrtm_osx(force):
+    if not 'local' in wasanbon.setting.keys():
+        wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+
+
     old_dir = os.getcwd()
     os.chdir(wasanbon.rtm_temp)
     reponame = wasanbon.setting['common']['svn']['python']

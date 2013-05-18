@@ -101,6 +101,8 @@ class Command(object):
             sys.stdout.write('If you want to install devtools, sudo wasanbon-admin.py init --install\n')
 
         init_tools_path()
+        if not 'local' in wasanbon.setting.keys():
+            wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
 
         rtm.install_rtm(False)
 
