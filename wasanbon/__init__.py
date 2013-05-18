@@ -2,8 +2,9 @@
 
 import sys, os, locale
 import yaml, types
+import codecs
 
-
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def show_help_description(subcommand):
     sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
@@ -29,17 +30,21 @@ def get_help_text(arg):
     y = data = yaml.load(open(os.path.join(path, filename), 'r'))
     for key in arg:
         if not key in y.keys():
-            return data['none'].encode('utf-8')
+            return data['none']#.encode('utf-8')
         y = y[key]
 
     if not type(y) is types.DictType:
+        """
         if type(y) is types.ListType:
             l = []
             for d in y:
                 l.append(d.encode('utf-8'))
             y = l
-        return y.encode('utf-8')
-    return data['none'].encode('utf-8')
+        else:
+            y = y#.encode('utf-8')
+        """
+        return y
+    return data['none']#.encode('utf-8')
     
 
 def get_home_path():
