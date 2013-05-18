@@ -8,8 +8,6 @@ from wasanbon.core import rtm
 
 def install_tools(force=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
-    url = wasanbon.setting[sys.platform]['packages']['eclipse']
-    util.download_and_unpack(url, wasanbon.rtm_home, force)
 
     try:
         import OpenRTM_aist
@@ -33,6 +31,9 @@ def install_tools(force=False):
         url = wasanbon.setting['common']['git']['rtshell']
         git.clone_and_setup(url)
     pass
+
+    url = wasanbon.setting[sys.platform]['packages']['eclipse']
+    util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 
 def launch_eclipse(workbench):

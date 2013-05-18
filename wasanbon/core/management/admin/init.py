@@ -93,6 +93,8 @@ class Command(object):
 
         platform.check_and_install_devtools()
 
+        init_tools_path()
+
         if platform.check_devtools():
             sys.stdout.write('Wasanbon initialization OK.\n')
         else:
@@ -105,5 +107,8 @@ class Command(object):
         tools.install_tools()
 
         if sys.platform == 'win32':
-            sys.stdout.write("Please Reboot Windows to properly configure your system.\n")
-        
+            sys.stdout.write("\n=========================================================\n");
+            sys.stdout.write("\n");
+            sys.stdout.write(" Please Reboot Windows to properly configure your system.\n")
+            sys.stdout.write("\n");
+            sys.stdout.write("\n=========================================================\n");
