@@ -29,12 +29,17 @@ def get_help_text(arg):
     y = data = yaml.load(open(os.path.join(path, filename), 'r'))
     for key in arg:
         if not key in y.keys():
-            return data['none']
+            return data['none'].encode('utf-8')
         y = y[key]
 
     if not type(y) is types.DictType:
-        return y
-    return data['none']
+        if type(y) is types.ListType:
+            l = []
+            for d in y:
+                l.append(d.encode('utf-8'))
+            y = l
+        return y.encode('utf-8')
+    return data['none'].encode('utf-8')
     
 
 def get_home_path():
