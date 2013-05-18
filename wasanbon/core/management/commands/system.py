@@ -67,24 +67,32 @@ class Command(object):
             
                 sys.stdout.write('Activating RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
                 run.exe_rtstart()
-            
+
+
+            signal.signal(signal.SIGINT, signal_action)
             global endflag
             while not endflag:
                 #sys.stdout.write('Updating system parameters.\n')
-                time.sleep(0.1)
-                for key in process.keys():
-                    process[key].poll()
-                    if process_state[key] == False and process[key].returncode != None:
-                        print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
-                        process_state[key] = True
-                        pass
+                try:
+                    time.sleep(0.1)
+                    for key in process.keys():
+                        process[key].poll()
+                        if process_state[key] == False and process[key].returncode != None:
+                            print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
+                            process_state[key] = True
+                            pass
 
-                if all(process_state.values()):
-                    print 'All rtcds are stopped'
-                    break
-                pass
+                    if all(process_state.values()):
+                        print 'All rtcds are stopped'
+                        break
+                    pass
+                except:
+                    endflag = True
+                    pass
+
             print 'Terminating All Process....'
             for key in process.keys():
+                process[key].poll()
                 if process[key].returncode == None:
                     sys.stdout.write(' - Terminating RTC-Daemon(%s)\n' % key)
                     process[key].kill()
