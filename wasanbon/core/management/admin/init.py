@@ -104,4 +104,6 @@ class Command(object):
 
         tools.install_tools()
 
-
+        if sys.platform == 'win32':
+            sys.stdout.write("Please Reboot Windows to properly configure your system.\n")
+        
