@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('cp932')(sys.stdout)
 
 
 import wasanbon
