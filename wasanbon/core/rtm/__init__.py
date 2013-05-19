@@ -1,4 +1,4 @@
-import os, sys, shutil
+import os, sys, shutil, subprocess
 
 import wasanbon
 from . import status
@@ -22,9 +22,16 @@ def get_rtm_root():
         return ""
 
 def install_rtm(force=False):
-    cmd = ['sh', '-c', 
-           'echo " deb http://www.openrtm.org/pub/Linux/ubuntu/ precise main
-deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+    if sys.platform == 'linux2':
+        cmd = ['sh -c echo "deb http://www.openrtm.org/pub/Linux/ubuntu/ precise main" >> /etc/apt/sources.list.d/openrtm-aist.list']
+        print cmd
+        subprocess.call(cmd, shell=True)
+        cmd = ['sh -c echo "deb http://www.openrtm.org/pub/Linux/ubuntu/ precise-unstable main" >> /etc/apt/sources.list.d/openrtm-aist.list']
+        print cmd
+        subprocess.call(cmd, shell=True)
+        print 'OK'
+        return
+
 
 
     install_cpprtm(force)
