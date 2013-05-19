@@ -22,6 +22,11 @@ def get_rtm_root():
         return ""
 
 def install_rtm(force=False):
+    cmd = ['sh', '-c', 
+           'echo " deb http://www.openrtm.org/pub/Linux/ubuntu/ precise main
+deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+
+
     install_cpprtm(force)
     install_pyrtm(force)
     install.install_javartm(force)
@@ -31,10 +36,13 @@ def install_cpprtm(arg=False):
     if status.is_cpprtm_installed() and not arg:
         print "Your system seems to have OpenRTM C++."
         return False
+
     if sys.platform == 'darwin':
         install.install_cpprtm_osx(arg)
     elif sys.platform == 'win32':
         install.install_cpprtm_win(arg)
+    elif sys.platform == 'linux2':
+        install.install_cpprtm_linux(arg)
     pass
 
 def install_pyrtm(arg=False):
@@ -45,5 +53,7 @@ def install_pyrtm(arg=False):
         install.install_pyrtm_osx(arg)
     elif sys.platform == 'win32':
         install.install_pyrtm_win(arg)
+    elif sys.platform == 'linux2':
+        install.install_pyrtm_linux(arg)
     pass
 
