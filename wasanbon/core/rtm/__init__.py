@@ -23,7 +23,7 @@ def get_rtm_root():
 
 def install_rtm(force=False):
     if sys.platform == 'linux2':
-        srscfile = '/etc/apt/sources.list.d/openrtm-aist.list'
+        srcsfile = '/etc/apt/sources.list.d/openrtm-aist.list'
         key1 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ precise main'
         key2 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ precise-unstable main'
         if os.path.isfile(srcsfile):
