@@ -93,13 +93,24 @@ class Command(object):
 
         platform.check_and_install_devtools()
 
+        init_tools_path()
+
         if platform.check_devtools():
             sys.stdout.write('Wasanbon initialization OK.\n')
         else:
             sys.stdout.write('If you want to install devtools, sudo wasanbon-admin.py init --install\n')
 
+        init_tools_path()
+        if not 'local' in wasanbon.setting.keys():
+            wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+
         rtm.install_rtm(False)
 
         tools.install_tools()
 
-
+        if sys.platform == 'win32':
+            sys.stdout.write("\n=========================================================\n");
+            sys.stdout.write("\n");
+            sys.stdout.write(" Please Reboot Windows to properly configure your system.\n")
+            sys.stdout.write("\n");
+            sys.stdout.write("\n=========================================================\n");

@@ -3,12 +3,7 @@ import os, sys
 import wasanbon
 
 def is_cpprtm_installed():
-    #if platform.system() == 'Linux':
-    #elif platform.system() == 'Windows':
-    #elif platform.system() == 'Darwin':
-    #else:
-    #  print 'Unknown System (%s)' % platform.system()
-    #  return None
+
     if sys.platform == 'darwin':
         file = 'version.txt'
         path = '/usr/local/include/openrtm-1.1/rtm'
@@ -17,6 +12,9 @@ def is_cpprtm_installed():
         path = '/usr/include/openrtm-1.1/rtm'
         if os.path.isfile(os.path.join(path, file)):
             return True
+        if ('RTM_ROOT' in os.environ.keys()):
+            if os.path.isfile(os.environ['RTM_ROOT'], 'rtm', file):
+                return True
         return False
 
     elif sys.platform == 'linux2':
@@ -27,9 +25,25 @@ def is_cpprtm_installed():
         path = '/usr/include/openrtm-1.1/rtm'
         if os.path.isfile(os.path.join(path, file)):
             return True
+        if ('RTM_ROOT' in os.environ.keys()):
+            if os.path.isfile(os.environ['RTM_ROOT'], 'rtm', file):
+                return True
         return False
 
-    return ('RTM_ROOT' in os.environ.keys())
+    elif sys.platform == 'win32':
+        file = 'version.txt'
+        path = 'C:\\Program Files (x86)\\OpenRTM-aist\\1.1\\rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        path = 'C:\\Program Files\\OpenRTM-aist\\1.1\\rtm'
+        if os.path.isfile(os.path.join(path, file)):
+            return True
+        if ('RTM_ROOT' in os.environ.keys()):
+            if os.path.isfile(os.environ['RTM_ROOT'], 'rtm', file):
+                return True
+        return False
+
+    return False
 
 
 def is_pyrtm_installed():

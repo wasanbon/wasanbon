@@ -25,6 +25,12 @@ def install_cpprtm_win(force):
 def install_pyrtm_win(force):
     util.download_and_install(wasanbon.setting['win32']['packages']['python'], force=force)
 
+def install_cpprtm_win(force):
+    util.download_and_install(wasanbon.setting['linux2']['packages']['c++'], force=force)
+
+def install_pyrtm_win(force):
+    util.download_and_install(wasanbon.setting['linux2']['packages']['python'], force=force)
+
 def install_cpprtm_osx(force):
     util.download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
     srcdir = '/usr/local/lib/python2.7/site-packages' 
@@ -38,6 +44,10 @@ def install_cpprtm_osx(force):
     pass
 
 def install_pyrtm_osx(force):
+    if not 'local' in wasanbon.setting.keys():
+        wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+
+
     old_dir = os.getcwd()
     os.chdir(wasanbon.rtm_temp)
     reponame = wasanbon.setting['common']['svn']['python']

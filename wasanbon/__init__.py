@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
 
 import sys, os, locale
 import yaml, types
+import codecs
 
-
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 def show_help_description(subcommand):
     sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
@@ -31,12 +30,21 @@ def get_help_text(arg):
     y = data = yaml.load(open(os.path.join(path, filename), 'r'))
     for key in arg:
         if not key in y.keys():
-            return data['none']
+            return data['none']#.encode('utf-8')
         y = y[key]
 
     if not type(y) is types.DictType:
+        """
+        if type(y) is types.ListType:
+            l = []
+            for d in y:
+                l.append(d.encode('utf-8'))
+            y = l
+        else:
+            y = y#.encode('utf-8')
+        """
         return y
-    return data['none']
+    return data['none']#.encode('utf-8')
     
 
 def get_home_path():
@@ -163,6 +171,6 @@ if 'application' in setting.keys():
         app_repo = yaml.load(open(__application_repository_file, 'r'))
         if type(app_repo) != types.NoneType:
             setting['app_repo'] = app_repo
-
+            repositories = dict(repositories, **setting['app_repo'])
 
 

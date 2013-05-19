@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-import os, sys, yaml, subprocess
+import os, sys, yaml, subprocess, signal
 
 import wasanbon
 from wasanbon.core import rtc
 
 def print_usage():
     print 'use wasanbon-admin.py edit [RTC_NAME]'
+
+def signal_action(num, frame):
+    pass
 
 class Command(object):
     def __init__(self):
@@ -26,11 +29,17 @@ class Command(object):
         rtcps = rtc.parse_rtcs()
         for rtcp in rtcps:
             if argv[2] == rtcp.getName():
-                cmd = [wasanbon.setting['local']['emacs'], '-nw']
+                if sys.platform == 'darwin':
+                    cmd = [wasanbon.setting['local']['emacs']]
+                else:
+                    cmd = [wasanbon.setting['local']['emacs'], '-nw']
+                
                 pp = rtc.PackageProfile(rtcp)
                 files = pp.getSourceFiles()
                 for file in files:
                     cmd.append(file)
+
+                signal.signal(signal.SIGINT, signal_action)
                 subprocess.call(cmd)
 
         
