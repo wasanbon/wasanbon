@@ -2,6 +2,6 @@ c++ : 'http://sugarsweetrobotics.com/pub/Darwin/OpenRTM-aist/cxx/1.1/OpenRTM-ais
 eclipse : 'http://openrtm.org/pub/openrtp/packages/1.1.0.rc4v20130216/eclipse421-openrtp110rc4v20130216-macosx-cocoa-x86_64.tar.gz'
 cmake : 'http://www.cmake.org/files/v2.8/cmake-2.8.10.2-Darwin64-universal.dmg'
 git : 'https://git-osx-installer.googlecode.com/files/git-1.8.2.1-intel-universal-snow-leopard.dmg'
-doxygen : 'http://ftp.stack.nl/pub/users/dimitri/Doxygen-1.8.3.1.dmg'
+doxygen : 'http://sugarsweetrobotics.com/pub/Darwin/doxygen/Doxygen-1.8.3.1.dmg'
 jdk : 'http://openjdk-for-os-x-lion.googlecode.com/files/OpenJDK%207%20for%20OS%20X%20Lion%20b20111119.dmg'
 setuptools : 'https://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg'

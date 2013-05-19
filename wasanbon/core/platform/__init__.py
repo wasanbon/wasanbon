@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon import util
 from wasanbon.core.template import *
 
+
 def check_devtools():
     fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
@@ -19,12 +20,15 @@ def check_devtools():
 def check_and_install_devtools():
     fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
-
+    
     for key in y.keys():
         if len(y[key]) == 0:
             install_cmd(key)
 
+
 def install_cmd(cmd):
+    if cmd == 'java':
+        return
     if sys.platform == 'darwin':
         util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
     elif sys.platform == 'win32':
