@@ -46,9 +46,8 @@ def install_rtm(force=False):
             file.write(key1)
             file.write(key2)
             file.close()
-        return
 
-
+        subprocess.call(['apt-get', 'update'])
 
     install_cpprtm(force)
     install_pyrtm(force)
