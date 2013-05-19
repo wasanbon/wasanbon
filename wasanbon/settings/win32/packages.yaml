@@ -2,7 +2,7 @@ c++: 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/cxx/1.1/OpenRTM-aist-1.1.0
 eclipse: 'http://openrtm.org/pub/openrtp/packages/1.1.0.rc4v20130216/eclipse421-openrtp110rc4v20130216-win32.zip'
 cmake : 'http://www.cmake.org/files/v2.8/cmake-2.8.10.2-win32-x86.exe'
 git : 'https://msysgit.googlecode.com/files/Git-1.8.1.2-preview20130201.exe'
-doxygen : 'http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.3.1-setup.exe'
+doxygen : 'http://sugarsweetrobotics.com/pub/Win32/doxygen/doxygen-1.8.3.1-setup.exe'
 java : 'http://www.sugarsweetrobotics.com/pub/Win32/jdk/jdk-7u21-windows-i586.exe'
 javac : 'http://www.sugarsweetrobotics.com/pub/Win32/jdk/jdk-7u21-windows-i586.exe'
 python : 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/OpenRTM-aist-Python-1.1.0-RC1.msi'

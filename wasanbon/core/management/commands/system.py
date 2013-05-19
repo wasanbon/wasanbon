@@ -4,12 +4,6 @@ import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core.system import run
 
-def print_usage(argv):
-    print 'Usage: %s system [subcommand] ...\n' % argv[0]
-    print ' - subcommand: '
-    print '   - install : %s' % ' '
-    pass
-
 
 endflag = False
 
@@ -30,8 +24,9 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if len(argv) < 3 or argv[2] == 'help':
-            print_usage(argv)
+            show_help_description('system')
             return
+
         rtcps = rtc.parse_rtcs()
         if(argv[2] == 'install'):
             print 'Installing RTC %s' % argv[3]
@@ -63,28 +58,41 @@ class Command(object):
                 sys.stdout.write('\rwaiting %s seconds to rebuild RTSystem.' % (interval-i))
                 sys.stdout.flush()
                 time.sleep(1)
+
+            if len(argv) >= 4 and argv[3] == '--nobuild':
+                sys.stdout.write('\n - Launch System without System Build.')
+            else:
+                sys.stdout.write('\nRebuilding RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
+                run.exe_rtresurrect()
             
-            sys.stdout.write('\nRebuilding RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-            run.exe_rtresurrect()
-            
-            sys.stdout.write('Activating RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-            run.exe_rtstart()
-            
+                sys.stdout.write('Activating RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
+                run.exe_rtstart()
+
+
+            signal.signal(signal.SIGINT, signal_action)
             global endflag
             while not endflag:
-                for key in process.keys():
-                    process[key].poll()
-                    if process_state[key] == False and process[key].returncode != None:
-                        print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
-                        process_state[key] = True
-                        pass
+                #sys.stdout.write('Updating system parameters.\n')
+                try:
+                    time.sleep(0.1)
+                    for key in process.keys():
+                        process[key].poll()
+                        if process_state[key] == False and process[key].returncode != None:
+                            print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
+                            process_state[key] = True
+                            pass
 
-                if all(process_state.values()):
-                    print 'All rtcds are stopped'
-                    break
-                pass
+                    if all(process_state.values()):
+                        print 'All rtcds are stopped'
+                        break
+                    pass
+                except:
+                    endflag = True
+                    pass
+
             print 'Terminating All Process....'
             for key in process.keys():
+                process[key].poll()
                 if process[key].returncode == None:
                     sys.stdout.write(' - Terminating RTC-Daemon(%s)\n' % key)
                     process[key].kill()
