@@ -37,6 +37,9 @@ def install_cmd(cmd):
                                 dist_path=wasanbon.setting['common']['path']['RTM_HOME'])
         else:
             util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
+    elif sys.platform == 'linux2':
+        util.download_and_install(wasanbon.setting['linux2']['packages'][cmd])
+
     else:
         print 'Unsupported System %s' % sys.platform
 
