@@ -3,7 +3,7 @@ ConsoleInput : 'https://github.com/sugarsweetrobotics/ConsoleInput_cpp'
 JoystickToVelocity : 'https://github.com/ysuga/JoystickToVelocity.git'
 VirtualJoystick : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
 MobileRobotSim : 'https://github.com/sugarsweetrobotics/MobileRobotSim.git'
-MobileRobotController : 'https://github.com/ysuga/MobileRobotController'
+MobileRobotController : 'https://github.com/ysuga/MobileRobotController.git'
 KeyInput : 'https://github.com/ysuga/KeyInput_cpp.git'
 DirectInput : 'https://github.com/ysuga/DirectInputRTC.git'
 
