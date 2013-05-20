@@ -31,6 +31,7 @@ def install_cpprtm_linux(force):
 
 def install_pyrtm_linux(force):
     print 'Install Python Version RTM....'
+    print ' packages: ' + str(wasanbon.setting['linux2']['packages']['python_ppa'])
     util.download_and_install(wasanbon.setting['linux2']['packages']['python_ppa'], force=force)
     print '.....OK'
 
