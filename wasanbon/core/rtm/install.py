@@ -27,10 +27,10 @@ def install_pyrtm_win(force):
     util.download_and_install(wasanbon.setting['win32']['packages']['python'], force=force)
 
 def install_cpprtm_linux(force):
-    util.download_and_install(wasanbon.setting['linux2']['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting['linux2']['packages']['c++_ppa'], force=force)
 
 def install_pyrtm_linux(force):
-    util.download_and_install(wasanbon.setting['linux2']['packages']['python'], force=force)
+    util.download_and_install(wasanbon.setting['linux2']['packages']['python_ppa'], force=force)
 
 def install_cpprtm_osx(force):
     util.download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
