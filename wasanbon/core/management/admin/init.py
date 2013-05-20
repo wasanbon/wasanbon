@@ -11,16 +11,18 @@ from wasanbon.core import rtm
 def search_command(cmd, hints):
     if sys.platform == 'win32':
         cmd = cmd + '.exe'
-    
+    print ' - searching command [%s]' % cmd
     path_splitter = ';' if sys.platform == 'win32' else (':' if sys.platform == 'darwin' else ':')
-
     for path in os.environ['PATH'].split(path_splitter):
         fullpath = os.path.join(path, cmd)
         if os.path.isfile(fullpath):
+            print '    - hit: %s' % fullpath
             return fullpath
     for hint in hints:
         if os.path.isfile(hint):
+            print '    - hit: %s' % hint
             return hint
+    print '    - does not hit.' 
     return ""
 
 def search_cmd_all(dict):
