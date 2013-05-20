@@ -71,12 +71,14 @@ class Command(object):
                 wasanbon.show_help_description('rtc')
                 return
 
-            rtcname = argv[3]
-            url = wasanbon.repositories[rtcname]
-            print 'GIT cloning : %s' % url
-            distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
-            cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
-            subprocess.call(cmd)
+            for i in range(3, len(argv)):
+                rtcname = argv[i]
+                if rtcname in wasanbon.repositories.keys():
+                    url = wasanbon.repositories[rtcname]
+                    print 'GIT cloning : %s' % url
+                    distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
+                    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
+                    subprocess.call(cmd)
             return
             
         if argv[2] == 'commit':
