@@ -15,23 +15,20 @@ class Command(object):
 
         if '--clean' in argv:
             clean_all = True if 'all' in argv else False
-
-            for i in range(3, len(argv)):
+            for i in range(2, len(argv)):
                 rtc_name = argv[i]
-                if not rtc_name == '--clean':
-                    continue
                 for rtcp in rtcps:
                     if rtcp.getName() == rtc_name or clean_all:
                         clean_rtc(rtcp)
             return
         else:
+            print 'Building RTCs....'
             build_all = True if 'all' in argv else False
-            for i in range(3, len(argv)):
+            for i in range(2, len(argv)):
                 rtc_name = argv[i]
-                if not rtc_name == '--clean':
-                    continue
+                print 'building rtc [%s]' % rtc_name
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name or clean_all:
+                    if rtcp.getName() == rtc_name or build_all:
                         build_rtc(rtcp)
             return
             
