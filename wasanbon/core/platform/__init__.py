@@ -20,13 +20,13 @@ def check_devtools():
 def check_and_install_devtools():
     fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
     y = yaml.load(fin)
-    
     for key in y.keys():
         if len(y[key]) == 0:
             install_cmd(key)
 
 
 def install_cmd(cmd):
+    print ' - installing command [%s]' % cmd
     if cmd == 'java':
         return
     if sys.platform == 'darwin':
