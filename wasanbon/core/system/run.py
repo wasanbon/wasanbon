@@ -17,6 +17,8 @@ mask = SIGSET(sigs)
 
 if sys.platform == 'darwin':
     libc = CDLL('libc.dylib')
+elif sys.platform == 'linux2':
+    libc = CDLL('libc.so.6')
 
 def handle(sig, _):
     if sig == signal.SIGINT:
