@@ -1,4 +1,5 @@
 from wasanbon.core import tools 
+from wasanbon.core import system
 
 class Command(object):
     def __init__(self):
@@ -18,4 +19,8 @@ class Command(object):
 
         if(argv[2] == 'rtse'):
             print 'Launching Eclipse'
+
+            system.run_system(argv, nobuild=True)
             tools.launch_eclipse('RTS_DIR')
+            system.terminate_all_process()
+

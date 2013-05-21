@@ -18,8 +18,6 @@ def install_javartm(arg=False):
                 shutil.copyfile(os.path.join(root, file),os.path.join(rtm_root_java, file))
     pass
 
-
-
 def install_cpprtm_win(force):
     util.download_and_install(wasanbon.setting['win32']['packages']['c++'], force=force)
 
@@ -39,10 +37,17 @@ def install_cpprtm_osx(force):
     distdir = os.path.split(wasanbon.__path__[0])[0]
     for file in os.listdir(srcdir):
         filepath = os.path.join(srcdir, file)
+        distpath = os.path.join(distdir, file)
         if os.path.isfile(filepath):
-            shutil.copy2(os.path.join(srcdir, file), os.path.join(distdir, file))
+            if os.path.isfile(distpath) and force:
+                os.remove(distpath)
+            if not os.path.isfile(distpath):
+                shutil.copy2(filepath, distpath)
         elif os.path.isdir(filepath):
-            shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
+            if os.path.isdir(distpath) and force:
+                shutil.rmtree(distpath)
+            if not os.path.isdir(distpath):
+                shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
     pass
 
 def install_pyrtm_osx(force):
