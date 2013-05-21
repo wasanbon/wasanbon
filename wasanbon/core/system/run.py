@@ -66,15 +66,11 @@ def start_java_rtcd():
     if sys.platform == 'win32':
         return subprocess.Popen([wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env, creationflags=512)
     else:
-        print java_env["CLASSPATH"]
+        #print java_env["CLASSPATH"]
         return subprocess.Popen([wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
 
 def exe_rtresurrect():
-    while True:
-        ret =  rtresurrect.main([wasanbon.setting['application']['system']])
-        if ret == 0:
-            break
-        time.sleep(1)
+    return rtresurrect.main([wasanbon.setting['application']['system']]) == 0
 
 def cmd_rtresurrect():
     if sys.platform == 'win32':
@@ -88,11 +84,7 @@ def cmd_rtresurrect():
         time.sleep(1)
 
 def exe_rtstart():
-    while True:
-        ret =  rtstart.main([wasanbon.setting['application']['system']])
-        if ret == 0:
-            break
-        time.sleep(1)
+    return rtstart.main([wasanbon.setting['application']['system']]) == 0
 
 def cmd_rtstart():
 

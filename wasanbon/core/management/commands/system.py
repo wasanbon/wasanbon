@@ -1,19 +1,16 @@
 import os, sys, time, subprocess, signal
-
 import wasanbon
 from wasanbon.core import rtc
+from wasanbon.core import system
 from wasanbon.core.system import run
-
-
-endflag = False
 
 def signal_action(num, frame):
     print 'SIGINT captured'
     global endflag
     endflag = True
-
     pass
 
+endflag = False
 
 class Command(object):
     def __init__(self):
@@ -38,66 +35,43 @@ class Command(object):
             sys.stdout.write('Ctrl+C to stop system.\n')
             signal.signal(signal.SIGINT, signal_action)
 
-            if not os.path.isdir('log'):
-                os.mkdir('log')
             sys.stdout.write('Starting RTC-Daemons\n')
-        
-            process = {}
-            process['cpp']    = run.start_cpp_rtcd()
-            process['python'] = run.start_python_rtcd()
-            process['java']   = run.start_java_rtcd()
-            
-            
-            process_state = {}
-            for key in process.keys():
-                process_state[key] = False
-                pass
-
-            interval = 3
-            for i in range(0, interval):
-                sys.stdout.write('\rwaiting %s seconds to rebuild RTSystem.' % (interval-i))
-                sys.stdout.flush()
-                time.sleep(1)
-
             if len(argv) >= 4 and argv[3] == '--nobuild':
-                sys.stdout.write('\n - Launch System without System Build.')
+                sys.stdout.write('\n - Launch System without System Build.\n\n')
+                nobuild=True
             else:
-                sys.stdout.write('\nRebuilding RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-                run.exe_rtresurrect()
-            
-                sys.stdout.write('Activating RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-                run.exe_rtstart()
+                nobuild=False
+            system.run_system(argv, nobuild=nobuild)
 
-
-            signal.signal(signal.SIGINT, signal_action)
             global endflag
+            
+            if not nobuild:
+                interval = 3
+                for i in range(0, interval):
+                    sys.stdout.write('\rwaiting %s seconds to rebuild RTSystem.' % (interval-i))
+                    sys.stdout.flush()
+                    time.sleep(1)
+
+                while not endflag:
+                    sys.stdout.write('\n rtresurrect.\n')                    
+                    if run.exe_rtresurrect():
+                        time.sleep(1)
+                        break
+                while not endflag:
+                    sys.stdout.write('\n rtstart.\n')
+                    if run.exe_rtresurrect():
+                        time.sleep(1)
+                        break
+            sys.stdout.write('System successfully started.\n')
             while not endflag:
-                #sys.stdout.write('Updating system parameters.\n')
                 try:
                     time.sleep(0.1)
-                    for key in process.keys():
-                        process[key].poll()
-                        if process_state[key] == False and process[key].returncode != None:
-                            print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
-                            process_state[key] = True
-                            pass
-
-                    if all(process_state.values()):
-                        print 'All rtcds are stopped'
+                    if system.is_all_process_terminated():
                         break
-                    pass
-                except:
+                except Exception, e:
+                    print 'Exception Occurred: %s' % repr(e)
                     endflag = True
                     pass
-
-            print 'Terminating All Process....'
-            for key in process.keys():
-                process[key].poll()
-                if process[key].returncode == None:
-                    sys.stdout.write(' - Terminating RTC-Daemon(%s)\n' % key)
-                    process[key].kill()
-
-
+            print 'Terminating All Process....'        
+            system.terminate_all_process()
             print 'All rtcd process terminated.'
-            pass
-
