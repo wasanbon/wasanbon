@@ -33,7 +33,7 @@ def start_cpp_rtcd():
     cpp_env = os.environ.copy()
 
     if sys.platform == 'win32':
-        return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, creationflags=512, stdout=subprocess.PIPE)
+        return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, creationflags=512)
     else:
         return subprocess.Popen(['rtcd', '-f', 'conf/rtc_cpp.conf'], env=cpp_env, preexec_fn=disable_sig)
 
