@@ -3,8 +3,12 @@
 import os, sys, time, signal
 import wasanbon
 from wasanbon.core.system import run
-
+from wasanbon.core import rtc
+from wasanbon.core.rtc import rtcprofile
+from wasanbon.core.system import rtsprofile
 process = {}
+
+import rtctree
 
 def signal_action(num, frame):
     print 'SIGINT captured'
@@ -65,8 +69,8 @@ def run_system(nobuild, nowait=False):
                 time.sleep(1)
                 break
         while not endflag:
-            sys.stdout.write('\n rtstart.\n')
-            if run.exe_rtresurrect():
+            sys.stdout.write(' rtstart.\n')
+            if run.exe_rtstart():
                 time.sleep(1)
                 break
     sys.stdout.write('System successfully started.\n')
@@ -97,4 +101,32 @@ def terminate_all_process():
             process[key].kill()
             
 
+    pass
+
+
+def list_rtcs_by_dataport():
+    types = {}
+    rtcps = rtc.parse_rtcs()
+    for rtcp in rtcps:
+        dataports = rtcp.getDataPorts()
+        for port in dataports:
+            if not port.type in types.keys():
+                types[port.type] = [rtcp.getName() + '.' + port.name + '.' + port.portType]
+            else:
+                types[port.type].append(rtcp.getName() + '.' + port.name + '.' + port.portType)
+
+    for key in types.keys():
+        print key
+        for v in types[key]:
+            if v.endswith('.DataInPort'):
+                print ' In : ' + v
+            else:
+                print ' Out: ' + v
+                
+def list_online_rtcs():
+
+    pass
+
+def list_rtsp():
+    
     pass

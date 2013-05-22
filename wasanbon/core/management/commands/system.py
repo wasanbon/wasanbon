@@ -44,3 +44,7 @@ class Command(object):
                 nobuild=False
 
             system.run_system(nobuild=nobuild)
+
+        elif(argv[2] == 'datalist'):
+            system.list_rtcs_by_dataport()
+                 
