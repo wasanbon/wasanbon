@@ -21,7 +21,7 @@ def install(file):
     try:
         if sys.platform == 'win32':
             print 'cmd=%s' % cmd
-            ret = subprocess.Popen(cmd, env=os.environ)
+            ret = subprocess.Popen(cmd, creationflags=512, env=os.environ)
             ret.wait()
             
         else:

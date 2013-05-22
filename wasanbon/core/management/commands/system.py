@@ -19,10 +19,22 @@ class Command(object):
 
         rtcps = rtc.parse_rtcs()
         if(argv[2] == 'install'):
-            print 'Installing RTC %s' % argv[3]
+            if len(argv) < 4:
+                show_help_description('system')
+                return
+
+            if argv[3] == 'all':
+                for rtcp in rtcps:
+                    print 'Installing RTC %s' % rtcp.getName()
+                    rtc.install(rtcp)
+                return
+
             for rtcp in rtcps:
                 if rtcp.getName() == argv[3]:
+                    print 'Installing RTC %s' % argv[3]
                     rtc.install(rtcp)
+                    return
+            print 'RTC(%s) can not found.' % argv[3]
 
         elif(argv[2] == 'run'):
             if len(argv) >= 4 and argv[3] == '--nobuild':

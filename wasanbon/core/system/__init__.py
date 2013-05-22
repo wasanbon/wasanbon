@@ -42,7 +42,7 @@ def start_process():
     process['java']   = run.start_java_rtcd()
 
 
-def run_system(nobuild):
+def run_system(nobuild, nowait=False):
     sys.stdout.write('Ctrl+C to stop system.\n')
     signal.signal(signal.SIGINT, signal_action)
 
@@ -70,6 +70,8 @@ def run_system(nobuild):
                 time.sleep(1)
                 break
     sys.stdout.write('System successfully started.\n')
+    if nowait:
+        return
     while not endflag:
         try:
             time.sleep(0.1)
@@ -79,6 +81,8 @@ def run_system(nobuild):
             print 'Exception Occurred: %s' % repr(e)
             endflag = True
             pass
+
+
     print 'Terminating All Process....'        
     terminate_all_process()
     print 'All rtcd process terminated.'

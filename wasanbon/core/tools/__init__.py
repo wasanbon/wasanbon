@@ -36,7 +36,7 @@ def install_tools(force=False):
     util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 
-def launch_eclipse(workbench):
+def launch_eclipse(workbench, nonblock=True):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
@@ -61,8 +61,11 @@ def launch_eclipse(workbench):
             cmd = [eclipse_cmd]
 
     if sys.platform == 'win32':
-        subprocess.Popen(cmd, creationflags=512, env=env)
+        p = subprocess.Popen(cmd, creationflags=512, env=env, stdout=subprocess.PIPE)
     else:
-        subprocess.Popen(cmd, env=env)
+        p = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
+
+    if not nonblock:
+        p.wait()
 
     
