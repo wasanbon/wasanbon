@@ -1,6 +1,9 @@
 # encoding: UTF-8
 
-import os, sys, time, signal
+import os, sys, time, signal, traceback
+
+import omniORB
+
 import wasanbon
 from wasanbon.core.system import run
 from wasanbon.core import rtc
@@ -74,6 +77,19 @@ def run_system(nobuild, nowait=False):
                 time.sleep(1)
                 break
     sys.stdout.write('System successfully started.\n')
+    
+    while not endflag:
+        try :
+            time.sleep(2)
+            list_online_rtcs()
+            break
+        except omniORB.CORBA.UNKNOWN, e:
+            print e
+        except Exception, e:
+            traceback.print_exc()
+                        
+
+
     if nowait:
         return
     while not endflag:
@@ -124,6 +140,29 @@ def list_rtcs_by_dataport():
                 print ' Out: ' + v
                 
 def list_online_rtcs():
+    types = {}
+    path, port = rtctree.path.parse_path('/localhost')
+    tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+    dir_node = tree.get_node(path)
+    def func(node, types):
+        for dport in node.inports + node.outports:
+            type = dport.properties['dataport.data_type']
+            if not type in types.keys():
+                types[type] = [ dport ]
+            else:
+                types[type].append(dport)
+    def filt_func(node):
+        if node.is_component:
+            return True
+        return False
+
+    dir_node.iterate(func, types, [filt_func])
+
+
+    #for key in types.keys():
+     #   print ' - ' + key
+      #  for p in types[key]:
+       #     print '    - ' + str(p.owner.full_path) + '.' + p.name
 
     pass
 
