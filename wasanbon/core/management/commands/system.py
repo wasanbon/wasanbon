@@ -35,6 +35,19 @@ class Command(object):
                     rtc.install(rtcp)
                     return
             print 'RTC(%s) can not found.' % argv[3]
+        elif(argv[2] == 'build'):
+            system.run_system(nobuild=True, nowait=True)
+            for i in range(0, 5):
+                sys.stdout.write(' - Waiting (%s/%s)\n' % (i+1, 5))
+                sys.stdout.flush()
+                time.sleep(1)
+            system.list_available_connections()
+
+            system.list_available_configurations()
+
+            system.terminate_all_process()
+            return
+        
 
         elif(argv[2] == 'run'):
             if len(argv) >= 4 and argv[3] == '--nobuild':

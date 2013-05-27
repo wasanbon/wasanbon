@@ -2,14 +2,45 @@ import os, sys, subprocess
 import wasanbon
 from . import download, install, archive
 
+
+def choice(alts, msg='Choice'):
+    print msg
+    while True:
+        for i in range(0, len(alts)):
+            sys.stdout.write('  - %s:%s\n' % (i+1, alts[i]))
+        sys.stdout.write('Choice?:')
+        i = raw_input()
+        try:
+            ans = int(i)
+        except ValueError, e:
+            continue
+        if ans < 1 or ans > len(alts):
+            continue
+        return ans-1
+
 def yes_no(msg):
-    sys.stdout.write('%s (y/n)' % msg)
+    sys.stdout.write('%s (Y/n)' % msg)
     while True:
         c = raw_input()
+        if len(c) == 0:
+            return 'yes'
         if c[0] == 'y':
             return 'yes'
         else:
             return 'no'
+
+
+def no_yes(msg):
+    sys.stdout.write('%s (y/N)' % msg)
+    while True:
+        c = raw_input()
+        if len(c) == 0:
+            return 'no'
+        if c[0] == 'y':
+            return 'yes'
+        else:
+            return 'no'
+    
 
 def download_and_unpack(url, dist_path, force=False):
     filename = os.path.basename(url)
