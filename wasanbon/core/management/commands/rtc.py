@@ -74,11 +74,17 @@ class Command(object):
             for i in range(3, len(argv)):
                 rtcname = argv[i]
                 if rtcname in wasanbon.repositories.keys():
-                    url = wasanbon.repositories[rtcname]
-                    print 'GIT cloning : %s' % url
-                    distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
-                    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
-                    subprocess.call(cmd)
+                    repo = wasanbon.repositories[rtcname]
+                    if 'git' in repo.keys():
+                        url = repo['git']
+                        print 'GIT cloning : %s' % url
+                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
+                        cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
+                        subprocess.call(cmd)
+                        return
+                    else:
+                        pass
+            print 'Do not found'.
             return
             
         if argv[2] == 'commit':

@@ -79,18 +79,20 @@ class Command(object):
                 os.remove(local_setting_file)
                 shutil.copyfile(template_setting_file, local_setting_file)
             else:
-                return
+                pass
         else:
             shutil.copyfile(template_setting_file, local_setting_file)
         if os.path.isfile(local_repository_file):
             if util.yes_no('There seems to be a repository file in %s. Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
                 os.remove(local_repository_file)
-                shutil.copyfile(template_repository_file, local_repository_file)
-
+                #shutil.copyfile(template_repository_file, local_repository_file)
+                fout = open(local_repository_file, 'w')
+                fout.close()
             else:
-                return
+                pass
         else:
-            shutil.copyfile(template_repository_file, local_repository_file)
+            fout = open(local_repository_file, 'w')
+            fout.close()
         init_tools_path()
 
         platform.check_and_install_devtools()
