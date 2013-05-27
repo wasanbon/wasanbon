@@ -1,8 +1,25 @@
-ConsoleOutput : 'https://github.com/sugarsweetrobotics/ConsoleOutput_cpp.git'
-ConsoleInput : 'https://github.com/sugarsweetrobotics/ConsoleInput_cpp.git'
-JoystickToVelocity : 'https://github.com/ysuga/JoystickToVelocity.git'
-VirtualJoystick : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
-MobileRobotSim : 'https://github.com/sugarsweetrobotics/MobileRobotSim.git'
-MobileRobotController : 'https://github.com/ysuga/MobileRobotController.git'
-KeyInput : 'https://github.com/ysuga/KeyInput_cpp.git'
-WiiRemote : 'https://github.com/ysuga/WiiRemote.git'
+ConsoleOutput : 
+  description : 'Console Output RT-component with Long type DataInPort.'
+  git : 'https://github.com/sugarsweetrobotics/ConsoleOutput_cpp.git'
+ConsoleInput :
+  description : 'Console Input RT-component with Long type DataOutPort'
+  git : 'https://github.com/sugarsweetrobotics/ConsoleInput_cpp.git'
+JoystickToVelocity :
+  description : 'Joystick input data to velocity. available with DirectInput RTC.'
+  git :  'https://github.com/ysuga/JoystickToVelocity.git'
+VirtualJoystick : 
+  description : 'Virtual Joypad RT-Component with cross-button GUI'
+  git : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
+MobileRobotSim : 
+  description : 'Mobile Robot Simulator with TimedVelocity2D input.'
+  git : 'https://github.com/sugarsweetrobotics/MobileRobotSim.git'
+MobileRobotController : 
+  description : 'Mobile Robot Controller available with VirtulaJoystick. TimedVelocity2D output.'
+  git : 'https://github.com/ysuga/MobileRobotController.git'
+KeyInput :
+  description : 'kbhit RT-Componennt.'
+  git : 'https://github.com/ysuga/KeyInput_cpp.git'
+WiiRemote : 
+  description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
+  git : 'https://github.com/ysuga/WiiRemote.git'
+
