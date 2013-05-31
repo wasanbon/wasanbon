@@ -5,6 +5,7 @@ from wasanbon.core import system
 from wasanbon.core.system import run
 
 
+
 class Command(object):
     def __init__(self):
         pass
@@ -36,14 +37,16 @@ class Command(object):
                     return
             print 'RTC(%s) can not found.' % argv[3]
         elif(argv[2] == 'build'):
+            print 'Building RTC System in Wasanbon'
             system.run_system(nobuild=True, nowait=True)
+            
             for i in range(0, 5):
-                sys.stdout.write(' - Waiting (%s/%s)\n' % (i+1, 5))
+                sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
                 sys.stdout.flush()
                 time.sleep(1)
             system.list_available_connections()
-
             system.list_available_configurations()
+            system.save_all_system(['localhost'])
 
             system.terminate_all_process()
             return

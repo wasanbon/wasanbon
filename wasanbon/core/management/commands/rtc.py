@@ -59,7 +59,11 @@ class Command(object):
         elif argv[2] == 'repository':
             url = wasanbon.repositories
             for key, value in url.items():
-                print '  ' + key + ' ' * (24-len(key)) + ' : ' + value
+                print '  ' + key + ' ' * (24-len(key)) + ' : ' + value['description'] 
+                if len(argv) >= 4 and argv[3] == '-l':
+                    for k, v in value.items():
+                        if not k == 'description':
+                            print '       ' + k + ' ' * (24-len(k)) + ' : ' + v
             return
 
         if argv[2] == 'git_init':
@@ -84,7 +88,7 @@ class Command(object):
                         return
                     else:
                         pass
-            print 'Do not found'.
+            print 'Do not found'
             return
             
         if argv[2] == 'commit':
