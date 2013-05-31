@@ -14,6 +14,8 @@ process = {}
 
 import rtctree
 
+from rtshell import rtcryo
+
 def signal_action(num, frame):
     print 'SIGINT captured'
     global endflag
@@ -161,7 +163,9 @@ def list_available_connections():
                     for inport in types[type]['DataInPort']:
                         msg = ' - Connect   [%s]  ->  [%s]' % (port_full_path(outport), port_full_path(inport))
                         if util.no_yes(msg) == 'yes':
+                            sys.stdout.write(' - connecting...')
                             outport.connect([inport])
+                            sys.stdout.write(' connected.\n')
             return True
         except omniORB.CORBA.UNKNOWN, e:
             pass
@@ -222,11 +226,29 @@ def list_available_configurations():
             return True
             
         except omniORB.CORBA.UNKNOWN, e:
+            traceback.print_exc()
             pass
         except Exception, e:
             traceback.print_exc()
             return False
     return False
+
+def save_all_system(nameservers):
+    try:
+        argv = ['-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', 'system/DefaultSystem.xml']
+        argv = argv + nameservers
+        rtcryo.main(argv=argv)
+    except omniORB.CORBA.UNKNOWN, e:
+        traceback.print_exc()
+        print e
+        pass
+    except Exception, e:
+        traceback.print_exc()
+        return False
+
+
+
+
 
 def list_rtsp():
     
