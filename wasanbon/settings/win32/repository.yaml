@@ -22,4 +22,16 @@ KeyInput :
 DirectInput : 
   description : 'Direct input for Joystick and Gamepad.'
   git : 'https://github.com/ysuga/DirectInputRTC.git'
+Kinect :
+  description : 'Kinect RT-Component'
+  git : 'https://github.com/ysuga/Kinect4Win.git'
+KinectToRanger : 
+  description : 'Kinect Data To Range Sensor.'
+  git : 'https://github.com/ysuga/KinectToRanger.git'
+KinectTest : 
+  description : 'Kinect Data Viewer'
+  git : 'https://github.com/ysuga/KinectTest.git'
+RangeDataViewer : 
+  description : 'Range Data Viewer'
+  git : 'https://github.com/ysuga/RangeDataViewer.git'
 
