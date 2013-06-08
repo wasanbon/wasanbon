@@ -5,12 +5,17 @@ doxygen :
   - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
 git : 
   - "C:\\Program Files (x86)\\Git\\bin\\git.exe"
+  - "C:\\Program Files\\Git\\bin\\git.exe"
 java : 
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\java.exe"
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_21\\bin\\java.exe"
+  - "C:\\Program Files\\Java\\jdk1.7.0_17\\bin\\java.exe"
+  - "C:\\Program Files\\Java\\jdk1.7.0_21\\bin\\java.exe"
 javac : 
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_17\\bin\\javac.exe"
   - "C:\\Program Files (x86)\\Java\\jdk1.7.0_21\\bin\\javac.exe"
+  - "C:\\Program Files\\Java\\jdk1.7.0_17\\bin\\javac.exe"
+  - "C:\\Program Files\\Java\\jdk1.7.0_21\\bin\\javac.exe"
 svn :
   - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
   - "C:\\Program Files\\SlikSvn\\bin\\svn.exe"
