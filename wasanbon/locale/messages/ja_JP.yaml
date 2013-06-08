@@ -10,6 +10,7 @@ help :
       help : 'このヘルプの表示'
       edit : 'エディタの実行．RTC固有のファイルを開く'
       build : 'RTCのビルド'
+      ssh_init : 'SSH-Keyを作成し，githubに追加する'
       system : 'システムの実行や管理'
       rtc: 'プロジェクト内のRTCの管理'
     description :
@@ -94,6 +95,10 @@ help :
         - '         次に，各RTCのコンフィグレーションを列挙します．'
         - '         対象とするコンフィグレーションを選択して変更します．'
       tools :
-        - 'RTコンポーネント開発ツールを起動します．'
-        - '以下のサブコマンドが有効です．' 
-        - 'rtcb : RTC Builderを起動します．'
+        - '         RTコンポーネント開発ツールを起動します．'
+        - '         以下のサブコマンドが有効です．' 
+        - '           rtcb : RTC Builderを起動します．'
+        - '           rtse : RT System Editorを起動します．'
+      build :
+        - '         RTCをBuildします．Java版，C++版に対応しています．'
+        - '         引数にRTCの名前をとります．'
