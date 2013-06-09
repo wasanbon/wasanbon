@@ -9,3 +9,4 @@ python : 'http://www.openrtm.org/pub/Windows/OpenRTM-aist/python/OpenRTM-aist-Py
 emacs : 'http://ftp.jaist.ac.jp/pub/GNU/emacs/windows/emacs-23.4-bin-i386.zip'
 setuptools : 'https://pypi.python.org/packages/2.6/s/setuptools/setuptools-0.6c11.win32-py2.6.exe'
 svn : 'http://www.sliksvn.com/pub/Slik-Subversion-1.7.9-x64.msi'
+hg : 'http://mercurial.selenic.com/release/windows/mercurial-2.6.2-x64.msi'

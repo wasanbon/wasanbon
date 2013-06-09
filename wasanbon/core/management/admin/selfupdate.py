@@ -31,7 +31,7 @@ class Command(object):
         if not os.path.isdir('wasanbon'):
             cmd = [wasanbon.setting['local']['git'], 
                    'clone', 
-                   wasanbon.setting['common']['repository']['wasanbon']]
+                   wasanbon.setting['common']['repository']['wasanbon']['git']]
             subprocess.call(cmd)
             os.chdir('wasanbon')
         else:
