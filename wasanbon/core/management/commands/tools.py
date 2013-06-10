@@ -13,6 +13,10 @@ class Command(object):
         return False
 
     def execute_with_argv(self, argv):
+        if len(argv) < 3:
+            wasanbon.show_help_description('tools')
+            return
+
         if(argv[2] == 'eclipse'):
             print 'Launching Eclipse'
             tools.launch_eclipse('RTC_DIR')
