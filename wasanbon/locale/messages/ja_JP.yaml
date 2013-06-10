@@ -13,6 +13,7 @@ help :
       ssh_init : 'SSH-Keyを作成し，githubに追加する'
       system : 'システムの実行や管理'
       rtc: 'プロジェクト内のRTCの管理'
+      admin: 'プロジェクトの管理'
     description :
       init : 
         - 'wasanbonの初期化をします．'
@@ -23,11 +24,20 @@ help :
         - 'また，eclipseやrtshellなどのツールもインストールします．'
       project :
         - '以下のサブコマンドが必要です．'
-        - 'start  :'
-        - '         $ wasanbon-admin.py project start [your app name]'
+        - 'create  :'
+        - '         $ wasanbon-admin.py project create [your app name]'
         - '         プロジェクトを開始します．引数にproject名を取ります．'
         - '         カレントディレクトリにプロジェクト名のディレクトリを作成して，その中に'
         - '         プロジェクトに必要なファイルをコピーします．'
+        - 'list    :'
+        - '         $ wasanbon-admin.py project list'
+        - '         登録中のプロジェクトをリスト表示します．'
+        - 'unregister :'
+        - '         $ wasanbon-admin.py project unregister [your app name]'
+        - '         プロジェクトをワークスペース管理下から削除します．'
+        - '         フォルダ自体は残るので，フォルダ内のmgr.pyから，'
+        - '          $ mgr.py admin register'
+        - '         で，再登録を行うことができます．'
       rtm :
         - 'プラットフォーム上のRTミドルウエアの管理をします．'
         - '以下のサブコマンドが必要です．'
@@ -102,3 +112,10 @@ help :
       build :
         - '         RTCをBuildします．Java版，C++版に対応しています．'
         - '         引数にRTCの名前をとります．'
+      admin :
+        - '         プロジェクトの管理を行います．以下のサブコマンドが有効です'
+        - 'register :'
+        - '         プロジェクトをワークスペースとして管理下に置きます．'
+        - '         作成されたプロジェクトはデフォルトで管理下に置かれますが，'
+        - '         フォルダコピーなど管理外に置かれた場合は，これで復帰します'
+
