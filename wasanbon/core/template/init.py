@@ -5,19 +5,58 @@ import subprocess
 import wasanbon
 
 
+def register_workspace(appname, appdir):
+    print ' - Registering workspace:'
+    ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
+    f_bak = False
+    if os.path.isfile(ws_file_name):
+        if os.path.isfile(ws_file_name + ".bak"):
+            os.remove(ws_file_name + ".bak")
+        os.rename(ws_file_name, ws_file_name + ".bak")
+        f_bak = open(ws_file_name + ".bak", "r")
+    
+    fout = open(ws_file_name, "w")
+    if f_bak:
+	for line in f_bak:
+            fout.write(line)
+    
+    fout.write("%s: '%s'\n" % (appname, appdir))
+    fout.close()
+
+def unregister_workspace(appname):
+    print ' - Unregistering workspace:'
+    ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
+    f_bak = False
+    if os.path.isfile(ws_file_name):
+        if os.path.isfile(ws_file_name + ".bak"):
+            os.remove(ws_file_name + ".bak")
+        os.rename(ws_file_name, ws_file_name + ".bak")
+        f_bak = open(ws_file_name + ".bak", "rt")
+    
+    fout = open(ws_file_name, "wt")
+    if f_bak:
+	for line in f_bak:
+            print ' -- %s' % line
+            if not line.strip().startswith(appname):
+                fout.write(line)
+    fout.close()
+
 def list_workspace():
     print ' - Listing worksace:'
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if os.path.isfile(ws_file_name):
         f = open(ws_file_name, "r")
         y = yaml.load(f)
+        if not y:
+            print ' - No workspace registered.'
+            return
         for key in y.keys():
             print "%s : '%s'" % (key, y[key])
         f.close()
 
 
 def init_workspace(appname):
-    print 'Initializing workspace %s:' % appname
+    print ' - Initializing workspace %s:' % appname
 
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if os.path.isfile(ws_file_name):
@@ -59,19 +98,6 @@ def init_workspace(appname):
         cmd = ['chmod', '755', os.path.join(appname, 'mgr.py')]
         subprocess.call(cmd)
 
-    f_bak = False
-    if os.path.isfile(ws_file_name):
-        if os.path.isfile(ws_file_name + ".bak"):
-            os.remove(ws_file_name + ".bak")
-        f_bak = os.rename(ws_file_name, ws_file_name + ".bak")
-    
-    fout = open(ws_file_name, "w")
-    if f_bak:
-	for line in f_bak.read():
-            fout.write(line)
-    
-    fout.write("%s: '%s'" % (appname, appdir))
-    fout.close()
-    
+    register_workspace(appname, appdir)    
     pass
 
