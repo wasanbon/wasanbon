@@ -59,9 +59,13 @@ class Command(object):
         return True
 
     def execute_with_argv(self, argv):
-        if len(argv) > 3 and argv[2] == 'help':
+        if len(argv) >= 3 and argv[2] == 'help':
             wasanbon.show_help_description('init')
 
+        if len(argv) >= 3 and argv[2] == '--force':
+	    force = True
+        else:
+            force = False
 
         os.umask(0000)
         repo = wasanbon.setting['common']['repository']['wasanbon']
@@ -110,7 +114,7 @@ class Command(object):
 
         rtm.install_rtm(False)
 
-        tools.install_tools()
+        tools.install_tools(force=force)
 
         if sys.platform == 'win32':
             sys.stdout.write("\n=========================================================\n");

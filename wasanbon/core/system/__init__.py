@@ -234,10 +234,13 @@ def list_available_configurations():
     return False
 
 def save_all_system(nameservers):
+    sys.stdout.write("Updating system/DefaultSystem.xml\n")
     try:
-        argv = ['-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', 'system/DefaultSystem.xml']
+        argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', 'system/DefaultSystem.xml']
         argv = argv + nameservers
+        print argv
         rtcryo.main(argv=argv)
+        print "rtcryo updated. ok."
     except omniORB.CORBA.UNKNOWN, e:
         traceback.print_exc()
         print e
