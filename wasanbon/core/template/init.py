@@ -41,6 +41,15 @@ def unregister_workspace(appname):
                 fout.write(line)
     fout.close()
 
+def get_workspace_list():
+    ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
+    if os.path.isfile(ws_file_name):
+        f = open(ws_file_name, "r")
+        y = yaml.load(f)
+        f.close()
+        return y
+    return None
+
 def list_workspace():
     print ' - Listing worksace:'
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
