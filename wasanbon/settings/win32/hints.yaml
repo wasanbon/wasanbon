@@ -24,4 +24,5 @@ msbuild :
 emacs : 
   - "$HOME\\rtm\\emacs-23.4\\bin\\emacs.exe"
 hg :
+  - "C:\\Program Files\\Mercurial\\hg.exe"
   - "C:\\Program Files\\TortoiseHg\\hg.exe"
