@@ -15,13 +15,13 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if len(argv) < 3 or argv[2] == 'help':
-            show_help_description('system')
+            wasanbon.show_help_description('system')
             return
 
         rtcps = rtc.parse_rtcs()
         if(argv[2] == 'install'):
             if len(argv) < 4:
-                show_help_description('system')
+                wasanbon.show_help_description('system')
                 return
 
             if argv[3] == 'all':

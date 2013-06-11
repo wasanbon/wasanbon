@@ -4,7 +4,7 @@ import os, sys, subprocess, getpass
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
-from wasanbon.core.rtc import git
+from wasanbon.core.rtc import git, hg
 
 rtcprofile_filename = 'RTC.xml'
 
@@ -86,6 +86,14 @@ class Command(object):
                         cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
                         subprocess.call(cmd)
                         return
+                    if 'hg' in repo.keys():
+                        url = repo['hg']
+                        print 'Mercurial cloning : %s' % url
+                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
+                        cmd = [wasanbon.setting['local']['hg'], 'clone', url, distpath]
+                        subprocess.call(cmd)
+                        return
+                        
                     else:
                         pass
             print 'Do not found'
@@ -98,8 +106,13 @@ class Command(object):
             comment = argv[4]
             for rtcp in rtcps:
                 if rtcname == rtcp.getName():
-                    sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
-                    git.git_commit(rtcp, comment)
+                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
+                    if '.hg' in os.listdir(rtc_dir):
+                        sys.stdout.write('Commiting Mercurial repository in %s\n' % rtcname)
+                        hg.commit(rtcp, comment)
+                    elif '.git' in os.listdir(rtc_dir):
+                        sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
+                        git.commit(rtcp, comment)
 
         if argv[2] == 'push':
             if len(argv) < 4:
@@ -107,8 +120,13 @@ class Command(object):
             rtcname = argv[3]
             for rtcp in rtcps:
                 if rtcname == rtcp.getName():
-                    sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
-                    git.git_push(rtcp)
+                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
+                    if '.hg' in os.listdir(rtc_dir):
+                        sys.stdout.write('Pushing Mercurial repository in %s\n' % rtcname)
+                        hg.push(rtcp)
+                    elif '.git' in os.listdir(rtc_dir):
+                        sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
+                        git.push(rtcp)
 
         if argv[2] == 'github_init':
             if len(argv) < 4:
