@@ -10,6 +10,7 @@ doxygen :
 git :
   - "/usr/local/bin/git"
   - "/usr/bin/git"
+  - "/usr/local/git/bin/git"
 java :
   - "/usr/local/bin/java"
   - "/usr/bin/java"
