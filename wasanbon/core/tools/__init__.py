@@ -26,7 +26,7 @@ def install_tools(force=False):
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtctree']
                 git.clone_and_setup(url)
-        try:
+            try:
                 import rtsprofile
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtsprofile']
