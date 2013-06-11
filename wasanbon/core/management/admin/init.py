@@ -100,6 +100,8 @@ class Command(object):
         init_tools_path()
 
         platform.check_and_install_devtools()
+        
+        platform.create_dot_emacs()
 
         init_tools_path()
 

@@ -15,6 +15,11 @@ class Command(object):
     def execute_with_argv(self, argv):
         curdir = os.path.normcase(os.path.normpath(os.getcwd()))
         ws = get_workspace_list()
+
+        clean_flag = False
+        if '--clean' in argv:
+            clean_flag = True
+            argv.remove('--clean')
         if not ws:
             print ' - Error: workspace list can not be found.'
             return
@@ -49,6 +54,9 @@ class Command(object):
                 if os.path.isdir(prefix) and os.stat(prefix) == os.stat(pp):
                     print 'Found RTC: %s' % key
                     argv.append(rtcp.getName())
+
+        if clean_flag:
+            argv.append('--clean')
 
         rtcps = rtc.parse_rtcs()
         if '--clean' in argv:
