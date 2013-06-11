@@ -6,7 +6,7 @@ help :
       project : 'プロジェクトの開始'
       rtm : 'RTミドルウエアの管理'
       selfupdate : '自己アップデート．sudoして呼んでください'
-      tools :  'eclipseやrtshellなどのツールの管理'
+      tools :  'eclipseやrtshellなどのツールの管理と実行'
       help : 'このヘルプの表示'
       edit : 'エディタの実行．RTC固有のファイルを開く'
       build : 'RTCのビルド'
