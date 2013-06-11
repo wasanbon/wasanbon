@@ -29,20 +29,20 @@ def git_init(rtcp):
 
 def commit(rtcp, comment):
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
-    sys.stdout.write("Commit GIT repository in %s\n" % rtc_dir)
+    sys.stdout.write("Commit Mercurial repository in %s\n" % rtc_dir)
     pp = PackageProfile(rtcp)
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
-    cmd = [wasanbon.setting['local']['git'], 'commit', '-a', '-m', comment]
+    cmd = [wasanbon.setting['local']['hg'], 'commit', '-m', comment]
     subprocess.call(cmd)
     os.chdir(current_dir)
 
 def push(rtcp):
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
-    sys.stdout.write("Push GIT repository in %s\n" % rtc_dir)
+    sys.stdout.write("Push Mercurial repository in %s\n" % rtc_dir)
     pp = PackageProfile(rtcp)
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
-    cmd = [wasanbon.setting['local']['git'], 'push']
+    cmd = [wasanbon.setting['local']['hg'], 'push']
     subprocess.call(cmd)
     os.chdir(current_dir)
