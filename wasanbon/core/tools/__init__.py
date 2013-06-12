@@ -41,9 +41,10 @@ def install_tools(force=False):
     except ImportError, e:
         sys.stdout.write('OpenRTM_aist can not be imported. Please install RTM first.\n')
     
-
-    url = wasanbon.setting[sys.platform]['packages']['eclipse']
-    util.download_and_unpack(url, wasanbon.rtm_home, force)
+    eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
+    if not os.path.isdir(eclipse_dir) or force:
+        url = wasanbon.setting[sys.platform]['packages']['eclipse']
+        util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 
 def launch_eclipse(workbench, nonblock=True):

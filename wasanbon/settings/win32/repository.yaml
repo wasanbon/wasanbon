@@ -38,6 +38,6 @@ RangeDataViewer :
   description : 'Range Data Viewer'
   git : 'https://github.com/ysuga/RangeDataViewer.git'
 SpaceNavigator :
-  description : '3DConnexion's 3-D mouse RT-component'
+  description : '3DConnexion s 3-D mouse RT-component'
   git : 'https://github.com/ysuga/SpaceNavigator.git'
 

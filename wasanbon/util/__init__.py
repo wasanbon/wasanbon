@@ -63,9 +63,19 @@ def download_and_install(url, force=False, temp=""):
     filename = os.path.basename(url)
     if len(temp)==0:
         temp = wasanbon.rtm_temp
+
     dist_file = os.path.join(temp, filename)
     download.download(url, dist_file, force=force)
-    install.install(dist_file)
+
+    if dist_file.endswith(".zip"):
+        dist_path = dist_file[:-4]
+        archive.unpack_zip(dist_file, dist_path)
+        for root, dirs, files in os.walk(dist_path):
+            for dir in dirs:
+                if dir.endswith('.mpkg'):
+                    install.install(os.path.join(root, dir))
+    else:
+        install.install(dist_file)
     pass
 
 
