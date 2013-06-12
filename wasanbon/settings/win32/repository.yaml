@@ -4,6 +4,9 @@ ConsoleOutput :
 ConsoleInput :
   description : 'Console Input RT-component with Long type DataOutPort'
   git : 'https://github.com/sugarsweetrobotics/ConsoleInput_cpp.git'
+DoubleSeqViewer :
+  description : 'Double Sequence Data Viewer RT-component.'
+  hg : 'https://ysuga0731@code.google.com/p/doubleseqviewer/'
 JoystickToVelocity :
   description : 'Joystick input data to velocity. available with DirectInput RTC.'
   git :  'https://github.com/ysuga/JoystickToVelocity.git'
@@ -34,4 +37,7 @@ KinectTest :
 RangeDataViewer : 
   description : 'Range Data Viewer'
   git : 'https://github.com/ysuga/RangeDataViewer.git'
+SpaceNavigator :
+  description : '3DConnexion's 3-D mouse RT-component'
+  git : 'https://github.com/ysuga/SpaceNavigator.git'
 

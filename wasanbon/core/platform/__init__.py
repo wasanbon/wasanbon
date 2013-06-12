@@ -15,7 +15,7 @@ def create_dot_emacs():
         fin.close()
         tempin.close()
 
-        flag = 'wa'
+        flag = 'a'
     fout = open(dot_e_file, flag)
     fin = open(dot_e_temp, 'r')
     fout.write(fin.read())
