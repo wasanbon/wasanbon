@@ -51,7 +51,7 @@ def github_init(user, passwd, rtcp):
     cmd = [wasanbon.setting['local']['git'], 'remote', 'add', 'origin', 'git@github.com:' + user + '/' + repo_name + '.git']
     subprocess.call(cmd, env=gitenv)
     cmd = [wasanbon.setting['local']['git'], 'push', '-u', 'origin', 'master']
-    subprocess.Popen(cmd, env=gitenv)
+    subprocess.call(cmd, env=gitenv)
     os.chdir(current_dir)
     
     sys.stdout.write('Updating repository.yaml\n')

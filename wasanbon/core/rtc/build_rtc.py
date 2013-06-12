@@ -58,8 +58,7 @@ def build_rtc_cpp(rtcp):
         if sln in os.listdir(os.getcwd()):
             print 'Solution is successfully generated.'
             cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
-            print cmd
-            subprocess.Popen(cmd)
+            subprocess.call(cmd)
             return
     elif sys.platform == 'darwin':
         if 'Makefile' in os.listdir(os.getcwd()):
