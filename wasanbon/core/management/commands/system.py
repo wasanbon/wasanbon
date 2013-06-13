@@ -1,4 +1,4 @@
-import os, sys, time, subprocess, signal
+import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system
@@ -36,6 +36,7 @@ class Command(object):
                     rtc.install(rtcp)
                     return
             print 'RTC(%s) can not found.' % argv[3]
+
         elif(argv[2] == 'build'):
             print 'Building RTC System in Wasanbon'
             system.run_system(nobuild=True, nowait=True)
@@ -50,7 +51,6 @@ class Command(object):
 
             system.terminate_all_process()
             return
-        
 
         elif(argv[2] == 'run'):
             if len(argv) >= 4 and argv[3] == '--nobuild':
@@ -60,7 +60,33 @@ class Command(object):
                 nobuild=False
 
             system.run_system(nobuild=nobuild)
+            pass
 
         elif(argv[2] == 'datalist'):
             system.list_rtcs_by_dataport()
                  
+            pass
+
+        elif(argv[2] == 'nameserver'):
+
+            y = yaml.load(open('setting.yaml', 'r'))
+            
+            rtcconf_cpp = rtc.rtcconf.RTCConf(y['application']['conf.C++'])
+            rtcconf_py = rtc.rtcconf.RTCConf(y['application']['conf.Python'])
+            rtcconf_java = rtc.rtcconf.RTCConf(y['application']['conf.Java'])
+            
+            if len(argv) == 3:
+                sys.stdout.write(' - Listing Nameservers\n')
+                sys.stdout.write('rtcd(C++)    : "%s"\n' % rtcconf_cpp['corba.nameservers'])
+                sys.stdout.write('rtcd(Python) : "%s"\n' % rtcconf_py['corba.nameservers'])
+                sys.stdout.write('rtcd(Java)   : "%s"\n' % rtcconf_java['corba.nameservers'])
+            elif len(argv) == 4:
+                sys.stdout.write(' - Adding Nameservers\n')
+                rtcconf_cpp['corba.nameservers'] = argv[3]
+                rtcconf_py['corba.nameservers'] = argv[3]
+                rtcconf_java['corba.nameservers'] = argv[3]
+                rtcconf_cpp.sync()
+                rtcconf_py.sync()
+                rtcconf_java.sync()
+                
+            pass
