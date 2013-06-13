@@ -13,6 +13,9 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv):
+        user = []
+        passwd = []
+        email = []
         if argv[2] == 'init':
             sys.stdout.write(' - Input Github User Name:')
             user = raw_input()
@@ -35,4 +38,15 @@ class Command(object):
                 pass
             g.get_user().create_key(name, open(pub_file, "r").read())
     
-        
+        if argv[2] == 'init' or argv[2] == 'set_user':
+            if not user:
+                sys.stdout.write(' - Input Git User Name:')
+                user = raw_input()
+            if not email:
+                sys.stdout.write(' - Input Git Email:')
+                email = raw_input()
+                
+            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.name', user]
+            subprocess.call(cmd)
+            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.email', email]
+            subprocess.call(cmd)
