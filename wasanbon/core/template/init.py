@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, shutil, yaml
+import os, sys, shutil, yaml, types
 import subprocess
 import wasanbon
 
@@ -71,9 +71,10 @@ def init_workspace(appname):
     if os.path.isfile(ws_file_name):
         f = open(ws_file_name, "r")
         y = yaml.load(f)
-        if appname in y.keys():
-            print ' - Error: There seems to be %s project in localhost.' % appname
-            return False
+        if type(y) == types.DictType:
+            if appname in y.keys():
+                print ' - Error: There seems to be %s project in localhost.' % appname
+                return False
         f.close()
 
     tempdir = os.path.join(wasanbon.__path__[0], 'template')
