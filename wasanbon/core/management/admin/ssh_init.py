@@ -29,7 +29,8 @@ class Command(object):
             subprocess.call([cmd, '-t', 'rsa', '-f', file])
         
         pub_file = file + '.pub'
-        
+
+        """
         sys.stdout.write(' - Input Github User Name:')
         user = raw_input()
         sys.stdout.write(' - Input Github Password :')
@@ -49,4 +50,4 @@ class Command(object):
             name = socket.gethostname()
         g.get_user().create_key(name, open(pub_file, "r").read())
     
-        
+        """

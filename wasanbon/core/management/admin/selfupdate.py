@@ -24,9 +24,11 @@ class Command(object):
             else:
                 clean_flag = True
 
-
-
         cwd = os.getcwd()
+        if os.path.isdir(wasanbon.rtm_temp):
+            os.umask(0000)
+            os.mkdir(wasanbon.rtm_temp, 0777)
+
         os.chdir(wasanbon.rtm_temp)
         if not os.path.isdir('wasanbon'):
             cmd = [wasanbon.setting['local']['git'], 
