@@ -1,8 +1,12 @@
 # encoding: UTF-8
 
-import os, sys, time, signal, traceback
+import os, sys, time, signal, traceback, yaml, subprocess
+
+from rtctree import tree
 
 import omniORB
+
+
 
 import wasanbon
 from wasanbon import util
@@ -10,6 +14,7 @@ from wasanbon.core.system import run
 from wasanbon.core import rtc
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.system import rtsprofile
+from wasanbon.core.rtc import rtcconf
 process = {}
 
 import rtctree
@@ -52,9 +57,56 @@ def start_process():
     process['java']   = run.start_java_rtcd()
 
 
+def get_nameserver():
+    y = yaml.load(open('setting.yaml', 'r'))
+    cppconf = rtcconf.RTCConf(y['application']['conf.C++'])
+    pyconf = rtcconf.RTCConf(y['application']['conf.Python'])
+    javaconf = rtcconf.RTCConf(y['application']['conf.Java'])
+    ns = cppconf['corba.nameservers']
+    if ns == pyconf['corba.nameservers'] and ns == javaconf['corba.nameservers']:
+        return ns
+    return None
+
+def launch_nameserver(ns):
+    sys.stdout.write('Starting Nameserver in %s\n' % ns)
+    token = ns.split(':')
+    if len(token) == 1:
+        addr = token[0]
+        port = 2809
+    else:
+        addr = token[0]
+        port = token[1]
+
+    if addr == 'localhost' or addr == '127.0.0.1':
+        if sys.platform == 'win32':
+            print 'rtm-naming not implemented'
+            raw_input()
+            pass
+        else:
+            cmd = ['rtm-naming', port]
+        subprocess.call(cmd)
+        
+
 def run_system(nobuild, nowait=False):
     sys.stdout.write('Ctrl+C to stop system.\n')
     signal.signal(signal.SIGINT, signal_action)
+    
+    no_ns = False
+    ns = get_nameserver()
+    try:
+        t = tree.RTCTree(ns)
+        if not t.is_nameserver:
+            no_ns = True
+    except rtctree.exceptions.InvalidServiceError, e:
+        no_ns = True
+    except omniORB.CORBA.OBJECT_NOT_EXIST, e:
+        no_ns = True
+        pass
+
+    if no_ns:
+        sys.stdout.write('Can not find Name Service (%s)\n' % ns)
+        launch_nameserver(ns)
+
 
     sys.stdout.write('Starting RTC-Daemons\n')
     
