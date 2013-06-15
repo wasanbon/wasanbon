@@ -1,6 +1,17 @@
 none : '適切なドキュメントが見つかりませんでした'
 help :
-  command : 
+  general :
+    admin : 
+      - 'wasanbon-admin.pyは複数のsubcommandをとることができます．'
+      - 'subcommandごとのヘルプを参照する場合は，'
+      - '$ wasanbon-admin.py [subcommand] help'
+      - 'と入力します．'
+    command : 
+      - 'mgr.pyは複数のsubcommandをとることができます．'
+      - 'subcommandごとのヘルプを参照する場合は，'
+      - '$ mgr.py [subcommand] help'
+      - 'と入力します．'
+  command :
     brief :
       init : 'wasanbonの初期化をします．最初に呼ばれるべきコマンド．'
       project : 'プロジェクトの開始や管理をします．'

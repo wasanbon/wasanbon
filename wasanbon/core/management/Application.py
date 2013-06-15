@@ -62,12 +62,20 @@ def get_admincommand_list():
 
 
 def show_help_brief(is_admin):
-    sys.stdout.write("\nUsage : %s [subcommand] [args...]\n"%  os.path.basename(sys.argv[0]))
-    sys.stdout.write(" - subcommand : \n")
+    sys.stdout.write("\nUsage : %s [subcommand] [args...]\n\n"%  os.path.basename(sys.argv[0]))
+
     if is_admin:
+        helps = wasanbon.get_help_text(['help','general', 'admin'])
+        for help in helps:
+            sys.stdout.write(" %s\n" % help) 
+        sys.stdout.write("\n - subcommand : \n")
         for subcommand in get_admincommand_list():
             sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, wasanbon.get_help_text(['help','command', 'brief', subcommand])))
     else:
+        helps = wasanbon.get_help_text(['help','general', 'command'])
+        for help in helps:
+            sys.stdout.write(" %s\n" % help) 
+        sys.stdout.write("\n - subcommand : \n")
         for subcommand in get_subcommand_list():
             sys.stdout.write(("   - %s" + (" " * (18-len(subcommand))) +": %s\n") % (subcommand, wasanbon.get_help_text(['help','command', 'brief', subcommand])))
     print " "
