@@ -13,6 +13,10 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv):
+        if len(argv) >= 3 and argv[2] == 'help':
+            wasanbon.show_help_description('ssh_init')
+            return 
+                
         cmd = os.path.join(os.path.split(wasanbon.setting['local']['git'])[0], 'ssh-keygen')
         if sys.platform == 'win32':
             cmd = cmd + '.exe'
