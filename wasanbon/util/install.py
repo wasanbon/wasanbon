@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, traceback
 import subprocess
 
 
@@ -11,6 +11,8 @@ def install(file):
         cmd = ['sh', file]
     elif file.endswith(".pkg"):
         cmd = ['installer', '-package', file, '-target', '/Volumes/Macintosh HD']
+    elif file.endswith(".mpkg"):
+        cmd = ['installer', '-pkg', file, '-target', '/']
     elif file.endswith(".msi"):
         cmd = ['msiexec', '/i', file]
     elif file.endswith(".exe"):
@@ -20,8 +22,7 @@ def install(file):
 
     try:
         if sys.platform == 'win32':
-            print 'cmd=%s' % cmd
-            ret = subprocess.Popen(cmd, env=os.environ)
+            ret = subprocess.Popen(cmd, creationflags=512, env=os.environ)
             ret.wait()
             
         else:
@@ -29,6 +30,7 @@ def install(file):
         sys.stdout.write('Installing %s is successful. Message is below\n' % file)
         sys.stdout.write(ret)
     except:
+        traceback.print_exc()
         sys.stdout.write('Installing %s is failed. Maybe this process must have done by super user.\n' % file)
 
 

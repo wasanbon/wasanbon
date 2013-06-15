@@ -6,4 +6,5 @@ application :
   conf.Python  : conf/rtc_py.conf
   conf.Java: conf/rtc_java.conf
   system : system/DefaultSystem.xml
-
+  nameservers :
+    - localhost:2809

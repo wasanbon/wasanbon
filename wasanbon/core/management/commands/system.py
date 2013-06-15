@@ -1,18 +1,9 @@
-import os, sys, time, subprocess, signal
-
+import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
+from wasanbon.core import system
 from wasanbon.core.system import run
 
-
-endflag = False
-
-def signal_action(num, frame):
-    print 'SIGINT captured'
-    global endflag
-    endflag = True
-
-    pass
 
 
 class Command(object):
@@ -24,80 +15,78 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if len(argv) < 3 or argv[2] == 'help':
-            show_help_description('system')
+            wasanbon.show_help_description('system')
             return
 
         rtcps = rtc.parse_rtcs()
         if(argv[2] == 'install'):
-            print 'Installing RTC %s' % argv[3]
+            if len(argv) < 4:
+                wasanbon.show_help_description('system')
+                return
+
+            if argv[3] == 'all':
+                for rtcp in rtcps:
+                    print 'Installing RTC %s' % rtcp.getName()
+                    rtc.install(rtcp)
+                return
+
             for rtcp in rtcps:
                 if rtcp.getName() == argv[3]:
+                    print 'Installing RTC %s' % argv[3]
                     rtc.install(rtcp)
+                    return
+            print 'RTC(%s) can not found.' % argv[3]
 
-        elif(argv[2] == 'run'):
-            sys.stdout.write('Ctrl+C to stop system.\n')
-            signal.signal(signal.SIGINT, signal_action)
-
-            if not os.path.isdir('log'):
-                os.mkdir('log')
-            sys.stdout.write('Starting RTC-Daemons\n')
-        
-            process = {}
-            process['cpp']    = run.start_cpp_rtcd()
-            process['python'] = run.start_python_rtcd()
-            process['java']   = run.start_java_rtcd()
+        elif(argv[2] == 'build'):
+            print 'Building RTC System in Wasanbon'
+            system.run_system(nobuild=True, nowait=True)
             
-            
-            process_state = {}
-            for key in process.keys():
-                process_state[key] = False
-                pass
-
-            interval = 3
-            for i in range(0, interval):
-                sys.stdout.write('\rwaiting %s seconds to rebuild RTSystem.' % (interval-i))
+            for i in range(0, 5):
+                sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
                 sys.stdout.flush()
                 time.sleep(1)
+            system.list_available_connections()
+            system.list_available_configurations()
+            system.save_all_system(['localhost'])
 
+            system.terminate_all_process()
+            return
+
+        elif(argv[2] == 'run'):
             if len(argv) >= 4 and argv[3] == '--nobuild':
-                sys.stdout.write('\n - Launch System without System Build.')
+                sys.stdout.write('\n - Launch System without System Build.\n\n')
+                nobuild=True
             else:
-                sys.stdout.write('\nRebuilding RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-                run.exe_rtresurrect()
-            
-                sys.stdout.write('Activating RT System from rtsprofile (%s)\n' % wasanbon.setting['application']['system'])
-                run.exe_rtstart()
+                nobuild=False
 
-
-            signal.signal(signal.SIGINT, signal_action)
-            global endflag
-            while not endflag:
-                #sys.stdout.write('Updating system parameters.\n')
-                try:
-                    time.sleep(0.1)
-                    for key in process.keys():
-                        process[key].poll()
-                        if process_state[key] == False and process[key].returncode != None:
-                            print '%s rtcd stopped (retval=%d)' % (key, process[key].returncode)
-                            process_state[key] = True
-                            pass
-
-                    if all(process_state.values()):
-                        print 'All rtcds are stopped'
-                        break
-                    pass
-                except:
-                    endflag = True
-                    pass
-
-            print 'Terminating All Process....'
-            for key in process.keys():
-                process[key].poll()
-                if process[key].returncode == None:
-                    sys.stdout.write(' - Terminating RTC-Daemon(%s)\n' % key)
-                    process[key].kill()
-
-
-            print 'All rtcd process terminated.'
+            system.run_system(nobuild=nobuild)
             pass
 
+        elif(argv[2] == 'datalist'):
+            system.list_rtcs_by_dataport()
+                 
+            pass
+
+        elif(argv[2] == 'nameserver'):
+
+            y = yaml.load(open('setting.yaml', 'r'))
+            
+            rtcconf_cpp = rtc.rtcconf.RTCConf(y['application']['conf.C++'])
+            rtcconf_py = rtc.rtcconf.RTCConf(y['application']['conf.Python'])
+            rtcconf_java = rtc.rtcconf.RTCConf(y['application']['conf.Java'])
+            
+            if len(argv) == 3:
+                sys.stdout.write(' - Listing Nameservers\n')
+                sys.stdout.write('rtcd(C++)    : "%s"\n' % rtcconf_cpp['corba.nameservers'])
+                sys.stdout.write('rtcd(Python) : "%s"\n' % rtcconf_py['corba.nameservers'])
+                sys.stdout.write('rtcd(Java)   : "%s"\n' % rtcconf_java['corba.nameservers'])
+            elif len(argv) == 4:
+                sys.stdout.write(' - Adding Nameservers\n')
+                rtcconf_cpp['corba.nameservers'] = argv[3]
+                rtcconf_py['corba.nameservers'] = argv[3]
+                rtcconf_java['corba.nameservers'] = argv[3]
+                rtcconf_cpp.sync()
+                rtcconf_py.sync()
+                rtcconf_java.sync()
+                
+            pass

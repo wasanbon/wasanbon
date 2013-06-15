@@ -30,9 +30,10 @@ class InvalidRTCProfileError(Exception):
         return 'InvalidRTCProfileError(%s):%s' % (self.filename, self.msg)
 
 class DataPort(object):
-    def __init__(self, name, type):
+    def __init__(self, name, type, portType):
         self.name = name
         self.type = type
+        self.portType = portType
 
     def __str__(self):
         return '%s:%s' % (self.name, self.type)
@@ -56,7 +57,9 @@ class RTCProfile(object):
         
             self.dataports = []
             for dport in root.findall('{%s}DataPorts' % uri):
-                self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], dport.attrib['{%s}type' % uri]))
+                self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], 
+                                               dport.attrib['{%s}type' % uri],
+                                               dport.attrib['{%s}portType' % uri]))
         except Exception, e:
             raise InvalidRTCProfileError(filename, 'Parsing Error')
 
@@ -101,8 +104,13 @@ class RTCProfile(object):
             self.rtcfile = None
         else:
             self.rtcfile = on_multiple_rtcfile(self, rtcs_files)
+
         """
         pass
+
+    def getDataPorts(self):
+        return self.dataports
+
     def __str__(self):
         return self.getName() + " in " + self.getLanguage()
         pass

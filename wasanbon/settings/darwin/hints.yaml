@@ -10,6 +10,7 @@ doxygen :
 git :
   - "/usr/local/bin/git"
   - "/usr/bin/git"
+  - "/usr/local/git/bin/git"
 java :
   - "/usr/local/bin/java"
   - "/usr/bin/java"
@@ -22,3 +23,6 @@ svn :
 emacs :
   - "/usr/local/bin/emacs"
   - "/usr/bin/emacs"
+hg :
+  - "/usr/bin/hg"
+  - "/usr/local/bin/hg"
