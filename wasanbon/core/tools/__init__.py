@@ -11,32 +11,43 @@ def install_tools(force=False):
 
     try:
         import OpenRTM_aist
+
+        if force:
+            url = wasanbon.setting['common']['git']['rtctree']
+            git.clone_and_setup(url)
+            url = wasanbon.setting['common']['git']['rtsprofile']
+            git.clone_and_setup(url)
+            url = wasanbon.setting['common']['git']['rtshell']
+            git.clone_and_setup(url)
+
+        else:
+            try:
+                import rtctree
+            except ImportError, e:
+                url = wasanbon.setting['common']['git']['rtctree']
+                git.clone_and_setup(url)
+            try:
+                import rtsprofile
+            except ImportError, e:
+                url = wasanbon.setting['common']['git']['rtsprofile']
+                git.clone_and_setup(url)
+            try:
+                import rtshell
+            except ImportError, e:
+                url = wasanbon.setting['common']['git']['rtshell']
+                git.clone_and_setup(url)
+            pass
+
     except ImportError, e:
         sys.stdout.write('OpenRTM_aist can not be imported. Please install RTM first.\n')
-        return
-
-    try:
-        import rtctree
-    except ImportError, e:
-        url = wasanbon.setting['common']['git']['rtctree']
-        git.clone_and_setup(url)
-    try:
-        import rtsprofile
-    except ImportError, e:
-        url = wasanbon.setting['common']['git']['rtsprofile']
-        git.clone_and_setup(url)
-    try:
-        import rtshell
-    except ImportError, e:
-        url = wasanbon.setting['common']['git']['rtshell']
-        git.clone_and_setup(url)
-    pass
-
-    url = wasanbon.setting[sys.platform]['packages']['eclipse']
-    util.download_and_unpack(url, wasanbon.rtm_home, force)
+    
+    eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
+    if not os.path.isdir(eclipse_dir) or force:
+        url = wasanbon.setting[sys.platform]['packages']['eclipse']
+        util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 
-def launch_eclipse(workbench):
+def launch_eclipse(workbench, nonblock=True):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
@@ -61,8 +72,11 @@ def launch_eclipse(workbench):
             cmd = [eclipse_cmd]
 
     if sys.platform == 'win32':
-        subprocess.Popen(cmd, creationflags=512, env=env)
+        p = subprocess.Popen(cmd, creationflags=512, env=env, stdout=subprocess.PIPE)
     else:
-        subprocess.Popen(cmd, env=env)
+        p = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
+
+    if not nonblock:
+        p.wait()
 
     

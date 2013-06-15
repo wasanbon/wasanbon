@@ -2,14 +2,45 @@ import os, sys, subprocess
 import wasanbon
 from . import download, install, archive
 
+
+def choice(alts, msg='Choice'):
+    print msg
+    while True:
+        for i in range(0, len(alts)):
+            sys.stdout.write('  - %s:%s\n' % (i+1, alts[i]))
+        sys.stdout.write('Choice?:')
+        i = raw_input()
+        try:
+            ans = int(i)
+        except ValueError, e:
+            continue
+        if ans < 1 or ans > len(alts):
+            continue
+        return ans-1
+
 def yes_no(msg):
-    sys.stdout.write('%s (y/n)' % msg)
+    sys.stdout.write('%s (Y/n)' % msg)
     while True:
         c = raw_input()
+        if len(c) == 0:
+            return 'yes'
         if c[0] == 'y':
             return 'yes'
         else:
             return 'no'
+
+
+def no_yes(msg):
+    sys.stdout.write('%s (y/N)' % msg)
+    while True:
+        c = raw_input()
+        if len(c) == 0:
+            return 'no'
+        if c[0] == 'y':
+            return 'yes'
+        else:
+            return 'no'
+    
 
 def download_and_unpack(url, dist_path, force=False):
     filename = os.path.basename(url)
@@ -32,9 +63,19 @@ def download_and_install(url, force=False, temp=""):
     filename = os.path.basename(url)
     if len(temp)==0:
         temp = wasanbon.rtm_temp
+
     dist_file = os.path.join(temp, filename)
     download.download(url, dist_file, force=force)
-    install.install(dist_file)
+
+    if dist_file.endswith(".zip"):
+        dist_path = dist_file[:-4]
+        archive.unpack_zip(dist_file, dist_path)
+        for root, dirs, files in os.walk(dist_path):
+            for dir in dirs:
+                if dir.endswith('.mpkg'):
+                    install.install(os.path.join(root, dir))
+    else:
+        install.install(dist_file)
     pass
 
 

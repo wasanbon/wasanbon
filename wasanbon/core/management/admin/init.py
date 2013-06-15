@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import os, sys, yaml, shutil
+import os, sys, yaml, shutil, subprocess
+if sys.platform == 'darwin' or sys.platform == 'linux2':
+    import pwd, grp
 import wasanbon
 from wasanbon import util
 from wasanbon.core import platform
@@ -11,16 +13,18 @@ from wasanbon.core import rtm
 def search_command(cmd, hints):
     if sys.platform == 'win32':
         cmd = cmd + '.exe'
-    
+    print ' - searching command [%s]' % cmd
     path_splitter = ';' if sys.platform == 'win32' else (':' if sys.platform == 'darwin' else ':')
-
     for path in os.environ['PATH'].split(path_splitter):
         fullpath = os.path.join(path, cmd)
         if os.path.isfile(fullpath):
+            print '    - hit: %s' % fullpath
             return fullpath
     for hint in hints:
         if os.path.isfile(hint):
+            print '    - hit: %s' % hint
             return hint
+    print '    - does not hit.' 
     return ""
 
 def search_cmd_all(dict):
@@ -57,9 +61,13 @@ class Command(object):
         return True
 
     def execute_with_argv(self, argv):
-        if len(argv) > 3 and argv[2] == 'help':
+        if len(argv) >= 3 and argv[2] == 'help':
             wasanbon.show_help_description('init')
 
+        if len(argv) >= 3 and argv[2] == '--force':
+	    force = True
+        else:
+            force = False
 
         os.umask(0000)
         repo = wasanbon.setting['common']['repository']['wasanbon']
@@ -67,6 +75,11 @@ class Command(object):
             os.mkdir(wasanbon.rtm_home, 0777)
         if not os.path.isdir(wasanbon.rtm_temp):
             os.mkdir(wasanbon.rtm_temp, 0777)
+            
+        if sys.platform == 'linux2' or sys.platform == 'darwin':
+            home_stat = os.stat(os.environ['HOME'])
+            os.chown(wasanbon.rtm_home, home_stat.st_uid, home_stat.st_gid)
+            os.chown(wasanbon.rtm_temp, home_stat.st_uid, home_stat.st_gid)
         
         template_setting_file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'setting.yaml')
         template_repository_file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'repository.yaml')
@@ -77,21 +90,25 @@ class Command(object):
                 os.remove(local_setting_file)
                 shutil.copyfile(template_setting_file, local_setting_file)
             else:
-                return
+                pass
         else:
             shutil.copyfile(template_setting_file, local_setting_file)
         if os.path.isfile(local_repository_file):
             if util.yes_no('There seems to be a repository file in %s. Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
                 os.remove(local_repository_file)
-                shutil.copyfile(template_repository_file, local_repository_file)
-
+                #shutil.copyfile(template_repository_file, local_repository_file)
+                fout = open(local_repository_file, 'w')
+                fout.close()
             else:
-                return
+                pass
         else:
-            shutil.copyfile(template_repository_file, local_repository_file)
+            fout = open(local_repository_file, 'w')
+            fout.close()
         init_tools_path()
 
         platform.check_and_install_devtools()
+        
+        platform.create_dot_emacs()
 
         init_tools_path()
 
@@ -106,7 +123,7 @@ class Command(object):
 
         rtm.install_rtm(False)
 
-        tools.install_tools()
+        tools.install_tools(force=force)
 
         if sys.platform == 'win32':
             sys.stdout.write("\n=========================================================\n");
@@ -114,3 +131,10 @@ class Command(object):
             sys.stdout.write(" Please Reboot Windows to properly configure your system.\n")
             sys.stdout.write("\n");
             sys.stdout.write("\n=========================================================\n");
+        elif sys.platform == 'darwin' or sys.platform == 'linux2':
+            sys.stdout.write("\nchanging owner setting of RTM_HOME(%s)\n" % wasanbon.rtm_home)
+            home_stat = os.stat(wasanbon.get_home_path())
+            
+            cmd = ['chown', '-R',  pwd.getpwuid(home_stat.st_uid)[0] + ':' +  grp.getgrgid(home_stat.st_gid)[0], wasanbon.rtm_home]
+            print cmd
+            subprocess.call(cmd)
