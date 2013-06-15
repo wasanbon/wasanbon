@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, yaml, shutil subprocess
+import os, sys, yaml, shutil, subprocess
 if sys.platform == 'darwin' or sys.platform == 'linux2':
     import pwd, grp
 import wasanbon
