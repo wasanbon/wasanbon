@@ -71,26 +71,28 @@ def launch_nameserver(ns):
     sys.stdout.write('Starting Nameserver in %s\n' % ns)
     token = ns.split(':')
     if len(token) == 1:
-        addr = token[0]
+        addr = token[0].strip()
         port = 2809
     else:
-        addr = token[0]
-        port = token[1]
+        addr = token[0].strip()
+        port = token[1].strip()
 
+    print addr
     if addr == 'localhost' or addr == '127.0.0.1':
         if sys.platform == 'win32':
-            print 'rtm-naming not implemented'
-            raw_input()
-            pass
+            path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
+            cmd = [path, port]
+            return subprocess.Popen(cmd, creationflags=512)
         else:
             cmd = ['rtm-naming', port]
-        subprocess.call(cmd)
-        
+            return subprocess.Popen(cmd)
+    return None
 
 def run_system(nobuild, nowait=False):
     sys.stdout.write('Ctrl+C to stop system.\n')
     signal.signal(signal.SIGINT, signal_action)
     
+    ns_process = []
     no_ns = False
     ns = get_nameserver()
     try:
@@ -103,9 +105,10 @@ def run_system(nobuild, nowait=False):
         no_ns = True
         pass
 
+
     if no_ns:
         sys.stdout.write('Can not find Name Service (%s)\n' % ns)
-        launch_nameserver(ns)
+        ns_process = launch_nameserver(ns)
 
 
     sys.stdout.write('Starting RTC-Daemons\n')
@@ -150,6 +153,9 @@ def run_system(nobuild, nowait=False):
     print 'Terminating All Process....'        
     terminate_all_process()
     print 'All rtcd process terminated.'
+
+    if ns_process and ns_process.returncode == None:
+        ns_process.kill()
 
 
 def terminate_all_process():

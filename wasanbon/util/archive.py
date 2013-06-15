@@ -1,4 +1,6 @@
-import os, sys, pwd, grp
+import os, sys
+if sys.platform == 'linux2' or sys.platform == 'darwin':
+    import pwd, grp
 import zipfile
 import subprocess
 
