@@ -2,11 +2,11 @@ none : '適切なドキュメントが見つかりませんでした'
 help :
   command : 
     brief :
-      init : 'wasanbonの初期化．最初に呼ばれるべきコマンド'
-      project : 'プロジェクトの開始'
-      rtm : 'RTミドルウエアの管理'
-      selfupdate : '自己アップデート．sudoして呼んでください'
-      tools :  'eclipseやrtshellなどのツールの管理と実行'
+      init : 'wasanbonの初期化をします．最初に呼ばれるべきコマンド．'
+      project : 'プロジェクトの開始や管理をします．'
+      rtm : 'RTミドルウエアの管理をします．'
+      selfupdate : '自己アップデート機能．sudoして呼んでください'
+      tools :  'eclipseやrtshellなどのツールの管理と実行．'
       help : 'このヘルプの表示'
       edit : 'エディタの実行．RTC固有のファイルを開く'
       build : 'RTCのビルド'
@@ -14,8 +14,9 @@ help :
       system : 'システムの実行や管理'
       rtc: 'プロジェクト内のRTCの管理'
       admin: 'プロジェクトの管理'
-      make: 'RTCをビルドします．adminコマンド版で，プロジェクトを自動検索します'
+      make: 'RTCをビルドします．adminコマンド版です．プロジェクトを自動検索します．'
       nameserver: 'RTシステムが参照するネームサービスのアドレスを指定します．'
+      github_admin: 'githubとの連携を管理します．'
     description :
       init : 
         - 'wasanbonの初期化をします．'
@@ -139,3 +140,7 @@ help :
         - '         よりシンプルなコマンドでmakeができます．'
       nameserver : 
         - 'ネームサーバーを登録します．'
+      github_admin:
+        - 'githubとの連携を行います．以下のパラメータをとります．'
+        - 'init : '
+        - '         githubにrsa鍵を送信します．ssh_initコマンドとあわせて使ってください．'
