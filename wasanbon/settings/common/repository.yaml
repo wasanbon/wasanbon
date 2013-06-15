@@ -1,1 +1,3 @@
-wasanbon: 'https://github.com/ysuga/wasanbon.git'
+wasanbon: 
+  description : ''
+  git : 'https://github.com/ysuga/wasanbon.git'

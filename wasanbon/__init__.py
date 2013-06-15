@@ -145,7 +145,12 @@ def __load_subdir(root):
 
 setting = load_settings()
 rtm_home = setting['common']['path']['RTM_HOME']
+if not os.path.isdir(rtm_home):
+    os.makedirs(rtm_home)
+
 rtm_temp = setting['common']['path']['RTM_TEMP']
+if not os.path.isdir(rtm_temp):
+    os.makedirs(rtm_temp)
 
 repositories = dict(setting['common']['repository'], **setting[sys.platform]['repository'])
 

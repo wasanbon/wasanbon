@@ -19,3 +19,6 @@ svn :
 emacs :
   - "/usr/local/bin/emacs"
   - "/usr/bin/emacs"
+hg :
+  - "/usr/bin/hg"
+  - "/usr/local/hg"

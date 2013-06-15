@@ -29,6 +29,9 @@ class Command(object):
         rtcps = rtc.parse_rtcs()
         for rtcp in rtcps:
             if argv[2] == rtcp.getName():
+                editenv = os.environ.copy()
+                if not 'HOME' in editenv.keys():
+                    editenv['HOME'] = wasanbon.get_home_path()
                 if sys.platform == 'darwin':
                     cmd = [wasanbon.setting['local']['emacs']]
                 else:
@@ -40,6 +43,6 @@ class Command(object):
                     cmd.append(file)
 
                 signal.signal(signal.SIGINT, signal_action)
-                subprocess.call(cmd)
+                subprocess.call(cmd, env=editenv)
 
         
