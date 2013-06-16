@@ -17,7 +17,7 @@ def init_rtm_home(force=False, verbose=False):
     path.init_tools_path(force=force, verbose=verbose)
     retval = install.check_commands(verbose=verbose, install=False)
     create_dot_emacs()
-    return all(retval):# and verbose:
+    return all(retval)
 
 
 def create_dot_emacs():

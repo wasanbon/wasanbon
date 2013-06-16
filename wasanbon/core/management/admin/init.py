@@ -46,4 +46,4 @@ class Command(object):
             cmd = ['chown', '-R',  pwd.getpwuid(home_stat.st_uid)[0] + ':' +  grp.getgrgid(home_stat.st_gid)[0], wasanbon.rtm_home]
             print cmd
             subprocess.call(cmd)
-"""
+
