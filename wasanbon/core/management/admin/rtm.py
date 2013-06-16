@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os
 import wasanbon
 from wasanbon.core import rtm
 
@@ -13,13 +13,13 @@ class Command(object):
 
     def execute_with_argv(self, argv):
         if len(argv) < 3:
-            wasanbon.show_help_description('rtm')
+            print ' - To read help, "%s rtm -h"' % os.path.basename(argv[0])
             return
             
         if(argv[2] == 'install'):
             sys.stdout.write('Installing OpenRTM-aist\n')
             if len(argv) >= 4 and argv[3] == '--force':
-                rtm.install_rtm(True)
+                rtm.install_rtm(force=True)
             else:
                 rtm.install_rtm(False)
         elif(argv[2] == 'status'):

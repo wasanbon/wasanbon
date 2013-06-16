@@ -13,6 +13,8 @@ class UnsupportedPlatformError(Exception):
     def __str__(self):
         return repr(self.value)    
 
+
+
 def get_help_text(arg):
     locale_name = locale.getdefaultlocale()[0]
     filename = 'en_US.yaml'

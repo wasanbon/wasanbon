@@ -13,12 +13,8 @@ class Command(object):
     def __init__(self):
         pass
 
-    def execute_with_argv(self, argv, verbose=False):
+    def execute_with_argv(self, argv, force=False, verbose=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
-        if len(argv) >= 3 and argv[2] == '--force':
-	    force = True
-        else:
-            force = False
 
         if not platform.init_rtm_home(force=force, verbose=verbose):
             sys.stdout.write(' - Can not install commands.\n')
@@ -28,9 +24,9 @@ class Command(object):
         if not 'local' in wasanbon.setting.keys():
             wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
 
-        rtm.install_rtm(False)
+        rtm.install(force=force)
 
-        tools.install_tools(force=force)
+        tools.install(force=force)
 
         if sys.platform == 'win32':
             sys.stdout.write("\n=========================================================\n");
@@ -44,6 +40,5 @@ class Command(object):
             home_stat = os.stat(wasanbon.get_home_path())
             
             cmd = ['chown', '-R',  pwd.getpwuid(home_stat.st_uid)[0] + ':' +  grp.getgrgid(home_stat.st_gid)[0], wasanbon.rtm_home]
-            print cmd
             subprocess.call(cmd)
 

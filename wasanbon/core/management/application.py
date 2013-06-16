@@ -69,8 +69,10 @@ def show_help_description(subcommand):
     print "\n\nOptions:"
     print "  -h, --help   Show This Help"
 
-def execute():
-    command = os.path.basename(sys.argv[0])
+def execute(argv=None):
+    if argv == None:
+        argv = sys.argv
+    command = os.path.basename(argv[0])
     if command == 'wasanbon-admin.py':
         package = 'admin'
     else:
@@ -84,8 +86,9 @@ def execute():
 
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=wasanbon.get_help_text(['help', 'help']), action='store_true', default=False, dest='help_flag')
+    parser.add_option('-v', '--verbose', help=wasanbon.get_help_text(['help', 'verbose']), action='store_true', default=False, dest='verbose_flag')
     try:
-        options, args = parser.parse_args(sys.argv[:])
+        options, args = parser.parse_args(argv[:])
     except:
         return
 
@@ -113,6 +116,6 @@ def execute():
     module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
     __import__(module_name)
     comm = sys.modules[module_name].Command()
-    comm.execute_with_argv(args)
+    comm.execute_with_argv(args, verbose=options.verbose_flag)
     pass
 
