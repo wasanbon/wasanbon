@@ -13,7 +13,7 @@ class Command(object):
     def __init__(self):
         pass
 
-    def execute_with_argv(self, argv, force=False, verbose=False):
+    def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
 
         if not platform.init_rtm_home(force=force, verbose=verbose):
@@ -22,7 +22,8 @@ class Command(object):
         sys.stdout.write(' - Commands are successfully found.\n')
 
         if not 'local' in wasanbon.setting.keys():
-            wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+            wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home,
+                                                                    'setting.yaml'), 'r'))
 
         rtm.install(force=force)
 

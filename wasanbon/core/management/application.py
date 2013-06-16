@@ -87,6 +87,7 @@ def execute(argv=None):
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=wasanbon.get_help_text(['help', 'help']), action='store_true', default=False, dest='help_flag')
     parser.add_option('-v', '--verbose', help=wasanbon.get_help_text(['help', 'verbose']), action='store_true', default=False, dest='verbose_flag')
+    parser.add_option('-c', '--clean', help=wasanbon.get_help_text(['help', 'clean']), action='store_true', default=False, dest='clean_flag')
     try:
         options, args = parser.parse_args(argv[:])
     except:
@@ -116,6 +117,6 @@ def execute(argv=None):
     module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
     __import__(module_name)
     comm = sys.modules[module_name].Command()
-    comm.execute_with_argv(args, verbose=options.verbose_flag)
+    comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag)
     pass
 
