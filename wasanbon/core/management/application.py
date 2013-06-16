@@ -5,8 +5,7 @@ import os, sys, yaml, types, optparse
 import wasanbon
 import wasanbon.core.management.commands
 import wasanbon.core.management.admin
-#from optparse import OptionParser, make_option, NO_DEFAULT 
-#from OptionParserEx import *
+
 
 """
 option_list = (
@@ -53,7 +52,7 @@ def get_subcommand_list(package):
     wasanbon/core/management/%package%
     package can be admin or commands.
     """
-    mod = __import__('wasanbon.core.management.' + package)
+    #mod = __import__('wasanbon.core.management.' + package)
     ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
     ret.append('help')
     return ret
