@@ -6,7 +6,7 @@ class Command(object):
     def __init__(self):
         pass
 
-    def execute_with_argv(self, argv, verbose, force, clean3):
+    def execute_with_argv(self, argv, verbose, force, clean):
         sys.stdout.write(' - Initializing ssh-key\n')
         cmd = os.path.join(os.path.split(wasanbon.setting['local']['git'])[0], 'ssh-keygen')
         if sys.platform == 'win32':
