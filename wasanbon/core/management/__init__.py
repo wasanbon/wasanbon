@@ -13,7 +13,4 @@ def import_module(name):
     return sys.modules[name]
 
 
-
-
-from Application import *
-from OptionParserEx import OptionParserEx
+import application

@@ -1,17 +1,9 @@
 none : '適切なドキュメントが見つかりませんでした'
 help :
+  help : 'Show This Help'
   general :
-    admin : 
-      - 'wasanbon-admin.pyは複数のsubcommandをとることができます．'
-      - 'subcommandごとのヘルプを参照する場合は，'
-      - '$ wasanbon-admin.py [subcommand] help'
-      - 'と入力します．'
-    command : 
-      - 'mgr.pyは複数のsubcommandをとることができます．'
-      - 'subcommandごとのヘルプを参照する場合は，'
-      - '$ mgr.py [subcommand] help'
-      - 'と入力します．'
-  command :
+    command :
+      '%prog [options] subcommand arg2 ...'
     brief :
       init : 'wasanbonの初期化をします．最初に呼ばれるべきコマンド．'
       project : 'プロジェクトの開始や管理をします．'
@@ -28,6 +20,7 @@ help :
       make: 'RTCをビルドします．adminコマンド版です．プロジェクトを自動検索します．'
       nameserver: 'RTシステムが参照するネームサービスのアドレスを指定します．'
       github_admin: 'githubとの連携を管理します．'
+  command:
     description :
       init : 
         - 'wasanbonの初期化をします．'
