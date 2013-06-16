@@ -3,6 +3,23 @@ import wasanbon
 from wasanbon import util
 from wasanbon.core.template import *
 
+from . import directory, path, install
+
+
+def init_rtm_home(force=False, verbose=False):
+    """
+    Initialize RTM_TEMP and RTM_HOME
+    """
+    directory.create_rtm_home(force=force, verbose=verbose)
+    directory.copy_initial_setting(verbose=verbose, force=force)
+    path.init_tools_path(force=force, verbose=verbose)
+    retval = install.check_commands(verbose=verbose, install=True)
+    path.init_tools_path(force=force, verbose=verbose)
+    retval = install.check_commands(verbose=verbose, install=False)
+    create_dot_emacs()
+    return all(retval):# and verbose:
+
+
 def create_dot_emacs():
     dot_e_file = os.path.join(wasanbon.get_home_path(), '.emacs')
     dot_e_temp = os.path.join(wasanbon.__path__[0], 'settings', 'common', 'dot.emacs')
@@ -22,44 +39,4 @@ def create_dot_emacs():
     fout.close()
     fin.close()
 
-    pass
-
-def check_devtools():
-    fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
-    y = yaml.load(fin)
-
-    flag = False    
-    for key in y.keys():
-        if len(y[key]) == 0:
-            sys.stdout.write('%s can not be found.\n' % key)
-            flag = True
-
-    return not flag
-
-
-def check_and_install_devtools():
-    fin = open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r')
-    y = yaml.load(fin)
-    for key in y.keys():
-        if len(y[key]) == 0:
-            install_cmd(key)
-
-
-def install_cmd(cmd):
-    print ' - installing command [%s]' % cmd
-    if cmd == 'java':
-        return
-    if sys.platform == 'darwin':
-        util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
-    elif sys.platform == 'win32':
-        if cmd == 'emacs':
-            util.download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
-                                dist_path=wasanbon.setting['common']['path']['RTM_HOME'])
-        else:
-            util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd])
-    elif sys.platform == 'linux2':
-        util.download_and_install(wasanbon.setting['linux2']['packages'][cmd])
-
-    else:
-        print 'Unsupported System %s' % sys.platform
 

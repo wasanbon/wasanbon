@@ -6,18 +6,12 @@ import codecs
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
-def show_help_description(subcommand):
-    sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
-    help =  get_help_text(['help','command', 'description', subcommand])
-    print " "
-    if type(help) is types.ListType:
-        for h in help:
-            print "     " +  h
-    else:
-        print "     " +  h
 
-    print " "
-
+class UnsupportedPlatformError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)    
 
 def get_help_text(arg):
     locale_name = locale.getdefaultlocale()[0]
@@ -32,6 +26,12 @@ def get_help_text(arg):
         if not key in y.keys():
             return data['none']#.encode('utf-8')
         y = y[key]
+
+    #if type(y) is types.ListType:
+    #    output = ''
+    #    for str in y:
+    #        output = output +  str + '\n'
+    #    return output
 
     if not type(y) is types.DictType:
         """
