@@ -11,8 +11,8 @@ if sys.platform == 'win32':
 
 
 import wasanbon
-from wasanbon.core import management
+from wasanbon.core.management import application
 
 if __name__ == '__main__':
-    management.Application.execute()
+    application.execute()
     
