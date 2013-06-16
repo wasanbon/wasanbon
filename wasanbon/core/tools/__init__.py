@@ -6,7 +6,7 @@ from wasanbon import util
 from wasanbon.util import git
 from wasanbon.core import rtm
 
-def install_tools(force=False):
+def install(force=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
 
     try:
@@ -53,7 +53,6 @@ def launch_eclipse(workbench, nonblock=True):
 
     env = os.environ
     env['RTM_ROOT'] = rtm.get_rtm_root()
-    #print rtm.get_rtm_root()
 
     if sys.platform == 'win32':
         eclipse_cmd = eclipse_cmd + '.exe'

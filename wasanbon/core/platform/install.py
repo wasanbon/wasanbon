@@ -4,7 +4,7 @@ from wasanbon import util
 
 def check_commands(verbose=False, install=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
-    return [check_command(cmd, y[cmd], verbose=True, install=install) for cmd in y.keys()]
+    return [check_command(cmd, y[cmd], verbose=verbose, install=install) for cmd in y.keys()]
 
 
 def check_command(cmd_key, cmd_path, verbose=False, install=False):
