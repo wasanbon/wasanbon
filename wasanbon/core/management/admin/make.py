@@ -9,17 +9,12 @@ class Command(object):
     def __init__(self):
         pass
     
-    def is_admin(self):
-        return True
+    def execute_with_argv(self, argv, verbose, clean, force):
+        if verbose:
+            sys.stdout.write(' - Making wasanbon project.\n')
 
-    def execute_with_argv(self, argv):
         curdir = os.path.normcase(os.path.normpath(os.getcwd()))
         ws = get_workspace_list()
-
-        clean_flag = False
-        if '--clean' in argv:
-            clean_flag = True
-            argv.remove('--clean')
         if not ws:
             print ' - Error: workspace list can not be found.'
             return
