@@ -10,10 +10,7 @@ class Command(object):
     def __init__(self):
         pass
 
-    def is_admin(self):
-        return False
-
-    def execute_with_argv(self, argv):
+    def execute_with_argv(self, argv, force, verbose, clean):
         if len(argv) < 3:
             wasanbon.show_help_description('admin')
             return
