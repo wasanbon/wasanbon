@@ -50,7 +50,7 @@ class Command(object):
                     print 'Found RTC: %s' % key
                     argv.append(rtcp.getName())
 
-        if clean_flag:
+        if clean:
             argv.append('--clean')
 
         rtcps = rtc.parse_rtcs()

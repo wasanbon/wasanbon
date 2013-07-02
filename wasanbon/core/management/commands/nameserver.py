@@ -10,27 +10,24 @@ class Command(object):
     def __init__(self):
         pass
 
-    def is_admin(self):
-        return False
-
-    def execute_with_argv(self, argv):
-        if len(argv) < 3 or argv[2] == 'help':
-            wasanbon.show_help_description('nameserver')
+    def execute_with_argv(self, argv, verbose, force, clean):
+        if len(argv) < 3:
+            print 'To read help, input "mgr.py nameserver help"'
             return
 
         if argv[2] == 'list':
-            show_nameserver_list()
+            show_nameserver_list(verbose)
             return
 
         if argv[2] == 'add':
-            add_nameserver(argv)
+            add_nameserver(argv, verbose=verbose)
             return
 
         if argv[2] == 'remove':
-            remove_nameserver(argv)
+            remove_nameserver(argv, verbose=verbose)
             return
 
-def remove_nameserver(argv):
+def remove_nameserver(argv, verbose):
     sys.stdout.write('Name Server Remove:\n')
     y = yaml.load(open('setting.yaml', 'r'))
     if not y:
@@ -48,7 +45,7 @@ def remove_nameserver(argv):
     pass
 
 
-def add_nameserver(argv):
+def add_nameserver(argv, verbose):
     sys.stdout.write('Name Server Add:\n')
     y = yaml.load(open('setting.yaml', 'r'))
     if not y:
@@ -68,10 +65,14 @@ def add_nameserver(argv):
     
     pass
 
-def show_nameserver_list():
+def show_nameserver_list(verbose):
     sys.stdout.write('Name Server List:\n')
+    
+    if verbose:
+        print ' - Opening %s...' % os.path.join(os.getcwd(), 'setting.yaml')
     y = yaml.load(open('setting.yaml', 'r'))
     if not y:
+        print ' - Invalid Yaml file (setting.yaml)'
         return
 
     if not 'application' in y.keys():

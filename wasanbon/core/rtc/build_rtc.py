@@ -45,6 +45,10 @@ def build_rtc_cpp(rtcp):
     if sys.platform == 'linux2' and platform.architecture()[0] == '64bit':
         print ' - detected 64bit linux2. modify PKG_CONFIG_PATH environ.'
         os.environ['PKG_CONFIG_PATH'] = '/usr/lib64/pkgconfig/:/usr/local/lib64/pkgconfig/'
+    elif sys.platform == 'darwin':
+        print ' - detected Darwin. modify PKG_CONFIG_PATH environ.'
+        os.environ['PKG_CONFIG_PATH'] = '/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/'
+
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
     if not os.path.isdir(build_dir):

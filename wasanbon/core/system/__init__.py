@@ -1,12 +1,8 @@
 # encoding: UTF-8
-
 import os, sys, time, signal, traceback, yaml, subprocess
 
-from rtctree import tree
-
+import rtctree
 import omniORB
-
-
 
 import wasanbon
 from wasanbon import util
@@ -15,10 +11,11 @@ from wasanbon.core import rtc
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.system import rtsprofile
 from wasanbon.core.rtc import rtcconf
+
 process = {}
+endflag = False
 
-import rtctree
-
+#import rtctree
 from rtshell import rtcryo
 
 def signal_action(num, frame):
@@ -26,8 +23,6 @@ def signal_action(num, frame):
     global endflag
     endflag = True
     pass
-
-endflag = False
 
 def is_all_process_terminated():
     flags = []
@@ -88,7 +83,7 @@ def launch_nameserver(ns):
             return subprocess.Popen(cmd)
     return None
 
-def run_system(nobuild, nowait=False):
+def run_system(nobuild, nowait=False, verbose=False):
     sys.stdout.write('Ctrl+C to stop system.\n')
     signal.signal(signal.SIGINT, signal_action)
     
@@ -96,7 +91,7 @@ def run_system(nobuild, nowait=False):
     no_ns = False
     ns = get_nameserver()
     try:
-        t = tree.RTCTree(ns)
+        t = rtctree.tree.RTCTree(ns)
         if not t.is_nameserver:
             no_ns = True
     except rtctree.exceptions.InvalidServiceError, e:

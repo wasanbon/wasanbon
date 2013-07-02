@@ -47,7 +47,7 @@ def install(force=False):
         util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 
-def launch_eclipse(workbench, nonblock=True):
+def launch_eclipse(workbench, nonblock=True, verbose=False):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
