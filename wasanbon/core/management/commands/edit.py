@@ -17,7 +17,7 @@ class Command(object):
     def is_admin(self):
         return False
 
-    def execute_with_argv(self, argv):
+    def execute_with_argv(self, argv, clean, force, verbose):
         if len(argv) < 3:
             print_usage()
             return

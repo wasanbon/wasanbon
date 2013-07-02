@@ -42,7 +42,7 @@ def no_yes(msg):
             return 'no'
     
 
-def download_and_unpack(url, dist_path, force=False):
+def download_and_unpack(url, dist_path, force=False, verbose=False):
     filename = os.path.basename(url)
     dist_file = os.path.join(wasanbon.rtm_temp, filename)
     download.download(url, dist_file, force=force)
@@ -56,7 +56,7 @@ def apt_get(url):
     cmd = url.split(' ')
     subprocess.call(cmd)
 
-def download_and_install(url, force=False, temp=""):
+def download_and_install(url, force=False, temp="", verbose=False):
     if url.startswith("apt-get"):
         apt_get(url)
         return

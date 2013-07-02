@@ -13,7 +13,7 @@ class Command(object):
     def is_admin(self):
         return False
 
-    def execute_with_argv(self, argv):
+    def execute_with_argv(self, argv, clean, verbose, force):
         if len(argv) < 3 or argv[2] == 'help':
             wasanbon.show_help_description('system')
             return

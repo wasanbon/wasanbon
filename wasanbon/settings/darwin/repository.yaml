@@ -25,4 +25,14 @@ KeyInput :
 WiiRemote : 
   description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
   git : 'https://github.com/ysuga/WiiRemote.git'
+RTnoProxy :
+  description : 'RTno can help to develop RTC available devices using arduino and mbed.'
+  git : 'https://github.com/ysuga/RTnoProxy.git'
+KinectToRanger : 
+  description : 'Kinect Data To Range Sensor.'
+  git : 'https://github.com/ysuga/KinectToRanger.git'
+RangeDataViewer : 
+  description : 'Range Data Viewer'
+  git : 'https://github.com/ysuga/RangeDataViewer.git'
+
 

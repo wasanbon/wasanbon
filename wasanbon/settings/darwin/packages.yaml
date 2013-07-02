@@ -7,3 +7,4 @@ jdk : 'http://openjdk-for-os-x-lion.googlecode.com/files/OpenJDK%207%20for%20OS%
 java : 'http://openjdk-for-os-x-lion.googlecode.com/files/OpenJDK%207%20for%20OS%20X%20Lion%20b20111119.dmg'
 setuptools : 'https://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg'
 hg : 'http://mercurial.selenic.com/mac/binaries/Mercurial-2.6-py2.7-macosx10.8.zip'
+pkg-config : 'http://sugarsweetrobotics.com/pub/Darwin/pkgconfig/PkgConfig.dmg'
