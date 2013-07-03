@@ -23,7 +23,7 @@ class Command(object):
             add_nameserver(argv, verbose=verbose)
             return
 
-        if argv[2] == 'remove':
+        if argv[2] == 'del':
             remove_nameserver(argv, verbose=verbose)
             return
 
