@@ -136,7 +136,33 @@ class Command(object):
                     user = raw_input()
                     passwd = getpass.getpass()
                     rtc.github_init(user, passwd, rtcp)
-        pass
+            pass
+
+        elif argv[2] == 'build':
+            rtcps = rtc.parse_rtcs()
+
+            if '--clean' in argv:
+                clean_all = True if 'all' in argv else False
+                for i in range(2, len(argv)):
+                    rtc_name = argv[i]
+                    for rtcp in rtcps:
+                        if rtcp.getName() == rtc_name or clean_all:
+                            print 'Cleanup RTC(%s).' % rtcp.getName()
+                            clean_rtc(rtcp)
+                return
+            else:
+                build_all = True if 'all' in argv else False
+                for i in range(2, len(argv)):
+                    rtc_name = argv[i]
+                    for rtcp in rtcps:
+                        if rtcp.getName() == rtc_name or build_all:
+                            print 'Building rtc [%s]' % rtcp.getName()
+                            build_rtc(rtcp)
+                return
+            
+
+            
+            
+            pass
 
     
-
