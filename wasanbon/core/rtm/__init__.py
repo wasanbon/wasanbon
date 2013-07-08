@@ -27,6 +27,10 @@ def install(force=False):
     cpp.install(force)
     python.install(force)
     java.install(force)
+
+    if sys.platform == 'darwin':
+        post_install_darwin(force)
+    
     pass
 
 def __ppa_preparation():
@@ -60,5 +64,46 @@ def __apt_preperation():
         file.close()
 
     subprocess.call(['apt-get', 'update'])
+
+def post_install_darwin(force):
+    start_str = '#-- Starting Setup Script of wasanbon --#'
+    stop_str  = '#-- Ending Setup Script of wasanbon --#'
+    target = os.path.join(wasanbon.get_home_path(), ".bashrc")
+    script = open(os.path.join(wasanbon.__path__[0], "settings", "darwin", "bashrc"), "r").read()
+    
+    
+    if os.path.isfile(target):
+        erase = False
+        file = open(target, "r")
+        fout = open(target + '.bak', "w")
+        for line in file:
+            if line.strip() == start_str:
+                erase = True
+                continue
+
+            elif line.strip() == stop_str:
+                erase = False
+                continue
+
+            if not erase:
+                fout.write(line)
+        
+        file.close()
+        fout.close()
+
+        os.remove(target)
+        os.rename(target + ".bak" , target)
+
+        fout = open(target, "a")
+    else:
+        fout = open(target, "w")
+
+    fout.write("\n\n" + start_str + "\n")
+    fout.write(script)
+    fout.write("\n" + stop_str + "\n\n")
+            
+
+    fout.close()
+    pass
 
 
