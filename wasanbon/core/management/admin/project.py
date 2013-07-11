@@ -29,6 +29,15 @@ class Command(object):
                     print ' ' + key + ' '*(10-len(key)) + ':' + item
             print ''
 
+        elif argv[2] == 'directory':
+            projs = template.get_projects(False)
+            if not projs:
+                print '.'
+            else:
+                for key, item in projs.items():
+                    if key == argv[3]:
+                        print item
+
         elif argv[2] == 'unregister':
             if len(argv) < 4:
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
