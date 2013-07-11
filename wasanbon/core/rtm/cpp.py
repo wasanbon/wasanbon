@@ -72,8 +72,12 @@ def install_cpprtm_linux(force):
 
 def install_cpprtm_osx(force):
     util.download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
+    
+
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
+
+    sys.stdout.write(' - Copying omniORBpy modules');
     for file in os.listdir(srcdir):
         filepath = os.path.join(srcdir, file)
         distpath = os.path.join(distdir, file)
