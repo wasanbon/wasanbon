@@ -15,7 +15,7 @@ def pull_and_update(verbose, force):
     cmd = [wasanbon.setting['local']['git'], 'pull']
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output = p.stdout.readline()
-    if output.strip() == 'Already up-to-date.' && not force:
+    if output.strip() == 'Already up-to-date.' and not force:
         sys.stdout.write(output)
         return False
 
