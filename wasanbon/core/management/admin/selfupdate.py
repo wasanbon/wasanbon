@@ -61,8 +61,11 @@ def install(verbose, force):
     if force:
         cleanup(verbose)
 
-    shutil.rmtree('build')
+    
+
     os.chdir(dirname)
+    if os.path.isdir(os.path.join(dirname, 'build')) :
+        shutil.rmtree('build')
     cmd = ['python', 'setup.py', 'install']
     subprocess.call(cmd)
     os.chdir(cwd)
