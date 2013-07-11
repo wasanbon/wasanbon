@@ -1,6 +1,8 @@
 import wasanbon
 import os, sys
 
+from wasanbon import util
+
 def is_installed():
     if sys.platform == 'darwin':
         file = 'version.txt'

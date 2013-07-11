@@ -68,7 +68,7 @@ def __apt_preperation():
 def post_install_darwin(force):
     start_str = '#-- Starting Setup Script of wasanbon --#'
     stop_str  = '#-- Ending Setup Script of wasanbon --#'
-    target = os.path.join(wasanbon.get_home_path(), ".bashrc")
+    target = os.path.join(wasanbon.get_home_path(), ".bash_profile")
     script = open(os.path.join(wasanbon.__path__[0], "settings", "darwin", "bashrc"), "r").read()
     
     
