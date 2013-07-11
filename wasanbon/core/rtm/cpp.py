@@ -1,6 +1,6 @@
 import wasanbon
 import os, sys
-
+import shutil
 from wasanbon import util
 
 def is_installed():

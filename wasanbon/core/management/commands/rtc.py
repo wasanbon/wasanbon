@@ -148,7 +148,7 @@ class Command(object):
                     for rtcp in rtcps:
                         if rtcp.getName() == rtc_name or clean_all:
                             print 'Cleanup RTC(%s).' % rtcp.getName()
-                            clean_rtc(rtcp)
+                            rtc.clean_rtc(rtcp)
                 return
             else:
                 build_all = True if 'all' in argv else False
@@ -157,7 +157,7 @@ class Command(object):
                     for rtcp in rtcps:
                         if rtcp.getName() == rtc_name or build_all:
                             print 'Building rtc [%s]' % rtcp.getName()
-                            build_rtc(rtcp)
+                            rtc.build_rtc(rtcp)
                 return
             
 
