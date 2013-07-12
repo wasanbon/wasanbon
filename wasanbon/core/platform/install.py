@@ -34,7 +34,7 @@ def install_command(cmd, verbose=False):
         if cmd == 'emacs':
             return util.download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
                                      dist_path=wasanbon.setting['common']['path']['RTM_HOME'],
-                                     vrebose=verbose)
+                                     verbose=verbose)
         else:
             return util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd], 
                                       verbose=verbose)
