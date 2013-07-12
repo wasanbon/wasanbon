@@ -1,5 +1,6 @@
 import os, sys, shutil, subprocess
 import wasanbon
+from wasanbon import util
 
 def is_installed():
     try:
