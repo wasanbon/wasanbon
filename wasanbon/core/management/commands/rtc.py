@@ -78,14 +78,14 @@ class Command(object):
                     repo = wasanbon.repositories[rtcname]
                     if 'git' in repo.keys():
                         url = repo['git']
-                        print 'GIT cloning : %s' % url
+                        print ' - GIT cloning : %s' % url
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
                         subprocess.call(cmd)
                         #return
                     if 'hg' in repo.keys():
                         url = repo['hg']
-                        print 'Mercurial cloning : %s' % url
+                        print ' - Mercurial cloning : %s' % url
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], rtcname)
                         cmd = [wasanbon.setting['local']['hg'], 'clone', url, distpath]
                         subprocess.call(cmd)
