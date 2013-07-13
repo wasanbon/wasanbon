@@ -62,8 +62,10 @@ def get_nameserver():
         return ns
     return None
 
-def launch_nameserver(ns):
-    sys.stdout.write('Starting Nameserver in %s\n' % ns)
+def launch_nameserver(ns, verbose=False):
+    sys.stdout.write(' - Starting Nameserver %s\n' % ns)
+    if ns.startswith('/'):
+        ns = ns[1:]
     token = ns.split(':')
     if len(token) == 1:
         addr = token[0].strip()
@@ -71,16 +73,27 @@ def launch_nameserver(ns):
     else:
         addr = token[0].strip()
         port = token[1].strip()
-
-    print addr
+        
     if addr == 'localhost' or addr == '127.0.0.1':
+        pstdout = None if verbose else subprocess.PIPE 
+        pstdin = None if verbose else subprocess.PIPE
+
         if sys.platform == 'win32':
             path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
             cmd = [path, port]
-            return subprocess.Popen(cmd, creationflags=512)
+            creationflag = 512
+
         else:
             cmd = ['rtm-naming', port]
-            return subprocess.Popen(cmd)
+            creationflag = 0
+
+        if verbose:
+            print 'Command = %s' % cmd
+        p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin)
+        for i in range(0,5):
+            time.sleep(1)
+        print ' - Starting Nameservice okay.'
+        return p
     return None
 
 def run_system(nobuild, nowait=False, verbose=False):
@@ -90,19 +103,27 @@ def run_system(nobuild, nowait=False, verbose=False):
     ns_process = []
     no_ns = False
     ns = get_nameserver()
-    try:
-        t = rtctree.tree.RTCTree(ns)
-        if not t.is_nameserver:
+    if not ns.startswith('/'):
+        ns = '/' + ns.strip()
+    if verbose:
+        print " - System's NameServer = %s" % ns
+    for i in range(0, 3):
+        try:
+            path, port = rtctree.path.parse_path(ns)
+            tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+            dir_node = tree.get_node(path)
+            no_ns = False
+            break
+        except rtctree.exceptions.InvalidServiceError, e:
             no_ns = True
-    except rtctree.exceptions.InvalidServiceError, e:
-        no_ns = True
-    except omniORB.CORBA.OBJECT_NOT_EXIST, e:
-        no_ns = True
-        pass
+        except omniORB.CORBA.OBJECT_NOT_EXIST, e:
+            no_ns = True
+            pass
 
 
     if no_ns:
-        sys.stdout.write('Can not find Name Service (%s)\n' % ns)
+        if verbose:
+            sys.stdout.write('Can not find Name Service (%s)\n' % ns)
         ns_process = launch_nameserver(ns)
 
 
