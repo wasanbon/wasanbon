@@ -314,7 +314,7 @@ def list_installed_rtcs():
         rtcc = rtcconf.RTCConf(wasanbon.setting['application']['conf.' + language])
         print '    - %s' % language
         try:
-            installed = rtcc['manager.components.precreate']
+            installed = rtcc['manager.components.precreate'].split(',')
             for rtc in installed:
                 print '      - %s' % rtc
         except KeyError, e:
