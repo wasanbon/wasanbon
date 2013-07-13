@@ -304,8 +304,19 @@ def save_all_system(nameservers):
 
 
 
-
-
 def list_rtsp():
     
+    pass
+
+
+def list_installed_rtcs():
+    for language in ['C++', 'Python', 'Java']:
+        rtcc = rtcconf.RTCConf(wasanbon.setting['application']['conf.' + language])
+        print '    - %s' % language
+        try:
+            installed = rtcc['manager.components.precreate']
+            for rtc in installed:
+                print '      - %s' % rtc
+        except KeyError, e:
+            pass
     pass

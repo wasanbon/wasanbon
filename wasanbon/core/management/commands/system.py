@@ -30,14 +30,13 @@ class Command(object):
                     print 'Installing RTC %s' % rtcp.getName()
                     rtc.install(rtcp)
 
-
             for i in range(3, len(argv)):
                 if not argv[i] in names:
                     print ' - RTC (%s) can not be found.' % argv[i]
                     continue
                 for rtcp in rtcps:
                     if rtcp.getName() == argv[i]:
-                        print 'Installing RTC %s' % argv[3]
+                        print ' - Installing RTC %s' % argv[i]
                         rtc.install(rtcp)
 
 
@@ -46,10 +45,20 @@ class Command(object):
                 sys.stdout.write('Invalid Variables\n')
                 return
 
-            for rtcp in rtcps:
-                if rtcp.getName() == argv[3]:
-                    
+            names = [rtcp.getName() for rtcp in rtcps]
+            for i in range(3, len(argv)):
+                if not argv[i] in names:
+                    print ' - RTC (%s) can not be found.' % argv[i]
+                    continue
+                for rtcp in rtcps:
+                    if rtcp.getName() == argv[i]:
+                        print ' - Uninstalling RTC %s' % argv[i]
+                        rtc.uninstall(rtcp)
 
+        elif(argv[2] == 'list'):
+            print ' - Listing installed RTCs.'
+            system.list_installed_rtcs()
+            pass
 
         elif(argv[2] == 'build'):
             print 'Building RTC System in Wasanbon'
