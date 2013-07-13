@@ -24,18 +24,32 @@ class Command(object):
                 wasanbon.show_help_description('system')
                 return
 
+            names = [rtcp.getName() for rtcp in rtcps]
             if argv[3] == 'all':
                 for rtcp in rtcps:
                     print 'Installing RTC %s' % rtcp.getName()
                     rtc.install(rtcp)
+
+
+            for i in range(3, len(argv)):
+                if not argv[i] in names:
+                    print ' - RTC (%s) can not be found.' % argv[i]
+                    continue
+                for rtcp in rtcps:
+                    if rtcp.getName() == argv[i]:
+                        print 'Installing RTC %s' % argv[3]
+                        rtc.install(rtcp)
+
+
+        elif(argv[2] == 'uninstall'):
+            if len(argv) < 4:
+                sys.stdout.write('Invalid Variables\n')
                 return
 
             for rtcp in rtcps:
                 if rtcp.getName() == argv[3]:
-                    print 'Installing RTC %s' % argv[3]
-                    rtc.install(rtcp)
-                    return
-            print 'RTC(%s) can not found.' % argv[3]
+                    
+
 
         elif(argv[2] == 'build'):
             print 'Building RTC System in Wasanbon'
