@@ -316,7 +316,8 @@ def list_installed_rtcs():
         try:
             installed = rtcc['manager.components.precreate'].split(',')
             for rtc in installed:
-                print '      - %s' % rtc
+                if rtc.strip() != '':
+                    print '      - %s' % rtc
         except KeyError, e:
             pass
     pass
