@@ -86,7 +86,7 @@ def install(rtcp):
     rtcc.sync()
     
 def uninstall(rtcp):
-    rtcc = RTCConf(wasanbon.settings['application']['conf.' + rtcp.getLanguage()])
+    rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.getLanguage()])
     pp = PackageProfile(rtcp)
     
     if sys.platform == 'win32':
