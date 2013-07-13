@@ -85,9 +85,10 @@ def install(rtcp):
     rtcc.append('manager.components.precreate', rtcp.getName())
     rtcc.sync()
     
-def uninstall_rtc(rtcp):
-    rtcc = RTCConf(settings['application']['conf.' + rtcp.getLanguage()])
+def uninstall(rtcp):
+    rtcc = RTCConf(wasanbon.settings['application']['conf.' + rtcp.getLanguage()])
     pp = PackageProfile(rtcp)
+    
     if sys.platform == 'win32':
         fileext = '.dll'
     elif sys.platform == 'linux2':
@@ -98,10 +99,8 @@ def uninstall_rtc(rtcp):
         print '---Unsupported System (%s)' % sys.platform
         return 
 
-    if len(pp.getRTCFilePath()) == 0:
-        filename = rtcp.getName() + fileext
-        print '---Guessing RTCFileName = %s' % filename
-    filename = os.path.basename(pp.getRTCFilePath())
+    filename = rtcp.getName() + fileext
+    # filename = os.path.basename(pp.getRTCFilePath())
     rtcc.remove('manager.components.precreate', rtcp.getName())
     rtcc.remove('manager.modules.preload', filename)
     rtcc.sync()
