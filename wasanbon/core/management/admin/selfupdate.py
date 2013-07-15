@@ -61,8 +61,6 @@ def install(verbose, force):
     if force:
         cleanup(verbose)
 
-    
-
     os.chdir(dirname)
     if os.path.isdir(os.path.join(dirname, 'build')) :
         shutil.rmtree(os.path.join(dirname, 'build'))
