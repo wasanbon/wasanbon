@@ -127,7 +127,7 @@ def run_system(nobuild, nowait=False, verbose=False):
         ns_process = launch_nameserver(ns)
 
 
-    sys.stdout.write('Starting RTC-Daemons\n')
+    sys.stdout.write(' - Starting RTC-Daemons\n')
     
     start_process()
 
@@ -136,17 +136,17 @@ def run_system(nobuild, nowait=False, verbose=False):
     if not nobuild:
         interval = 3
         for i in range(0, interval):
-            sys.stdout.write('\rwaiting %s seconds to rebuild RTSystem.' % (interval-i))
+            sys.stdout.write('\r    - waiting %s seconds to rebuild RTSystem.' % (interval-i))
             sys.stdout.flush()
             time.sleep(1)
             
         while not endflag:
-            sys.stdout.write('\n rtresurrect.\n')                    
+            sys.stdout.write('\n    - rtresurrect.\n')                    
             if run.exe_rtresurrect():
                 time.sleep(1)
                 break
         while not endflag:
-            sys.stdout.write(' rtstart.\n')
+            sys.stdout.write('    - rtstart.\n')
             if run.exe_rtstart():
                 time.sleep(1)
                 break
@@ -166,9 +166,9 @@ def run_system(nobuild, nowait=False, verbose=False):
             pass
 
 
-    print 'Terminating All Process....'        
+    print ' - Terminating All Process....'        
     terminate_all_process()
-    print 'All rtcd process terminated.'
+    print ' - All rtcd process terminated.'
 
     if ns_process and ns_process.returncode == None:
         ns_process.kill()
@@ -179,7 +179,7 @@ def terminate_all_process():
     for key in process.keys():
         process[key].poll()
         if process[key].returncode == None:
-            sys.stdout.write(' - Terminating RTC-Daemon(%s)\n' % key)
+            sys.stdout.write('    - Terminating RTC-Daemon(%s)\n' % key)
             process[key].kill()
             
 
@@ -312,12 +312,10 @@ def save_all_system(nameservers):
     try:
         argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', 'system/DefaultSystem.xml']
         argv = argv + nameservers
-        print argv
         rtcryo.main(argv=argv)
-        print "rtcryo updated. ok."
+        #print "rtcryo updated. ok."
     except omniORB.CORBA.UNKNOWN, e:
         traceback.print_exc()
-        print e
         pass
     except Exception, e:
         traceback.print_exc()
