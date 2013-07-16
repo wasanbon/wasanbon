@@ -160,6 +160,27 @@ class Command(object):
                             print 'Building rtc [%s]' % rtcp.getName()
                             rtc.build_rtc(rtcp)
                 return
+        elif argv[2] == 'edit':
+            rtcps = rtc.parse_rtcs()
+            for rtcp in rtcps:
+                if argv[2] == rtcp.getName():
+                    editenv = os.environ.copy()
+                    if not 'HOME' in editenv.keys():
+                        editenv['HOME'] = wasanbon.get_home_path()
+                    if sys.platform == 'darwin':
+                        cmd = [wasanbon.setting['local']['emacs']]
+                    else:
+                        cmd = [wasanbon.setting['local']['emacs'], '-nw']
+                
+                    pp = rtc.PackageProfile(rtcp)
+                    files = pp.getSourceFiles()
+                    for file in files:
+                        cmd.append(file)
+
+                    signal.signal(signal.SIGINT, signal_action)
+                    subprocess.call(cmd, env=editenv)
+
+        
             
 
             

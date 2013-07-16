@@ -33,7 +33,7 @@ def find_rtc_srcs(rtcp):
     if rtcp.getLanguage() == 'Python':
         return util.search_file(path, rtcp.getName() + '.py')
     elif rtcp.getLanguage() == 'Java':
-        return util.search_file(path, rtcp.getName() + '.java')
+        return util.search_file(path, rtcp.getName() + 'Impl.java')
     elif rtcp.getLanguage() == 'C++':
         hdrs = util.search_file(path, rtcp.getName() + '.h')
         srcs = util.search_file(path, rtcp.getName() + '.cpp')
