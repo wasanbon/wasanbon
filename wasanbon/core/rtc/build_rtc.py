@@ -11,19 +11,21 @@ import shutil
 import wasanbon
 
 def build_rtc(rtcp):
-    if rtcp.getLanguage() == 'C++':
+    if rtcp.language.kind == 'C++':
         build_rtc_cpp(rtcp)
-    elif rtcp.getLanguage() == 'Java':
+    elif rtcp.language.kind == 'Python':
+        build_rtc_python(rtcp)
+    elif rtcp.language.kind == 'Java':
         build_rtc_java(rtcp)
     pass
 
 def clean_rtc(rtcp):
-    if rtcp.getLanguage() == 'C++':
+    if rtcp.language.kind == 'C++':
         clean_rtc_cpp(rtcp)
     pass
 
 def clean_rtc_cpp(rtcp):
-    rtc_dir, rtc_xml = os.path.split(rtcp.getRTCProfileFileName())
+    rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-' + sys.platform)
     if os.path.isdir(build_dir):
         print 'removing %s' % build_dir
@@ -38,8 +40,8 @@ def clean_rtc_cpp(rtcp):
                 os.remove(os.path.join(root, file))
 
 def build_rtc_cpp(rtcp):
-    rtc_name = rtcp.getName()
-    rtc_dir, rtc_xml = os.path.split(rtcp.getRTCProfileFileName())
+    rtc_name = rtcp.basicInfo.name
+    rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
 
     if sys.platform == 'linux2' and platform.architecture()[0] == '64bit':
@@ -58,7 +60,7 @@ def build_rtc_cpp(rtcp):
     subprocess.call(cmd, env=os.environ)
 
     if sys.platform == 'win32':
-        sln = '%s.sln' % rtcp.getName()
+        sln = '%s.sln' % rtcp.basicInfo.name
         if sln in os.listdir(os.getcwd()):
             print 'Solution is successfully generated.'
             cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
@@ -77,10 +79,28 @@ def build_rtc_cpp(rtcp):
             subprocess.call(cmd)
             return
 
+def build_rtc_python(rtcp):
+    rtc_name = rtcp.basicInfo.name
+    rtc_dir, rtc_xml = os.path.split(rtcp.filename)
+
+    current_dir = os.getcwd()
+    os.chdir(rtc_dir)
+
+    sys.stdout.write(' - Compiling IDL files')
+    if sys.platform == 'darwin' or sys.platform == 'linux2':
+        if 'idlcompile.sh' in os.listdir(os.getcwd()):
+            cmd = ['sh', 'idlcompile.sh']
+            subprocess.call(cmd)
+    elif sys.platform == 'win32':
+        if 'idlcompile.bat' in os.listdir(os.getcwd()):
+            cmd = ['idlcompile.bat']
+            subprocess.call(cmd)
+
+    pass
 
 def build_rtc_java(rtcp):
-    rtc_name = rtcp.getName()
-    rtc_dir, rtc_xml = os.path.split(rtcp.getRTCProfileFileName())
+    rtc_name = rtcp.basicInfo.name
+    rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
     src_dir = os.path.join(rtc_dir, 'src')
     cls_dir = os.path.join(build_dir, 'class')

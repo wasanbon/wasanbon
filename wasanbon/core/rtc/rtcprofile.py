@@ -4,7 +4,7 @@ import os
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
-import search_rtc
+#import search_rtc
 
 ##############
 rtc_py_conf_filename = 'rtc_py.conf'
@@ -12,6 +12,26 @@ rtc_cpp_conf_filename = 'rtc_cpp.conf'
 rtc_java_conf_filename = 'rtc_java.conf'
 
 
+
+known_namespaces = {
+    'xsi' : 'http://www.w3.org/2001/XMLSchema-instance',
+    'rtc' : 'http://www.openrtp.org/namespaces/rtc',
+    'rtcDoc' : 'http://www.openrtp.org/namespaces/rtc_doc',
+    'rtcExt' : 'http://www.openrtp.org/namespaces/rtc_ext',
+}
+
+def get_short_ns(uri):
+    for key, value in known_namespaces.items():
+        if uri == value:
+            return key
+    print 'Unknwon Namespace :' , uri
+    return None
+
+def get_long_ns(uri):
+    for key, value in known_namespaces.items():
+        if uri == key:
+            return value
+    return None
 
 def get_rtc_py_name_list(rtc_name):
     return ['%s.py' % rtc_name]
@@ -38,7 +58,76 @@ class DataPort(object):
     def __str__(self):
         return '%s:%s' % (self.name, self.type)
 
-class RTCProfile(object):
+
+class Node(object):
+    def __init__(self, node):
+        self.__dict__['node']  = node
+
+    def setNode(self, node):
+        
+        pass
+
+    def __getitem__(self, key):
+        tokens = key.split(':')
+        uri = get_long_ns(tokens[0])
+        if not uri:
+            print 'Unknown URI: ' , tokens[0]
+        return self.node.attrib['{%s}%s' % (uri, tokens[1])]
+
+    def __setitem__(self, key, value):
+        tokens = key.split(':')
+        uri = get_long_ns(tokens[0])
+        if not uri:
+            print 'Unknown URI: ' , tokens[0]
+        self.node.attrib['{%s}%s' % (uri, tokens[1])] = value
+        
+        
+    def keys(self):
+        return [get_short_ns(key.split('}')[0][1:]) + ':' + key.split('}')[1] for key in self.node.attrib.keys()]
+
+    def __getattr__(self, key):
+        return self.__getitem__('rtc:'+key)
+
+    #def __setattr__(self, name, value):
+    #    tokens = name.split(':')
+    #    uri = get_long_ns(tokens[0])
+    #    if not uri:
+    #        print 'Unknown URI: ', tokens[0]
+    #    self.node.attrib['{%s}%s' % (uri, tokens[1])] = value
+
+
+
+def save_rtcprofile(rtcp, filename):
+    def save_sub(parent, node):
+        for key, value in node.attrib.items():
+            name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
+            parent.set(name, value)
+        for key, child in node.children.items():
+            name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
+            elem = xml.etree.ElementTree.SubElement(parent, name)
+            save_sub(elem, child)
+
+
+    root = xml.etree.ElementTree.Element('rtc:RtcProfile')
+    for key, value in rtcp.attrib.items():
+        name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
+        root.set(name, value)
+
+    for key, value in known_namespaces.items():
+        root.set('xmlns:%s' % key, value)
+
+
+    #root.set('xmlns:rtcExt', 'http://www.openrtp.org/namespaces/rtc_ext')
+    #root.set('xmlns:rtcDoc', "http://www.openrtp.org/namespaces/rtc_doc")
+    #root.set('xmlns:rtc', "http://www.openrtp.org/namespaces/rtc")
+    #root.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
+
+    print xml.etree.ElementTree.tostring(root)
+    pass
+
+
+class RTCProfile(Node):
+
 
     """
     """
@@ -47,65 +136,31 @@ class RTCProfile(object):
             self.filename = filename_
             et = xml.etree.ElementTree.parse(self.filename)
             root = et.getroot()
+            self.node = root
+            self.attrib = root.attrib
+            self.children = {}
+
             [uri, tag] = normalize(root.tag)
             for basicInfo in root.findall('{%s}BasicInfo' % uri):
                 self.name = basicInfo.attrib['{%s}name' % uri]
                 self.category = basicInfo.attrib['{%s}category' % uri]
+                self.basicInfo = Node(basicInfo)
 
             for language in root.findall('{%s}Language' % uri):
-                self.language = language.attrib['{%s}kind' % uri]
+                self.language = Node(language) #language.attrib['{%s}kind' % uri]
+                self.children['{%s}Language'] = language
         
             self.dataports = []
             for dport in root.findall('{%s}DataPorts' % uri):
-                self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], 
-                                               dport.attrib['{%s}type' % uri],
-                                               dport.attrib['{%s}portType' % uri]))
+                self.dataports.append(Node(dport))
+                #self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], 
+                #                               dport.attrib['{%s}type' % uri],
+                #                               dport.attrib['{%s}portType' % uri]))
+
         except Exception, e:
-            raise InvalidRTCProfileError(filename, 'Parsing Error')
+            print e
+            raise InvalidRTCProfileError(filename_, 'Parsing Error')
 
-        
-        """"
-        if self.getLanguage() == 'C++':
-            rtc_conf_name = rtc_cpp_conf_filename
-            rtc_file_name_list = get_rtc_cpp_name_list(self.getName())
-        elif self.getLanguage() == 'Python':
-            rtc_conf_name = rtc_py_conf_filename
-            rtc_file_name_list = get_rtc_py_name_list(self.getName())
-        elif self.getLanguage() == 'Java':
-            rtc_conf_name = rtc_py_conf_filename
-            rtc_file_name_list = get_rtc_java_name_list(self.getName())
-        else:
-            raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % getLanguage())
-        conf_file_name = self.getName() + '.conf'
-
-        [path_, file_] = os.path.split(self.filename)
-        conf_files_ = search_rtc.search_file(path_, conf_file_name)
-        rtcs_files_ = search_rtc.search_file(path_, rtc_file_name_list)
-        rtcs_files_available_ = []
-        
-        for file_ in rtcs_files_:
-            if file_.count('Debug') > 0:
-                print 'RTC file (%s) seems to build in Debug mode.' % file_
-                print 'Debug mode binary is not available.'
-            else:
-                rtcs_files_available_.append(file_)
-        rtcs_files_ = rtcs_files_available_
-
-        if len(conf_files_) == 1:
-            self.conffile = conf_files_[0]
-        elif len(conf_files_) == 0:
-            self.conffile = None
-        else:
-            self.conffile = on_multiple_conffile(self, conf_files_)
-
-        if len(rtcs_files_) == 1:
-            self.rtcfile = rtcs_files_[0]
-        elif len(rtcs_files_) == 0:
-            self.rtcfile = None
-        else:
-            self.rtcfile = on_multiple_rtcfile(self, rtcs_files)
-
-        """
         pass
 
     def getDataPorts(self):
@@ -119,13 +174,13 @@ class RTCProfile(object):
         return self.filename
 
     def getCategory(self):
-        return self.category
+        return self.basicInfo.category
 
     def getName(self):
-        return self.name
+        return self.basicInfo.name
 
     def getLanguage(self):
-        return self.language
+        return self.language.kind
 
 
 def on_multiple_conffile(rtcprofile, conffiles):

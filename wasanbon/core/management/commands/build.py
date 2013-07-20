@@ -19,8 +19,8 @@ class Command(object):
             for i in range(2, len(argv)):
                 rtc_name = argv[i]
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name or clean_all:
-                        print 'Cleanup RTC(%s).' % rtcp.getName()
+                    if rtcp.basicInfo.name == rtc_name or clean_all:
+                        print 'Cleanup RTC(%s).' % rtcp.basicInfo.name
                         clean_rtc(rtcp)
             return
         else:
@@ -28,8 +28,8 @@ class Command(object):
             for i in range(2, len(argv)):
                 rtc_name = argv[i]
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name or build_all:
-                        print 'Building rtc [%s]' % rtcp.getName()
+                    if rtcp.basicInfo.name == rtc_name or build_all:
+                        print 'Building rtc [%s]' % rtcp.basicInfo.name
                         build_rtc(rtcp)
             return
             

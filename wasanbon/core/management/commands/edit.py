@@ -28,7 +28,7 @@ class Command(object):
 
         rtcps = rtc.parse_rtcs()
         for rtcp in rtcps:
-            if argv[2] == rtcp.getName():
+            if argv[2] == rtcp.basicInfo.name:
                 editenv = os.environ.copy()
                 if not 'HOME' in editenv.keys():
                     editenv['HOME'] = wasanbon.get_home_path()

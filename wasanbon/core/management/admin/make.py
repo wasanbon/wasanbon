@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, sys, yaml
 import wasanbon
-from wasanbon.core.template.init import *
+from wasanbon.core.template import *
 from wasanbon.core.rtc import *
 from wasanbon.core import rtc
 
@@ -14,7 +14,7 @@ class Command(object):
             sys.stdout.write(' - Making wasanbon project.\n')
 
         curdir = os.path.normcase(os.path.normpath(os.getcwd()))
-        ws = get_workspace_list()
+        ws = get_projects(verbose=verbose)
         if not ws:
             print ' - Error: workspace list can not be found.'
             return
@@ -42,13 +42,12 @@ class Command(object):
         if len(argv) < 4:
             rtcps = rtc.parse_rtcs()
             for rtcp in rtcps:
-                pp = os.path.normcase(os.path.normpath(os.path.dirname(rtcp.getRTCProfileFileName())))
-                print pp
+                pp = os.path.normcase(os.path.normpath(os.path.dirname(rtcp.filename)))
                 plist = [curdir, pp]
                 prefix = os.path.commonprefix(plist)
                 if os.path.isdir(prefix) and os.stat(prefix) == os.stat(pp):
                     print 'Found RTC: %s' % key
-                    argv.append(rtcp.getName())
+                    argv.append(rtcp.basicInfo.name)
 
         if clean:
             argv.append('--clean')
@@ -59,8 +58,8 @@ class Command(object):
             for i in range(3, len(argv)):
                 rtc_name = argv[i]
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name or clean_all:
-                        print 'Cleanup RTC(%s).' % rtcp.getName()
+                    if rtcp.basicInfo.name == rtc_name or clean_all:
+                        print 'Cleanup RTC(%s).' % rtcp.basicInfo.name
                         clean_rtc(rtcp)
             return
         else:
@@ -68,7 +67,7 @@ class Command(object):
             for i in range(3, len(argv)):
                 rtc_name = argv[i]
                 for rtcp in rtcps:
-                    if rtcp.getName() == rtc_name or build_all:
-                        print 'Building rtc [%s]' % rtcp.getName()
+                    if rtcp.basicInfo.name == rtc_name or build_all:
+                        print 'Building rtc [%s]' % rtcp.basicInfo.name
                         build_rtc(rtcp)
             return

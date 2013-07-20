@@ -1,8 +1,8 @@
 source $HOME/rtm/temp/rtshell/shell_support.in
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
 export RTM_ROOT=/usr/local/include/openrtm-1.1
 export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-
-wsbcd() {
-  cd `wasanbon-admin.py project directory $1` 
+export CMAKE_PREFIX_PATH=/opt/local/lib/cmake:/usr/local/lib/cmake:$CMAKE_PREFIX_PATH
+wasanbon-cd() {
+  cd `wasanbon-admin.py project directory ${1}` 
 };
