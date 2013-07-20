@@ -22,3 +22,30 @@ KeyInput :
 WiiRemote : 
   description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
   git : 'https://github.com/ysuga/WiiRemote.git'
+NAO_python :
+  description : 'NAO RT-component'
+  git : 'https://github.com/ysuga/NAO.git'
+NAO_test :
+  description : 'NAO Test Template'
+  git : 'https://github.com/ysuga/NAOTest.git'
+KinectToRanger : 
+  description : 'Kinect Data To Range Sensor.'
+  git : 'https://github.com/ysuga/KinectToRanger.git'
+RangeDataViewer : 
+  description : 'Range Data Viewer'
+  git : 'https://github.com/ysuga/RangeDataViewer.git'
+RTnoProxy :
+  description : 'RTno can help to develop RTC available devices using arduino and mbed.'
+  git : 'https://github.com/ysuga/RTnoProxy.git'
+DoubleSeqViewer :
+  description : 'Double Sequence Data Viewer RT-component.'
+  hg : 'https://ysuga0731@code.google.com/p/doubleseqviewer/'
+StringViewer :
+  description : 'String Value Viewer RT-component'
+  git : 'https://github.com/ysuga/StringViewer.git'
+UrgRTC : 
+  description : 'Hokuyo URG (Laser Range Sensor) RTC'
+  git : 'https://github.com/ysuga/UrgRTC.git'
+OpenCVCameraCapture :
+  description : 'OpenCV Camera Capture Component'
+  git : 'https://github.com/ysuga/OpenCVCameraCapture.git'
