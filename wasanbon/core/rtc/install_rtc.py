@@ -19,7 +19,7 @@ class InstallError(Exception):
         return 'Installing RTC Error(%s)' % self.msg
 
 def is_installed_rtc(rtcp):
-    rtcc = RTCConf(settings.application['conf.' + rtcp.getLanguage()])
+    rtcc = RTCConf(settings.application['conf.' + rtcp.language.kind])
     if not 'manager.modules.load_path' in rtcc.keys():
         return False
     paths = [p.strip() for p in rtcc['manager.modules.load_path'].split(',')]
@@ -46,22 +46,22 @@ def parse_rtc_profile(rtc_profile_filepath):
     print '-Parsing RTC Profile(%s)' % rtc_profile_filepath
     try:
         rtcp = RTCProfile('%s/RTC.xml' % rtc_profile_filepath)
-        print '--Found RTC Profile (%s)' % rtcp.getName()
-        print '--Language %s' % rtcp.getLanguage()
-        if rtcp.getLanguage() == 'C++':
+        print '--Found RTC Profile (%s)' % rtcp.basicInfo.name
+        print '--Language %s' % rtcp.language.kind
+        if rtcp.language.kind == 'C++':
             rtc_conf_name = 'conf/rtc_cpp.conf'
-            rtc_file_name = get_rtc_cpp_bin_name(rtcp.getName())
-            conf_file_name = rtcp.getName() + '.conf'
-        elif rtcp.getLanguage() == 'Python':
+            rtc_file_name = get_rtc_cpp_bin_name(rtcp.basicInfo.name)
+            conf_file_name = rtcp.basicInfo.name + '.conf'
+        elif rtcp.language.kind == 'Python':
             rtc_conf_name = 'conf/rtc_py.conf'
-            rtc_file_name = get_rtc_py_name(rtcp.getName())
-            conf_file_name = rtcp.getName() + '.conf'
+            rtc_file_name = get_rtc_py_name(rtcp.basicInfo.name)
+            conf_file_name = rtcp.basicInfo.name + '.conf'
         else:
             pass
 
         # installing rtc
         sys.stdout.write( '--Searching %s... ' % rtc_file_name )
-        [path, file] = rtc_file_search(rtc_profile_filepath, rtc_file_name,  rtcp.getName() if rtcp.getLanguage() == 'C++' else '')
+        [path, file] = rtc_file_search(rtc_profile_filepath, rtc_file_name,  rtcp.basicInfo.name if rtcp.language.kind == 'C++' else '')
         fullpath = path + file
         if len(fullpath) > 0:
             print 'Found(%s)' % fullpath
@@ -79,15 +79,15 @@ def parse_rtc_profile(rtc_profile_filepath):
         if len(fullpath) > 0:
             print 'Found(%s)' % fullpath
             sys.stdout.write('--Parsing rtc.conf(%s)... ' % rtc_conf_name)
-            conf_setting_label = rtcp.getCategory() + '.' + rtcp.getName() + '.config_file'
+            conf_setting_label = rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '.config_file'
             install_rtc(rtc_conf_name, fullpath, conf_setting_label)
         else:
             print 'Not Found'
-            print 'WARNING:RTC(%s) does not have its own .conf file.' % rtcp.getName()
+            print 'WARNING:RTC(%s) does not have its own .conf file.' % rtcp.basicInfo.name
 
         # setting precreate config
-        sys.stdout.write('--Activating installed RTC(%s)' % rtcp.getName())
-        install_rtc(rtc_conf_name, rtcp.getName(), 'manager.components.precreate')
+        sys.stdout.write('--Activating installed RTC(%s)' % rtcp.basicInfo.name)
+        install_rtc(rtc_conf_name, rtcp.basicInfo.name, 'manager.components.precreate')
 
         
     except InvalidRTCProfileError, e:

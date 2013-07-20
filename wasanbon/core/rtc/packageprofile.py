@@ -30,17 +30,17 @@ class PackageProfile(object):
 
 def find_rtc_srcs(rtcp):
     [path, file] = os.path.split(rtcp.filename)
-    if rtcp.getLanguage() == 'Python':
-        return util.search_file(path, rtcp.getName() + '.py')
-    elif rtcp.getLanguage() == 'Java':
-        return util.search_file(path, rtcp.getName() + 'Impl.java')
-    elif rtcp.getLanguage() == 'C++':
-        hdrs = util.search_file(path, rtcp.getName() + '.h')
-        srcs = util.search_file(path, rtcp.getName() + '.cpp')
+    if rtcp.language.kind == 'Python':
+        return util.search_file(path, rtcp.basicInfo.name + '.py')
+    elif rtcp.language.kind == 'Java':
+        return util.search_file(path, rtcp.basicInfo.name + 'Impl.java')
+    elif rtcp.language.kind == 'C++':
+        hdrs = util.search_file(path, rtcp.basicInfo.name + '.h')
+        srcs = util.search_file(path, rtcp.basicInfo.name + '.cpp')
         return hdrs + srcs
 
 def find_rtc_bin(rtcp):
-    if rtcp.getLanguage() == 'C++':
+    if rtcp.language.kind == 'C++':
         if sys.platform == 'win32':
             bin_ext = 'dll'
         elif sys.platform == 'linux2':
@@ -50,13 +50,13 @@ def find_rtc_bin(rtcp):
         else:
             sys.stdout.write('Unsupported platform %s' % sys.platform)
             return
-        rtc_file_name_list = rtcp.getName() + '.' + bin_ext
-    elif rtcp.getLanguage() == 'Python':
-        rtc_file_name_list = rtcp.getName() + '.py'
-    elif rtcp.getLanguage() == 'Java':
-        rtc_file_name_list = rtcp.getName() + '.jar'
+        rtc_file_name_list = rtcp.basicInfo.name + '.' + bin_ext
+    elif rtcp.language.kind == 'Python':
+        rtc_file_name_list = rtcp.basicInfo.name + '.py'
+    elif rtcp.language.kind == 'Java':
+        rtc_file_name_list = rtcp.basicInfo.name + '.jar'
     else:
-        raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % getLanguage())
+        raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % rtcp.language.kind)
 
     [path, file] = os.path.split(rtcp.filename)
 
@@ -90,7 +90,7 @@ def on_multiple_rtcfile(files):
 
 
 def find_rtc_conf(rtcp):
-    conf_file_name = rtcp.getName() + '.conf'
+    conf_file_name = rtcp.basicInfo.name + '.conf'
     [path, file] = os.path.split(rtcp.filename)
     conf_files = util.search_file(path, conf_file_name)
     if len(conf_files) == 1:

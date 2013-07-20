@@ -10,8 +10,8 @@ rtcprofile_filename = 'RTC.xml'
 
 
 def print_rtc_profile(rtcp):
-    str = rtcp.getName() + ' : \n'
-    str = str + '    name       : ' + rtcp.getName() + '\n'
+    str = rtcp.basicInfo.name + ' : \n'
+    str = str + '    name       : ' + rtcp.basicInfo.name + '\n'
     str = str + '    language   : ' + rtcp.getLanguage() + '\n'
     str = str + '    category   : ' + rtcp.getCategory() + '\n'
     filename = rtcp.getRTCProfileFileName()
@@ -32,7 +32,7 @@ def git_init(rtcps, argv):
         print_usage()
     rtcname = argv[3]
     for rtcp in rtcps:
-        if rtcname == rtcp.getName():
+        if rtcname == rtcp.basicInfo.name:
             sys.stdout.write('Initializing GIT repository in %s\n' % rtcname)
             git.git_init(rtcp)
 
@@ -103,7 +103,7 @@ class Command(object):
             rtcname = argv[3]
             comment = argv[4]
             for rtcp in rtcps:
-                if rtcname == rtcp.getName():
+                if rtcname == rtcp.basicInfo.name:
                     rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
                     if '.hg' in os.listdir(rtc_dir):
                         sys.stdout.write('Commiting Mercurial repository in %s\n' % rtcname)
@@ -117,7 +117,7 @@ class Command(object):
                 print_usage()
             rtcname = argv[3]
             for rtcp in rtcps:
-                if rtcname == rtcp.getName():
+                if rtcname == rtcp.basicInfo.name:
                     rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
                     if '.hg' in os.listdir(rtc_dir):
                         sys.stdout.write('Pushing Mercurial repository in %s\n' % rtcname)
@@ -131,7 +131,7 @@ class Command(object):
                 print_usage()
             rtcname = argv[3]
             for rtcp in rtcps:
-                if rtcname == rtcp.getName():
+                if rtcname == rtcp.basicInfo.name:
                     sys.stdout.write('Initializing GIT repository in %s\n' % rtcname)
                     sys.stdout.write('Username@github:')
                     user = raw_input()
@@ -147,8 +147,8 @@ class Command(object):
                 for i in range(2, len(argv)):
                     rtc_name = argv[i]
                     for rtcp in rtcps:
-                        if rtcp.getName() == rtc_name or clean_all:
-                            print 'Cleanup RTC(%s).' % rtcp.getName()
+                        if rtcp.basicInfo.name == rtc_name or clean_all:
+                            print 'Cleanup RTC(%s).' % rtcp.basicInfo.name
                             rtc.clean_rtc(rtcp)
                 return
             else:
@@ -156,14 +156,14 @@ class Command(object):
                 for i in range(2, len(argv)):
                     rtc_name = argv[i]
                     for rtcp in rtcps:
-                        if rtcp.getName() == rtc_name or build_all:
-                            print 'Building rtc [%s]' % rtcp.getName()
+                        if rtcp.basicInfo.name == rtc_name or build_all:
+                            print 'Building rtc [%s]' % rtcp.basicInfo.name
                             rtc.build_rtc(rtcp)
                 return
         elif argv[2] == 'edit':
             rtcps = rtc.parse_rtcs()
             for rtcp in rtcps:
-                if argv[2] == rtcp.getName():
+                if argv[2] == rtcp.basicInfo.name:
                     editenv = os.environ.copy()
                     if not 'HOME' in editenv.keys():
                         editenv['HOME'] = wasanbon.get_home_path()

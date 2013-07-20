@@ -35,8 +35,10 @@ class Command(object):
                 print '.'
             else:
                 for key, item in projs.items():
-                    if key == argv[3]:
+                    if key.strip() == argv[3].strip():
                         print item
+                        return
+                print '.'
 
         elif argv[2] == 'unregister':
             if len(argv) < 4:
