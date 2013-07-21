@@ -9,10 +9,10 @@ DoubleSeqViewer :
   hg : 'https://ysuga0731@code.google.com/p/doubleseqviewer/'
 StringViewer :
   description : 'String Value Viewer RT-component'
-  git : 'https://github.com/ysuga/StringViewer.git'
+  git : 'https://github.com/sugarsweetrobotics/StringViewer.git'
 JoystickToVelocity :
   description : 'Joystick input data to velocity. available with DirectInput RTC.'
-  git :  'https://github.com/ysuga/JoystickToVelocity.git'
+  git :  'https://github.com/sugarsweetrobotics/JoystickToVelocity.git'
 VirtualJoystick : 
   description : 'Virtual Joypad RT-Component with cross-button GUI'
   git : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
@@ -21,13 +21,19 @@ MobileRobotSim :
   git : 'https://github.com/sugarsweetrobotics/MobileRobotSim.git'
 MobileRobotController : 
   description : 'Mobile Robot Controller available with VirtulaJoystick. TimedVelocity2D output.'
-  git : 'https://github.com/ysuga/MobileRobotController.git'
+  git : 'https://github.com/sugarsweetrobotics/MobileRobotController.git'
 KeyInput :
   description : 'kbhit RT-Componennt.'
-  git : 'https://github.com/ysuga/KeyInput_cpp.git'
+  git : 'https://github.com/sugarsweetrobotics/KeyInput_cpp.git'
 WiiRemote : 
   description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
-  git : 'https://github.com/ysuga/WiiRemote.git'
+  git : 'https://github.com/sugarsweetrobotics/WiiRemote.git'
+WiiRemoteTest : 
+  description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
+  git : 'https://github.com/sugarsweetrobotics/WiiRemoteTest.git'
+WiiRemoteToVelocity : 
+  description : 'WiiRemote RTC using WiiC library for Mac and Unix.'
+  git : 'https://github.com/sugarsweetrobotics/WiiRemoteToVelocity.git'
 RTnoProxy :
   description : 'RTno can help to develop RTC available devices using arduino and mbed.'
   git : 'https://github.com/ysuga/RTnoProxy.git'
@@ -36,16 +42,16 @@ KinectToRanger :
   git : 'https://github.com/ysuga/KinectToRanger.git'
 RangeDataViewer : 
   description : 'Range Data Viewer'
-  git : 'https://github.com/ysuga/RangeDataViewer.git'
+  git : 'https://github.com/sugarsweetrobotics/RangeDataViewer.git'
 NAO_python :
   description : 'NAO RT-component'
-  git : 'https://github.com/ysuga/NAO.git'
+  git : 'https://github.com/sugarsweetrobotics/NAO.git'
 NAO_test :
   description : 'NAO Test Template'
-  git : 'https://github.com/ysuga/NAOTest.git'
+  git : 'https://github.com/sugarsweetrobotics/NAOTest.git'
 UrgRTC : 
   description : 'Hokuyo URG (Laser Range Sensor) RTC'
-  git : 'https://github.com/ysuga/UrgRTC.git'
+  git : 'https://github.com/sugarsweetrobotics/UrgRTC.git'
 OpenCVCameraCapture :
   description : 'OpenCV Camera Capture Component'
   git : 'https://github.com/ysuga/OpenCVCameraCapture.git'
