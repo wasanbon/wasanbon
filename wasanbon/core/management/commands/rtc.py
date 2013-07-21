@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-import os, sys, subprocess, getpass
+import os, sys, subprocess, getpass, signal
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
 from wasanbon.core.rtc import git, hg
 
 rtcprofile_filename = 'RTC.xml'
+
+def signal_action(num, frame):
+    pass
 
 
 def print_rtc_profile(rtcp):
@@ -55,6 +58,7 @@ class Command(object):
             return
         elif argv[2] == 'repository':
             url = wasanbon.repositories
+            print url
             for key, value in url.items():
                 print '  ' + key + ' ' * (24-len(key)) + ' : ' + value['description'] 
                 if len(argv) >= 4 and argv[3] == '-l':
@@ -112,6 +116,21 @@ class Command(object):
                         sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
                         git.commit(rtcp, comment)
 
+        if argv[2] == 'pull':
+            if len(argv) < 4:
+                print_usage()
+            rtcname = argv[3]
+            for rtcp in rtcps:
+                if rtcname == rtcp.basicInfo.name:
+                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
+                    if '.hg' in os.listdir(rtc_dir):
+                        sys.stdout.write('Pulling Mercurial repository in %s\n' % rtcname)
+                        hg.pull(rtcp)
+                    elif '.git' in os.listdir(rtc_dir):
+                        sys.stdout.write('Pulling GIT repository in %s\n' % rtcname)
+                        git.pull(rtcp)
+
+
         if argv[2] == 'push':
             if len(argv) < 4:
                 print_usage()
@@ -163,7 +182,7 @@ class Command(object):
         elif argv[2] == 'edit':
             rtcps = rtc.parse_rtcs()
             for rtcp in rtcps:
-                if argv[2] == rtcp.basicInfo.name:
+                if argv[3] == rtcp.basicInfo.name:
                     editenv = os.environ.copy()
                     if not 'HOME' in editenv.keys():
                         editenv['HOME'] = wasanbon.get_home_path()
@@ -179,11 +198,8 @@ class Command(object):
 
                     signal.signal(signal.SIGINT, signal_action)
                     subprocess.call(cmd, env=editenv)
-
-        
-            
-
-            
+        else:
+            sys.stdout.write(' - Unknown command [%s]' % argv[2])
             
             pass
 
