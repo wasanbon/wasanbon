@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, shutil
 import wasanbon
 from wasanbon import util
 from search_rtc import *
@@ -23,7 +23,25 @@ def parse_rtcs():
             print '-Error Invalid RTCProfile file[%s]' % fullpath
     return rtcps
 
-def github_init(user, passwd, rtcp):
+def github_fork(user, passwd, url, verbose=False):
+    github_obj = github.Github(user, passwd)
+    git_user = github_obj.get_repository()
+    try:
+        git_user.login
+    except:
+        print ' - Login Error.'
+        return
+    github_obj.get_user().create_repo(repo_name)
+    pass
+
+def delete(rtcp, verbose=False):
+    rtc_dir = os.path.split(rtcp.filename)[0]
+    sys.stdout.write(' - Deleting RTC directory:%s' % rtc_dir)
+    if util.no_yes(' OK?') == 'yes':
+        shutil.rmtree(rtc_dir, ignore_errors=True)
+    pass
+
+def github_init(user, passwd, rtcp, verbose=False):
     rtc_dir = os.path.split(rtcp.filename)[0]
     if rtc_dir.endswith('/'): 
         rtc_dir = rtc_dir[:-1]
