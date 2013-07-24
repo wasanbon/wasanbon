@@ -100,6 +100,23 @@ class Command(object):
                 else:
                     print '%s Do not found' % rtcname
             return
+
+        elif argv[2] == 'delete':
+            if len(argv) < 4:
+                wasanbon.show_help_description('rtc')
+                return
+
+            for i in range(3, len(argv)):
+                rtcname = argv[i]
+                foundFlag = False
+                for rtcp in rtcps:
+                    if rtcp.basicInfo.name == rtcname:
+                        rtc.delete(rtcp)
+                        foundFlag = True
+                if not foundFlag:
+                    sys.stdout.write(' - %s not found.' % rtcname)
+            return
+                
             
         if argv[2] == 'commit':
             if len(argv) < 5:
