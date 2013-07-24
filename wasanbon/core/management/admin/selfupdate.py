@@ -83,9 +83,7 @@ class Command(object):
             if not clean:
                 clone_and_update(verbose=verbose, force=force)
         else:
-            if clean:
-                cleanup(verbose=verbose)
-            else:
-                pull_and_update(verbose=verbose, force=force)
+            cleanup(verbose=verbose)
+            pull_and_update(verbose=verbose, force=force)
 
         os.chdir(cwd)
