@@ -3,7 +3,7 @@
 import wasanbon
 import os, sys, subprocess, shutil
 from wasanbon import util
-
+        
 
 def pull_and_update(verbose, force):
     cwd = os.getcwd()
@@ -18,7 +18,8 @@ def pull_and_update(verbose, force):
     if output.strip() == 'Already up-to-date.' and not force:
         sys.stdout.write(output)
         return False
-
+    
+    cleanup(verbose=verbose)
     return install(verbose=verbose, force=force)
 
 def clone_and_update(verbose, force):
@@ -45,7 +46,13 @@ def cleanup(verbose):
     
     cwd = os.getcwd()
     os.chdir(dirname)
+    if verbose:
+        sys.stdout.write(' - Removing Direcotry:' + wasanbon.__path__[0])
+
     shutil.rmtree(wasanbon.__path__[0])
+    
+    if verbose:
+        sys.stdout.write(' -- Removed.\n')
     
     os.chdir(cwd)
     return True
@@ -58,11 +65,13 @@ def install(verbose, force):
     if verbose:
         sys.stdout.write(' - Installing wasanbon from %s.\n' % dirname)
 
-    if force:
-        cleanup(verbose)
-
     os.chdir(dirname)
+    if verbose:
+        sys.stdout.write(' - Removing Build Directory:' + os.path.join(dirname, 'build'))
+
     if os.path.isdir(os.path.join(dirname, 'build')) :
+        if verbose:
+            sys.stdout.write(' -- removed\n')
         shutil.rmtree(os.path.join(dirname, 'build'))
     cmd = ['python', 'setup.py', 'install']
     subprocess.call(cmd)
@@ -83,7 +92,7 @@ class Command(object):
             if not clean:
                 clone_and_update(verbose=verbose, force=force)
         else:
-            cleanup(verbose=verbose)
+            #cleanup(verbose=verbose)
             pull_and_update(verbose=verbose, force=force)
 
         os.chdir(cwd)
