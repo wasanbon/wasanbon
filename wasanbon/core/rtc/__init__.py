@@ -79,7 +79,9 @@ def github_init(user, passwd, rtcp, verbose=False):
         os.remove(temp_file)
     os.rename(repo_file, temp_file)
     repos = yaml.load(open(temp_file, 'r'))
-    repos[repo_name] = 'git@github.com:' + user + '/' + repo_name + '.git'
+    repos[repo_name] = {}
+    repos[repo_name]['description'] = ""
+    repos[repo_name]['git'] = 'git@github.com:' + user + '/' + repo_name + '.git'
     fout = open(repo_file, 'w')
     yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
     fout.close()
