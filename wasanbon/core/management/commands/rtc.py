@@ -86,19 +86,29 @@ class Command(object):
                 if 'git' in repo.keys():
                     url = repo['git']
                     print ' - GIT forking : %s' % url
+
+                    gitenv = os.environ.copy()
+                    if not 'HOME' in gitenv.keys():
+                        gitenv['HOME'] = wasanbon.get_home_path()
+                        print 'HOME is %s' % gitenv['HOME']
+
                     my_url = rtc.github_fork(user, passwd, url, verbose)
                     if my_url:
                         print ' - GIT cloning : %s' % my_url
-                        time.sleep(5)
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
-                        subprocess.call(cmd)
+                        subprocess.call(cmd, env=gitenv)
             return
         if argv[2] == 'clone':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
 
+            gitenv = os.environ.copy()
+            if not 'HOME' in gitenv.keys():
+                gitenv['HOME'] = wasanbon.get_home_path()
+                print 'HOME is %s' % gitenv['HOME']
+                
             for i in range(3, len(argv)):
                 rtcname = argv[i]
                 if rtcname in wasanbon.repositories.keys():
@@ -108,7 +118,7 @@ class Command(object):
                         print ' - GIT cloning : %s' % url
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
-                        subprocess.call(cmd)
+                        subprocess.call(cmd, env=gitenv)
                         rtc.update_repository_yaml(rtcname, url)
                         #return
                     if 'hg' in repo.keys():
@@ -116,7 +126,7 @@ class Command(object):
                         print ' - Mercurial cloning : %s' % url
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], rtcname)
                         cmd = [wasanbon.setting['local']['hg'], 'clone', url, distpath]
-                        subprocess.call(cmd)
+                        subprocess.call(cmd, env=gitenv)
                         #return
                         
                     else:
@@ -173,6 +183,8 @@ class Command(object):
 
             return
         if argv[2] == 'push':
+                
+
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
@@ -185,6 +197,7 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
                         git.push(rtcp)
+
             return
         if argv[2] == 'github_init':
             if len(argv) < 4:

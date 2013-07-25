@@ -4,6 +4,11 @@ from packageprofile import *
 
 
 def command(rtcp, commands, verbose = False):
+    gitenv = os.environ.copy()
+    if not 'HOME' in gitenv.keys():
+        gitenv['HOME'] = wasanbon.get_home_path()
+        print 'HOME is %s' % gitenv['HOME']
+
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
     if verbose:
         sys.stdout.write("GIT command %s in repository in %s\n" % (repr(commands), rtc_dir))
@@ -11,7 +16,7 @@ def command(rtcp, commands, verbose = False):
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
     cmd = [wasanbon.setting['local']['git']] + commands
-    subprocess.call(cmd)
+    subprocess.call(cmd, env=gitenv)
     os.chdir(current_dir)
 
 def git_init(rtcp, verbose=False):
