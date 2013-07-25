@@ -58,7 +58,6 @@ class Command(object):
             return
         elif argv[2] == 'repository':
             url = wasanbon.repositories
-            print url
             for key, value in url.items():
                 print '  ' + key + ' ' * (24-len(key)) + ' : ' + value['description'] 
                 if len(argv) >= 4 and argv[3] == '-l':
@@ -98,6 +97,8 @@ class Command(object):
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
                         subprocess.call(cmd, env=gitenv)
+                        rtc.update_repository_yaml(rtc_name, my_url)
+                    return
             return
         if argv[2] == 'clone':
             if len(argv) < 4:
