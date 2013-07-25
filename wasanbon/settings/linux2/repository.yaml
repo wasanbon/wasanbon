@@ -30,10 +30,10 @@ WiiRemoteToVelocity :
   git : 'https://github.com/sugarsweetrobotics/WiiRemoteToVelocity.git'
 NAO_python :
   description : 'NAO RT-component'
-  git : 'https://github.com/sugarsweetrobotics/NAO.git'
+  git : 'https://github.com/ogata-lab/NAO.git'
 NAO_test :
   description : 'NAO Test Template'
-  git : 'https://github.com/sugarsweetrobotics/NAOTest.git'
+  git : 'https://github.com/ogata-lab/NAOTest.git'
 KinectToRanger : 
   description : 'Kinect Data To Range Sensor.'
   git : 'https://github.com/sugarsweetrobotics/KinectToRanger.git'
