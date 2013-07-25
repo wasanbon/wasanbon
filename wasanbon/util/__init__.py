@@ -57,7 +57,7 @@ def apt_get(url):
     subprocess.call(cmd)
 
 def download_and_install(url, force=False, temp="", verbose=False):
-    if url.startswith("apt-get"):
+    if url.startswith("apt-get") or url.startswith("aptitude"):
         apt_get(url)
         return
     filename = os.path.basename(url)
