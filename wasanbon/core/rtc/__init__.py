@@ -92,7 +92,7 @@ def github_init(user, passwd, rtcp, verbose=False):
     url = 'git@github.com:' + user + '/' + repo_name + '.git'
     update_repository_yaml(repo_name, url)
 
-def update_repositoy_yaml(repo_name, url, desc="", erbose=False):
+def update_repository_yaml(repo_name, url, desc="", erbose=False):
     sys.stdout.write(' - Updating repository.yaml\n')
     repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
     temp_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml.bak')
