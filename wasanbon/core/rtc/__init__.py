@@ -1,4 +1,4 @@
-import os, sys, shutil
+import os, sys, shutil, time
 import wasanbon
 from wasanbon import util
 from search_rtc import *
@@ -24,15 +24,32 @@ def parse_rtcs():
     return rtcps
 
 def github_fork(user, passwd, url, verbose=False):
+    sys.stdout.write(' - Forking URL:: %s\n' % url)
     github_obj = github.Github(user, passwd)
-    git_user = github_obj.get_repository()
+    git_user = github_obj.get_user()
     try:
         git_user.login
     except:
         print ' - Login Error.'
-        return
-    github_obj.get_user().create_repo(repo_name)
-    pass
+        return None
+    target_user, target_repo = url.split('/')[-2:]
+    repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
+    
+    github_obj.get_user().create_fork(repo)
+    sys.stdout.write('Please wait for 5 seconds to fork...\n')
+    time.sleep(5)
+    for i in range(0, 5):
+        try:
+            r = github_obj.get_user().get_repo(target_repo[:-4])
+            my_url = 'git@github.com:' + user + '/' + target_repo[:-4]
+            sys.stdout.write(' - Success.')
+            return my_url
+        except:
+            sys.stdout.write('Please wait for 1 seconds to fork...\n')
+            time.sleep(1)
+            pass
+    sys.stdout.write(' - Failed to create fork.\n')
+    return None
 
 def delete(rtcp, verbose=False):
     rtc_dir = os.path.split(rtcp.filename)[0]
@@ -71,8 +88,12 @@ def github_init(user, passwd, rtcp, verbose=False):
     cmd = [wasanbon.setting['local']['git'], 'push', '-u', 'origin', 'master']
     subprocess.call(cmd, env=gitenv)
     os.chdir(current_dir)
-    
-    sys.stdout.write('Updating repository.yaml\n')
+
+    url = 'git@github.com:' + user + '/' + repo_name + '.git'
+    update_repository_yaml(repo_name, url)
+
+def update_repositoy_yaml(repo_name, url, desc="", erbose=False):
+    sys.stdout.write(' - Updating repository.yaml\n')
     repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
     temp_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml.bak')
     if os.path.isfile(temp_file):
@@ -80,8 +101,8 @@ def github_init(user, passwd, rtcp, verbose=False):
     os.rename(repo_file, temp_file)
     repos = yaml.load(open(temp_file, 'r'))
     repos[repo_name] = {}
-    repos[repo_name]['description'] = ""
-    repos[repo_name]['git'] = 'git@github.com:' + user + '/' + repo_name + '.git'
+    repos[repo_name]['description'] = desc
+    repos[repo_name]['git'] = url
     fout = open(repo_file, 'w')
     yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
     fout.close()

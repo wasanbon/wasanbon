@@ -39,8 +39,8 @@ def create_project(prjname, verbose):
             fout.close()
             
     y = yaml.load(open(os.path.join(appdir, 'setting.yaml'), 'r'))
-    file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'repository.yaml')
-    shutil.copy(file, os.path.join(appdir, y['application']['RTC_DIR'], 'repository.yaml'))
+    #file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'repository.yaml')
+    #shutil.copy(file, os.path.join(appdir, y['application']['RTC_DIR'], 'repository.yaml'))
     
     if sys.platform == 'darwin' or sys.platform == 'linux2':
         cmd = ['chmod', '755', os.path.join(prjname, 'mgr.py')]

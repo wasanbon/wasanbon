@@ -17,11 +17,18 @@ def command(rtcp, commands, verbose = False):
 def git_init(rtcp, verbose=False):
     command(rtcp, ['init'], verbose=verbose)
 
+    rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
+    if verbose:
+        sys.stdout.write("GIT command %s in repository in %s\n" % (repr(commands), rtc_dir))
+        #pp = PackageProfile(rtcp)
+    current_dir = os.getcwd()
+    os.chdir(rtc_dir)
     gitignore_files = ['*~', '.pyc', 'build-*']
     fout = open('.gitignore', 'w')
     for filename in gitignore_files:
         fout.write(filename + '\n')
     fout.close()
+    os.chdir(current_dir)
 
     command(rtcp, ['add', '.'], verbose=verbose)
 

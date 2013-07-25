@@ -69,8 +69,30 @@ class Command(object):
 
         if argv[2] == 'git_init':
             git_init(rtcps, argv)
+            return
+        if argv[2] == 'github_fork':
+            if len(argv) < 4:
+                wasanbon.show_help_description('rtc')
+                return
 
+            rtcname = argv[3]
+            sys.stdout.write(' - Forking GITHUB repository in %s\n' % rtcname)
+            sys.stdout.write('Username@github:')
+            user = raw_input()
+            passwd = getpass.getpass()
 
+            if rtcname in wasanbon.repositories.keys():
+                repo = wasanbon.repositories[rtcname]
+                if 'git' in repo.keys():
+                    url = repo['git']
+                    print ' - GIT forking : %s' % url
+                    my_url = rtc.github_fork(user, passwd, url, verbose)
+                    if my_url:
+                        print ' - GIT cloning : %s' % my_url
+                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
+                        cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
+                        subprocess.call(cmd)
+            return
         if argv[2] == 'clone':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
@@ -86,6 +108,7 @@ class Command(object):
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
                         subprocess.call(cmd)
+                        rtc.update_repository_yaml(rtcname, url)
                         #return
                     if 'hg' in repo.keys():
                         url = repo['hg']
@@ -132,7 +155,7 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
                         git.commit(rtcp, comment)
-
+            return
         if argv[2] == 'pull':
             if len(argv) < 4:
                 print_usage()
@@ -147,7 +170,7 @@ class Command(object):
                         sys.stdout.write('Pulling GIT repository in %s\n' % rtcname)
                         git.pull(rtcp)
 
-
+            return
         if argv[2] == 'push':
             if len(argv) < 4:
                 print_usage()
@@ -161,7 +184,7 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
                         git.push(rtcp)
-
+            return
         if argv[2] == 'github_init':
             if len(argv) < 4:
                 print_usage()
@@ -173,7 +196,7 @@ class Command(object):
                     user = raw_input()
                     passwd = getpass.getpass()
                     rtc.github_init(user, passwd, rtcp)
-            pass
+            return
 
         elif argv[2] == 'build':
             rtcps = rtc.parse_rtcs()
