@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, subprocess, getpass, signal
+import os, sys, subprocess, getpass, signal, time
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
@@ -89,6 +89,7 @@ class Command(object):
                     my_url = rtc.github_fork(user, passwd, url, verbose)
                     if my_url:
                         print ' - GIT cloning : %s' % my_url
+                        time.sleep(5)
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
                         subprocess.call(cmd)
