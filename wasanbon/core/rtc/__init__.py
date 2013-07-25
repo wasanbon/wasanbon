@@ -41,7 +41,7 @@ def github_fork(user, passwd, url, verbose=False):
     for i in range(0, 5):
         try:
             r = github_obj.get_user().get_repo(target_repo[:-4])
-            my_url = 'git@github.com:' + user + '/' + target_repo[:-4]
+            my_url = 'git@github.com:' + user + '/' + target_repo
             sys.stdout.write(' - Success.')
             return my_url
         except:
