@@ -34,8 +34,8 @@ def install(force=False):
     pass
 
 def __ppa_preparation():
-    subprocess.call(['add-apt-repository',  'ppa:openrtm/stable'])
-    subprocess.call(['add-apt-repository',  'ppa:openrtm/unstable'])
+    subprocess.call(['add-apt-repository', '-y', 'ppa:openrtm/stable'])
+    subprocess.call(['add-apt-repository', '-y', 'ppa:openrtm/unstable'])
     subprocess.call(['apt-get', 'update'])
 
 def __apt_preperation():
