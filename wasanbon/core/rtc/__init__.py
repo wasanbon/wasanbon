@@ -42,7 +42,7 @@ def github_fork(user, passwd, url, verbose=False):
         try:
             r = github_obj.get_user().get_repo(target_repo[:-4])
             my_url = 'git@github.com:' + user + '/' + target_repo
-            sys.stdout.write(' - Success.')
+            sys.stdout.write(' - Success\n')
             return my_url
         except:
             sys.stdout.write('Please wait for 1 seconds to fork...\n')
