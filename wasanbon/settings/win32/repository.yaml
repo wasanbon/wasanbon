@@ -40,4 +40,13 @@ RangeDataViewer :
 SpaceNavigator :
   description : '3DConnexion s 3-D mouse RT-component'
   git : 'https://github.com/sugarsweetrobotics/SpaceNavigatorRTC.git'
+NAO_python :
+  description : 'NAO RT-component'
+  git : 'https://github.com/ogata-lab/NAO.git'
+NAO_test :
+  description : 'NAO Test Template'
+  git : 'https://github.com/ogata-lab/NAOTest.git'
+UrgRTC : 
+  description : 'Hokuyo URG (Laser Range Sensor) RTC'
+  git : 'https://github.com/sugarsweetrobotics/UrgRTC.git'
 
