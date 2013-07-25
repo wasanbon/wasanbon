@@ -100,6 +100,8 @@ def update_repository_yaml(repo_name, url, desc="", erbose=False):
         os.remove(temp_file)
     os.rename(repo_file, temp_file)
     repos = yaml.load(open(temp_file, 'r'))
+    if not repos:
+        repos = {}
     repos[repo_name] = {}
     repos[repo_name]['description'] = desc
     repos[repo_name]['git'] = url
