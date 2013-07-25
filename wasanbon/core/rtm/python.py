@@ -29,8 +29,8 @@ def install_pyrtm_win(force):
 
 
 def install_pyrtm_linux(force):
-    util.download_and_install(wasanbon.setting['linux2']['packages']['python_ppa'], force=force)
-    #install_pyrtm_osx(force) # install from source.
+    #util.download_and_install(wasanbon.setting['linux2']['packages']['python_ppa'], force=force)
+    install_pyrtm_osx(force) # install from source.
 
 def install_pyrtm_osx(force):
     if not 'local' in wasanbon.setting.keys():

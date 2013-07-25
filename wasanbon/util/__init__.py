@@ -53,7 +53,7 @@ def download_and_unpack(url, dist_path, force=False, verbose=False):
     pass
 
 def apt_get(url):
-    cmd = url.split(' ')
+    cmd = [e for e in url.split(' ') if not e == '']
     subprocess.call(cmd)
 
 def download_and_install(url, force=False, temp="", verbose=False):
