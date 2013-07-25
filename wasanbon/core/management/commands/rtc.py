@@ -108,6 +108,16 @@ class Command(object):
             if not 'HOME' in gitenv.keys():
                 gitenv['HOME'] = wasanbon.get_home_path()
                 print 'HOME is %s' % gitenv['HOME']
+
+            if argv[3].startswith('git@') or argv[3].startswith('http'):
+                path = os.path.basename(argv[3])
+                if path.endswith('.git'):
+                    path = path[:-4]
+                distpath = os.path.join(wasanbon.setting['application']['RTC_DIR'], path)
+                cmd = [wasanbon.setting['local']['git'], 'clone', argv[3], distpath]
+                subprocess.call(cmd, env=gitenv)
+                rtc.update_repository_yaml(path, argv[3])
+                return 
                 
             for i in range(3, len(argv)):
                 rtcname = argv[i]
@@ -183,8 +193,6 @@ class Command(object):
 
             return
         if argv[2] == 'push':
-                
-
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
