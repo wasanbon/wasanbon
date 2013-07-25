@@ -1,3 +1,6 @@
+aptitude:
+  - "/usr/local/bin/aptitude"
+  - "/usr/bin/aptitude"
 cmake :
   - "/usr/local/bin/cmake"
   - "/usr/bin/cmake"
