@@ -113,3 +113,6 @@ class Command(object):
                 rtcconf_java.sync()
                 
             pass
+        elif argv[2] == 'git_init':
+            system.git_init(verbose)
+            return 
