@@ -33,19 +33,29 @@ def github_fork(user, passwd, url, verbose=False):
         print ' - Login Error.'
         return None
     target_user, target_repo = url.split('/')[-2:]
+    try:
+        my_repo = github_obj.get_user().get_repo(target_repo[:-4])
+        print ' - Your repository already has the %s repository' % target_repo[:-4]
+        print ' - This will be cloned into your space.'
+        return 'git@github.com:' + user + '/' + target_repo
+    except:
+        print ' - Your repository does not have the %s repository' % target_repo[:-4]
+
+        
     repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
-    
+
+    print ' - Now creating fork of the %s repository' % target_repo[:-4]
     github_obj.get_user().create_fork(repo)
-    sys.stdout.write('Please wait for 5 seconds to fork...\n')
+    sys.stdout.write(' - Please wait for 5 seconds to fork...\n')
     time.sleep(5)
     for i in range(0, 5):
         try:
             r = github_obj.get_user().get_repo(target_repo[:-4])
-            my_url = 'git@github.com:' + user + '/' + target_repo
             sys.stdout.write(' - Success\n')
+            my_url = 'git@github.com:' + user + '/' + target_repo
             return my_url
         except:
-            sys.stdout.write('Please wait for 1 seconds to fork...\n')
+            sys.stdout.write(' - Please wait for 1 more seconds to fork...\n')
             time.sleep(1)
             pass
     sys.stdout.write(' - Failed to create fork.\n')
