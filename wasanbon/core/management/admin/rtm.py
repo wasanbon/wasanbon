@@ -9,7 +9,7 @@ class Command(object):
     def is_admin(self):
         return True
 
-    def execute_with_argv(self, argv):
+    def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         if len(argv) < 3:
             print ' - To read help, "%s rtm -h"' % os.path.basename(argv[0])
             return
