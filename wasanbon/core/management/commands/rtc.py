@@ -97,7 +97,7 @@ class Command(object):
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
                         cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
                         subprocess.call(cmd, env=gitenv)
-                        rtc.update_repository_yaml(rtc_name, my_url)
+                        rtc.update_repository_yaml(rtcname, my_url)
                     return
             return
         if argv[2] == 'clone':
