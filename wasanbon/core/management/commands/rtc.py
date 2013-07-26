@@ -100,6 +100,24 @@ class Command(object):
                         rtc.update_repository_yaml(rtcname, my_url)
                     return
             return
+
+        if argv[2] == 'github_pullrequest':
+            if len(argv) < 6:
+                print ' - Invalid Usage.'
+            rtcname = argv[3]
+            title = argv[4]
+            body = argv[5]
+            sys.stdout.write('Username@github:')
+            user = raw_input()
+            passwd = getpass.getpass()
+            if rtcname in wasanbon.repositories.keys():
+                repo = wasanbon.repositories[rtcname]
+                if 'git' in repo.keys():
+                    print ' - Pull Requesting.' 
+                    if not rtc.github_pullrequest(user, passwd, url, title, body, verbose):
+                        print ' - Failed.'
+            pass
+            
         if argv[2] == 'clone':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')

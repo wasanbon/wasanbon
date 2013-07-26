@@ -23,6 +23,23 @@ def parse_rtcs():
             print '-Error Invalid RTCProfile file[%s]' % fullpath
     return rtcps
 
+def github_pullrequest(user, passwd, url, title, body, verbose=False):
+    sys.stdout.write(' - Creating Pull Request')
+    github_obj = github.Github(user, passwd)
+    git_user = github_obj.get_user()
+    try:
+        git_user.login
+    except:
+        print ' - Login Error.'
+        return None
+    target_user, target_repo = url.split('/')[-2:]
+    repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
+    owner_url = repo.parent.url
+    owner_user, owner_repo = owner_url.split('/')[-2:]
+    parent_repo = github_obj.get_user(owner_user).get_repo(owner_repo)
+    parent_repo.create_pull(title=title, body=body, head=user + ':master', base='master')
+    return True
+
 def github_fork(user, passwd, url, verbose=False):
     sys.stdout.write(' - Forking URL:: %s\n' % url)
     github_obj = github.Github(user, passwd)
