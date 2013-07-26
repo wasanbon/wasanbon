@@ -168,7 +168,6 @@ class Command(object):
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
-
             for i in range(3, len(argv)):
                 rtcname = argv[i]
                 foundFlag = False
@@ -184,10 +183,12 @@ class Command(object):
         if argv[2] == 'commit':
             if len(argv) < 5:
                 print_usage()
+            not_found = True
             rtcname = argv[3]
             comment = argv[4]
             for rtcp in rtcps:
                 if rtcname == rtcp.basicInfo.name:
+                    not_found = False
                     rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
                     if '.hg' in os.listdir(rtc_dir):
                         sys.stdout.write('Commiting Mercurial repository in %s\n' % rtcname)
@@ -195,13 +196,17 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
                         git.commit(rtcp, comment)
+            if not_found:
+                print ' - RTC(%s) not found.' % rtcname
             return
         if argv[2] == 'pull':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
+            not_found = True
             for rtcp in rtcps:
                 if rtcname == rtcp.basicInfo.name:
+                    not_found = False
                     rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
                     if '.hg' in os.listdir(rtc_dir):
                         sys.stdout.write('Pulling Mercurial repository in %s\n' % rtcname)
@@ -210,13 +215,18 @@ class Command(object):
                         sys.stdout.write('Pulling GIT repository in %s\n' % rtcname)
                         git.pull(rtcp)
 
+            if not_found:
+                print ' - RTC(%s) not found.' % rtcname
             return
+
         if argv[2] == 'push':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
+            not_found = True
             for rtcp in rtcps:
                 if rtcname == rtcp.basicInfo.name:
+                    not_found = False
                     rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
                     if '.hg' in os.listdir(rtc_dir):
                         sys.stdout.write('Pushing Mercurial repository in %s\n' % rtcname)
@@ -224,7 +234,8 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
                         git.push(rtcp)
-
+            if not_found:
+                print ' - RTC(%s) not found.' % rtcname
             return
         if argv[2] == 'github_init':
             if len(argv) < 4:
