@@ -49,3 +49,6 @@ def push(rtcp, verbose=False):
 
 def pull(rtcp, verbose=False):
     command(rtcp, ['pull'], verbose=verbose)
+
+def checkout(rtcp, verbose=False):
+    command(rtcp, ['checkout', 'master', '--force'], verbose=verbose)

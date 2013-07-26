@@ -24,7 +24,7 @@ def parse_rtcs():
     return rtcps
 
 def github_pullrequest(user, passwd, url, title, body, verbose=False):
-    sys.stdout.write(' - Creating Pull Request')
+    sys.stdout.write(' - Creating Pull Request ')
     github_obj = github.Github(user, passwd)
     git_user = github_obj.get_user()
     try:
@@ -33,9 +33,11 @@ def github_pullrequest(user, passwd, url, title, body, verbose=False):
         print ' - Login Error.'
         return None
     target_user, target_repo = url.split('/')[-2:]
-    repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
+    repo = github_obj.get_user().get_repo(target_repo[:-4])
+
     owner_url = repo.parent.url
     owner_user, owner_repo = owner_url.split('/')[-2:]
+    sys.stdout.write(' (from: %s:%s to %s:%s)\n' % (user, target_repo[:-4], owner_user, target_repo[:-4]))
     parent_repo = github_obj.get_user(owner_user).get_repo(owner_repo)
     parent_repo.create_pull(title=title, body=body, head=user + ':master', base='master')
     return True

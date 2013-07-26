@@ -66,10 +66,10 @@ class Command(object):
                             print '       ' + k + ' ' * (24-len(k)) + ' : ' + v
             return
 
-        if argv[2] == 'git_init':
+        elif argv[2] == 'git_init':
             git_init(rtcps, argv)
             return
-        if argv[2] == 'github_fork':
+        elif argv[2] == 'github_fork':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
@@ -101,7 +101,7 @@ class Command(object):
                     return
             return
 
-        if argv[2] == 'github_pullrequest':
+        elif argv[2] == 'github_pullrequest':
             if len(argv) < 6:
                 print ' - Invalid Usage.'
             rtcname = argv[3]
@@ -113,12 +113,13 @@ class Command(object):
             if rtcname in wasanbon.repositories.keys():
                 repo = wasanbon.repositories[rtcname]
                 if 'git' in repo.keys():
-                    print ' - Pull Requesting.' 
+                    url = repo['git']
+                    print ' - Pull Requesting url: %s'  % url
                     if not rtc.github_pullrequest(user, passwd, url, title, body, verbose):
                         print ' - Failed.'
             pass
             
-        if argv[2] == 'clone':
+        elif argv[2] == 'clone':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
@@ -180,7 +181,7 @@ class Command(object):
             return
                 
             
-        if argv[2] == 'commit':
+        elif argv[2] == 'commit':
             if len(argv) < 5:
                 print_usage()
             not_found = True
@@ -199,7 +200,7 @@ class Command(object):
             if not_found:
                 print ' - RTC(%s) not found.' % rtcname
             return
-        if argv[2] == 'pull':
+        elif argv[2] == 'pull':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
@@ -219,7 +220,24 @@ class Command(object):
                 print ' - RTC(%s) not found.' % rtcname
             return
 
-        if argv[2] == 'push':
+        elif argv[2] == 'checkout':
+            if len(argv) < 4:
+                print_usage()
+            rtcname = argv[3]
+            not_found = True
+            for rtcp in rtcps:
+                if rtcname == rtcp.basicInfo.name:
+                    not_found = False
+                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
+                    if '.git' in os.listdir(rtc_dir):
+                        sys.stdout.write('Rollback GIT repository in %s\n' % rtcname)
+                        git.checkout(rtcp, verbose)
+
+            if not_found:
+                print ' - RTC(%s) not found.' % rtcname
+            return
+
+        elif argv[2] == 'push':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
@@ -237,7 +255,7 @@ class Command(object):
             if not_found:
                 print ' - RTC(%s) not found.' % rtcname
             return
-        if argv[2] == 'github_init':
+        elif argv[2] == 'github_init':
             if len(argv) < 4:
                 print_usage()
             rtcname = argv[3]
@@ -290,6 +308,7 @@ class Command(object):
 
                     signal.signal(signal.SIGINT, signal_action)
                     subprocess.call(cmd, env=editenv)
+            return
         else:
             sys.stdout.write(' - Unknown command [%s]' % argv[2])
             
