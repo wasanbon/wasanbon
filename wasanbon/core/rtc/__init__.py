@@ -80,10 +80,17 @@ def github_fork(user, passwd, url, verbose=False):
     sys.stdout.write(' - Failed to create fork.\n')
     return None
 
-def delete(rtcp, verbose=False):
+def delete(rtcp, verbose=False, force=False):
     rtc_dir = os.path.split(rtcp.filename)[0]
-    sys.stdout.write(' - Deleting RTC directory:%s' % rtc_dir)
-    if util.no_yes(' OK?') == 'yes':
+
+    if not force:
+        sys.stdout.write(' - Deleting RTC directory:%s' % rtc_dir)
+        if util.no_yes(' OK?') == 'yes':
+            force = True
+
+    if force:
+        if verbose:
+            sys.stdout.write(' - Deleting RTC directory %s' % rtc_dir)
         shutil.rmtree(rtc_dir, ignore_errors=True)
     pass
 
@@ -121,8 +128,9 @@ def github_init(user, passwd, rtcp, verbose=False):
     url = 'git@github.com:' + user + '/' + repo_name + '.git'
     update_repository_yaml(repo_name, url)
 
-def update_repository_yaml(repo_name, url, desc="", erbose=False):
-    sys.stdout.write(' - Updating repository.yaml\n')
+def update_repository_yaml(repo_name, url, desc="", verbose=False):
+    if verbose:
+        sys.stdout.write(' - Updating repository.yaml\n')
     repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
     temp_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml.bak')
     if os.path.isfile(temp_file):
@@ -131,6 +139,8 @@ def update_repository_yaml(repo_name, url, desc="", erbose=False):
     repos = yaml.load(open(temp_file, 'r'))
     if not repos:
         repos = {}
+    if verbose:
+        sys.stdout.write(' - Adding %s repository\n' % repo_name)
     repos[repo_name] = {}
     repos[repo_name]['description'] = desc
     repos[repo_name]['git'] = url
@@ -138,6 +148,25 @@ def update_repository_yaml(repo_name, url, desc="", erbose=False):
     yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
     fout.close()
 
+def delete_repository_yaml(repo_name, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Updating repository.yaml\n')
+    repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
+    temp_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml.bak')
+    if os.path.isfile(temp_file):
+        os.remove(temp_file)
+    os.rename(repo_file, temp_file)
+    repos = yaml.load(open(temp_file, 'r'))
+    if not repos:
+        repos = {}
+    if repo_name in repos.keys():
+        if verbose:
+            sys.stdout.write(' - Removing %s repository\n' % repo_name)
+        repos.pop(repo_name)
+    fout = open(repo_file, 'w')
+    yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
+    fout.close()
+    
 
 def install(rtcp):
     rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.language.kind])
