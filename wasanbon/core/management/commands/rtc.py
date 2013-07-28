@@ -86,18 +86,10 @@ class Command(object):
                     url = repo['git']
                     print ' - GIT forking : %s' % url
 
-                    gitenv = os.environ.copy()
-                    if not 'HOME' in gitenv.keys():
-                        gitenv['HOME'] = wasanbon.get_home_path()
-                        print 'HOME is %s' % gitenv['HOME']
-
                     my_url = rtc.github_fork(user, passwd, url, verbose)
                     if my_url:
-                        print ' - GIT cloning : %s' % my_url
-                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
-                        cmd = [wasanbon.setting['local']['git'], 'clone', my_url, distpath]
-                        subprocess.call(cmd, env=gitenv)
-                        rtc.update_repository_yaml(rtcname, my_url)
+                        git.clone(my_url, verbose)
+                        rtc.update_repository_yaml(rtcname, my_url, verbose=verbose)
                     return
             return
 
@@ -124,19 +116,10 @@ class Command(object):
                 wasanbon.show_help_description('rtc')
                 return
 
-            gitenv = os.environ.copy()
-            if not 'HOME' in gitenv.keys():
-                gitenv['HOME'] = wasanbon.get_home_path()
-                print 'HOME is %s' % gitenv['HOME']
-
+            # if argument is url, then, clone by git command
             if argv[3].startswith('git@') or argv[3].startswith('http'):
-                path = os.path.basename(argv[3])
-                if path.endswith('.git'):
-                    path = path[:-4]
-                distpath = os.path.join(wasanbon.setting['application']['RTC_DIR'], path)
-                cmd = [wasanbon.setting['local']['git'], 'clone', argv[3], distpath]
-                subprocess.call(cmd, env=gitenv)
-                rtc.update_repository_yaml(path, argv[3])
+                git.clone(argv[3], verbose)
+                rtc.update_repository_yaml(path, argv[3], verbose=verbose)
                 return 
                 
             for i in range(3, len(argv)):
@@ -145,13 +128,14 @@ class Command(object):
                     repo = wasanbon.repositories[rtcname]
                     if 'git' in repo.keys():
                         url = repo['git']
-                        print ' - GIT cloning : %s' % url
-                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url)[:-4])
-                        cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
-                        subprocess.call(cmd, env=gitenv)
-                        rtc.update_repository_yaml(rtcname, url)
+                        git.clone(url, verbose)
+                        rtc.update_repository_yaml(rtcname, url, verbose=verbose)
                         #return
                     if 'hg' in repo.keys():
+                        gitenv = os.environ.copy()
+                        if not 'HOME' in gitenv.keys():
+                            gitenv['HOME'] = wasanbon.get_home_path()
+                            print 'HOME is %s' % gitenv['HOME']
                         url = repo['hg']
                         print ' - Mercurial cloning : %s' % url
                         distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], rtcname)
@@ -174,8 +158,9 @@ class Command(object):
                 foundFlag = False
                 for rtcp in rtcps:
                     if rtcp.basicInfo.name == rtcname:
-                        rtc.delete(rtcp)
+                        rtc.delete(rtcp, verbose=verbose, force=force)
                         foundFlag = True
+                        rtc.delete_repository_yaml(rtcname, verbose=verbose)
                 if not foundFlag:
                     sys.stdout.write(' - %s not found.' % rtcname)
             return
@@ -200,6 +185,7 @@ class Command(object):
             if not_found:
                 print ' - RTC(%s) not found.' % rtcname
             return
+
         elif argv[2] == 'pull':
             if len(argv) < 4:
                 print_usage()
@@ -255,6 +241,8 @@ class Command(object):
             if not_found:
                 print ' - RTC(%s) not found.' % rtcname
             return
+
+
         elif argv[2] == 'github_init':
             if len(argv) < 4:
                 print_usage()
@@ -267,28 +255,27 @@ class Command(object):
                     passwd = getpass.getpass()
                     rtc.github_init(user, passwd, rtcp)
             return
-
+        elif argv[2] == 'clean':
+            rtcps = rtc.parse_rtcs()
+            clean_all = True if 'all' in argv else False
+            rtcs = argv[2:] if not clean_all else ['all']
+            for rtc_name in rtcs:
+                for rtcp in rtcps:
+                    if rtcp.basicInfo.name == rtc_name or clean_all:
+                        print ' - Cleanup build directory of RTC(%s).' % rtcp.basicInfo.name
+                        rtc.clean_rtc(rtcp, verbose=verbose)
+                
+            return
         elif argv[2] == 'build':
             rtcps = rtc.parse_rtcs()
-
-            if '--clean' in argv:
-                clean_all = True if 'all' in argv else False
-                for i in range(2, len(argv)):
-                    rtc_name = argv[i]
-                    for rtcp in rtcps:
-                        if rtcp.basicInfo.name == rtc_name or clean_all:
-                            print 'Cleanup RTC(%s).' % rtcp.basicInfo.name
-                            rtc.clean_rtc(rtcp)
-                return
-            else:
-                build_all = True if 'all' in argv else False
-                for i in range(2, len(argv)):
-                    rtc_name = argv[i]
-                    for rtcp in rtcps:
-                        if rtcp.basicInfo.name == rtc_name or build_all:
-                            print 'Building rtc [%s]' % rtcp.basicInfo.name
-                            rtc.build_rtc(rtcp)
-                return
+            build_all = True if 'all' in argv else False
+            rtcs = argv[2:] if not build_all else ['all']
+            for rtc_name in rtcs:
+                for rtcp in rtcps:
+                    if rtcp.basicInfo.name == rtc_name or build_all:
+                        print ' - Building rtc [%s]' % rtcp.basicInfo.name
+                        rtc.build_rtc(rtcp, verbose=verbose)
+            return
         elif argv[2] == 'edit':
             rtcps = rtc.parse_rtcs()
             for rtcp in rtcps:

@@ -10,25 +10,26 @@ import shutil
 
 import wasanbon
 
-def build_rtc(rtcp):
+def build_rtc(rtcp, verbose=False):
     if rtcp.language.kind == 'C++':
-        build_rtc_cpp(rtcp)
+        build_rtc_cpp(rtcp, verbose=verbose)
     elif rtcp.language.kind == 'Python':
-        build_rtc_python(rtcp)
+        build_rtc_python(rtcp, verbose=verbose)
     elif rtcp.language.kind == 'Java':
-        build_rtc_java(rtcp)
+        build_rtc_java(rtcp, verbose=verbose)
     pass
 
-def clean_rtc(rtcp):
+def clean_rtc(rtcp, verbose=False):
     if rtcp.language.kind == 'C++':
         clean_rtc_cpp(rtcp)
     pass
 
-def clean_rtc_cpp(rtcp):
+def clean_rtc_cpp(rtcp, verbose=False):
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-' + sys.platform)
     if os.path.isdir(build_dir):
-        print 'removing %s' % build_dir
+        if verbose:
+            print ' - Removing Building Directory %s' % build_dir
         shutil.rmtree(build_dir, ignore_errors=True )
     for root, dirs, files in os.walk(rtc_dir):
         for file in files:
@@ -36,50 +37,63 @@ def clean_rtc_cpp(rtcp):
                 fullpath = os.path.join(root, file)
                 if fullpath.startswith(os.getcwd()):
                     fullpath = fullpath[len(os.getcwd())+1]
-                print 'removing %s' % fullpath
+                if verbose:
+                    print ' - Removing Emacs backup file %s' % fullpath
                 os.remove(os.path.join(root, file))
 
-def build_rtc_cpp(rtcp):
+def build_rtc_cpp(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
 
     if sys.platform == 'linux2' and platform.architecture()[0] == '64bit':
-        print ' - detected 64bit linux2. modify PKG_CONFIG_PATH environ.'
+        if verbose:
+            print ' - Detected 64bit linux2. modifying PKG_CONFIG_PATH environ.'
         os.environ['PKG_CONFIG_PATH'] = '/usr/lib64/pkgconfig/:/usr/local/lib64/pkgconfig/'
     elif sys.platform == 'darwin':
-        print ' - detected Darwin. modify PKG_CONFIG_PATH environ.'
+        if verbose:
+            print ' - Detected Darwin. modifying PKG_CONFIG_PATH environ.'
         os.environ['PKG_CONFIG_PATH'] = '/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/'
 
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
     if not os.path.isdir(build_dir):
+        if verbose:
+            print ' - Creating build directory : %s' % build_dir
         os.makedirs(build_dir)
     os.chdir(build_dir)
     cmd = [wasanbon.setting['local']['cmake'], '..']
-    subprocess.call(cmd, env=os.environ)
+    stdout = None if verbose else subprocess.PIPE
+    print ' - Cross Platform Make (CMAKE)'
+    subprocess.call(cmd, env=os.environ, stdout=stdout)
 
     if sys.platform == 'win32':
         sln = '%s.sln' % rtcp.basicInfo.name
         if sln in os.listdir(os.getcwd()):
-            print 'Solution is successfully generated.'
+            print ' - Visual C++ Solution File is successfully generated.'
             cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
-            subprocess.call(cmd)
+            stdout = None if verbose else subprocess.PIPE
+            print ' - msbuild %s %s %s' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32')
+            subprocess.call(cmd, stdout=stdout)
             return
     elif sys.platform == 'darwin':
         if 'Makefile' in os.listdir(os.getcwd()):
-            print 'Makefile is successfully generated.'
+            print ' - Makefile is successfully generated.'
             cmd = ['make']
-            subprocess.call(cmd)
+            stdout = None if verbose else subprocess.PIPE
+            print ' - make'
+            subprocess.call(cmd, stdout=stdout)
             return
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):
-            print 'Makefile is successfully generated.'
+            print ' - Makefile is successfully generated.'
             cmd = ['make']
-            subprocess.call(cmd)
+            stdout = None if verbose else subprocess.PIPE
+            print ' - make'
+            subprocess.call(cmd, stdout=stdout)
             return
 
-def build_rtc_python(rtcp):
+def build_rtc_python(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
 
@@ -98,7 +112,7 @@ def build_rtc_python(rtcp):
 
     pass
 
-def build_rtc_java(rtcp):
+def build_rtc_java(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)

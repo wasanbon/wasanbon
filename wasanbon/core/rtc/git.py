@@ -7,16 +7,26 @@ def command(rtcp, commands, verbose = False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print 'HOME is %s' % gitenv['HOME']
+        print 'Environmental Value %HOME% (%s) is added.' % gitenv['HOME']
 
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
     if verbose:
-        sys.stdout.write("GIT command %s in repository in %s\n" % (repr(commands), rtc_dir))
+        sys.stdout.write(" - GIT command %s in repository in %s\n" % (repr(commands), rtc_dir))
     pp = PackageProfile(rtcp)
     current_dir = os.getcwd()
+    if verbose:
+        sys.stdout.write(' - Changing Current Directory to %s\n' % rtc_dir)
     os.chdir(rtc_dir)
     cmd = [wasanbon.setting['local']['git']] + commands
-    subprocess.call(cmd, env=gitenv)
+    stdout = None if verbose else subprocess.PIPE
+
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
+
+    subprocess.call(cmd, env=gitenv, stdout=stdout)
     os.chdir(current_dir)
 
 def git_init(rtcp, verbose=False):
@@ -42,13 +52,43 @@ def git_init(rtcp, verbose=False):
 
     
 def commit(rtcp, comment, verbose = False):
+    if verbose:
+        print ' - GIT commit changes to my local repository'
     command(rtcp, ['commit', '-a', '-m', comment], verbose=verbose)
 
 def push(rtcp, verbose=False):
+    if verbose:
+        print ' - GIT push my repository to upstream'
     command(rtcp, ['push'], verbose=verbose)
 
 def pull(rtcp, verbose=False):
+    if verbose:
+        print ' - GIT pull upstream repository'
     command(rtcp, ['pull'], verbose=verbose)
 
 def checkout(rtcp, verbose=False):
+    if verbose:
+        print ' - GIT checkout and overwrite master branch'
     command(rtcp, ['checkout', 'master', '--force'], verbose=verbose)
+
+def clone(url, verbose=False):
+    if verbose:
+        print ' - GIT cloning : %s' % url
+    distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url))
+    if distpath.endswith('.git'):
+        distpat = distpath[:-4]
+        
+    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
+
+    stdout = None if verbose else subprocess.PIPE
+    gitenv = os.environ.copy()
+    if not 'HOME' in gitenv.keys():
+        gitenv['HOME'] = wasanbon.get_home_path()
+        print ' - Environment Param %HOME% (%s) is added.' % gitenv['HOME']
+    subprocess.call(cmd, env=gitenv, stdout=stdout)
+    
