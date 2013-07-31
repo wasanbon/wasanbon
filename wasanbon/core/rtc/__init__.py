@@ -128,7 +128,7 @@ def github_init(user, passwd, rtcp, verbose=False):
     url = 'git@github.com:' + user + '/' + repo_name + '.git'
     update_repository_yaml(repo_name, url)
 
-def update_repository_yaml(repo_name, url, desc="", verbose=False):
+def update_repository_yaml(repo_name, url="", protocol="git",  desc="", hash="", verbose=False):
     if verbose:
         sys.stdout.write(' - Updating repository.yaml\n')
     repo_file = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], 'repository.yaml')
@@ -141,9 +141,12 @@ def update_repository_yaml(repo_name, url, desc="", verbose=False):
         repos = {}
     if verbose:
         sys.stdout.write(' - Adding %s repository\n' % repo_name)
+    if url == "":
+        url = repos[repo_name][protocol]
     repos[repo_name] = {}
     repos[repo_name]['description'] = desc
-    repos[repo_name]['git'] = url
+    repos[repo_name][protocol] = url
+    repos[repo_name]['hash'] = hash
     fout = open(repo_file, 'w')
     yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
     fout.close()

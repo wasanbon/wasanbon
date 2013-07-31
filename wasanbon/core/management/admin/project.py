@@ -1,6 +1,7 @@
-import os, sys
+import os, sys, yaml
 import wasanbon
 from wasanbon.core import template
+from wasanbon.core.rtc import git
 
 class Command(object):
     def __init__(self):
@@ -46,3 +47,36 @@ class Command(object):
                 return
             template.unregister_project(argv[3], verbose=verbose)
 
+        elif argv[2] == 'repository':
+            print ' - Listing Project Repository'
+            dir = wasanbon.setting[sys.platform]['projects']
+            for key, value in dir.items():
+                print ' ' + key + ' ' * (24-len(key)) + ' : ' + value['description']
+            pass
+
+        elif argv[2] == 'clone':
+            if len(argv) < 4:
+                print ' - Give Project Repository Name'
+                return
+            print ' - Cloning Project from Repository'
+            dir = wasanbon.setting[sys.platform]['projects']
+            repo_name = argv[3]
+
+            if repo_name in dir.keys():
+                template.clone_project(repo_name, dir[repo_name]['git'], verbose=verbose)
+                os.chdir(repo_name)
+                reload(wasanbon)
+
+                y = yaml.load(open('rtc/repository.yaml', 'r'))
+                if not y:
+                    print ' - No repository'
+                    return 
+                for key in y.keys():
+                    url = y[key]['git']
+                    print ' - Cloning %s' % key
+                    rtcp = git.clone(url, verbose=verbose)
+                    git.checkout(rtcp, hash=y[key]['hash'], verbose=verbose)
+                
+            else:
+                print ' - No repository %s' % repo_name
+            pass

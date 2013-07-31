@@ -88,8 +88,9 @@ class Command(object):
 
                     my_url = rtc.github_fork(user, passwd, url, verbose)
                     if my_url:
-                        git.clone(my_url, verbose)
-                        rtc.update_repository_yaml(rtcname, my_url, verbose=verbose)
+                        rtcp = git.clone(my_url, verbose)
+                        hash = git.get_hash(rtcp, verbose)
+                        rtc.update_repository_yaml(rtcp.basicInfo.name, my_url, protocol='git', hash=hash, verbose=verbose)
                     return
             return
 
@@ -118,8 +119,10 @@ class Command(object):
 
             # if argument is url, then, clone by git command
             if argv[3].startswith('git@') or argv[3].startswith('http'):
-                git.clone(argv[3], verbose)
-                rtc.update_repository_yaml(path, argv[3], verbose=verbose)
+                rtcp = git.clone(argv[3], verbose)
+                hash  = git.get_hash(rtcp)
+                hash = git.get_hash(rtcp, verbose)
+                rtc.update_repository_yaml(rtcp.basicInfo.name, argv[3], protocol='git', hash=hash, verbose=verbose)
                 return 
                 
             for i in range(3, len(argv)):
@@ -128,8 +131,9 @@ class Command(object):
                     repo = wasanbon.repositories[rtcname]
                     if 'git' in repo.keys():
                         url = repo['git']
-                        git.clone(url, verbose)
-                        rtc.update_repository_yaml(rtcname, url, verbose=verbose)
+                        rtcp = git.clone(url, verbose)
+                        hash  = git.get_hash(rtcp, verbose)
+                        rtc.update_repository_yaml(rtcp.basicInfo.name, url, protocol='git', hash=hash, verbose=verbose)
                         #return
                     if 'hg' in repo.keys():
                         gitenv = os.environ.copy()
@@ -182,6 +186,8 @@ class Command(object):
                     elif '.git' in os.listdir(rtc_dir):
                         sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
                         git.commit(rtcp, comment)
+                        hash = git.get_hash(rtcp, verbose)
+                        rtc.update_repository_yaml(rtcname, protocol='git', hash=hash, verbose=verbose)
             if not_found:
                 print ' - RTC(%s) not found.' % rtcname
             return
