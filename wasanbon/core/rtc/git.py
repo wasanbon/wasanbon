@@ -1,6 +1,7 @@
 import os, sys, subprocess
 import wasanbon
 from packageprofile import *
+from rtcprofile import *
 
 
 def command(rtcp, commands, verbose = False):
@@ -12,13 +13,14 @@ def command(rtcp, commands, verbose = False):
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
     if verbose:
         sys.stdout.write(" - GIT command %s in repository in %s\n" % (repr(commands), rtc_dir))
-    pp = PackageProfile(rtcp)
+    #pp = PackageProfile(rtcp)
     current_dir = os.getcwd()
     if verbose:
         sys.stdout.write(' - Changing Current Directory to %s\n' % rtc_dir)
     os.chdir(rtc_dir)
     cmd = [wasanbon.setting['local']['git']] + commands
     stdout = None if verbose else subprocess.PIPE
+    stderr = None if verbose else subprocess.PIPE
 
     if verbose:
         sys.stdout.write(' - COMMAND:')
@@ -26,7 +28,7 @@ def command(rtcp, commands, verbose = False):
             sys.stdout.write(c + ' ')
         sys.stdout.write('\n')
 
-    subprocess.call(cmd, env=gitenv, stdout=stdout)
+    subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
     os.chdir(current_dir)
 
 def git_init(rtcp, verbose=False):
@@ -66,17 +68,20 @@ def pull(rtcp, verbose=False):
         print ' - GIT pull upstream repository'
     command(rtcp, ['pull'], verbose=verbose)
 
-def checkout(rtcp, verbose=False):
+def checkout(rtcp, hash="", verbose=False):
     if verbose:
         print ' - GIT checkout and overwrite master branch'
-    command(rtcp, ['checkout', 'master', '--force'], verbose=verbose)
+    if len(hash)==0:
+        command(rtcp, ['checkout', 'master', '--force'], verbose=verbose)
+    else:
+        command(rtcp, ['checkout', hash], verbose=verbose)
 
 def clone(url, verbose=False):
     if verbose:
         print ' - GIT cloning : %s' % url
     distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], os.path.basename(url))
     if distpath.endswith('.git'):
-        distpat = distpath[:-4]
+        distpath = distpath[:-4]
         
     cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
     if verbose:
@@ -86,9 +91,44 @@ def clone(url, verbose=False):
         sys.stdout.write('\n')
 
     stdout = None if verbose else subprocess.PIPE
+    stderr = None if verbose else subprocess.PIPE
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
         print ' - Environment Param %HOME% (%s) is added.' % gitenv['HOME']
-    subprocess.call(cmd, env=gitenv, stdout=stdout)
+    subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+
+    for root, dirs, files in os.walk(distpath):
+        if  'RTC.xml' in files:
+            return RTCProfile(os.path.join(root, 'RTC.xml'))
+
+    return None
     
+def get_hash(rtcp, verbose=False):
+    gitenv = os.environ.copy()
+    if not 'HOME' in gitenv.keys():
+        gitenv['HOME'] = wasanbon.get_home_path()
+        print 'Environmental Value %HOME% (%s) is added.' % gitenv['HOME']
+
+    rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
+    if verbose:
+        sys.stdout.write(" - GIT command (git log) in repository in %s\n" % rtc_dir)
+    pp = PackageProfile(rtcp)
+    current_dir = os.getcwd()
+    if verbose:
+        sys.stdout.write(' - Changing Current Directory to %s\n' % rtc_dir)
+    os.chdir(rtc_dir)
+    cmd = [wasanbon.setting['local']['git'], 'log', '--pretty=format:"%H"', '-1']
+    stdout = subprocess.PIPE
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
+    p = subprocess.Popen(cmd, env=gitenv, stdout=stdout)
+    os.chdir(current_dir)
+    
+    p.wait()
+    
+    retval = p.stdout.readline().strip()[1:-1]
+    return retval

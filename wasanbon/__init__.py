@@ -66,7 +66,7 @@ rtm_temp = ""
 rtm_home = ""
 
 def get_version():
-    """Get wasabon version.
+    """Get wasanbon version.
     """
     return "0.0.1-2"
 

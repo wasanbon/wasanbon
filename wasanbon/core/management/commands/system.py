@@ -1,4 +1,4 @@
-import os, sys, time, subprocess, signal, yaml
+import os, sys, time, subprocess, signal, yaml, getpass
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system
@@ -116,3 +116,13 @@ class Command(object):
         elif argv[2] == 'git_init':
             system.git_init(verbose)
             return 
+
+        elif argv[2] == 'github_init':
+            sysname = os.path.basename(os.getcwd())
+            sys.stdout.write('Initializing GIT repository in %s\n' % sysname)
+            sys.stdout.write('Username@github:')
+            user = raw_input()
+            passwd = getpass.getpass()
+            system.github_init(user, passwd, sysname)
+            return
+            
