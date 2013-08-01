@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil, subprocess
+import os, sys, yaml, shutil, subprocess, stat
 
 import wasanbon
 
@@ -146,6 +146,10 @@ def register_project(appname, appdir, verbose):
         print ' - Finished.'
     return True
 
+def remShut(*args):
+    func, path, _ = args 
+    os.chmod(path, stat.S_IWRITE)
+    os.remove(path)
 
 def unregister_project(appname, verbose, clean):
     if verbose:
@@ -169,7 +173,7 @@ def unregister_project(appname, verbose, clean):
         if len(wsdir) != 0 and clean:
             if verbose:
                 print ' - Removing Directory'
-            shutil.rmtree(wsdir, ignore_errors=True)
+            shutil.rmtree(wsdir, on_error=remShut)
     
     if verbose:
         print ' - Saving workspace.yaml'
