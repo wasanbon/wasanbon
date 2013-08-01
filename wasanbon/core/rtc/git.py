@@ -83,12 +83,6 @@ def clone(url, verbose=False):
     if distpath.endswith('.git'):
         distpath = distpath[:-4]
         
-    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
-    if verbose:
-        sys.stdout.write(' - COMMAND:')
-        for c in cmd:
-            sys.stdout.write(c + ' ')
-        sys.stdout.write('\n')
 
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
@@ -96,8 +90,33 @@ def clone(url, verbose=False):
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
         print ' - Environment Param HOME (%s) is added.' % gitenv['HOME']
+
+    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
     subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
 
+    curdir = os.getcwd()
+    os.chdir(distpath)
+    cmd = [wasanbon.setting['local']['git'], 'submodule', 'init']
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
+    subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+
+    cmd = [wasanbon.setting['local']['git'], 'submodule', 'update']
+    if verbose:
+        sys.stdout.write(' - COMMAND:')
+        for c in cmd:
+            sys.stdout.write(c + ' ')
+        sys.stdout.write('\n')
+    subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+    os.chdir(curdir)
     for root, dirs, files in os.walk(distpath):
         if  'RTC.xml' in files:
             return RTCProfile(os.path.join(root, 'RTC.xml'))
