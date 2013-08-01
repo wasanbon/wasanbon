@@ -79,7 +79,9 @@ class Command(object):
                     git.checkout(rtcp, hash=y[key]['hash'], verbose=verbose)
                 
                     print ' - Building %s' % key
+                    cur = os.getcwd()
                     rtc.build_rtc(rtcp, verbose=verbose)
+                    os.chdir(cur)
             else:
                 print ' - No repository %s' % repo_name
             pass
