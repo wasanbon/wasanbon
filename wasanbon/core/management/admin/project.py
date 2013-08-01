@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon.core import template
 from wasanbon.core import rtc
 from wasanbon.core.rtc import git
+from wasanbon.core import system
 
 class Command(object):
     def __init__(self):
@@ -69,6 +70,8 @@ class Command(object):
                 reload(wasanbon)
 
                 y = yaml.load(open('rtc/repository.yaml', 'r'))
+                installed = system.list_installed_rtcs()
+
                 if not y:
                     print ' - No repository'
                     return 
@@ -82,6 +85,10 @@ class Command(object):
                     cur = os.getcwd()
                     rtc.build_rtc(rtcp, verbose=verbose)
                     os.chdir(cur)
+                    
+                    if rtcp.basicInfo.name in installed[rtcp.basicInfo.language]:
+                        print ' - Reinstall %s' % key
+                        rtc.install(rtcp, verbose=verbose, precreate=False, preload=False)
             else:
                 print ' - No repository %s' % repo_name
             pass

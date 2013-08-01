@@ -381,14 +381,18 @@ def list_rtsp():
 
 
 def list_installed_rtcs():
+    retval = {}
     for language in ['C++', 'Python', 'Java']:
         rtcc = rtcconf.RTCConf(wasanbon.setting['application']['conf.' + language])
-        print '    - %s' % language
+        #print '    - %s' % language
+        retval[language] = []
         try:
             installed = rtcc['manager.components.precreate'].split(',')
             for rtc in installed:
                 if rtc.strip() != '':
-                    print '      - %s' % rtc
+                    #print '      - %s' % rtc
+                    retval[language].append(rtc)
         except KeyError, e:
             pass
+    return retval
     pass
