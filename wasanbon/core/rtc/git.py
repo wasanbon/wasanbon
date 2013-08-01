@@ -8,7 +8,7 @@ def command(rtcp, commands, verbose = False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print 'Environmental Value %HOME% (%s) is added.' % gitenv['HOME']
+        print 'Environmental Value HOME (%s) is added.' % gitenv['HOME']
 
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
     if verbose:
@@ -95,7 +95,7 @@ def clone(url, verbose=False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print ' - Environment Param %HOME% (%s) is added.' % gitenv['HOME']
+        print ' - Environment Param HOME (%s) is added.' % gitenv['HOME']
     subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
 
     for root, dirs, files in os.walk(distpath):
@@ -108,7 +108,7 @@ def get_hash(rtcp, verbose=False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print 'Environmental Value %HOME% (%s) is added.' % gitenv['HOME']
+        print 'Environmental Value HOME (%s) is added.' % gitenv['HOME']
 
     rtc_dir = os.path.split(rtcp.getRTCProfileFileName())[0]
     if verbose:
