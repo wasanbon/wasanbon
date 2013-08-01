@@ -173,7 +173,7 @@ def unregister_project(appname, verbose, clean):
         if len(wsdir) != 0 and clean:
             if verbose:
                 print ' - Removing Directory'
-            shutil.rmtree(wsdir, on_error=remShut)
+            shutil.rmtree(wsdir, onerror=remShut)
     
     if verbose:
         print ' - Saving workspace.yaml'
