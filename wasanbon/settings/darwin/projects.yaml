@@ -1,3 +1,7 @@
 tutorial01:
   description : 'ConsoleIn and ConsoleOut'
   git : 'https://github.com/ysuga/tutorial01.git'
+
+simvehicle:
+  description : 'Simulation Vehicle'
+  git : 'https://github.com/ysuga/simvehicle.git'
