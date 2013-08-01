@@ -5,3 +5,7 @@ tutorial01:
 simvehicle:
   description : 'Simulation Vehicle'
   git : 'https://github.com/ysuga/simvehicle.git'
+
+urgtest:
+  description : 'Hokuyo URG sensor Test Project'
+  git : 'https://github.com/ysuga/urgtest.git'

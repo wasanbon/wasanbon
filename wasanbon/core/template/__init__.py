@@ -147,7 +147,7 @@ def register_project(appname, appdir, verbose):
     return True
 
 
-def unregister_project(appname, verbose):
+def unregister_project(appname, verbose, clean):
     if verbose:
         print ' - Unregistering workspace:'
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
@@ -159,13 +159,18 @@ def unregister_project(appname, verbose):
     if verbose:
         print ' - Opening workspace.yaml and writing workspace data.'
 
+    wsdir = ""
     y = yaml.load(open(ws_file_name, "r"))
-
     if appname in y.keys():
         if verbose:
             print '    - %s found. Deleting workspace.' % appname
+        wsdir = y[appname]
         del(y[appname])
-
+        if len(wsdir) != 0 and clean:
+            if verbose:
+                print ' - Removing Directory'
+            shutil.rmtree(wsdir, ignore_errors=True)
+    
     if verbose:
         print ' - Saving workspace.yaml'
     yaml.dump(y, open(ws_file_name, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)

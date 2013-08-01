@@ -1,6 +1,7 @@
 import os, sys, yaml
 import wasanbon
 from wasanbon.core import template
+from wasanbon.core import rtc
 from wasanbon.core.rtc import git
 
 class Command(object):
@@ -45,7 +46,7 @@ class Command(object):
             if len(argv) < 4:
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
                 return
-            template.unregister_project(argv[3], verbose=verbose)
+            template.unregister_project(argv[3], verbose=verbose, clean=clean)
 
         elif argv[2] == 'repository':
             print ' - Listing Project Repository'
@@ -77,6 +78,8 @@ class Command(object):
                     rtcp = git.clone(url, verbose=verbose)
                     git.checkout(rtcp, hash=y[key]['hash'], verbose=verbose)
                 
+                    print ' - Building %s' % key
+                    rtc.build_rtc(rtcp, verbose=verbose)
             else:
                 print ' - No repository %s' % repo_name
             pass

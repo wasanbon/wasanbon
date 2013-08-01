@@ -113,6 +113,7 @@ class Command(object):
             pass
             
         elif argv[2] == 'clone':
+
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
@@ -128,6 +129,7 @@ class Command(object):
             for i in range(3, len(argv)):
                 rtcname = argv[i]
                 if rtcname in wasanbon.repositories.keys():
+                    print ' - Cloning rtc (%s)' % rtcname
                     repo = wasanbon.repositories[rtcname]
                     if 'git' in repo.keys():
                         url = repo['git']
