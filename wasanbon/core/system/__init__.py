@@ -158,9 +158,11 @@ def run_system(nobuild, nowait=False, verbose=False):
     if not ns.startswith('/'):
         ns = '/' + ns.strip()
     if verbose:
-        print " - System's NameServer = %s" % ns
+        sys.stdout.write(" - System's NameServer = %s\n" % ns)
     for i in range(0, 3):
         try:
+            if verbose:
+                sys.stdout.write(' - rtctree.path.parse_path(%s)\n' % ns)
             path, port = rtctree.path.parse_path(ns)
             tree = rtctree.tree.RTCTree(paths=path, filter=[path])
             dir_node = tree.get_node(path)
@@ -172,12 +174,10 @@ def run_system(nobuild, nowait=False, verbose=False):
             no_ns = True
             pass
 
-
     if no_ns:
         if verbose:
-            sys.stdout.write('Can not find Name Service (%s)\n' % ns)
+            sys.stdout.write(' - Can not find Name Service (%s)\n' % ns)
         ns_process = launch_nameserver(ns)
-
 
     sys.stdout.write(' - Starting RTC-Daemons\n')
     
@@ -202,7 +202,7 @@ def run_system(nobuild, nowait=False, verbose=False):
             if run.exe_rtstart():
                 time.sleep(1)
                 break
-    sys.stdout.write('System successfully started.\n')
+    sys.stdout.write(' - System successfully started.\n')
     
     if nowait:
         return

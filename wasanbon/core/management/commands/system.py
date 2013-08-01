@@ -4,8 +4,6 @@ from wasanbon.core import rtc
 from wasanbon.core import system
 from wasanbon.core.system import run
 
-
-
 class Command(object):
     def __init__(self):
         pass
@@ -38,7 +36,6 @@ class Command(object):
                     if rtcp.basicInfo.name == argv[i]:
                         print ' - Installing RTC %s' % argv[i]
                         rtc.install(rtcp)
-
 
         elif(argv[2] == 'uninstall'):
             if len(argv) < 4:
@@ -82,7 +79,7 @@ class Command(object):
             else:
                 nobuild=False
 
-            system.run_system(nobuild=nobuild)
+            system.run_system(nobuild=nobuild, verbose=verbose)
             pass
 
         elif(argv[2] == 'datalist'):

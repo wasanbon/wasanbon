@@ -54,7 +54,7 @@ def command(commands, verbose = False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print 'Environmental Value %HOME% (%s) is added.' % gitenv['HOME']
+        print 'Environmental Value HOME (%s) is added.' % gitenv['HOME']
 
     if verbose:
         sys.stdout.write(" - GIT command %s in repository\n" % (repr(commands)))
