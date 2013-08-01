@@ -76,6 +76,8 @@ class RTCConf(object):
                     self.dic[key] = self.dic[key] + v
         
     def sync(self):
+        if os.path.isfile(self.filename + ".bak"):
+            os.remove(self.filename + ".bak")
         os.rename(self.filename, self.filename + '.bak')
         fin = open(self.filename + '.bak', 'r')
         fout = open(self.filename, 'w')
