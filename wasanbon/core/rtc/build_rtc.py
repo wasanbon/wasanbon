@@ -141,17 +141,19 @@ def build_rtc_java(rtcp, verbose=False):
     for jarfile in os.listdir(rtm_java_classpath):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
 
+    java_env['LC_ALL'] = 'en'
+
     javafiles = []
     for root, dirs, files in os.walk(src_dir):
         for f in files:
             if f.endswith('.java'):
                 javafiles.append(os.path.join(root, f))
 
-    cmd = [wasanbon.setting['local']['javac'], '-encoding', 'SJIS',
+    cmd = [wasanbon.setting['local']['javac'], '-encoding', 'SJIS', 
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:
         cmd.append(f)
-    print cmd
+    #print cmd
     subprocess.call(cmd, env=java_env)
 
     clsfiles = []
@@ -166,5 +168,5 @@ def build_rtc_java(rtcp, verbose=False):
     for f in clsfiles:
         cmd.append(cls_dir)
         cmd.append(f)
-    print cmd
+        #print cmd
     subprocess.call(cmd, env=java_env)

@@ -66,7 +66,8 @@ def start_java_rtcd():
     if sys.platform == 'win32':
         return subprocess.Popen([wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env, creationflags=512)
     else:
-        #print java_env["CLASSPATH"]
+        print [wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf']
+        print java_env["CLASSPATH"]
         return subprocess.Popen([wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', 'conf/rtc_java.conf'], env=java_env)
 
 def exe_rtresurrect():
