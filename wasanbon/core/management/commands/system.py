@@ -54,7 +54,11 @@ class Command(object):
 
         elif(argv[2] == 'list'):
             print ' - Listing installed RTCs.'
-            system.list_installed_rtcs()
+            retval = system.list_installed_rtcs()
+            for key, value in retval.items():
+                print ' - Language:', key
+                for v in value:
+                    print '    ', v
             pass
 
         elif(argv[2] == 'build'):

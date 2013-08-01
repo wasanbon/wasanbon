@@ -171,7 +171,7 @@ def delete_repository_yaml(repo_name, verbose=False):
     fout.close()
     
 
-def install(rtcp):
+def install(rtcp, verbose=False, precreate=True, preload=True):
     rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.language.kind])
     pp = PackageProfile(rtcp)
     if len(pp.getRTCFilePath()) == 0 :
@@ -185,8 +185,10 @@ def install(rtcp):
     if sys.platform == 'win32':
         path_ = path_.replace('\\', '\\\\')
     rtcc.append('manager.modules.load_path', path_)
-    rtcc.append('manager.modules.preload', file_)
-    rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
+    if preload:
+        rtcc.append('manager.modules.preload', file_)
+    if precreate:
+        rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
     rtcc.sync()
     
 def uninstall(rtcp):
