@@ -86,7 +86,7 @@ class Command(object):
                     rtc.build_rtc(rtcp, verbose=verbose)
                     os.chdir(cur)
                     
-                    if rtcp.basicInfo.name in installed[rtcp.basicInfo.language]:
+                    if rtcp.basicInfo.name in installed[rtcp.language.kind]:
                         print ' - Reinstall %s' % key
                         rtc.install(rtcp, verbose=verbose, precreate=False, preload=False)
             else:
