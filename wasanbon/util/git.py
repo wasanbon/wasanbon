@@ -10,7 +10,7 @@ def clone_and_setup(url, verbose=False, force=False):
     stdout = None if verbose else subprocess.PIPE
 
     if os.path.isdir(distpath):
-        print ' - Path (%S) is existing' % distpath
+        print ' - Path (%s) is existing' % distpath
         if force:
             print ' - Force to install'
             if verbose:
