@@ -1,11 +1,11 @@
 tutorial01:
   description : 'ConsoleIn and ConsoleOut'
-  git : 'https://github.com/ysuga/tutorial01.git'
+  git : 'https://github.com/sugarsweetrobotics/tutorial01.git'
 
 simvehicle:
   description : 'Simulation Vehicle'
-  git : 'https://github.com/ysuga/simvehicle.git'
+  git : 'https://github.com/sugarsweetrobotics/simvehicle.git'
 
 urgtest:
   description : 'Hokuyo URG sensor Test Project'
-  git : 'https://github.com/ysuga/urgtest.git'
+  git : 'https://github.com/sugarsweetrobotics/urgtest.git'

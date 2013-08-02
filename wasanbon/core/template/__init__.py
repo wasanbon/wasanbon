@@ -1,5 +1,6 @@
 import os, sys, yaml, shutil, subprocess, stat
 
+import github
 import wasanbon
 
 
@@ -119,6 +120,60 @@ def clone_project(prjname, url, verbose):
     register_project(prjname, appdir, verbose=verbose)    
     os.chdir(curdir)
     pass
+
+def fork_project(prjname, url, verbose):
+    projs = get_projects(verbose)
+    if projs:
+        if prjname in projs.keys():
+            if verbose:
+                print ' - There is %s project in workspace.yaml\n' % prjname
+                print ' - Please unregister the project\n' 
+            return False
+
+    appdir = os.path.join(os.getcwd(), prjname)
+    if os.path.isdir(appdir) or os.path.isfile(appdir):
+        if verbose:
+            print ' - There seems to be %s here. Please change application name.' % psjname
+        return False
+
+    sys.stdout.write(' - Forking URL:: %s\n' % url)
+    github_obj = github.Github(user, passwd)
+    git_user = github_obj.get_user()
+    try:
+        git_user.login
+    except:
+        print ' - Login Error.'
+        return None
+
+    target_user, target_repo = url.split('/')[-2:]
+    try:
+        my_repo = github_obj.get_user().get_repo(target_repo[:-4])
+        print ' - Your repository already has the %s repository' % target_repo[:-4]
+        print ' - This will be cloned into your space.'
+        return 'git@github.com:' + user + '/' + target_repo
+    except:
+        print ' - Your repository does not have the %s repository' % target_repo[:-4]
+
+        
+    repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
+
+    print ' - Now creating fork of the %s repository' % target_repo[:-4]
+    github_obj.get_user().create_fork(repo)
+    sys.stdout.write(' - Please wait for 5 seconds to fork...\n')
+    time.sleep(5)
+    for i in range(0, 5):
+        try:
+            r = github_obj.get_user().get_repo(target_repo[:-4])
+            sys.stdout.write(' - Success\n')
+            my_url = 'git@github.com:' + user + '/' + target_repo
+            return my_url
+        except:
+            sys.stdout.write(' - Please wait for 1 more seconds to fork...\n')
+            time.sleep(1)
+            pass
+    sys.stdout.write(' - Failed to create fork.\n')
+    return None
+
 
 def register_project(appname, appdir, verbose):
     if verbose:

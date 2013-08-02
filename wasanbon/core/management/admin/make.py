@@ -69,5 +69,5 @@ class Command(object):
                 for rtcp in rtcps:
                     if rtcp.basicInfo.name == rtc_name or build_all:
                         print 'Building rtc [%s]' % rtcp.basicInfo.name
-                        build_rtc(rtcp)
+                        build_rtc(rtcp, verbose=verbose)
             return
