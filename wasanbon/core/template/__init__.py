@@ -1,5 +1,4 @@
-import os, sys, yaml, shutil, subprocess, stat
-
+import os, sys, yaml, shutil, subprocess, stat, time
 import github
 import wasanbon
 
@@ -121,7 +120,7 @@ def clone_project(prjname, url, verbose):
     os.chdir(curdir)
     pass
 
-def fork_project(prjname, url, verbose):
+def fork_project(prjname, user, passwd, url, verbose):
     projs = get_projects(verbose)
     if projs:
         if prjname in projs.keys():

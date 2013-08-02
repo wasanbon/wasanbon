@@ -1,4 +1,4 @@
-import os, sys, yaml
+import os, sys, yaml, getpass, time
 import wasanbon
 from wasanbon.core import template
 from wasanbon.core import rtc
@@ -97,11 +97,15 @@ class Command(object):
                 print ' - Give Project Repository Name'
                 return
             print ' - Forking Project from Repository'
+            sys.stdout.write('Username@github:')
+            user = raw_input()
+            passwd = getpass.getpass()
+
             dir = wasanbon.setting[sys.platform]['projects']
             repo_name = argv[3]
 
             if repo_name in dir.keys():
-                url = template.fork_project(repo_name, dir[repo_name]['git'], verbose=verbose)
+                url = template.fork_project(repo_name, user, passwd, dir[repo_name]['git'], verbose=verbose)
                 if not url:
                     print ' - Can not fork project'
                     return
