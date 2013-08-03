@@ -169,16 +169,24 @@ def delete_repository_yaml(repo_name, verbose=False):
     fout = open(repo_file, 'w')
     yaml.dump(repos, fout, encoding='utf8', allow_unicode=True)
     fout.close()
-    
 
-def install(rtcp, verbose=False, precreate=True, preload=True):
+def install(rtcp, verbose=False, precreate=True, preload=True, bin_dir='bin', conf_dir='conf'):
     rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.language.kind])
     pp = PackageProfile(rtcp)
     if len(pp.getRTCFilePath()) == 0 :
-        print '--Executable of RTC (%s) is not found.' % rtcp.basicInfo.name
+        print ' - Executable of RTC (%s) is not found.' % rtcp.basicInfo.name
         return
 
-    [path_, file_] = os.path.split(pp.getRTCFilePath())
+    target_file = os.path.join(os.getcwd(), bin_dir, os.path.basename(pp.getRTCFilePath()))
+    shutil.copy(pp.getRTCFilePath(), target_file)    
+
+    if len(pp.getConfFilePath()) == 0:
+        print ' - Configuration File of RTC (%s) is not found.' % rtcp.basicInfo.name
+        print ' - Empty file %s.conf is added in BIN_DIR' % rtcp.basicInfo.name
+    target_conf = os.path.join(os.getcwd(), conf_dir, os.path.basename(pp.getConfFilePath()))
+    shutil.copy(pp.getConfFilePath(), target_conf)
+
+    [path_, file_] = os.path.split(target_file)
     if path_.startswith(os.getcwd()):
         path_ = path_[len(os.getcwd())+1:]
 
@@ -189,6 +197,9 @@ def install(rtcp, verbose=False, precreate=True, preload=True):
         rtcc.append('manager.modules.preload', file_)
     if precreate:
         rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
+
+    rtcc.append(rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '.' + 'config_file', os.path.join(conf_dir, os.path.basename(pp.getConfFilePath())))
+
     rtcc.sync()
     
 def uninstall(rtcp):

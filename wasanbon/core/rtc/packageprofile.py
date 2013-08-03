@@ -11,6 +11,7 @@ class PackageProfile(object):
         self.bin = find_rtc_bin(rtcp)
         self.conf = find_rtc_conf(rtcp)
         self.sources = find_rtc_srcs(rtcp)
+        self.executable = find_rtc_exec(rtcp)
         if self.bin == None:
             self.bin = ''
         if self.conf == None:
@@ -28,6 +29,9 @@ class PackageProfile(object):
     def getSourceFiles(self):
         return self.sources
 
+    def getRTCExecutableFilePath(self):
+        return self.executable
+
 def find_rtc_srcs(rtcp):
     [path, file] = os.path.split(rtcp.filename)
     if rtcp.language.kind == 'Python':
@@ -38,6 +42,13 @@ def find_rtc_srcs(rtcp):
         hdrs = util.search_file(path, rtcp.basicInfo.name + '.h')
         srcs = util.search_file(path, rtcp.basicInfo.name + '.cpp')
         return hdrs + srcs
+
+def find_rtc_exec(rtcp):
+    [path, file] = os.path.split(rtcp.filename)
+    exec_file_name = rtcp.basicInfo.name + "Comp"
+    if sys.platform == 'win32':
+        exec_file_name = exec_file_name + ".exe"
+    return util.search_file(path, exec_file_name)[0]
 
 def find_rtc_bin(rtcp):
     if rtcp.language.kind == 'C++':

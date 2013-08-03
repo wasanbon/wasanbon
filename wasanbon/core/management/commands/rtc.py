@@ -24,7 +24,19 @@ def print_rtc_profile(rtcp):
     sys.stdout.write(str)
 
 def print_package_profile(pp):
+    filename = pp.getConfFilePath()
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    str = '    config     : ' + filename + '\n'
+    sys.stdout.write(str)
+
     filename = pp.getRTCFilePath()
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    str = '    binary     : ' + filename + '\n'
+    sys.stdout.write(str)
+
+    filename = pp.getRTCExecutableFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
     str = '    executable : ' + filename + '\n'

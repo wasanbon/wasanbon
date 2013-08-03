@@ -1,5 +1,6 @@
 application :
   name : $APP
+  BIN_DIR : bin
   RTC_DIR : rtc
   RTS_DIR : system
   conf.C++ : conf/rtc_cpp.conf
