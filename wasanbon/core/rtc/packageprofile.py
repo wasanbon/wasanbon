@@ -48,7 +48,10 @@ def find_rtc_exec(rtcp):
     exec_file_name = rtcp.basicInfo.name + "Comp"
     if sys.platform == 'win32':
         exec_file_name = exec_file_name + ".exe"
-    return util.search_file(path, exec_file_name)[0]
+    files = util.search_file(path, exec_file_name)
+    if len(files) == 0:
+        return ""
+    return files[0]
 
 def find_rtc_bin(rtcp):
     if rtcp.language.kind == 'C++':
