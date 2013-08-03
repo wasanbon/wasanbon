@@ -22,11 +22,18 @@ class Command(object):
                 wasanbon.show_help_description('system')
                 return
 
+            
+            bin_dir = os.path.join(os.getcwd(), wasanbon.setting.get('BIN_DIR', "bin"))
+            if not os.path.isdir(bin_dir):
+                os.mkdir(bin_dir)
+
             names = [rtcp.basicInfo.name for rtcp in rtcps]
             if argv[3] == 'all':
                 for rtcp in rtcps:
                     print 'Installing RTC %s' % rtcp.basicInfo.name
                     rtc.install(rtcp)
+
+                return
 
             for i in range(3, len(argv)):
                 if not argv[i] in names:

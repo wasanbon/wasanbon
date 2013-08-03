@@ -19,7 +19,7 @@ endflag = False
 from rtshell import rtcryo
 
 def signal_action(num, frame):
-    print 'SIGINT captured'
+    print ' - SIGINT captured'
     global endflag
     endflag = True
     pass
@@ -41,12 +41,11 @@ def is_all_process_terminated():
     else:
         return False
 
-
 def git_command(commands, verbose=False):
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
-        print 'HOME is %s' % gitenv['HOME']
+        sys.stdout.write(' - HOME is %s' % gitenv['HOME'])
 
     cmd = [wasanbon.setting['local']['git']] + commands
     subprocess.call(cmd, env=gitenv)
