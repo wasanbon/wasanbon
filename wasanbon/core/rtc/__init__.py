@@ -177,14 +177,19 @@ def install(rtcp, verbose=False, precreate=True, preload=True, bin_dir='bin', co
         print ' - Executable of RTC (%s) is not found.' % rtcp.basicInfo.name
         return
 
+    bin_dir = os.path.join(os.getcwd(), bin_dir)
+    if not os.path.isdir(bin_dir):
+        os.mkdir(bin_dir)
+        
     target_file = os.path.join(os.getcwd(), bin_dir, os.path.basename(pp.getRTCFilePath()))
     shutil.copy(pp.getRTCFilePath(), target_file)    
 
+    target_conf = os.path.join(os.getcwd(), conf_dir, os.path.basename(pp.getConfFilePath()))
     if len(pp.getConfFilePath()) == 0:
         print ' - Configuration File of RTC (%s) is not found.' % rtcp.basicInfo.name
-        print ' - Empty file %s.conf is added in BIN_DIR' % rtcp.basicInfo.name
-    target_conf = os.path.join(os.getcwd(), conf_dir, os.path.basename(pp.getConfFilePath()))
-    shutil.copy(pp.getConfFilePath(), target_conf)
+        #print ' - Empty file %s.conf is added in CONF_DIR' % rtcp.basicInfo.name
+    else:
+        shutil.copy(pp.getConfFilePath(), target_conf)
 
     [path_, file_] = os.path.split(target_file)
     if path_.startswith(os.getcwd()):
@@ -198,7 +203,9 @@ def install(rtcp, verbose=False, precreate=True, preload=True, bin_dir='bin', co
     if precreate:
         rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
 
-    rtcc.append(rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '.' + 'config_file', os.path.join(conf_dir, os.path.basename(pp.getConfFilePath())))
+    if len(pp.getConfFilePath()) != 0:
+        rtcc.append(rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '.' + 'config_file', os.path.join(conf_dir, os.path.basename(pp.getConfFilePath())))
+        pass
 
     rtcc.sync()
     

@@ -47,8 +47,11 @@ def git_command(commands, verbose=False):
         gitenv['HOME'] = wasanbon.get_home_path()
         sys.stdout.write(' - HOME is %s' % gitenv['HOME'])
 
+    stdout = None if verbose else subprocess.PIPE
+    stderr = None if verbose else subprocess.PIPE
+        
     cmd = [wasanbon.setting['local']['git']] + commands
-    subprocess.call(cmd, env=gitenv)
+    subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
     pass
 
 def git_init(verbose=False):
