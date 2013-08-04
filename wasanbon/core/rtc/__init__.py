@@ -182,29 +182,26 @@ def install(rtcp, verbose=False, precreate=True, preload=True, bin_dir='bin', co
         os.mkdir(bin_dir)
         
     target_file = os.path.join(os.getcwd(), bin_dir, os.path.basename(pp.getRTCFilePath()))
-    shutil.copy(pp.getRTCFilePath(), target_file)    
+    shutil.copy(pp.getRTCFilePath(), target_file) 
 
-    target_conf = os.path.join(os.getcwd(), conf_dir, os.path.basename(pp.getConfFilePath()))
+
+    if sys.platform == 'win32':
+        path_ = path_.replace('\\', '\\\\')
+    rtcc.append('manager.modules.load_path', bin_dir)
+    if preload:
+        rtcc.append('manager.modules.preload', os.path.basename(pp.getRTCFilePath()))
+    if precreate:
+        rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
+
     if len(pp.getConfFilePath()) == 0:
         print ' - Configuration File of RTC (%s) is not found.' % rtcp.basicInfo.name
         #print ' - Empty file %s.conf is added in CONF_DIR' % rtcp.basicInfo.name
     else:
+        target_conf = os.path.join(os.getcwd(), conf_dir, os.path.basename(pp.getConfFilePath()))
+    #Change conf file name for instance
+        target_conf = target_conf[:-5] + '0' + '.conf'
         shutil.copy(pp.getConfFilePath(), target_conf)
-
-    [path_, file_] = os.path.split(target_file)
-    if path_.startswith(os.getcwd()):
-        path_ = path_[len(os.getcwd())+1:]
-
-    if sys.platform == 'win32':
-        path_ = path_.replace('\\', '\\\\')
-    rtcc.append('manager.modules.load_path', path_)
-    if preload:
-        rtcc.append('manager.modules.preload', file_)
-    if precreate:
-        rtcc.append('manager.components.precreate', rtcp.basicInfo.name)
-
-    if len(pp.getConfFilePath()) != 0:
-        rtcc.append(rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '.' + 'config_file', os.path.join(conf_dir, os.path.basename(pp.getConfFilePath())))
+        rtcc.append(rtcp.basicInfo.category + '.' + rtcp.basicInfo.name + '0.' + 'config_file', os.path.join(conf_dir, os.path.basename(target_conf)))
         pass
 
     rtcc.sync()
