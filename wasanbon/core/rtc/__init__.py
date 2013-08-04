@@ -52,14 +52,14 @@ def github_fork(user, passwd, url, verbose=False):
         print ' - Login Error.'
         return None
     target_user, target_repo = url.split('/')[-2:]
+
     try:
         my_repo = github_obj.get_user().get_repo(target_repo[:-4])
         print ' - Your repository already has the %s repository' % target_repo[:-4]
         print ' - This will be cloned into your space.'
         return 'git@github.com:' + user + '/' + target_repo
     except:
-        print ' - Your repository does not have the %s repository' % target_repo[:-4]
-
+        print ' - Okay. Your repository does not have the %s repository' % target_repo[:-4]
         
     repo = github_obj.get_user(target_user).get_repo(target_repo[:-4])
 
