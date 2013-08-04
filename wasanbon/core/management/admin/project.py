@@ -71,7 +71,6 @@ class Command(object):
 
                 y = yaml.load(open('rtc/repository.yaml', 'r'))
                 installed = system.list_installed_rtcs()
-
                 if not y:
                     print ' - No repository'
                     return 
