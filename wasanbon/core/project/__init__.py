@@ -2,6 +2,7 @@ import os, sys, yaml, subprocess, shutil
 import wasanbon
 
 from project_obj import *
+from repository import *
 
 def get_projects(verbose=False):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
