@@ -1,7 +1,9 @@
 import os, sys, yaml, subprocess, shutil
 import wasanbon
 
-def get_projects(verbose):
+from project_obj import *
+
+def get_projects(verbose=False):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if not os.path.isfile(ws_file_name):
         sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
@@ -11,7 +13,20 @@ def get_projects(verbose):
     else:
         if verbose:
             sys.stdout.write(' - Opening workspace.yaml.\n')
-        return yaml.load(open(ws_file_name, "r"))
+        y= yaml.load(open(ws_file_name, "r"))
+        projs = []
+        for key, value in y.items():
+            projs.append(Project(value))
+        return projs
+
+def get_project(prjname, verbose=False):
+    target = None
+    projs = get_projects(verbose)
+    for proj in projs:
+        if proj.name == prjname:
+            target = proj
+
+    return target
 
 def parse_and_copy(src, dist, dic, verbose=False):
     fin = open(src, "r")
@@ -27,7 +42,8 @@ def parse_and_copy(src, dist, dic, verbose=False):
 
 def create_project(prjname, verbose=False):
     projs = get_projects(verbose)
-    if prjname in projs.keys():
+    proj_names = [prj.name for prj in projs]
+    if prjname in proj_names:
         if verbose:
             print ' - There is %s project in workspace.yaml already\n' % prjname
         return None
@@ -61,94 +77,3 @@ def create_project(prjname, verbose=False):
 
 
 
-class Project():
-
-    def __init__(self, path):
-        self._path = path
-        self._rtcs = []
-        self._name = os.path.basename(path)
-        pass
-
-    def install(self, rtc):
-        pass
-
-    def uninstall(self, rtc):
-        pass
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def rtcs(self):
-        return self._rtcs
-        pass
-
-    def run(self):
-        pass
-
-        
-    def register(self, verbose=False):
-        if verbose:
-            print ' - Registering workspace:'
-            pass
-
-        y = self._open_workspace()
-        y[self._name] = self._path
-        self._save_workspace(y)
-
-        #fout = open(ws_file_name, "w")
-        #if verbose:
-        #    for key, item in y.items():
-        #        print '  ' + key + ' '*(10-len(key)) + ':' + item
-        #    pass
-        #
-        #yaml.dump(y, fout,  encoding='utf8', allow_unicode=True, default_flow_style=False)
-
-        if verbose:
-            print ' - Finished.'
-        return True
-
-    def unregister(self, verbose=False, clean=False):
-        if verbose:
-            print ' - Unregistering workspace:'
-            ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
-            if not os.path.isfile(ws_file_name):
-                if verbose:
-                    print ' - workspace.yaml can not be found in RTM_HOME'
-                return
-    
-        y = self._open_workspace()
-        proj_dir = y[self.name]
-        if clean:
-            if verbose:
-                print ' - Removing Directory'
-            shutil.rmtree(proj_dir, onerror = remShut)
-        y.pop(self.name)
-
-        self._save_workspace(y)
-        if verbose:
-            print ' - Finished.'
-        return True
-
-    def _open_workspace(self):
-        ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
-        if not os.path.isfile(ws_file_name):
-            fout = open(ws_file_name, "w")
-            fout.close()
-            pass
-
-        y = yaml.load(open(ws_file_name, "r"))
-        if not y:
-            y = {}
-        return y
-
-    def _save_workspace(self, dic):
-        ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
-        yaml.dump(dic, open(ws_file_name, "w"), encoding='utf8', allow_unicode=True, default_flow_style=False)
-        pass
-
-def remShut(*args):
-    func, path, _ = args 
-    os.chmod(path, stat.S_IWRITE)
-    os.remove(path)
