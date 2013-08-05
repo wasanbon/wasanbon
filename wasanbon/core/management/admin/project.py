@@ -63,19 +63,18 @@ class Command(object):
                 print '.'
 
         elif argv[2] == 'repository':
-            print ' - Listing Project Repository'
-            dir = wasanbon.setting[sys.platform]['projects']
-            for key, value in dir.items():
-                print ' ' + key + ' ' * (24-len(key)) + ' : ' + value['description']
-            pass
+            print ' - Listing Project Repositories'
+            repos = project.get_repositories(verbose=verbose)
+            for repo in repos:
+                print ' ' + repo.name + ' ' * (24-len(repo.name)) + ' : ' + repo.description
+            return
 
         elif argv[2] == 'clone':
             if len(argv) < 4:
                 print ' - Give Project Repository Name'
                 return
             print ' - Cloning Project from Repository'
-            dir = wasanbon.setting[sys.platform]['projects']
-            repo_name = argv[3]
+            repo = project.get_repository(argv[3], verbose=verbose)
 
             if repo_name in dir.keys():
                 template.clone_project(repo_name, dir[repo_name]['git'], verbose=verbose)
