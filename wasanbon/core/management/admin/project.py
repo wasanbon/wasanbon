@@ -1,9 +1,11 @@
 import os, sys, yaml, getpass, time
 import wasanbon
-from wasanbon.core import template
-from wasanbon.core import rtc
-from wasanbon.core.rtc import git
-from wasanbon.core import system
+#from wasanbon.core import template
+#from wasanbon.core import rtc
+#from wasanbon.core.rtc import git
+#from wasanbon.core import system
+
+from wasanbon.core import project
 
 class Command(object):
     def __init__(self):
@@ -15,39 +17,50 @@ class Command(object):
             return
 
         if argv[2] == 'create':
-
             if len(argv) < 4:
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
                 return
             print ' - Creating workspace %s:' % argv[3]
-            template.create_project(argv[3], verbose=verbose)
-
-        elif argv[2] == 'list':
-            print ' - Listing projects.'
-            projs = template.get_projects(verbose)
-            if not projs:
-                print '\n No project is found.'
+            proj = project.create_project(argv[3], verbose=verbose)
+            if proj:
+                print ' - Success'
             else:
-                for key, item in projs.items():
-                    print ' ' + key + ' '*(10-len(key)) + ':' + item
-            print ''
-
-        elif argv[2] == 'directory':
-            projs = template.get_projects(False)
-            if not projs:
-                print '.'
-            else:
-                for key, item in projs.items():
-                    if key.strip() == argv[3].strip():
-                        print item
-                        return
-                print '.'
+                print ' - Failed.'
+            return
 
         elif argv[2] == 'unregister':
             if len(argv) < 4:
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
                 return
-            template.unregister_project(argv[3], verbose=verbose, clean=clean)
+            print ' - Removing workspace %s:' % argv[3]
+            proj = project.get_project(argv[3], verbose=verbose)
+            if proj:
+                proj.unregister(verbose=verbose, clean=clean)
+            else:
+                sys.stdout.write(' - %s project can not find\n' % argv[3])
+            return
+
+        elif argv[2] == 'list':
+            print ' - Listing projects.'
+            projs = project.get_projects(verbose=verbose)
+            if not projs:
+                sys.stdout.write(' - No project is found.\n')
+                return 
+            else:
+                for proj in projs:
+                    sys.stdout.write(' ' + proj.name + ' '*(10-len(proj.name)) + ':' + proj.path + '\n')
+            return
+
+        elif argv[2] == 'directory':
+            projs = project.get_projects(False)
+            if not projs:
+                print '.'
+            else:
+                for proj in projs:
+                    if proj.name == argv[3].strip():
+                        print proj.path
+                        return
+                print '.'
 
         elif argv[2] == 'repository':
             print ' - Listing Project Repository'
