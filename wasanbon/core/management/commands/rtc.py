@@ -73,13 +73,13 @@ class Command(object):
             return
 
         elif argv[2] == 'repository':
-            url = wasanbon.repositories
-            for key, value in url.items():
-                print '  ' + key + ' ' * (24-len(key)) + ' : ' + value['description'] 
-                if len(argv) >= 4 and argv[3] == '-l':
-                    for k, v in value.items():
-                        if not k == 'description':
-                            print '       ' + k + ' ' * (24-len(k)) + ' : ' + v
+            if verbose:
+                sys.stdout.write(' - Listing RTC Repository\n')
+            for repo in wasanbon.core.rtc.get_repositories(verbose):
+                sys.stdout.write(' - %s\n' % repo.name)
+                sys.stdout.write('    description : %s\n' % repo.description)
+                sys.stdout.write('    protocol    : %s\n' % repo.protocol)
+                sys.stdout.write('    url         : %s\n' % repo.url)
             return
 
         elif argv[2] == 'git_init':
@@ -132,44 +132,21 @@ class Command(object):
             pass
             
         elif argv[2] == 'clone':
-
+            sys.stdout.write(' - Cloning RTC\n')
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
                 return
 
             # if argument is url, then, clone by git command
             if argv[3].startswith('git@') or argv[3].startswith('http'):
-                rtcp = git.clone(argv[3], verbose)
-                hash  = git.get_hash(rtcp)
-                hash = git.get_hash(rtcp, verbose)
-                rtc.update_repository_yaml(rtcp.basicInfo.name, argv[3], protocol='git', hash=hash, verbose=verbose)
+                rtc_ = proj.clone_rtc(argv[3], verbose=verbose)
                 return 
                 
-            for i in range(3, len(argv)):
-                rtcname = argv[i]
-                if rtcname in wasanbon.repositories.keys():
-                    print ' - Cloning rtc (%s)' % rtcname
-                    repo = wasanbon.repositories[rtcname]
-                    if 'git' in repo.keys():
-                        url = repo['git']
-                        rtcp = git.clone(url, verbose)
-                        hash  = git.get_hash(rtcp, verbose)
-                        rtc.update_repository_yaml(rtcp.basicInfo.name, url, protocol='git', hash=hash, verbose=verbose)
-                        #return
-                    if 'hg' in repo.keys():
-                        gitenv = os.environ.copy()
-                        if not 'HOME' in gitenv.keys():
-                            gitenv['HOME'] = wasanbon.get_home_path()
-                            print 'HOME is %s' % gitenv['HOME']
-                        url = repo['hg']
-                        print ' - Mercurial cloning : %s' % url
-                        distpath = os.path.join(os.getcwd(), wasanbon.setting['application']['RTC_DIR'], rtcname)
-                        cmd = [wasanbon.setting['local']['hg'], 'clone', url, distpath]
-                        subprocess.call(cmd, env=gitenv)
-                        #return
-                        
-                    else:
-                        pass
+            #for i in range(3, len(argv)):
+            for name in argv[3:]:
+                repo = wasanbon.core.rtc.get_repository(name)
+                if repo:
+                    rtc_ = proj.clone_rtc(repo.url, verbose=verbose)
                 else:
                     print '%s Do not found' % rtcname
             return
@@ -282,6 +259,8 @@ class Command(object):
                     passwd = getpass.getpass()
                     rtc.github_init(user, passwd, rtcp)
             return
+
+
         elif argv[2] == 'clean':
             if len(argv) <= 3:
                 sys.stdout.write(' - Invalid Usage. Use --help option\n')

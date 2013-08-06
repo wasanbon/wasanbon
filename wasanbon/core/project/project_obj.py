@@ -1,6 +1,7 @@
 import os, sys, yaml, subprocess, shutil, yaml
 import wasanbon
 from wasanbon.core import rtc
+from wasanbon.util import git
 
 class InvalidProjectPathError(Exception):
     def __init__(self):
@@ -31,10 +32,20 @@ class Project():
     def rtc_repositories(self):
         repos = []
         dic = yaml.load(open(os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml'), 'r'))
-        print str(dic)
         for name, value in dic.items():
-            repos.append(rtc.RtcRepository(value['git'], value['description'], value.get('hash', "")))
+            repos.append(rtc.RtcRepository(name=name, url=value['git'], desc=value['description'], hash=value.get('hash', "")))
         return repos
+
+    def append_rtc_repository(self, repo, verbose=False):
+        repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
+        bak_file = repo_file + '.bak'
+        if os.path.isfile(bak_file):
+            os.remove(bak_file)
+        shutil.copy(repo_file, bak_file)
+        dic = yaml.load(open(bak_file, 'r'))
+        dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
+        pass
 
     @property
     def rtcs(self):
@@ -58,7 +69,39 @@ class Project():
             if rtc_.name == name:
                 return rtc_
         return None
+    
+    def clone_rtc(self, url, verbose=False):
+        current_dir = os.getcwd()
+        os.chdir(os.path.join(self.path, self.setting['RTC_DIR']))
+        distdir = os.path.join(os.getcwd(), os.path.basename(url))
+        sys.stdout.write(' - Cloning RTC into %s\n' % distdir)
+        if distdir.endswith('.git'):
+            distdir = distdir[:-4]
+        if os.path.isdir(distdir):
+            sys.stdout.write(' - Directory already exists.\n')
+            sys.stdout.write(' - Now changing the upstream pointer [master].\n')
+            try:
+                git_obj = git.GitRepository(distdir)
+                git_obj.change_ustream_pointer(url, verbose=verbose)
+            except git.GitRepositoryNotFoundException, ex:
+                sys.stdout.write(' - Directory is not git repository\n')
+                sys.stdout.write(' - This error can not be fixed in this version.\n')
+                return 
+        else:
+            git.git_command(['clone', url, distdir], verbose=verbose)
+            pass
+        os.chdir(distdir)
 
+        git.git_command(['submodule', 'init'], verbose=verbose)
+        git.git_command(['submodule', 'update'], verbose=verbose)
+        os.chdir(current_dir)
+        rtc_obj = rtc.RtcObject(distdir)
+        self.rtcs.append(rtc_obj)
+        
+        repo = rtc.RtcRepository(name=rtc_obj.name, url=url, desc="", hash=rtc_obj.git.hash)
+        self.append_rtc_repository(repo)
+
+        return rtc_obj
 
     @property
     def path(self):
