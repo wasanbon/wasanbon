@@ -5,6 +5,7 @@ import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
 from wasanbon.core.rtc import git, hg
+from wasanbon.core import project
 
 rtcprofile_filename = 'RTC.xml'
 
@@ -60,14 +61,16 @@ class Command(object):
             wasanbon.show_help_description('rtc')
             return
 
-        rtcps = rtc.parse_rtcs()
-
+        #rtcps = rtc.parse_rtcs()
+        proj = project.Project(os.getcwd())
         if argv[2] == 'list':
-            for rtcp in rtcps:
-                print_rtc_profile(rtcp)
-                pp = rtc.PackageProfile(rtcp)
-                print_package_profile(pp)
+            if verbose:
+                sys.stdout.write(' - Listing RTCs in current project\n')
+            for rtc in proj.rtcs:
+                print_rtc_profile(rtc.rtcprofile)
+                print_package_profile(rtc.packageprofile)
             return
+
         elif argv[2] == 'repository':
             url = wasanbon.repositories
             for key, value in url.items():
@@ -81,6 +84,7 @@ class Command(object):
         elif argv[2] == 'git_init':
             git_init(rtcps, argv)
             return
+
         elif argv[2] == 'github_fork':
             if len(argv) < 4:
                 wasanbon.show_help_description('rtc')
@@ -276,26 +280,30 @@ class Command(object):
                     rtc.github_init(user, passwd, rtcp)
             return
         elif argv[2] == 'clean':
-            rtcps = rtc.parse_rtcs()
-            clean_all = True if 'all' in argv else False
-            rtcs = argv[2:] if not clean_all else ['all']
-            for rtc_name in rtcs:
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == rtc_name or clean_all:
-                        print ' - Cleanup build directory of RTC(%s).' % rtcp.basicInfo.name
-                        rtc.clean_rtc(rtcp, verbose=verbose)
-                
-            return
-        elif argv[2] == 'build':
-            rtcps = rtc.parse_rtcs()
+            if len(argv) <= 3:
+                sys.stdout.write(' - Invalid Usage. Use --help option\n')
+                return
             build_all = True if 'all' in argv else False
-            rtcs = argv[2:] if not build_all else ['all']
-            for rtc_name in rtcs:
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == rtc_name or build_all:
-                        print ' - Building rtc [%s]' % rtcp.basicInfo.name
-                        rtc.build_rtc(rtcp, verbose=verbose)
+            for rtc in proj.rtcs:
+                if build_all or rtc.name in argv:
+                    if verbose:
+                        sys.stdout.write(' - Cleaning Up RTC %s\n' % rtc.name)
+                    rtc.clean(verbose=verbose)
             return
+
+        elif argv[2] == 'build':
+            if len(argv) <= 3:
+                sys.stdout.write(' - Invalid Usage. Use --help option\n')
+                return
+
+            build_all = True if 'all' in argv else False
+            for rtc in proj.rtcs:
+                if build_all or rtc.name in argv:
+                    if verbose:
+                        sys.stdout.write(' - Building RTC %s\n' % rtc.name)
+                    rtc.build(verbose=verbose)
+            return
+
         elif argv[2] == 'edit':
             rtcps = rtc.parse_rtcs()
             for rtcp in rtcps:

@@ -3,7 +3,7 @@ import os, sys
 
 import wasanbon
 from repository import *
-
+from rtc_object import *
 
 class RTCProfileNotFoundError(Exception):
     def __init__(self):
