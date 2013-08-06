@@ -38,9 +38,19 @@ class Project():
 
     @property
     def rtcs(self):
-        rtcs = []
-        
+        if len(self._rtcs) == 0:
+            for dir in os.listdir(os.path.join(self.path, self.setting['RTC_DIR'])):
+                if not dir.startswith('.') and not dir == 'repository.yaml':
+                    try:
+                        rtc_obj = rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir))
+                        rtcs.append(rtc_obj)
+                    except Exception, ex:
+                        pass
+
         return self._rtcs
+
+    def rtc(self, name):
+        return self.rtcs.get(name, None)
 
     @property
     def path(self):
