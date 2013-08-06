@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import os, sys, yaml
 import wasanbon
-from wasanbon.core.template import *
-from wasanbon.core.rtc import *
-from wasanbon.core import rtc
+#from wasanbon.core.template import *
+#from wasanbon.core.rtc import *
+#from wasanbon.core import rtc
+import wasanbon.core.project as prj
 
 class Command(object):
     def __init__(self):
@@ -13,61 +14,46 @@ class Command(object):
         if verbose:
             sys.stdout.write(' - Making wasanbon project.\n')
 
-        curdir = os.path.normcase(os.path.normpath(os.getcwd()))
-        ws = get_projects(verbose=verbose)
-        if not ws:
-            print ' - Error: workspace list can not be found.'
+        projs = prj.get_projects(verbose=verbose)
+        if len(argv) == 2: # wasanbon-admin.py make
+            for proj in projs:
+                normpath = os.path.normcase(os.path.normpath(proj.path))
+                prefix = os.path.commonprefix([os.getcwd(), normpath])
+                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(normpath):
+                    if verbose:
+                        sys.stdout.write(' - Found %s\n' % proj.name)
+                    argv.append(proj.name)
+
+
+        if len(argv) == 2:
+            sys.stdout.write(' - Invalid Usage. To show help, use --help option.\n')
             return
 
-        if len(argv) < 3: # Search parent Directory
-            for key, path in ws.items():
-                pp = os.path.normcase(os.path.normpath(path))
-                plist = [curdir, pp]
-                prefix = os.path.commonprefix(plist)
-                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(pp):
-                    print 'Found in %s' % key
-                    argv.append(key)
-
-        if len(argv) < 3:
-            wasanbon.show_help_description('make')
-            return
-
-        if not argv[2] in ws.keys():
-            print ' - Error: %s can not be found.' % argv[2]
-            return
-        
-        os.chdir(ws[argv[2]])
+        proj = prj.get_project(argv[2])
+        if verbose:
+            sys.stdout.write(' - Changing direcotry to %s\n' % proj.path)
+        os.chdir(proj.path)
         reload(wasanbon)
 
-        if len(argv) < 4:
-            rtcps = rtc.parse_rtcs()
-            for rtcp in rtcps:
-                pp = os.path.normcase(os.path.normpath(os.path.dirname(rtcp.filename)))
-                plist = [curdir, pp]
-                prefix = os.path.commonprefix(plist)
-                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(pp):
-                    print 'Found RTC: %s' % key
-                    argv.append(rtcp.basicInfo.name)
+        if len(argv) == 3:
+            for rtc_ in proj.rtcs:
+                if verbose:
+                    sys.stdout.write(' - Found RTC %s\n' % rtc_.name)
+                normpath = os.path.normcase(os.path.normpath(rtc_.path))
+                prefix = os.path.commonprefix([os.getcwd(), normpath])
+                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(proj.path):
+                    if verbose:
+                        sys.stdout.write(' - Found %s\n' % rtc_.name)
+                    argv.append(rtc_.name)
 
+        if len(argv) == 3:
+            sys.stdout.write(' - Invalid Usage. To show help, use --help option.\n')
+            return 
+
+        rtc_ = proj.rtc(argv[3])
         if clean:
-            argv.append('--clean')
-
-        rtcps = rtc.parse_rtcs()
-        if '--clean' in argv:
-            clean_all = True if 'all' in argv else False
-            for i in range(3, len(argv)):
-                rtc_name = argv[i]
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == rtc_name or clean_all:
-                        print 'Cleanup RTC(%s).' % rtcp.basicInfo.name
-                        clean_rtc(rtcp)
-            return
+            rtc_.clean(verbose=verbose)
         else:
-            build_all = True if 'all' in argv else False
-            for i in range(3, len(argv)):
-                rtc_name = argv[i]
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == rtc_name or build_all:
-                        print 'Building rtc [%s]' % rtcp.basicInfo.name
-                        build_rtc(rtcp, verbose=verbose)
-            return
+            rtc_.build(verbose=verbose)
+
+            
