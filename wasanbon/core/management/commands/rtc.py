@@ -7,10 +7,10 @@ from wasanbon import util
 from wasanbon.core.rtc import git, hg
 from wasanbon.core import project
 
+from wasanbon.util import editor
+
 rtcprofile_filename = 'RTC.xml'
 
-def signal_action(num, frame):
-    pass
 
 
 def print_rtc_profile(rtcp):
@@ -61,8 +61,9 @@ class Command(object):
             wasanbon.show_help_description('rtc')
             return
 
-        #rtcps = rtc.parse_rtcs()
         proj = project.Project(os.getcwd())
+
+
         if argv[2] == 'list':
             if verbose:
                 sys.stdout.write(' - Listing RTCs in current project\n')
@@ -82,7 +83,9 @@ class Command(object):
             return
 
         elif argv[2] == 'git_init':
-            git_init(rtcps, argv)
+            for rtc in proj.rtcs:
+                if rtc.name == argv[3]:
+                    rtc.git_init(verbose)
             return
 
         elif argv[2] == 'github_fork':
@@ -305,28 +308,10 @@ class Command(object):
             return
 
         elif argv[2] == 'edit':
-            rtcps = rtc.parse_rtcs()
-            for rtcp in rtcps:
-                if argv[3] == rtcp.basicInfo.name:
-                    editenv = os.environ.copy()
-                    if not 'HOME' in editenv.keys():
-                        editenv['HOME'] = wasanbon.get_home_path()
-                    if sys.platform == 'darwin':
-                        cmd = [wasanbon.setting['local']['emacs']]
-                    else:
-                        cmd = [wasanbon.setting['local']['emacs'], '-nw']
-                
-                    pp = rtc.PackageProfile(rtcp)
-                    files = pp.getSourceFiles()
-                    for file in files:
-                        cmd.append(file)
-
-                    signal.signal(signal.SIGINT, signal_action)
-                    subprocess.call(cmd, env=editenv)
+            rtc_obj = proj.rtc(argv[3])
+            if rtc_obj:
+                editor.edit_rtc(rtc_obj, verbose)
             return
-        else:
-            sys.stdout.write(' - Unknown command [%s]' % argv[2])
-            
-            pass
+
 
     
