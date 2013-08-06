@@ -47,6 +47,19 @@ class Project():
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
 
+    def remove_rtc_repository(self, name, verbose=False):
+        repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
+        bak_file = repo_file + '.bak'
+        if os.path.isfile(bak_file):
+            os.remove(bak_file)
+        shutil.copy(repo_file, bak_file)
+        dic = yaml.load(open(bak_file, 'r'))
+        #dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+        dic.pop(name)
+        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
+        pass
+        
+
     @property
     def rtcs(self):
         if len(self._rtcs) == 0:
@@ -102,6 +115,13 @@ class Project():
         self.append_rtc_repository(repo)
 
         return rtc_obj
+
+    def delete_rtc(self, rtc_, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Deleting RTC directory %s\n' % rtc_.name)
+        shutil.rmtree(rtc_.path, ignore_errors=True)
+        self.remove_rtc_repository(rtc_.name)
+        pass
 
     @property
     def path(self):
