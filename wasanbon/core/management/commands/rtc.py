@@ -43,14 +43,18 @@ def print_package_profile(pp):
     str = '    executable : ' + filename + '\n'
     sys.stdout.write(str)
 
-def git_init(rtcps, argv):
-    if len(argv) < 4:
-        print_usage()
-    rtcname = argv[3]
-    for rtcp in rtcps:
-        if rtcname == rtcp.basicInfo.name:
-            sys.stdout.write('Initializing GIT repository in %s\n' % rtcname)
-            git.git_init(rtcp)
+
+def print_rtc(rtc):
+    print_rtc_profile(rtc.rtcprofile)
+    print_package_profile(rtc.packageprofile)
+    pass
+
+def print_repository(repo):
+    sys.stdout.write(' - %s\n' % repo.name)
+    sys.stdout.write('    description : %s\n' % repo.description)
+    sys.stdout.write('    protocol    : %s\n' % repo.protocol)
+    sys.stdout.write('    url         : %s\n' % repo.url)
+    pass
 
 class Command(object):
     def __init__(self):
@@ -63,26 +67,23 @@ class Command(object):
 
         proj = project.Project(os.getcwd())
 
-
         if argv[2] == 'list':
             if verbose:
                 sys.stdout.write(' - Listing RTCs in current project\n')
             for rtc in proj.rtcs:
-                print_rtc_profile(rtc.rtcprofile)
-                print_package_profile(rtc.packageprofile)
+                print_rtc(rtc)
             return
 
         elif argv[2] == 'repository':
             if verbose:
                 sys.stdout.write(' - Listing RTC Repository\n')
             for repo in wasanbon.core.rtc.get_repositories(verbose):
-                sys.stdout.write(' - %s\n' % repo.name)
-                sys.stdout.write('    description : %s\n' % repo.description)
-                sys.stdout.write('    protocol    : %s\n' % repo.protocol)
-                sys.stdout.write('    url         : %s\n' % repo.url)
+                print_repository(repo)
             return
 
         elif argv[2] == 'git_init':
+            if len(argv) < 3:
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
             for rtc in proj.rtcs:
                 if rtc.name == argv[3]:
                     rtc.git_init(verbose)
@@ -153,18 +154,13 @@ class Command(object):
 
         elif argv[2] == 'delete':
             if len(argv) < 4:
-                wasanbon.show_help_description('rtc')
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
                 return
-            for i in range(3, len(argv)):
-                rtcname = argv[i]
+            for rtcname in argv[3:]:
                 foundFlag = False
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == rtcname:
-                        rtc.delete(rtcp, verbose=verbose, force=force)
-                        foundFlag = True
-                        rtc.delete_repository_yaml(rtcname, verbose=verbose)
-                if not foundFlag:
-                    sys.stdout.write(' - %s not found.' % rtcname)
+                rtc_ = proj.rtc(rtcname)
+                if rtc_:
+                    proj.delete_rtc(rtc_, verbose=verbose)
             return
                 
             
@@ -253,8 +249,8 @@ class Command(object):
             rtcname = argv[3]
             for rtcp in rtcps:
                 if rtcname == rtcp.basicInfo.name:
-                    sys.stdout.write('Initializing GIT repository in %s\n' % rtcname)
-                    sys.stdout.write('Username@github:')
+                    sys.stdout.write(' - Initializing GIT repository in %s\n' % rtcname)
+                    sys.stdout.write(' - Username@github:')
                     user = raw_input()
                     passwd = getpass.getpass()
                     rtc.github_init(user, passwd, rtcp)
@@ -265,6 +261,7 @@ class Command(object):
             if len(argv) <= 3:
                 sys.stdout.write(' - Invalid Usage. Use --help option\n')
                 return
+
             build_all = True if 'all' in argv else False
             for rtc in proj.rtcs:
                 if build_all or rtc.name in argv:
@@ -293,4 +290,4 @@ class Command(object):
             return
 
 
-    
+        sys.stdout.write(' - Invalid Command %s\n' % argv[2])
