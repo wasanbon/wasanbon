@@ -1,8 +1,26 @@
 import os, sys, yaml, subprocess, shutil
 import wasanbon
+from wasanbon.util import git
 
 from project_obj import *
 from repository import *
+
+def get_repositories(verbose=False):
+    repositories = []
+    repos = wasanbon.setting[sys.platform]['projects']
+    for key, value in repos.items():
+        repositories.append(ProjectRepository(key, value['description'], value['git']))
+    return repositories
+
+
+def get_repository(name, verbose=False):
+    repos = get_repositories(verbose)
+    for repo in repos:
+        if repo.name == name:
+            return repo
+
+    return None
+
 
 def get_projects(verbose=False):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
@@ -41,7 +59,7 @@ def parse_and_copy(src, dist, dic, verbose=False):
     fin.close()
     fout.close()
 
-def create_project(prjname, verbose=False):
+def create_project(prjname, verbose=False, overwrite=False, force_create=False):
     projs = get_projects(verbose)
     proj_names = [prj.name for prj in projs]
     if prjname in proj_names:
@@ -51,18 +69,23 @@ def create_project(prjname, verbose=False):
 
     tempdir = os.path.join(wasanbon.__path__[0], 'template')
     appdir = os.path.join(os.getcwd(), prjname)
-    if os.path.isdir(appdir) or os.path.isfile(appdir):
-        if verbose:
-            print ' - There seems to be %s here. Please change application name.' % prjname
-        return None
+    if not force_create:
+        if os.path.isdir(appdir) or os.path.isfile(appdir):
+            if verbose:
+                print ' - There seems to be %s here. Please change application name.' % prjname
+            return None
 
     for root, dirs, files in os.walk(tempdir):
         distdir = os.path.join(appdir, root[len(tempdir)+1:])
-        os.mkdir(distdir)
+        if not os.path.isdir(distdir):
+            os.mkdir(distdir)
         for file in files:
-            if verbose:
-                sys.stdout.write(" - copy file: %s\n" % file)
-            parse_and_copy(os.path.join(root, file), os.path.join(distdir, file), {'$APP' : prjname})
+            if os.path.isfile(os.path.join(distdir, file)) and not overwrite:
+                pass
+            else:
+                if verbose:
+                    sys.stdout.write(" - copy file: %s\n" % file)
+                parse_and_copy(os.path.join(root, file), os.path.join(distdir, file), {'$APP' : prjname})
             
     #y = yaml.load(open(os.path.join(appdir, 'setting.yaml'), 'r'))
     #file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'repository.yaml')
@@ -76,5 +99,25 @@ def create_project(prjname, verbose=False):
     proj.register(verbose)
     return proj
 
+
+
+def clone_project(prjname, verbose=False):
+    projs = get_projects(verbose)
+    if projs:
+        for proj in projs:
+            if proj.name == prjname:
+                print ' - There is %s project in workspace.yaml\n' % prjname
+                print ' - Please unregister the project\n' 
+                return False
+
+    appdir = os.path.join(os.getcwd(), prjname)
+    if os.path.isdir(appdir) or os.path.isfile(appdir):
+        if verbose:
+            print ' - There seems to be %s here. Please change application name.' % psjname
+        return False
+    
+    repo = get_repository(projname)
+    git.git_command(['clone', repo.url, appdir], verbose)
+    return project.create_project(self.name, verbose=verbose)
 
 

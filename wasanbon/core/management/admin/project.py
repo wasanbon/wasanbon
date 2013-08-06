@@ -5,7 +5,7 @@ import wasanbon
 #from wasanbon.core.rtc import git
 #from wasanbon.core import system
 
-from wasanbon.core import project
+import wasanbon.core.project as prj
 
 class Command(object):
     def __init__(self):
@@ -21,7 +21,7 @@ class Command(object):
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
                 return
             print ' - Creating workspace %s:' % argv[3]
-            proj = project.create_project(argv[3], verbose=verbose)
+            proj = prj.create_project(argv[3], verbose=verbose)
             if proj:
                 print ' - Success'
             else:
@@ -33,7 +33,7 @@ class Command(object):
                 print ' - To read help, "%s project -h"' % os.path.basename(argv[0])
                 return
             print ' - Removing workspace %s:' % argv[3]
-            proj = project.get_project(argv[3], verbose=verbose)
+            proj = prj.get_project(argv[3], verbose=verbose)
             if proj:
                 proj.unregister(verbose=verbose, clean=clean)
             else:
@@ -42,7 +42,7 @@ class Command(object):
 
         elif argv[2] == 'list':
             print ' - Listing projects.'
-            projs = project.get_projects(verbose=verbose)
+            projs = prj.get_projects(verbose=verbose)
             if not projs:
                 sys.stdout.write(' - No project is found.\n')
                 return 
@@ -52,7 +52,7 @@ class Command(object):
             return
 
         elif argv[2] == 'directory':
-            projs = project.get_projects(False)
+            projs = prj.get_projects(False)
             if not projs:
                 print '.'
             else:
@@ -64,7 +64,7 @@ class Command(object):
 
         elif argv[2] == 'repository':
             print ' - Listing Project Repositories'
-            repos = project.get_repositories(verbose=verbose)
+            repos = prj.get_repositories(verbose=verbose)
             for repo in repos:
                 print ' ' + repo.name + ' ' * (24-len(repo.name)) + ' : ' + repo.description
             return
@@ -74,7 +74,13 @@ class Command(object):
                 print ' - Give Project Repository Name'
                 return
             print ' - Cloning Project from Repository'
-            repo = project.get_repository(argv[3], verbose=verbose)
+            repo = prj.get_repository(argv[3], verbose=verbose)
+            proj = repo.clone(verbose=verbose)
+            
+            for repo in proj.rtc_repositories:
+                print dir(repo)
+
+            return
 
             if repo_name in dir.keys():
                 template.clone_project(repo_name, dir[repo_name]['git'], verbose=verbose)

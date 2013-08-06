@@ -2,10 +2,10 @@ import os, sys
 
 
 import wasanbon
+from repository import *
 
 
-
-class RTCProfileNotFoundError(exception):
+class RTCProfileNotFoundError(Exception):
     def __init__(self):
         pass
 
@@ -18,6 +18,6 @@ class RTC():
     def build(self):
         pass
     
-    @parameter
+    @property
     def profile(self):
         return self._profile
