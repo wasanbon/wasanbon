@@ -76,10 +76,6 @@ class Command(object):
             print ' - Cloning Project from Repository'
             repo = prj.get_repository(argv[3], verbose=verbose)
             proj = repo.clone(verbose=verbose)
-            
-            for repo in proj.rtc_repositories:
-                print dir(repo)
-
             return
 
             if repo_name in dir.keys():

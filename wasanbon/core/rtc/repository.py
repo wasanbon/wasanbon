@@ -32,24 +32,25 @@ class RtcRepository():
     def hash(self):
         return self._hash
 
-    def clone(self, verbose=False):
+    def clone(self, path='.', verbose=False):
         if self._protocol == 'git':
-            return self.git_clone(verbose=verbose)
+            return self.git_clone(path=path, verbose=verbose)
         if self._protocol == 'hg':
-            return self.hg_clone(verbose=verbose)
+            return self.hg_clone(path=path, verbose=verbose)
 
-    def git_clone(self, verbose=False):
+    def git_clone(self, path='.', verbose=False):
+        curdir = os.getcwd()
+        os.chdir(path)
         distpath = os.path.basename(self.url)
         if distpath.endswith('.git'):
             distpath = distpath[:-4]
         git.git_command(['clone', self.url, distpath], verbose=verbose)
-        current_dir = os.getcwd()
-        os.chdir(distpath)
+        os.chdir(os.path.join(os.getcwd(), distpath))
         git.git_command(['checkout', self.hash], verbose=verbose)
         git.git_command(['submodule', 'init'], verbose=verbose)
         git.git_command(['submodule', 'update'], verbose=verbose)
-        os.chdir(current_dir)
-        return rtc_object.RtcObject(distpath)
+        os.chdir(curdir)
+        return rtc_object.RtcObject(os.path.join(path, distpath))
 
     def hg_clone(self, verbose=False):
                     #if 'hg' in repo.keys():

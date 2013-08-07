@@ -1,4 +1,6 @@
 import sys, os
+
+
 import wasanbon
 
 from wasanbon.util import git
@@ -17,7 +19,9 @@ class RtcObject():
         self._path = path
         self._rtc_xml = ""
         self._rtcprofile = None
+        print path
         for root, dirs, files in os.walk(path):
+            print ' - Parsing %s' % root
             if 'RTC.xml' in files:
                 self._rtc_xml = os.path.join(root, 'RTC.xml')
                 return
