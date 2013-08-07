@@ -24,6 +24,37 @@ class GitRepository():
         popen.wait()
         return popen.stdout.readline().strip()[1:-1]
 
+    def pull(self, verbose=False):
+        curdir = os.getcwd()
+        os.chdir(self.path)
+        wasanbon.util.git.git_command(['pull', 'origin', 'master'], verbose=verbose)
+        os.chdir(curdir)
+        pass
+
+    def push(self, verbose=False):
+        curdir = os.getcwd()
+        os.chdir(self.path)
+        wasanbon.util.git.git_command(['push', 'origin', 'master'], verbose=verbose)
+        os.chdir(curdir)
+        pass
+
+    def commit(self, comment,  verbose=False):
+        curdir = os.getcwd()
+        os.chdir(self.path)
+        wasanbon.util.git.git_command(['commit', '-a', '-m', comment], verbose=verbose)
+        os.chdir(curdir)
+        pass
+
+    def checkout(self, verbose=False, hash=""):
+        curdir = os.getcwd()
+        os.chdir(self.path)
+        if len(hash):
+            wasanbon.util.git.git_command(['checkout' 'master', '--force'], verbose=verbose)
+        else:
+            wasanbon.util.git.git_command(['checkout', hash], verbose=verbose)
+        os.chdir(curdir)
+        pass
+
     def change_upstream_pointer(url, verbose=False):
         curdir = os.getcwd()
         os.chdir(self.path)

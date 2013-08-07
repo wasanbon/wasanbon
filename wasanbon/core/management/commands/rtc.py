@@ -61,38 +61,37 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv, verbose, force, clean):
-        if len(argv) < 3:
-            wasanbon.show_help_description('rtc')
-            return
-
         proj = project.Project(os.getcwd())
 
         if argv[2] == 'list':
             if verbose:
                 sys.stdout.write(' - Listing RTCs in current project\n')
+                return False
             for rtc in proj.rtcs:
                 print_rtc(rtc)
-            return
+            return True
 
         elif argv[2] == 'repository':
             if verbose:
                 sys.stdout.write(' - Listing RTC Repository\n')
+                return False
             for repo in wasanbon.core.rtc.get_repositories(verbose):
                 print_repository(repo)
-            return
+            return True
 
         elif argv[2] == 'git_init':
             if len(argv) < 3:
                 sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-            for rtc_ in proj.rtcs:
-                if rtc_.name == argv[3]:
-                    rtc_.git_init(verbose)
-            return
+                return False
+            rtc_ = proj.rtc(argv[3])
+            if rtc_:
+                rtc_.git_init(verbose)
+            return True
 
         elif argv[2] == 'github_fork':
             if len(argv) < 4:
-                wasanbon.show_help_description('rtc')
-                return
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return False
 
             rtcname = argv[3]
             sys.stdout.write(' - Forking GITHUB repository in %s\n' % rtcname)
@@ -140,16 +139,21 @@ class Command(object):
 
             # if argument is url, then, clone by git command
             if argv[3].startswith('git@') or argv[3].startswith('http'):
-                rtc_ = proj.clone_rtc(argv[3], verbose=verbose)
+                url = argv[3]
+                name = os.path.basename(argv[3])
+                if name.endswith('.git'):
+                    name = name[:-4]
+                repo = rtc.Repository(name=name, url=url, desc="")
+                rtc_ = repo.clone(verbose=verbose)
+                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return 
                 
             #for i in range(3, len(argv)):
             for name in argv[3:]:
                 repo = wasanbon.core.rtc.get_repository(name)
                 if repo:
-                    rtc_ = proj.clone_rtc(repo.url, verbose=verbose)
-                else:
-                    print '%s Do not found' % rtcname
+                    rtc_ = repo.clone(verbose=verbose)
+                    proj.update_rtc_repository(rtc_.repository, verbose=verbose)
             return
 
         elif argv[2] == 'delete':
@@ -166,73 +170,42 @@ class Command(object):
             
         elif argv[2] == 'commit':
             if len(argv) < 5:
-                print_usage()
-            not_found = True
-            rtcname = argv[3]
-            comment = argv[4]
-            for rtcp in rtcps:
-                if rtcname == rtcp.basicInfo.name:
-                    not_found = False
-                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
-                    if '.hg' in os.listdir(rtc_dir):
-                        sys.stdout.write('Commiting Mercurial repository in %s\n' % rtcname)
-                        hg.commit(rtcp, comment)
-                    elif '.git' in os.listdir(rtc_dir):
-                        sys.stdout.write('Commiting GIT repository in %s\n' % rtcname)
-                        git.commit(rtcp, comment)
-                        hash = git.get_hash(rtcp, verbose)
-                        rtc.update_repository_yaml(rtcname, protocol='git', hash=hash, verbose=verbose)
-            if not_found:
-                print ' - RTC(%s) not found.' % rtcname
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return False
+
+            rtc_ = proj.rtc(argv[3])
+            if rtc_:
+                rtc_.commit(comment=argv[4], verbose=verbose)
+                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
             return
 
         elif argv[2] == 'pull':
             if len(argv) < 4:
-                print_usage()
-            rtcname = argv[3]
-            not_found = True
-            for rtcp in rtcps:
-                if rtcname == rtcp.basicInfo.name:
-                    not_found = False
-                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
-                    if '.hg' in os.listdir(rtc_dir):
-                        sys.stdout.write('Pulling Mercurial repository in %s\n' % rtcname)
-                        hg.pull(rtcp)
-                    elif '.git' in os.listdir(rtc_dir):
-                        sys.stdout.write('Pulling GIT repository in %s\n' % rtcname)
-                        git.pull(rtcp)
-
-            if not_found:
-                print ' - RTC(%s) not found.' % rtcname
-            return
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return False
+            rtc_ = proj.rtc(argv[3])
+            rtc_.pull(verbose=verbose)
+            return True
 
         elif argv[2] == 'checkout':
             if len(argv) < 4:
-                print_usage()
-            rtcname = argv[3]
-            not_found = True
-            for rtcp in rtcps:
-                if rtcname == rtcp.basicInfo.name:
-                    not_found = False
-                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
-                    if '.git' in os.listdir(rtc_dir):
-                        sys.stdout.write('Rollback GIT repository in %s\n' % rtcname)
-                        git.checkout(rtcp, verbose)
-
-            if not_found:
-                print ' - RTC(%s) not found.' % rtcname
-            return
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return False
+            rtc_ = proj.rtc(argv[3])
+            if rtc_:
+                rtc_.checkout(verbose=verbose)
+            return True
 
         elif argv[2] == 'push':
             if len(argv) < 4:
                 sys.stdout.write(' - Invalid Usage. Use --help option.\n')
                 return
-            
             rtc_ = proj.rtc(argv[3])
             if not rtc_:
                 sys.stdout.write(' - RTC (%s) not found.\n' % argv[3])
             else:
-                rtc_.push()
+                rtc_.push(verbose=verbose)
+            return
 
         elif argv[2] == 'github_init':
             if len(argv) < 4:

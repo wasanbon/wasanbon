@@ -19,6 +19,11 @@ class RtcObject():
         self._path = path
         self._rtc_xml = ""
         self._rtcprofile = None
+        if os.path.isdir(os.path.join(path, '.git')):
+            self._protocol = 'git'
+        else:
+            self._protocol = 'hg'
+
         for root, dirs, files in os.walk(path):
             print ' - Parsing %s' % root
             if 'RTC.xml' in files:
@@ -57,6 +62,10 @@ class RtcObject():
         elif self.language == 'Java':
             build.build_rtc_java(rtcp, verbose=verbose)
         pass
+    
+    @property
+    def repository(self):
+        return RtcRepository(self.path)
 
     def clean(self, verbose=False):
         if self.language == 'C++':
@@ -86,8 +95,23 @@ class RtcObject():
     def git(self):
         return git.GitRepository(self.path)
 
+    @property
+    def hg(self):
+        return None
 
-    def push(self):
-        git_obj = self.git
+    def commit(self, comment, verbose=False):
+        self.git.commit(comment, verbose=verbose)
+        pass
+
+    def checkout(self, verbose=False, hash=''):
+        self.git.checkout(verbose=verbose, hash=hash)
+        pass
+
+    def pull(self, verbose=False):
+        self.git.pull(verbose=verbose)
+        pass
+
+    def push(self, verbose=False):
+        self.git.push(verbose=verbose)
         
         pass
