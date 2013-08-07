@@ -47,6 +47,17 @@ class Project():
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
 
+    def update_rtc_repository(self, repo, verbose=False):
+        repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
+        bak_file = repo_file + '.bak'
+        if os.path.isfile(bak_file):
+            os.remove(bak_file)
+        shutil.copy(repo_file, bak_file)
+        dic = yaml.load(open(bak_file, 'r'))
+        dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
+        pass
+
     def remove_rtc_repository(self, name, verbose=False):
         repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
         bak_file = repo_file + '.bak'
@@ -62,7 +73,7 @@ class Project():
 
     @property
     def rtcs(self):
-        if len(self._rtcs) == 0:
+        if True:
             for dir in os.listdir(os.path.join(self.path, self.setting['RTC_DIR'])):
                 if dir.startswith('.') or dir == 'repository.yaml':
                     pass
@@ -83,38 +94,6 @@ class Project():
                 return rtc_
         return None
     
-    def clone_rtc(self, url, verbose=False):
-        current_dir = os.getcwd()
-        os.chdir(os.path.join(self.path, self.setting['RTC_DIR']))
-        distdir = os.path.join(os.getcwd(), os.path.basename(url))
-        sys.stdout.write(' - Cloning RTC into %s\n' % distdir)
-        if distdir.endswith('.git'):
-            distdir = distdir[:-4]
-        if os.path.isdir(distdir):
-            sys.stdout.write(' - Directory already exists.\n')
-            sys.stdout.write(' - Now changing the upstream pointer [master].\n')
-            try:
-                git_obj = git.GitRepository(distdir)
-                git_obj.change_ustream_pointer(url, verbose=verbose)
-            except git.GitRepositoryNotFoundException, ex:
-                sys.stdout.write(' - Directory is not git repository\n')
-                sys.stdout.write(' - This error can not be fixed in this version.\n')
-                return 
-        else:
-            git.git_command(['clone', url, distdir], verbose=verbose)
-            pass
-        os.chdir(distdir)
-
-        git.git_command(['submodule', 'init'], verbose=verbose)
-        git.git_command(['submodule', 'update'], verbose=verbose)
-        os.chdir(current_dir)
-        rtc_obj = rtc.RtcObject(distdir)
-        self.rtcs.append(rtc_obj)
-        
-        repo = rtc.RtcRepository(name=rtc_obj.name, url=url, desc="", hash=rtc_obj.git.hash)
-        self.append_rtc_repository(repo)
-
-        return rtc_obj
 
     def delete_rtc(self, rtc_, verbose=False):
         if verbose:

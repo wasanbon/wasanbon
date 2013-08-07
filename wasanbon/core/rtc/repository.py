@@ -44,9 +44,22 @@ class RtcRepository():
         distpath = os.path.basename(self.url)
         if distpath.endswith('.git'):
             distpath = distpath[:-4]
+        if os.path.isdir(os.path.join(os.getcwd(), distpath)):
+            sys.stdout.write(' - Directory already exists.\n')
+            try:
+                git_obj = git.GitRepository(os.path.join(os.getcwd(), distpath))
+                git_obj.change_upstream_pointer(self.url, verbose=verbose)
+            except git.GitRepositoryNotFoundException, ex:
+                sys.stdout.write(' - Directory is not git repository\n')
+                return False
+            return
+        
         git.git_command(['clone', self.url, distpath], verbose=verbose)
         os.chdir(os.path.join(os.getcwd(), distpath))
-        git.git_command(['checkout', self.hash], verbose=verbose)
+
+        if len(hash) != 0:
+            git.git_command(['checkout', self.hash], verbose=verbose)
+
         git.git_command(['submodule', 'init'], verbose=verbose)
         git.git_command(['submodule', 'update'], verbose=verbose)
         os.chdir(curdir)
