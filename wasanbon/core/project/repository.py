@@ -34,6 +34,7 @@ class ProjectRepository():
                 sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
             rtc = repo.clone(path=os.path.join(appdir, proj.setting['RTC_DIR']), verbose=verbose)
             rtc.build(verbose=verbose)
+            proj.install(rtc, precreate=False, preload=True)
         return Project(appdir)
 
     @property

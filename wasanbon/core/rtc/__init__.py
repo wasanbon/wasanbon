@@ -1,6 +1,7 @@
 import os, sys
 import wasanbon
 
+from rtcconf import *
 from repository import *
 from rtc_object import *
 
