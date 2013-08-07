@@ -7,6 +7,7 @@ import wasanbon
 
 def git_command(commands, path='.', verbose = False, pipe=False):
     cur_dir = os.getcwd()
+    
     os.chdir(path)
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():

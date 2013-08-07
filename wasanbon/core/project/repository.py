@@ -27,14 +27,14 @@ class ProjectRepository():
                 print ' - There seems to be %s here. Please change application name.' % prjname
             return False
 
-        git.git_command(['clone', self.url, appdir], verbose)
+        git.git_command(['clone', self.url, appdir], verbose=verbose)
         proj = wasanbon.core.project.create_project(self.name, verbose=verbose, force_create=True, overwrite=False)
-        current_dir = os.getcwd()
-        os.chdir(os.path.join(appdir, proj.setting['RTC_DIR']))
         for repo in proj.rtc_repositories:
-            rtc = repo.clone(verbose=verbose)
+            if verbose:
+                sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
+            rtc = repo.clone(path=os.path.join(appdir, proj.setting['RTC_DIR']), verbose=verbose)
             rtc.build(verbose=verbose)
-        os.chdir(current_dir)
+        return Project(appdir)
 
     @property
     def name(self):
