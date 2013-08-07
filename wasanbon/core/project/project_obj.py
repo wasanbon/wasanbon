@@ -134,6 +134,42 @@ class Project():
     def run(self):
         pass
 
+    def rtcconf(self, language):
+        return rtc.RTCConf(self.setting['conf.' + language])
+
+    def install(self, rtc_, verbose=False, preload=True, precreate=True):
+        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
+        filepath = rtc_.packageprofile.getRTCFilePath()
+        if len(filepath) == 0:
+            sys.stdout.write(' - Executable of RTC (%s) is not found.\n' % rtc_.name)
+            return None
+
+        bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
+        if not os.path.isdir(bin_dir):
+            os.mkdir(bin_dir)
+            pass
+
+        targetfile = os.path.join(bin_dir, os.path.basename(filepath))
+        shutil.copy(filepath, targetfile)
+
+        rtcconf.append('manager.modules.load_path', self.setting['BIN_DIR'])
+        if preload:
+            rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
+        if precreate:
+            rtcconf.append('manager.components.precreate', rtc_.rtcprofile.basicInfo.name)
+
+        conffile = rtc_.packageprofile.getConfFilePath()
+        if len(conffile) == 0:
+            sys.stdout.write(' - No configuration file for RTC (%s) is found.\n' % rtc_.rtcprofile.basicInfo.name)
+
+        else:
+            targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
+            targetconf = targetconf[:-5] + '0' + '.conf'
+            shutil.copy(conffile, targetconf)
+            rtcconf.append(rtc_.rtcprofile.basicInfo.category, '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file:' + os.path.join('conf', os.path.basename(targetconf)))
+            pass
+        rtcconf.sync()
+        pass
         
     def register(self, verbose=False):
         if verbose:

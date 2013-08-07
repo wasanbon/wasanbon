@@ -84,9 +84,9 @@ class Command(object):
         elif argv[2] == 'git_init':
             if len(argv) < 3:
                 sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-            for rtc in proj.rtcs:
-                if rtc.name == argv[3]:
-                    rtc.git_init(verbose)
+            for rtc_ in proj.rtcs:
+                if rtc_.name == argv[3]:
+                    rtc_.git_init(verbose)
             return
 
         elif argv[2] == 'github_fork':

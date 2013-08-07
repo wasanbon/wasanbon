@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system
 from wasanbon.core.system import run
+from wasanbon.core import project
 
 class Command(object):
     def __init__(self):
@@ -16,32 +17,22 @@ class Command(object):
             wasanbon.show_help_description('system')
             return
 
-        rtcps = rtc.parse_rtcs()
+        proj = project.Project(os.getcwd())
+
         if(argv[2] == 'install'):
             if len(argv) < 4:
-                wasanbon.show_help_description('system')
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
                 return
-
-            bin_dir = os.path.join(os.getcwd(), wasanbon.setting.get('BIN_DIR', "bin"))
-            if not os.path.isdir(bin_dir):
-                os.mkdir(bin_dir)
-
-            names = [rtcp.basicInfo.name for rtcp in rtcps]
-            if argv[3] == 'all':
-                for rtcp in rtcps:
-                    print 'Installing RTC %s' % rtcp.basicInfo.name
-                    rtc.install(rtcp)
-
+            install_all = False
+            if 'all' in argv[3:]:
+                for rtc_ in proj.rtcs:
+                    proj.install(rtc_)
                 return
-
-            for i in range(3, len(argv)):
-                if not argv[i] in names:
-                    print ' - RTC (%s) can not be found.' % argv[i]
-                    continue
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == argv[i]:
-                        print ' - Installing RTC %s' % argv[i]
-                        rtc.install(rtcp)
+            
+            for name in argv[3:]:
+                rtc_ = proj.rtc(name)
+                if rtc_:
+                    proj.install(rtc_)
 
         elif(argv[2] == 'uninstall'):
             if len(argv) < 4:

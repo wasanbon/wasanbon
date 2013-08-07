@@ -78,33 +78,6 @@ class Command(object):
             proj = repo.clone(verbose=verbose)
             return
 
-            if repo_name in dir.keys():
-                template.clone_project(repo_name, dir[repo_name]['git'], verbose=verbose)
-                os.chdir(repo_name)
-                reload(wasanbon)
-
-                y = yaml.load(open('rtc/repository.yaml', 'r'))
-                installed = system.list_installed_rtcs()
-                if not y:
-                    print ' - No repository'
-                    return 
-                for key in y.keys():
-                    url = y[key]['git']
-                    print ' - Cloning %s' % key
-                    rtcp = git.clone(url, verbose=verbose)
-                    git.checkout(rtcp, hash=y[key]['hash'], verbose=verbose)
-                
-                    print ' - Building %s' % key
-                    cur = os.getcwd()
-                    rtc.build_rtc(rtcp, verbose=verbose)
-                    os.chdir(cur)
-                    
-                    if rtcp.basicInfo.name in installed[rtcp.language.kind]:
-                        print ' - Reinstall %s' % key
-                        rtc.install(rtcp, verbose=verbose, precreate=False, preload=False)
-            else:
-                print ' - No repository %s' % repo_name
-            pass
         elif argv[2] == 'fork':
             if len(argv) < 4:
                 print ' - Give Project Repository Name'
