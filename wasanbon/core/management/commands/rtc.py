@@ -225,37 +225,30 @@ class Command(object):
 
         elif argv[2] == 'push':
             if len(argv) < 4:
-                print_usage()
-            rtcname = argv[3]
-            not_found = True
-            for rtcp in rtcps:
-                if rtcname == rtcp.basicInfo.name:
-                    not_found = False
-                    rtc_dir = os.path.dirname(rtcp.getRTCProfileFileName())
-                    if '.hg' in os.listdir(rtc_dir):
-                        sys.stdout.write('Pushing Mercurial repository in %s\n' % rtcname)
-                        hg.push(rtcp)
-                    elif '.git' in os.listdir(rtc_dir):
-                        sys.stdout.write('Pushing Upstream GIT repository in %s\n' % rtcname)
-                        git.push(rtcp)
-            if not_found:
-                print ' - RTC(%s) not found.' % rtcname
-            return
-
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return
+            
+            rtc_ = proj.rtc(argv[3])
+            if not rtc_:
+                sys.stdout.write(' - RTC (%s) not found.\n' % argv[3])
+            else:
+                rtc_.push()
 
         elif argv[2] == 'github_init':
             if len(argv) < 4:
-                print_usage()
-            rtcname = argv[3]
-            for rtcp in rtcps:
-                if rtcname == rtcp.basicInfo.name:
-                    sys.stdout.write(' - Initializing GIT repository in %s\n' % rtcname)
-                    sys.stdout.write(' - Username@github:')
-                    user = raw_input()
-                    passwd = getpass.getpass()
-                    rtc.github_init(user, passwd, rtcp)
-            return
+                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
+                return
 
+            rtc_ = proj.rtc(argv[3])
+            if rtc_:
+                sys.stdout.write(' - Initializing GIT repository in %s\n' % rtc_.name)
+                sys.stdout.write(' - Username@github:')
+                user = raw_input()
+                passwd = getpass.getpass()
+                proj.github_init(user, passwd, rtc_, verbose=verbose)
+            else:
+                sys.stdout.write(' - RTC (%s) not found.\n' % argv[3])
+            return
 
         elif argv[2] == 'clean':
             if len(argv) <= 3:
