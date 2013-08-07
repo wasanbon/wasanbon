@@ -94,40 +94,6 @@ def delete(rtcp, verbose=False, force=False):
         shutil.rmtree(rtc_dir, ignore_errors=True)
     pass
 
-def github_init(user, passwd, rtcp, verbose=False):
-    rtc_dir = os.path.split(rtcp.filename)[0]
-    if rtc_dir.endswith('/'): 
-        rtc_dir = rtc_dir[:-1]
-    repo_name = os.path.basename(rtc_dir)
-
-    github_obj = github.Github(user, passwd)
-    git_user = github_obj.get_user()
-    try:
-        git_user.login
-    except:
-        print ' - Login Error.'
-        return
-    github_obj.get_user().create_repo(repo_name)
-
-    rtc_dir = os.path.split(rtcp.filename)[0]
-    sys.stdout.write("Connect to GITHUB repository of %s\n" % repo_name)
-    current_dir = os.getcwd()
-    os.chdir(rtc_dir)
-
-    gitenv = os.environ.copy()
-    if not 'HOME' in gitenv.keys():
-        gitenv['HOME'] = wasanbon.get_home_path()
-    print 'HOME is %s' % gitenv['HOME']
-
-    cmd = [wasanbon.setting['local']['git'], 'remote', 'add', 'origin', 'git@github.com:' + user + '/' + repo_name + '.git']
-    subprocess.call(cmd, env=gitenv)
-    cmd = [wasanbon.setting['local']['git'], 'push', '-u', 'origin', 'master']
-    subprocess.call(cmd, env=gitenv)
-    os.chdir(current_dir)
-
-    url = 'git@github.com:' + user + '/' + repo_name + '.git'
-    update_repository_yaml(repo_name, url)
-
 def update_repository_yaml(repo_name, url="", protocol="git",  desc="", hash="", verbose=False):
     if verbose:
         sys.stdout.write(' - Updating repository.yaml\n')

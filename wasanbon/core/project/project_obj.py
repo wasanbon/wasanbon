@@ -222,6 +222,14 @@ class Project():
         yaml.dump(dic, open(ws_file_name, "w"), encoding='utf8', allow_unicode=True, default_flow_style=False)
         pass
 
+    def github_init(self, user, passwd, rtc_, verbose=False):
+        repo = wasanbon.core.rtc.github_init(user, passwd, rtc_, verbose=verbose)
+        if not repo:
+            return None
+        self.append_rtc_repository(repo, verbose=verbose)
+        return repo
+        
+
 def remShut(*args):
     func, path, _ = args 
     os.chmod(path, stat.S_IWRITE)
