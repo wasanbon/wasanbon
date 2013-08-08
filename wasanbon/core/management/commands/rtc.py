@@ -93,24 +93,15 @@ class Command(object):
                 sys.stdout.write(' - Invalid Usage. Use --help option.\n')
                 return False
 
-            rtcname = argv[3]
-            sys.stdout.write(' - Forking GITHUB repository in %s\n' % rtcname)
+            sys.stdout.write(' - Forking GITHUB repository in %s\n' % argv[3])
             sys.stdout.write('Username@github:')
             user = raw_input()
             passwd = getpass.getpass()
 
-            if rtcname in wasanbon.repositories.keys():
-                repo = wasanbon.repositories[rtcname]
-                if 'git' in repo.keys():
-                    url = repo['git']
-                    print ' - GIT forking : %s' % url
-
-                    my_url = rtc.github_fork(user, passwd, url, verbose)
-                    if my_url:
-                        rtcp = git.clone(my_url, verbose)
-                        hash = git.get_hash(rtcp, verbose)
-                        rtc.update_repository_yaml(rtcp.basicInfo.name, my_url, protocol='git', hash=hash, verbose=verbose)
-                    return
+            original_repo = wasanbon.core.rtc.get_repository(argv[3])
+            repo = original_repo.fork(user, passwd, verbose=verbose)
+            rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
+            proj.update_rtc_repository(repo, verbose=verbose)
             return
 
         elif argv[2] == 'github_pullrequest':
@@ -144,7 +135,7 @@ class Command(object):
                 if name.endswith('.git'):
                     name = name[:-4]
                 repo = rtc.Repository(name=name, url=url, desc="")
-                rtc_ = repo.clone(verbose=verbose)
+                rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
                 proj.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return 
                 
@@ -152,8 +143,8 @@ class Command(object):
             for name in argv[3:]:
                 repo = wasanbon.core.rtc.get_repository(name)
                 if repo:
-                    rtc_ = repo.clone(verbose=verbose)
-                    proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+                    rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
+                    proj.update_rtc_repository(repo, verbose=verbose)
             return
 
         elif argv[2] == 'delete':

@@ -7,6 +7,8 @@ from wasanbon.util import git
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.rtc import packageprofile
 from wasanbon.core.rtc import build
+#from wasanbon.core.rtc import repository
+import repository
 
 class RTCProfileNotFoundException(Exception):
     def __init__(self):
@@ -63,9 +65,9 @@ class RtcObject():
             build.build_rtc_java(rtcp, verbose=verbose)
         pass
     
-    @property
-    def repository(self):
-        return RtcRepository(self.path)
+#    @property
+#    def repository(self):
+#        return repository.RtcRepository(self.path, )
 
     def clean(self, verbose=False):
         if self.language == 'C++':
