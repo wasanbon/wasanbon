@@ -56,11 +56,6 @@ def git_command(commands, verbose=False):
 
 def git_init(verbose=False):
     git_command(['init'], verbose=verbose)
-    gitignore_files = ['*~', '.pyc', 'build-*', 'system/.metadata/*']
-    fout = open('.gitignore', 'w')
-    for filename in gitignore_files:
-        fout.write(filename + '\n')
-    fout.close()
 
     files = ['.gitignore', 'setting.yaml', 'conf/*.conf', 'rtc/repository.yaml', 'system/*.xml']
     command = ['add'] + files

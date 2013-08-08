@@ -31,6 +31,14 @@ class GithubReference ():
     def user(self):
         return self._user
 
+
+    def exists_repo(self, name, user=None, verbose=False):
+        try:
+            repo = self.get_repo(name, user=user, verbose=verbose)
+            return True
+        except:
+            return False
+
     def get_repo(self, name, user=None, verbose=False):
         try :
             if user:
@@ -42,27 +50,22 @@ class GithubReference ():
                 if verbose:
                     sys.stdout.write(' - Searching Repository %s/%s\n' % (self.user, name))
                 repo = self._github.get_user().get_repo(name)
+                print 'REPO', repo
         except Exception, ex:
             raise RepositoryNotFoundException()
         return repo
 
     def create_repo(self, name):
-        repo = self.get_repo(name)
-        if repo:
+        if self.exists_repo(name):
             raise RepositoryAlreadyExistsException()
-        self._github.get_user().create_repo(name)
-
+        repo = self._github.get_user().create_repo(name)
+        return repo
 
     def fork_repo(self, user, name, verbose=False):
         if verbose:
             sys.stdout.write(' - Forking Repositoy %s/%s\n' %  (user, name))
-        repo = []
-        try:
-            repo = self.get_repo(name)
-        except:
-            pass
 
-        if repo:
+        if self.exists_repo(name, verbose):
             raise RepositoryAlreadyExistsException()
         
         his_repo = self.get_repo(user=user, name=name, verbose=verbose)
