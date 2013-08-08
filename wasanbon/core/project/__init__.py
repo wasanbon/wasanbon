@@ -59,13 +59,21 @@ def parse_and_copy(src, dist, dic, verbose=False):
     fin.close()
     fout.close()
 
+class ProjectAlreadyExistsException(Exception):
+    def __init__(self):
+        pass
+
+class DirectoryAlreadyExistsException(Exception):
+    def __init__(self):
+        pass
+
 def create_project(prjname, verbose=False, overwrite=False, force_create=False):
     projs = get_projects(verbose)
     proj_names = [prj.name for prj in projs]
     if prjname in proj_names:
         if verbose:
             print ' - There is %s project in workspace.yaml already\n' % prjname
-        return None
+        raise ProjectAlreadyExistsException()
 
     tempdir = os.path.join(wasanbon.__path__[0], 'template')
     appdir = os.path.join(os.getcwd(), prjname)
@@ -73,7 +81,7 @@ def create_project(prjname, verbose=False, overwrite=False, force_create=False):
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
                 print ' - There seems to be %s here. Please change application name.' % prjname
-            return None
+            raise DirectoryAlreadyExistsException()
 
     for root, dirs, files in os.walk(tempdir):
         distdir = os.path.join(appdir, root[len(tempdir)+1:])
@@ -106,15 +114,17 @@ def clone_project(prjname, verbose=False):
     if projs:
         for proj in projs:
             if proj.name == prjname:
-                print ' - There is %s project in workspace.yaml\n' % prjname
-                print ' - Please unregister the project\n' 
-                return False
+                if verbose:
+                    print ' - There is %s project in workspace.yaml\n' % prjname
+                    print ' - Please unregister the project\n' 
+                raise ProjectAlreadyExistsException()
+                
 
     appdir = os.path.join(os.getcwd(), prjname)
     if os.path.isdir(appdir) or os.path.isfile(appdir):
         if verbose:
-            print ' - There seems to be %s here. Please change application name.' % psjname
-        return False
+            print ' - There seems to be %s here. Please change application name.' % prjname
+        raise DirectoryAlreadyExistsException()
     
     repo = get_repository(projname)
     git.git_command(['clone', repo.url, appdir], verbose)

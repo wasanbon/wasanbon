@@ -1,6 +1,6 @@
 import os, sys
 import wasanbon
-from wasanbon.util import git
+from wasanbon.util import git, github_ref
 import rtc_object
 
 class RtcRepository():
@@ -17,6 +17,17 @@ class RtcRepository():
         return self._name
 
     @property
+    def user(self):
+        return self.url.split('/')[-2]
+
+    @property
+    def repo_name(self):
+        repo_name = os.path.basename(self._url)
+        if repo_name.endswith('.git'):
+            repo_name = repo_name[:-4]
+        return repo_name
+
+    @property
     def url(self):
         return self._url
     
@@ -31,6 +42,14 @@ class RtcRepository():
     @property
     def hash(self):
         return self._hash
+
+    def fork(self, user, passwd, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Forking RtcRepository %s\n' % self.name)
+        github_obj = wasanbon.util.github_ref.GithubReference(user, passwd)
+        repo = github_obj.fork_repo(self.user, self.repo_name, verbose=verbose)
+        url = 'https://github.com/%s/%s.git' % (user, self.repo_name)
+        return RtcRepository(name=self.name, url=url, desc=self.description)
 
     def clone(self, path='.', verbose=False):
         if self._protocol == 'git':
@@ -57,7 +76,7 @@ class RtcRepository():
         git.git_command(['clone', self.url, distpath], verbose=verbose)
         os.chdir(os.path.join(os.getcwd(), distpath))
 
-        if len(hash) != 0:
+        if len(self.hash) != 0:
             git.git_command(['checkout', self.hash], verbose=verbose)
 
         git.git_command(['submodule', 'init'], verbose=verbose)
@@ -66,6 +85,7 @@ class RtcRepository():
         return rtc_object.RtcObject(os.path.join(path, distpath))
 
     def hg_clone(self, verbose=False):
+        pass
                     #if 'hg' in repo.keys():
                     #    gitenv = os.environ.copy()
                     #    if not 'HOME' in gitenv.keys():
@@ -77,4 +97,4 @@ class RtcRepository():
                     #    cmd = [wasanbon.setting['local']['hg'], 'clone', url, distpath]
                     #    subprocess.call(cmd, env=gitenv)
                     #    #return
-        pass
+

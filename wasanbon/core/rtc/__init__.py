@@ -4,7 +4,7 @@ from rtcconf import *
 from repository import *
 from rtc_object import *
 import github
-import wasanbon.util.github
+import wasanbon.util.github_ref
 
 def get_repositories(verbose=False):
     repos = []
@@ -28,7 +28,7 @@ def github_init(user, passwd, rtc_, verbose=False):
     curdir = os.getcwd()
     os.chdir(rtc_.path)
     
-    github_obj = wasanbon.util.github(user, passwd)
+    github_obj = github_ref.GithubReference(user, passwd)
     repo_name = os.path.split(rtc_.rtcprofile.filename)[0]
     if not github_obj.create_repo(repo_name):
         sys.stdout.write(' - failed.\n')

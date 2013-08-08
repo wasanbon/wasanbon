@@ -27,7 +27,15 @@ class Project():
     @property
     def name(self):
         return self._name
+
+    @property
+    def bin_path(self):
+        return os.path.join(self.path, self.setting['BIN_DIR'])
     
+    @property
+    def rtc_path(self):
+        return os.path.join(self.path, self.setting['RTC_DIR'])
+
     @property
     def rtc_repositories(self):
         repos = []
@@ -43,6 +51,8 @@ class Project():
             os.remove(bak_file)
         shutil.copy(repo_file, bak_file)
         dic = yaml.load(open(bak_file, 'r'))
+        if not dic:
+            dic = {}
         dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
@@ -54,6 +64,8 @@ class Project():
             os.remove(bak_file)
         shutil.copy(repo_file, bak_file)
         dic = yaml.load(open(bak_file, 'r'))
+        if not dic:
+            dic = {}
         dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
@@ -66,7 +78,10 @@ class Project():
         shutil.copy(repo_file, bak_file)
         dic = yaml.load(open(bak_file, 'r'))
         #dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
-        dic.pop(name)
+        if not dic:
+            dic = {}
+        if name in dic.keys():
+            dic.pop(name)
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
         
@@ -208,7 +223,6 @@ class Project():
         self.append_rtc_repository(repo, verbose=verbose)
         return repo
         
-
 def remShut(*args):
     func, path, _ = args 
     os.chmod(path, stat.S_IWRITE)
