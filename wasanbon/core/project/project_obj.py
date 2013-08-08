@@ -2,6 +2,7 @@ import os, sys, yaml, subprocess, shutil, yaml
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
+from wasanbon.util import github_ref
 
 class InvalidProjectPathError(Exception):
     def __init__(self):
@@ -216,12 +217,28 @@ class Project():
         yaml.dump(dic, open(ws_file_name, "w"), encoding='utf8', allow_unicode=True, default_flow_style=False)
         pass
 
-    def github_init(self, user, passwd, rtc_, verbose=False):
-        repo = wasanbon.core.rtc.github_init(user, passwd, rtc_, verbose=verbose)
-        if not repo:
-            return None
-        self.append_rtc_repository(repo, verbose=verbose)
-        return repo
+    def git_init(self, verbose=False):
+        git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)
+        files = ['.gitignore', 'setting.yaml', 'conf/*.conf', 'rtc/repository.yaml', 'system/*.xml', 'README.txt']
+        self.add(files, verbose=verbose)
+        self.commit('Append Initial Files.\n', verbose=verbose)
+
+    def add(self, files, verbose=False):
+        git_obj = wasanbon.util.git.GitRepository(self.path, verbose=verbose)
+        git_obj.add(files, verbose=verbose)
+        pass
+
+    def commit(self, comment, verbose=False):
+        git_obj = wasanbon.util.git.GitRepository(self.path, verbose=verbose)
+        git_obj.commit(comment, verbose=verbose)
+        pass
+               
+
+    def github_init(self, user, passwd, verbose=False):
+        github_obj = github_ref.GithubReference(user, passwd)
+        repo = github_obj.create_repo(self.name)
+        git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
+        git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
         
 def remShut(*args):
     func, path, _ = args 

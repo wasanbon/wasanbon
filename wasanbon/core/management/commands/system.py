@@ -111,16 +111,4 @@ class Command(object):
                 rtcconf_java.sync()
                 
             pass
-        elif argv[2] == 'git_init':
-            system.git_init(verbose)
-            return 
-
-        elif argv[2] == 'github_init':
-            sysname = os.path.basename(os.getcwd())
-            sys.stdout.write('Initializing GIT repository in %s\n' % sysname)
-            sys.stdout.write('Username@github:')
-            user = raw_input()
-            passwd = getpass.getpass()
-            system.github_init(user, passwd, sysname)
-            return
             
