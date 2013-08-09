@@ -11,14 +11,18 @@ class Command(object):
         proj = prj.Project(os.getcwd())
 
         if argv[2] == 'register':
+            sys.stdout.write(' @ Initializing Project in %s\n' % proj.name)
             proj.register(verbose=verbose)
             
         elif argv[2] == 'git_init':
+            sys.stdout.write(' @ Initializing GIT repository in %s\n' % proj.name)
             proj.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
-            sys.stdout.write(' - Initializing GIT repository in %s\n' % proj.name)
+            sys.stdout.write(' @ Initializing github.com repository in %s\n' % proj.name)
             user, passwd = wasanbon.user_pass()
-            proj.github_init(user=user, passwd = passwd, verbose=verbose)
+            proj.github_init(user=user, passwd=passwd, verbose=verbose)
 
+        else:
+            raise wasanbon.InvalidUsageException()
 

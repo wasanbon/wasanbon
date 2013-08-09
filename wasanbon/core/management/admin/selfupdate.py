@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-
-import wasanbon
 import os, sys, subprocess, shutil
+import wasanbon
 from wasanbon import util
-        
 
 def pull_and_update(verbose, force):
     cwd = os.getcwd()

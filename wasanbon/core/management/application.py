@@ -118,6 +118,9 @@ def execute(argv=None):
     module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
     __import__(module_name)
     comm = sys.modules[module_name].Command()
-    comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
+    try:
+        comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
+    except wasanbon.InvalidUsageException, ex:
+        show_help_description(subcommand)
     pass
 
