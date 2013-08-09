@@ -18,7 +18,7 @@ class UnsupportedPlatformException(Exception):
 
 def arg_check(argv, num):
     if len(argv) < num:
-        raise wasanbon.InvalidUsageException()
+        raise InvalidUsageException()
     pass
 
 def get_bin_file_ext():

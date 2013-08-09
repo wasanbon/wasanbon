@@ -43,13 +43,13 @@ class RtcRepository():
     def hash(self):
         return self._hash
 
-    def fork(self, user, passwd, verbose=False):
+    def fork(self, user, passwd, verbose=False, path='.'):
         if verbose:
             sys.stdout.write(' - Forking RtcRepository %s\n' % self.name)
         github_obj = wasanbon.util.github_ref.GithubReference(user, passwd)
         repo = github_obj.fork_repo(self.user, self.repo_name, verbose=verbose)
         url = 'https://github.com/%s/%s.git' % (user, self.repo_name)
-        return RtcRepository(name=self.name, url=url, desc=self.description)
+        return RtcRepository(name=self.name, url=url, desc=self.description, hash=self.hash)
 
     def clone(self, path='.', verbose=False):
         if self._protocol == 'git':

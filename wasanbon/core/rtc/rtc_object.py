@@ -69,7 +69,6 @@ class RtcObject():
     @property
     def repository(self):
         git_obj = wasanbon.util.git.GitRepository(self.path)
-        print 'hash = ' , git_obj.hash
         return repository.RtcRepository(self.name, url=git_obj.url, desc="", hash=git_obj.hash)
 
     def clean(self, verbose=False):
