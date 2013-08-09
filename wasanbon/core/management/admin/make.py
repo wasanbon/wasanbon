@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, yaml
+import os, sys
 import wasanbon
 import wasanbon.core.project as prj
 
@@ -9,9 +9,9 @@ class Command(object):
     
     def execute_with_argv(self, argv, verbose, clean, force):
         if verbose:
-            sys.stdout.write(' - Making wasanbon project.\n')
-
+            sys.stdout.write(' @ Making wasanbon project.\n')
         projs = prj.get_projects(verbose=verbose)
+
         if len(argv) == 2: # wasanbon-admin.py make
             for proj in projs:
                 normpath = os.path.normcase(os.path.normpath(proj.path))
