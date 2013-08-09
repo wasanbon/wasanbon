@@ -13,26 +13,21 @@ class Command(object):
         return False
 
     def execute_with_argv(self, argv, clean, verbose, force):
-        if len(argv) < 3 or argv[2] == 'help':
-            wasanbon.show_help_description('system')
-            return
 
         proj = project.Project(os.getcwd())
 
         if(argv[2] == 'install'):
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return
-            install_all = False
+            wasanbon.arg_check(argv, 4)
+
             if 'all' in argv[3:]:
-                for rtc_ in proj.rtcs:
-                    proj.install(rtc_)
-                return
-            
+                proj.install(proj.rtcs)
+
             for name in argv[3:]:
-                rtc_ = proj.rtc(name)
-                if rtc_:
-                    proj.install(rtc_)
+                try:
+                    proj.install(proj.rtc(name))
+                except:
+                    sys.stdout.write(' - Installing RTC %s failed.\n' % name)
+
 
         elif(argv[2] == 'uninstall'):
             if len(argv) < 4:

@@ -2,16 +2,132 @@
 
 import os, sys, subprocess, getpass, signal, time
 import wasanbon
-from wasanbon.core import rtc
-from wasanbon import util
-from wasanbon.core.rtc import git, hg
 from wasanbon.core import project
-
 from wasanbon.util import editor
 
-rtcprofile_filename = 'RTC.xml'
+
+class Command(object):
+    def __init__(self):
+        pass
+
+    def execute_with_argv(self, argv, verbose, force, clean):
+        proj = project.Project(os.getcwd())
+
+        if argv[2] == 'list':
+            if verbose:
+                sys.stdout.write(' - Listing RTCs in current project\n')
+
+            for rtc in proj.rtcs:
+                print_rtc(rtc)
+
+        elif argv[2] == 'repository':
+            if verbose:
+                sys.stdout.write(' - Listing RTC Repository\n')
+
+            for repo in wasanbon.core.rtc.get_repositories(verbose):
+                print_repository(repo)
 
 
+        elif argv[2] == 'git_init':
+            wasanbon.arg_check(argv, 4)
+            proj.rtc(argv[3]).git_init(verbose=verbose)
+
+        elif argv[2] == 'github_fork':
+            wasanbon.arg_check(argv, 4)
+
+            sys.stdout.write(' - Forking GITHUB repository in %s\n' % argv[3])
+            user, passwd = wasanbon.user_pass()
+
+            original_repo = wasanbon.core.rtc.get_repository(argv[3])
+            repo = original_repo.fork(user, passwd, verbose=verbose)
+            rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
+            proj.update_rtc_repository(repo, verbose=verbose)
+
+        elif argv[2] == 'github_pullrequest':
+            wasanbon.arg_check(argv, 6)
+            
+            sys.stdout.write(' - Send Pullrequest.\n')
+            user, passwd = wasanbon.user_pass()
+            rtc_ = proj.rtc(argv[3])
+            rtc_.github_pullrequest(user, passwd, argv[4], argv[5], verbose=verbose)
+            
+        elif argv[2] == 'clone':
+            sys.stdout.write(' - Cloning RTC\n')
+            wasanbon.arg_check(argv, 4)
+
+            # if argument is url, then, clone by git command
+            if argv[3].startswith('git@') or argv[3].startswith('http'):
+                url = argv[3]
+                name = os.path.basename(url)
+                if name.endswith('.git'):
+                    name = name[:-4]
+                rtc_ = rtc.Repository(name=name, url=url, desc="").clone(verbose=verbose, path=prjo.rtc_path)
+                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+                return 
+                
+            #for i in range(3, len(argv)):
+            for name in argv[3:]:
+                wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=proj.rtc_path)
+                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+
+        elif argv[2] == 'delete':
+            wasanbon.arg_check(argv, 4)
+
+            for rtcname in argv[3:]:
+                proj.delete_rtc(proj.rtc(rtcname), verbose=verbose)
+            
+        elif argv[2] == 'commit':
+            wasanbon.arg_check(argv, 5)
+
+            rtc_ = proj.rtc(argv[3]).commit(comment=argv[4], verbose=verbose)
+            proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+
+        elif argv[2] == 'pull':
+            wasanbon.arg_check(argv, 4)
+            rtc_ =proj.rtc(argv[3]).pull(verbose=verbose)
+            proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+
+        elif argv[2] == 'checkout':
+            wasanbon.arg_check(argv, 4)
+            proj.rtc(argv[3]).checkout(verbose=verbose)
+
+        elif argv[2] == 'push':
+            wasanbon.arg_check(argv, 4)
+            proj.rtc(argv[3]).push(verbose=verbose)
+
+        elif argv[2] == 'github_init':
+            wasanbon.arg_check(argv, 4)
+            if verbose:
+                sys.stdout.write(' - Initializing GIT repository in %s\n' % argv[3])
+            user, passwd = wasanbon.user_pass()
+            rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
+            proj.append_rtc_repository(rtc_.repository)
+
+        elif argv[2] == 'clean':
+            wasanbon.arg_check(argv, 3)
+
+            build_all = True if 'all' in argv else False
+            for rtc in proj.rtcs:
+                if build_all or rtc.name in argv:
+                    if verbose:
+                        sys.stdout.write(' - Cleaning Up RTC %s\n' % rtc.name)
+                    rtc.clean(verbose=verbose)
+
+        elif argv[2] == 'build':
+            wasanbon.arg_check(argv, 4)
+
+            build_all = True if 'all' in argv else False
+            for rtc in proj.rtcs:
+                if build_all or rtc.name in argv:
+                    if verbose:
+                        sys.stdout.write(' - Building RTC %s\n' % rtc.name)
+                    rtc.build(verbose=verbose)
+
+        elif argv[2] == 'edit':
+            editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
+
+        else:
+            raise wasanbon.InvalidUsageException()
 
 def print_rtc_profile(rtcp):
     str = rtcp.basicInfo.name + ' : \n'
@@ -55,196 +171,3 @@ def print_repository(repo):
     sys.stdout.write('    protocol    : %s\n' % repo.protocol)
     sys.stdout.write('    url         : %s\n' % repo.url)
     pass
-
-class Command(object):
-    def __init__(self):
-        pass
-
-    def execute_with_argv(self, argv, verbose, force, clean):
-        proj = project.Project(os.getcwd())
-
-        if argv[2] == 'list':
-            if verbose:
-                sys.stdout.write(' - Listing RTCs in current project\n')
-                return False
-            for rtc in proj.rtcs:
-                print_rtc(rtc)
-            return True
-
-        elif argv[2] == 'repository':
-            if verbose:
-                sys.stdout.write(' - Listing RTC Repository\n')
-                return False
-            for repo in wasanbon.core.rtc.get_repositories(verbose):
-                print_repository(repo)
-            return True
-
-        elif argv[2] == 'git_init':
-            if len(argv) < 3:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return False
-            rtc_ = proj.rtc(argv[3])
-            if rtc_:
-                rtc_.git_init(verbose)
-            return True
-
-        elif argv[2] == 'github_fork':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return False
-
-            sys.stdout.write(' - Forking GITHUB repository in %s\n' % argv[3])
-            sys.stdout.write('Username@github:')
-            user = raw_input()
-            passwd = getpass.getpass()
-
-            original_repo = wasanbon.core.rtc.get_repository(argv[3])
-            repo = original_repo.fork(user, passwd, verbose=verbose)
-            rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
-            proj.update_rtc_repository(repo, verbose=verbose)
-            return
-
-        elif argv[2] == 'github_pullrequest':
-            if len(argv) < 6:
-                print ' - Invalid Usage.'
-            rtcname = argv[3]
-            title = argv[4]
-            body = argv[5]
-            sys.stdout.write('Username@github:')
-            user = raw_input()
-            passwd = getpass.getpass()
-            if rtcname in wasanbon.repositories.keys():
-                repo = wasanbon.repositories[rtcname]
-                if 'git' in repo.keys():
-                    url = repo['git']
-                    print ' - Pull Requesting url: %s'  % url
-                    if not rtc.github_pullrequest(user, passwd, url, title, body, verbose):
-                        print ' - Failed.'
-            pass
-            
-        elif argv[2] == 'clone':
-            sys.stdout.write(' - Cloning RTC\n')
-            if len(argv) < 4:
-                wasanbon.show_help_description('rtc')
-                return
-
-            # if argument is url, then, clone by git command
-            if argv[3].startswith('git@') or argv[3].startswith('http'):
-                url = argv[3]
-                name = os.path.basename(argv[3])
-                if name.endswith('.git'):
-                    name = name[:-4]
-                repo = rtc.Repository(name=name, url=url, desc="")
-                rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
-                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
-                return 
-                
-            #for i in range(3, len(argv)):
-            for name in argv[3:]:
-                repo = wasanbon.core.rtc.get_repository(name)
-                if repo:
-                    rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
-                    proj.update_rtc_repository(repo, verbose=verbose)
-            return
-
-        elif argv[2] == 'delete':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return
-            for rtcname in argv[3:]:
-                foundFlag = False
-                rtc_ = proj.rtc(rtcname)
-                if rtc_:
-                    proj.delete_rtc(rtc_, verbose=verbose)
-            return
-                
-            
-        elif argv[2] == 'commit':
-            if len(argv) < 5:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return False
-
-            rtc_ = proj.rtc(argv[3])
-            if rtc_:
-                rtc_.commit(comment=argv[4], verbose=verbose)
-                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
-            return
-
-        elif argv[2] == 'pull':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return False
-            rtc_ = proj.rtc(argv[3])
-            rtc_.pull(verbose=verbose)
-            return True
-
-        elif argv[2] == 'checkout':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return False
-            rtc_ = proj.rtc(argv[3])
-            if rtc_:
-                rtc_.checkout(verbose=verbose)
-            return True
-
-        elif argv[2] == 'push':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return
-            rtc_ = proj.rtc(argv[3])
-            if not rtc_:
-                sys.stdout.write(' - RTC (%s) not found.\n' % argv[3])
-            else:
-                rtc_.push(verbose=verbose)
-            return
-
-        elif argv[2] == 'github_init':
-            if len(argv) < 4:
-                sys.stdout.write(' - Invalid Usage. Use --help option.\n')
-                return
-
-            rtc_ = proj.rtc(argv[3])
-            if rtc_:
-                sys.stdout.write(' - Initializing GIT repository in %s\n' % rtc_.name)
-                sys.stdout.write(' - Username@github:')
-                user = raw_input()
-                passwd = getpass.getpass()
-                proj.github_init(user, passwd, rtc_, verbose=verbose)
-            else:
-                sys.stdout.write(' - RTC (%s) not found.\n' % argv[3])
-            return
-
-        elif argv[2] == 'clean':
-            if len(argv) <= 3:
-                sys.stdout.write(' - Invalid Usage. Use --help option\n')
-                return
-
-            build_all = True if 'all' in argv else False
-            for rtc in proj.rtcs:
-                if build_all or rtc.name in argv:
-                    if verbose:
-                        sys.stdout.write(' - Cleaning Up RTC %s\n' % rtc.name)
-                    rtc.clean(verbose=verbose)
-            return
-
-        elif argv[2] == 'build':
-            if len(argv) <= 3:
-                sys.stdout.write(' - Invalid Usage. Use --help option\n')
-                return
-
-            build_all = True if 'all' in argv else False
-            for rtc in proj.rtcs:
-                if build_all or rtc.name in argv:
-                    if verbose:
-                        sys.stdout.write(' - Building RTC %s\n' % rtc.name)
-                    rtc.build(verbose=verbose)
-            return
-
-        elif argv[2] == 'edit':
-            rtc_obj = proj.rtc(argv[3])
-            if rtc_obj:
-                editor.edit_rtc(rtc_obj, verbose)
-            return
-
-
-        sys.stdout.write(' - Invalid Command %s\n' % argv[2])

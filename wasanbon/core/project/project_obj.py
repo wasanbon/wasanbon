@@ -1,10 +1,14 @@
-import os, sys, yaml, subprocess, shutil, yaml
+import os, sys, yaml, subprocess, shutil, yaml, types
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
 from wasanbon.util import github_ref
 
 class InvalidProjectPathError(Exception):
+    def __init__(self):
+        pass
+
+class RTCNotFoundException(Exception):
     def __init__(self):
         pass
 
@@ -17,12 +21,6 @@ class Project():
         self._rtcs = []
         self._name = os.path.basename(path)
         
-        pass
-
-    def install(self, rtc):
-        pass
-
-    def uninstall(self, rtc):
         pass
 
     @property
@@ -108,8 +106,7 @@ class Project():
         for rtc_ in self.rtcs:
             if rtc_.name == name:
                 return rtc_
-        return None
-    
+        raise RTCNotFoundException()
 
     def delete_rtc(self, rtc_, verbose=False):
         if verbose:
@@ -132,12 +129,29 @@ class Project():
     def rtcconf(self, language):
         return rtc.RTCConf(self.setting['conf.' + language])
 
+    def uninstall(self, rtc_, verbose=False):
+        if type(rtc_) == types.ListType:
+            for rtc__ in rtc_:
+                self.uninstall(rtc__, verbose=verbose)
+                return
+
+        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
+
+        
+        name = rtc_.rtcprofile.basicInfo.name 
+        filename = name + wasanbon.get_bin_file_ext()
+        rtcconf.remove('manager.components.precreate', name)
+        rtcconf.remove('manager.modules.preload', filename)
+        rtcconf.sync()
+
     def install(self, rtc_, verbose=False, preload=True, precreate=True):
+        if type(rtc_) == types.ListType:
+            for rtc__ in rtc_:
+                self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
+                return
+
         rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
         filepath = rtc_.packageprofile.getRTCFilePath()
-        if len(filepath) == 0:
-            sys.stdout.write(' - Executable of RTC (%s) is not found.\n' % rtc_.name)
-            return None
 
         bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
         if not os.path.isdir(bin_dir):

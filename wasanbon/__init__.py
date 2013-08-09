@@ -1,19 +1,43 @@
 #!/usr/bin/env python
 
-import sys, os, locale
+import sys, os, locale, getpass
 import yaml, types
 import codecs
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 
-class UnsupportedPlatformError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)    
+class InvalidUsageException(Exception):
+    def __init__(self):
+        pass
+
+class UnsupportedPlatformException(Exception):
+    def __init__(self):
+        pass
 
 
+def arg_check(argv, num):
+    if len(argv) < num:
+        raise wasanbon.InvalidUsageException()
+    pass
+
+def get_bin_file_ext():
+    if sys.platform == 'win32':
+        return '.dll'
+    elif sys.platform == 'linux2':
+        return '.so'
+    elif sys.platform == 'darwin':
+        return '.dylib'
+    else:
+        print '---Unsupported System (%s)' % sys.platform
+        raise UnsupportedPlatformException()
+    
+
+def user_pass():
+    sys.stdout.write('username:')
+    user = raw_input()
+    passwd = getpass.getpass()
+    return (user, passwd)
 
 def get_help_text(arg):
     locale_name = locale.getdefaultlocale()[0]

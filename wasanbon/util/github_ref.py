@@ -83,3 +83,10 @@ class GithubReference ():
         if verbose:
             sys.stdout.write(' - Can not find your repository.\n')
         raise RepositoryNotFoundException()
+
+
+    def pull_request(self, name, title, body, verbose=False):
+        repo = self._github.get_user().get_repo(name)
+        owner_url = repo.parent.url
+        owner_user, owner_repo = owner_url.split('/')[-2:]
+        self._github.get_user(owner_user).get_repo(owner_repo).create_pull(title=title, body=body, head=self.user+':master', base='master')
