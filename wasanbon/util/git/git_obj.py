@@ -39,7 +39,7 @@ class GitRepository():
 
     @property
     def hash(self):
-        popen = wasanbon.util.git.git_command(['log', '--pretty=format:"%H"', '-1'], pipe=True)
+        popen = wasanbon.util.git.git_command(['log', '--pretty=format:"%H"', '-1'], pipe=True, path=self.path)
         popen.wait()
         return popen.stdout.readline().strip()[1:-1]
 
@@ -100,3 +100,10 @@ class GitRepository():
         git_config_bak.close()
 
         os.chdir(curdir)
+
+    @property
+    def url(self):
+        p = wasanbon.util.git.git_command(['config', '--get', 'remote.origin.url'], pipe=True, path=self.path)
+        p.wait()
+        return p.stdout.readline().strip()
+        

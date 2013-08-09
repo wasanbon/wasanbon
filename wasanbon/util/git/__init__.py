@@ -27,6 +27,7 @@ def git_command(commands, path='.', verbose = False, pipe=False):
         for c in cmd:
             sys.stdout.write(c + ' ')
         sys.stdout.write('\n')
+
     if not pipe:
         p = subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
     else:

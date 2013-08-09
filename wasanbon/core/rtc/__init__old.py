@@ -176,17 +176,8 @@ def uninstall(rtcp):
     rtcc = RTCConf(wasanbon.setting['application']['conf.' + rtcp.language.kind])
     pp = PackageProfile(rtcp)
     
-    if sys.platform == 'win32':
-        fileext = '.dll'
-    elif sys.platform == 'linux2':
-        fileext = '.so'
-    elif sys.platform == 'darwin':
-        fileext = '.dylib'
-    else:
-        print '---Unsupported System (%s)' % sys.platform
-        return 
 
-    filename = rtcp.basicInfo.name + fileext
+
     # filename = os.path.basename(pp.getRTCFilePath())
     rtcc.remove('manager.components.precreate', rtcp.basicInfo.name)
     rtcc.remove('manager.modules.preload', filename)

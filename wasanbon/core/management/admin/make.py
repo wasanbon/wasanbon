@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 import os, sys, yaml
 import wasanbon
-#from wasanbon.core.template import *
-#from wasanbon.core.rtc import *
-#from wasanbon.core import rtc
 import wasanbon.core.project as prj
 
 class Command(object):
@@ -24,10 +21,7 @@ class Command(object):
                         sys.stdout.write(' - Found %s\n' % proj.name)
                     argv.append(proj.name)
 
-
-        if len(argv) == 2:
-            sys.stdout.write(' - Invalid Usage. To show help, use --help option.\n')
-            return
+        wasanbon.arg_check(argv, 3)
 
         proj = prj.get_project(argv[2])
         if verbose:
@@ -46,9 +40,7 @@ class Command(object):
                         sys.stdout.write(' - Found %s\n' % rtc_.name)
                     argv.append(rtc_.name)
 
-        if len(argv) == 3:
-            sys.stdout.write(' - Invalid Usage. To show help, use --help option.\n')
-            return 
+        wasanbon.arg_check(argv, 4)
 
         rtc_ = proj.rtc(argv[3])
         if clean:
