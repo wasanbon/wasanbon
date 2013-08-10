@@ -13,6 +13,9 @@ StringViewer :
 TimedLongSeqViewer :
   description : 'TimedLongSeq viewer RT-component'
   git : 'https://github.com/sugarsweetrobotics/TimedLongSeqViewer.git'
+TimedBooleanViewer :
+  description : 'TimedBoolean viewer RT-component'
+  git : 'https://github.com/sugarsweetrobotics/TimedBooleanViewer.git'
 
 RTnoProxy :
   description : 'RTno can help to develop RTC available devices using arduino and mbed.'
