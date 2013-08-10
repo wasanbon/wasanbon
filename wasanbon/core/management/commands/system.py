@@ -30,19 +30,16 @@ class Command(object):
 
 
         elif(argv[2] == 'uninstall'):
-            if len(argv) < 4:
-                sys.stdout.write('Invalid Variables\n')
-                return
+            wasanbon.arg_check(argv, 4)
+            if 'all' in argv[3:]:
+                proj.uninstall(proj.rtcs)
 
-            names = [rtcp.basicInfo.name for rtcp in rtcps]
-            for i in range(3, len(argv)):
-                if not argv[i] in names:
-                    print ' - RTC (%s) can not be found.' % argv[i]
-                    continue
-                for rtcp in rtcps:
-                    if rtcp.basicInfo.name == argv[i]:
-                        print ' - Uninstalling RTC %s' % argv[i]
-                        rtc.uninstall(rtcp)
+            for name in argv[3:]:
+                try:
+                    proj.uninstall(proj.rtc(name))
+                except:
+                    sys.stdout.write(' - Unnstalling RTC %s failed.\n' % name)
+
 
         elif(argv[2] == 'list'):
             print ' - Listing installed RTCs.'

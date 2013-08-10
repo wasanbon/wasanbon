@@ -15,6 +15,21 @@ class UnsupportedPlatformException(Exception):
     def __init__(self):
         pass
 
+class DirectoryAlreadyExistsException(Exception):
+    def __init__(self):
+        pass
+
+class ProjectAlreadyExistsException(Exception):
+    def __init__(self):
+        pass
+
+class RepositoryNotFoundException(Exception):
+    def __init__(self):
+        pass
+
+class ProjectNotFoundException(Exception):
+    def __init__(self):
+        pass
 
 def arg_check(argv, num):
     if len(argv) < num:
