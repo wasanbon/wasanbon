@@ -20,12 +20,13 @@ class Command(object):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
-                proj.install(proj.rtcs)
+                proj.install(proj.rtcs, verbose=verbose)
 
             for name in argv[3:]:
                 try:
-                    proj.install(proj.rtc(name))
-                except:
+                    proj.install(proj.rtc(name), verbose=verbose)
+                except Exception, ex:
+                    print ex
                     sys.stdout.write(' - Installing RTC %s failed.\n' % name)
 
 
@@ -45,7 +46,7 @@ class Command(object):
         elif(argv[2] == 'list'):
             sys.stdout.write(' @ Listing installed RTCs.\n')
             rtcs_map = proj.installed_rtcs()
-            for lang, rtcs in rtcs_map:
+            for lang, rtcs in rtcs_map.items():
                 sys.stdout.write(' - %s:\n' % lang)
                 for rtc_ in rtcs:
                     sys.stdout.write('    - %s\n' % rtc_.name) 

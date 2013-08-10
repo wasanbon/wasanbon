@@ -22,6 +22,7 @@ class Project():
         self._name = os.path.basename(path)
         self._process = {}
         self._languages = ['C++', 'Python', 'Java']
+        self._setting = []
         pass
 
     @property
@@ -103,10 +104,12 @@ class Project():
                         pass
         return self._rtcs
 
-    def rtc(self, name):
+    def rtc(self, name, verbose=True):
         for rtc_ in self.rtcs:
             if rtc_.name == name:
                 return rtc_
+        if verbose:
+            sys.stdout.write(' - Can not find RTC %s\n' % name)
         raise RTCNotFoundException()
 
     def delete_rtc(self, rtc_, verbose=False):
@@ -127,8 +130,8 @@ class Project():
         return self._setting
     
 
-    def rtcconf(self, language):
-        return rtc.RTCConf(self.setting['conf.' + language])
+    def rtcconf(self, language, verbose=False):
+        return rtc.RTCConf(os.path.join(self.path, self.setting['conf.' + language]), verbose=verbose)
 
     def uninstall(self, rtc_, verbose=False):
         if type(rtc_) == types.ListType:
@@ -145,13 +148,22 @@ class Project():
         rtcconf.sync()
 
     def install(self, rtc_, verbose=False, preload=True, precreate=True):
+
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
                 return
+        if verbose:
+            sys.stdout.write(' - Installing RTC in project %s\n' % self.name)
 
-        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
+        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
         filepath = rtc_.packageprofile.getRTCFilePath()
+        if len(filepath) == 0:
+            sys.stdout.write(" - Can not find RTC file in RTC's directory\n")
+            return False
+
+        if verbose:
+            sys.stdout.write(' - Detect RTC binary %s\n' % filepath)
 
         bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
         if not os.path.isdir(bin_dir):
@@ -315,10 +327,10 @@ class Project():
                     sys.stdoutwrite(' - Terminating rtcd(%s)\n' % key)
                 value.kill()
 
-    def installed_rtcs(self, language='all', verbose=verbose):
+    def installed_rtcs(self, language='all', verbose=False):
         rtcs_ = {}
-        for lang in self._language:
-            rtcs[lang] = [self.rtc(rtc_.strip()) for rtc_ in self.rtcconf(lang)['manager.components.precreate'].split()]
+        for lang in self._languages:
+            rtcs_[lang] = [self.rtc(rtc_.strip()) for rtc_ in self.rtcconf(lang)['manager.components.precreate'].split(',') if len(rtc_.strip()) != 0]
             
         if language == 'all':
             return rtcs_

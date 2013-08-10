@@ -2,7 +2,9 @@
 import os, sys
 
 class RTCConf(object):
-    def __init__(self, rtcconf):
+    def __init__(self, rtcconf, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Parsing rtcconf %s\n' % rtcconf)
         self.filename = rtcconf
         self.dic = {}
 
@@ -30,7 +32,7 @@ class RTCConf(object):
 
             nv = line.strip().split(':')
             if len(nv) < 2:
-                print 'Invalid Configuration in line %d' % line_num
+                print ' - Invalid Configuration in line %d' % line_num
                 print '>>> ' + line
                 return
             if len(nv) > 2:
@@ -46,7 +48,7 @@ class RTCConf(object):
         return self.dic.keys()
 
     def __getitem__(self, key):
-        return self.dic[key]
+        return self.dic.get(key, "")
 
     def __setitem__(self, key, value):
         self.dic[key] = value
