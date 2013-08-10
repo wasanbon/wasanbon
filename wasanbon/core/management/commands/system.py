@@ -18,7 +18,7 @@ class Command(object):
 
         if(argv[2] == 'install'):
             wasanbon.arg_check(argv, 4)
-
+            sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
                 proj.install(proj.rtcs)
 
@@ -31,6 +31,7 @@ class Command(object):
 
         elif(argv[2] == 'uninstall'):
             wasanbon.arg_check(argv, 4)
+            sys.stdout.write(' @ Uninstalling RTC.\n')
             if 'all' in argv[3:]:
                 proj.uninstall(proj.rtcs)
 
@@ -42,16 +43,15 @@ class Command(object):
 
 
         elif(argv[2] == 'list'):
-            print ' - Listing installed RTCs.'
-            retval = system.list_installed_rtcs()
-            for key, value in retval.items():
-                print ' - Language:', key
-                for v in value:
-                    print '    ', v
-            pass
+            sys.stdout.write(' @ Listing installed RTCs.\n')
+            rtcs_map = proj.installed_rtcs()
+            for lang, rtcs in rtcs_map:
+                sys.stdout.write(' - %s:\n' % lang)
+                for rtc_ in rtcs:
+                    sys.stdout.write('    - %s\n' % rtc_.name) 
 
         elif(argv[2] == 'build'):
-            print 'Building RTC System in Wasanbon'
+            print ' @ Building RTC System in Wasanbon'
             system.run_system(nobuild=True, nowait=True)
             
             for i in range(0, 5):

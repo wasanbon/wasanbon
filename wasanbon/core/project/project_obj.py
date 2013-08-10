@@ -21,6 +21,7 @@ class Project():
         self._rtcs = []
         self._name = os.path.basename(path)
         self._process = {}
+        self._languages = ['C++', 'Python', 'Java']
         pass
 
     @property
@@ -136,7 +137,6 @@ class Project():
                 return
 
         rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
-
         
         name = rtc_.rtcprofile.basicInfo.name 
         filename = name + wasanbon.get_bin_file_ext()
@@ -256,8 +256,8 @@ class Project():
 
     def get_nameservers():
         nss = []
-        languages = ['C++', 'Python', 'Java']
-        for lang in languages:
+
+        for lang in self._languages:
             ns = self.rtcconf(lang)['corba.nameservers']
             if not ':' in ns:
                 ns = ns + ':2809'
@@ -315,6 +315,15 @@ class Project():
                     sys.stdoutwrite(' - Terminating rtcd(%s)\n' % key)
                 value.kill()
 
+    def installed_rtcs(self, language='all', verbose=verbose):
+        rtcs_ = {}
+        for lang in self._language:
+            rtcs[lang] = [self.rtc(rtc_.strip()) for rtc_ in self.rtcconf(lang)['manager.components.precreate'].split()]
+            
+        if language == 'all':
+            return rtcs_
+
+        return rtcs_[language]
         
 def remShut(*args):
     func, path, _ = args 
