@@ -66,13 +66,14 @@ class Command(object):
             return
 
         elif(argv[2] == 'run'):
-            if len(argv) >= 4 and argv[3] == '--nobuild':
-                sys.stdout.write('\n - Launch System without System Build.\n\n')
-                nobuild=True
-            else:
-                nobuild=False
-
-            system.run_system(nobuild=nobuild, verbose=verbose)
+            sys.stdout.write(' @ Starting RTC-daemons...\n')
+            nameservers = proj.get_nameservers()
+            if verbose:
+                sys.stdout.write(' @ Listing Nameservers:\n')
+                for ns in nameservers:
+                    sys.stdout.write('    - %s\n' % ns)
+            
+            nameserver.is_nameserver_running('localhost')
             pass
 
         elif(argv[2] == 'datalist'):
@@ -81,7 +82,7 @@ class Command(object):
             pass
 
         elif(argv[2] == 'nameserver'):
-
+            
             y = yaml.load(open('setting.yaml', 'r'))
             
             rtcconf_cpp = rtc.rtcconf.RTCConf(y['application']['conf.C++'])

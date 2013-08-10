@@ -254,12 +254,15 @@ class Project():
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
 
-    def get_nameserver():
-        ns = []
+    def get_nameservers():
+        nss = []
         languages = ['C++', 'Python', 'Java']
         for lang in languages:
-            ns.append(self.rtcconf(lang)['corba.nameservers'])
-        return ns
+            ns = self.rtcconf(lang)['corba.nameservers']
+            if not ':' in ns:
+                ns = ns + ':2809'
+            nss.append(ns)
+        return nss
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
