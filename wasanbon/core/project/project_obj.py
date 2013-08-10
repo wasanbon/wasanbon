@@ -1,4 +1,4 @@
-import os, sys, yaml, subprocess, shutil, yaml, types
+import os, sys, yaml, subprocess, shutil, types, time
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
@@ -20,7 +20,7 @@ class Project():
             raise InvalidProjectPathError()
         self._rtcs = []
         self._name = os.path.basename(path)
-        
+        self._process = {}
         pass
 
     @property
@@ -121,10 +121,10 @@ class Project():
 
     @property
     def setting(self):
-        return yaml.load(open(os.path.join(self.path, 'setting.yaml'), 'r'))['application']
+        if not self._setting:
+            self._setting = yaml.load(open(os.path.join(self.path, 'setting.yaml'), 'r'))['application']
+        return self._setting
     
-    def run(self):
-        pass
 
     def rtcconf(self, language):
         return rtc.RTCConf(self.setting['conf.' + language])
@@ -253,6 +253,65 @@ class Project():
         repo = github_obj.create_repo(self.name)
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
+
+    def get_nameserver():
+        ns = []
+        languages = ['C++', 'Python', 'Java']
+        for lang in languages:
+            ns.append(self.rtcconf(lang)['corba.nameservers'])
+        return ns
+
+    def launch_all_rtcd(self, verbose=False):
+        if not os.path.isdir('log'):
+            os.mkdir('log')
+
+        self._process['C++']    = run.start_cpp_rtcd()
+        self._process['Python'] = run.start_python_rtcd()
+        self._process['Java']   = run.start_java_rtcd()
+        pass
+
+    def connect_and_configure(self, try_count=5, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Connect And Configure System\n')
+        for i in range(0, try_count):
+            if run.exe_rtresurrect():
+                return True
+            time.sleep(1)
+        return False
+
+    def activate(self, try_count=5, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Activate all RTCs\n')
+        for i in range(0, try_count):
+            if run.exe_rtstart():
+                return True
+            time.sleep(1)
+        return False
+
+    def is_process_terminated(self, verbose=False):
+        flags = []
+        for key, value in self._process:
+            if value.returncode:
+                flags.append(True)
+            else:
+                value.polll()
+                if value.returncode:
+                    flags.append(False)
+                else:
+                    flags.append(True)
+        if len(flags) != 0:
+            return all(flags)
+        else:
+            return False
+
+    def terminate_all_process(self, verbose=False):
+        for key, value in self._process:
+            value.poll()
+            if not value.returncode:
+                if verbose:
+                    sys.stdoutwrite(' - Terminating rtcd(%s)\n' % key)
+                value.kill()
+
         
 def remShut(*args):
     func, path, _ = args 

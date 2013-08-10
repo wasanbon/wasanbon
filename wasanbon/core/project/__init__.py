@@ -19,7 +19,7 @@ def get_repository(name, verbose=False):
         if repo.name == name:
             return repo
 
-    return None
+    raise wasanbon.RepositoryNotFoundException()
 
 
 def get_projects(verbose=False):
@@ -28,7 +28,7 @@ def get_projects(verbose=False):
         sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
         fout = open(ws_file_name, "w")
         fout.close()
-        return {}
+        return []
     else:
         if verbose:
             sys.stdout.write(' - Opening workspace.yaml.\n')
@@ -43,9 +43,8 @@ def get_project(prjname, verbose=False):
     projs = get_projects(verbose)
     for proj in projs:
         if proj.name == prjname:
-            target = proj
-
-    return target
+            return proj
+    raise wasanbon.ProjectNotFoundException()
 
 def parse_and_copy(src, dist, dic, verbose=False):
     fin = open(src, "r")
@@ -59,21 +58,13 @@ def parse_and_copy(src, dist, dic, verbose=False):
     fin.close()
     fout.close()
 
-class ProjectAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
-
-class DirectoryAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
-
 def create_project(prjname, verbose=False, overwrite=False, force_create=False):
     projs = get_projects(verbose)
     proj_names = [prj.name for prj in projs]
     if prjname in proj_names:
         if verbose:
             print ' - There is %s project in workspace.yaml already\n' % prjname
-        raise ProjectAlreadyExistsException()
+        raise wasanbon.ProjectAlreadyExistsException()
 
     tempdir = os.path.join(wasanbon.__path__[0], 'template')
     appdir = os.path.join(os.getcwd(), prjname)
@@ -81,7 +72,7 @@ def create_project(prjname, verbose=False, overwrite=False, force_create=False):
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
                 print ' - There seems to be %s here. Please change application name.' % prjname
-            raise DirectoryAlreadyExistsException()
+            raise wasanbon.DirectoryAlreadyExistsException()
 
     for root, dirs, files in os.walk(tempdir):
         distdir = os.path.join(appdir, root[len(tempdir)+1:])
@@ -117,14 +108,14 @@ def clone_project(prjname, verbose=False):
                 if verbose:
                     print ' - There is %s project in workspace.yaml\n' % prjname
                     print ' - Please unregister the project\n' 
-                raise ProjectAlreadyExistsException()
+                raise wasanbon.ProjectAlreadyExistsException()
                 
 
     appdir = os.path.join(os.getcwd(), prjname)
     if os.path.isdir(appdir) or os.path.isfile(appdir):
         if verbose:
             print ' - There seems to be %s here. Please change application name.' % prjname
-        raise DirectoryAlreadyExistsException()
+        raise wasanbonDirectoryAlreadyExistsException()
     
     repo = get_repository(projname)
     git.git_command(['clone', repo.url, appdir], verbose)
