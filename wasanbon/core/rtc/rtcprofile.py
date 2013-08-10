@@ -64,7 +64,6 @@ class Node(object):
         self.__dict__['node']  = node
 
     def setNode(self, node):
-        
         pass
 
     def __getitem__(self, key):

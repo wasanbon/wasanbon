@@ -28,7 +28,6 @@ class RtcObject():
             self._protocol = 'hg'
 
         for root, dirs, files in os.walk(path):
-            print ' - Parsing %s' % root
             if 'RTC.xml' in files:
                 self._rtc_xml = os.path.join(root, 'RTC.xml')
                 return
