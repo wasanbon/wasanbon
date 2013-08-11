@@ -6,6 +6,9 @@ import codecs
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
+class BuildSystemException(Exception):
+    def __init__(self):
+        pass
 
 class InvalidUsageException(Exception):
     def __init__(self):

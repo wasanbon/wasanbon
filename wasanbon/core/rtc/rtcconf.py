@@ -37,8 +37,8 @@ class RTCConf(object):
                 return
             if len(nv) > 2:
                 for v in nv[2:]:
-                    nv[1] =  nv[1] + ':' + v
-            self.dic[nv[0]] = nv[1]
+                    nv[1] =  nv[1].strip() + ':' + v.strip()
+            self.dic[nv[0].strip()] = nv[1]
 
 
     def __str__(self):

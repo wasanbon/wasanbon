@@ -1,9 +1,18 @@
-import os, sys, time, subprocess, signal, yaml, getpass
+import os, sys, time, subprocess, signal, yaml, getpass, threading
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system
 from wasanbon.core.system import run
-from wasanbon.core import project
+from wasanbon.core import project, nameserver
+
+ev = threading.Event()
+
+def signal_action(num, frame):
+    print ' - SIGINT captured'
+    ev.set()
+    #global endflag
+    #endflag = True
+    pass
 
 class Command(object):
     def __init__(self):
@@ -47,9 +56,9 @@ class Command(object):
             sys.stdout.write(' @ Listing installed RTCs.\n')
             rtcs_map = proj.installed_rtcs()
             for lang, rtcs in rtcs_map.items():
-                sys.stdout.write(' - %s:\n' % lang)
+                sys.stdout.write(' @ %s:\n' % lang)
                 for rtc_ in rtcs:
-                    sys.stdout.write('    - %s\n' % rtc_.name) 
+                    sys.stdout.write('    @ %s\n' % rtc_.name) 
 
         elif(argv[2] == 'build'):
             print ' @ Building RTC System in Wasanbon'
@@ -68,13 +77,32 @@ class Command(object):
 
         elif(argv[2] == 'run'):
             sys.stdout.write(' @ Starting RTC-daemons...\n')
-            nameservers = proj.get_nameservers()
+            nss = [[fullpath.split(':')[0].strip(), fullpath.split(':')[1].strip()] for fullpath in proj.get_nameservers(verbose=verbose)]
             if verbose:
                 sys.stdout.write(' @ Listing Nameservers:\n')
-                for ns in nameservers:
-                    sys.stdout.write('    - %s\n' % ns)
-            
-            nameserver.is_nameserver_running('localhost')
+                for ns in nss:
+                    sys.stdout.write('    - %s (port=%s)\n' % (ns[0], ns[1]))
+
+            for ns in nss:
+                if ns[0] == 'localhost' or ns[0] == '127.0.0.1':
+                    if force or not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
+                        sys.stdout.write(' - Starting Nameserver %s:%s. Please Wait 5 seconds.\n' % (ns[0], ns[1]))
+                        nameserver.launch_nameserver(verbose=verbose, force=force, port=ns[1])
+                        time.sleep(5)
+
+                if not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
+                    sys.stdout.write(' - Nameserver %s:%s is not running\n' % (ns[0], ns[1]))
+                    return
+                else:
+                    if verbose:
+                        sys.stdout.write(' - Nameserver %s:%s is running.\n' % (ns[0], ns[1]))
+
+            proj.launch_all_rtcd(verbose=verbose)
+            proj.connect_and_configure(verbose=verbose)
+            proj.activate(verbose=verbose)
+            signal.signal(signal.SIGINT, signal_action)
+            ev.wait()
+            proj.terminate_all_rtcd(verbose=verbose)
             pass
 
         elif(argv[2] == 'datalist'):
