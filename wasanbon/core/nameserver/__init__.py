@@ -1,7 +1,7 @@
 import os, sys, subprocess, time, signal
 from ctypes import *
 import rtctree
-
+import omniORB
 
 SIGSET_NWORDS = 1024 / (8 * sizeof(c_ulong))
 
@@ -51,9 +51,9 @@ class NameService(object):
 
     @property
     def port(self):
-        return self._path.split(':')[0].strip()
+        return self._path.split(':')[1].strip()
 
-    def check_and_launch(verbose=False, force=False):
+    def check_and_launch(self,verbose=False, force=False):
         if self.address != 'localhost' or self.address != '127.0.0.1':
             if not self.is_running(verbose=verbose) or force:
                 self.launch(verbose=verbose, force=force)
@@ -70,7 +70,7 @@ class NameService(object):
                     sys.stdout.write(' - Checking Nameservice(%s) is running\n' % self.path)
                 path, port = rtctree.path.parse_path('/' + self.path)
                 tree = rtctree.tree.RTCTree(paths=path, filter=[path])
-                dir_node = tree.get_node(Path)
+                dir_node = tree.get_node(path)
                 if verbose:
                     sys.stdout.write(' - Nameservice(%s) is found.\n' % self.path)
                 return True
@@ -83,8 +83,8 @@ class NameService(object):
         return False
             
 
-    def launch(verbose=False, force=False):
-        if self.address != 'localhost' or self.address != '127.0.0.1':
+    def launch(self, verbose=False, force=False):
+        if self.address != 'localhost' and self.address != '127.0.0.1':
             return False
 
         if verbose:
