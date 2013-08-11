@@ -279,7 +279,7 @@ class Project():
                 sys.stdout.write(' - Nameserver for rtcd_%s is %s\n' % (lang, ns))
             if not ns in nss:
                 nss.append(ns)
-        return [NameService(ns) for ns in nss]
+        return [nameserver.NameService(ns) for ns in nss]
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
