@@ -324,11 +324,11 @@ class Project():
             return False
 
     def terminate_all_rtcd(self, verbose=False):
-        for key, value in self._process:
+        for key, value in self._process.items():
             value.poll()
             if not value.returncode:
                 if verbose:
-                    sys.stdoutwrite(' - Terminating rtcd(%s)\n' % key)
+                    sys.stdout.write(' - Terminating rtcd(%s)\n' % key)
                 value.kill()
 
     def installed_rtcs(self, language='all', verbose=False):
