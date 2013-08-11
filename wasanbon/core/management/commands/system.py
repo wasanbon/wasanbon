@@ -7,19 +7,18 @@ from wasanbon.core import project, nameserver
 
 ev = threading.Event()
 
+endflag = False
+
 def signal_action(num, frame):
     print ' - SIGINT captured'
     ev.set()
-    #global endflag
-    #endflag = True
+    global endflag
+    endflag = True
     pass
 
 class Command(object):
     def __init__(self):
         pass
-
-    def is_admin(self):
-        return False
 
     def execute_with_argv(self, argv, clean, verbose, force):
 
@@ -76,18 +75,19 @@ class Command(object):
             return
 
         elif(argv[2] == 'run'):
+            signal.signal(signal.SIGINT, signal_action)
             sys.stdout.write(' @ Starting RTC-daemons...\n')
             nss = [[fullpath.split(':')[0].strip(), fullpath.split(':')[1].strip()] for fullpath in proj.get_nameservers(verbose=verbose)]
             if verbose:
                 sys.stdout.write(' @ Listing Nameservers:\n')
                 for ns in nss:
                     sys.stdout.write('    - %s (port=%s)\n' % (ns[0], ns[1]))
-
+            ns_process = None
             for ns in nss:
                 if ns[0] == 'localhost' or ns[0] == '127.0.0.1':
                     if force or not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
                         sys.stdout.write(' - Starting Nameserver %s:%s. Please Wait 5 seconds.\n' % (ns[0], ns[1]))
-                        nameserver.launch_nameserver(verbose=verbose, force=force, port=ns[1])
+                        ns_process = nameserver.launch_nameserver(verbose=verbose, force=force, port=ns[1])
                         time.sleep(5)
 
                 if not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
@@ -100,9 +100,18 @@ class Command(object):
             proj.launch_all_rtcd(verbose=verbose)
             proj.connect_and_configure(verbose=verbose)
             proj.activate(verbose=verbose)
-            signal.signal(signal.SIGINT, signal_action)
-            ev.wait()
+
+            if sys.platform == 'win32':
+                global endflag
+                while not endflag:
+                    time.sleep(0.1)
+            else:
+                signal.pause()
+
             proj.terminate_all_rtcd(verbose=verbose)
+
+            if ns_process:
+                ns_process.kill()
             pass
 
         elif(argv[2] == 'datalist'):
