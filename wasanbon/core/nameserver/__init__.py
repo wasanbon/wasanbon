@@ -29,51 +29,91 @@ def disable_sig():
     libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
 
-def launch_nameserver(verbose=False, port='2809', force=False):
-    if verbose:
-        sys.stdout.write(' - Starting Nameserver \n')
-
-    pstdout = None if verbose else subprocess.PIPE 
-    pstderr = None if verbose else subprocess.PIPE
-    pstdin = subprocess.PIPE
-    if sys.platform == 'win32':
-        path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
-        cmd = [path, port]
-        creationflag = 512
-        preexec_fn = None
-    else:
-        cmd = ['rtm-naming', port]
-        creationflag = 0
-        preexec_fn = disable_sig
-    if verbose:
-        print ' - Command = %s' % cmd
-    p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin, stderr=pstderr, preexec_fn=preexec_fn)
-    if force:
-        p.stdin.write('y\n')
-    return p
 
 
+class NameService(object):
 
-def is_nameserver_running(ns, try_count=3, verbose=False):
-    if not ns.startswith('/'):
-        ns = '/' + ns.strip()
-    if verbose:
-        sys.stdout.write(" - Checking the NameServer (%s)\n" % ns)
-    for i in range(0, try_count):
-        try:
-            if verbose:
-                sys.stdout.write(' - rtctree.path.parse_path(%s)\n' % ns)
-            path, port = rtctree.path.parse_path(ns)
-            tree = rtctree.tree.RTCTree(paths=path, filter=[path])
-            dir_node = tree.get_node(path)
-            if verbose:
-                sys.stdout.write(' - Nameserver found.\n')
-            return True
-            break
-        except rtctree.exceptions.InvalidServiceError, e:
-            continue
-        except omniORB.CORBA.OBJECT_NOT_EXIST, e:
-            continue
-    if verbose:
-        sys.stdout.write(' - Nameserver NOT found.\n')
-    return False
+    def __init__(self, path):
+        if path.find(':') < 0:
+            path = path.strip() + ':2809'
+        if path.strip().startswith('/'):
+            path = path.strip()[1:]
+        self._path = path
+        self._process = None
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def address(self):
+        return self._path.split(':')[0].strip()
+
+    @property
+    def port(self):
+        return self._path.split(':')[0].strip()
+
+    def check_and_launch(verbose=False, force=False):
+        if self.address != 'localhost' or self.address != '127.0.0.1':
+            if not self.is_running(verbose=verbose) or force:
+                self.launch(verbose=verbose, force=force)
+                for i in range(0, 5):
+                    if verbose:
+                        sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
+                    time.sleep(1)
+        return self.is_running(verbose=verbose)
+
+    def is_running(self, verbose=False, try_count=3):
+        for i in range(0, try_count):
+            try:
+                if verbose:
+                    sys.stdout.write(' - Checking Nameservice(%s) is running\n' % self.path)
+                path, port = rtctree.path.parse_path('/' + self.path)
+                tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+                dir_node = tree.get_node(Path)
+                if verbose:
+                    sys.stdout.write(' - Nameservice(%s) is found.\n' % self.path)
+                return True
+            except rtctree.exceptions.InvalidServiceError, e:
+                continue
+            except omniORB.CORBA.OBJECT_NOT_EXIST, e:
+                continue
+        if verbose:
+            sys.stdout.write(' - Nameservice not found.\n')
+        return False
+            
+
+    def launch(verbose=False, force=False):
+        if self.address != 'localhost' or self.address != '127.0.0.1':
+            return False
+
+        if verbose:
+            sys.stdout.write(' - Starting Nameserver \n')
+            pass
+    
+        pstdout = None if verbose else subprocess.PIPE 
+        pstderr = None if verbose else subprocess.PIPE
+        pstdin = subprocess.PIPE
+        if sys.platform == 'win32':
+            path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
+            cmd = [path, self.port]
+            creationflag = 512
+            preexec_fn = None
+            pass
+        else:
+            cmd = ['rtm-naming', self.port]
+            creationflag = 0
+            preexec_fn = disable_sig
+            pass
+        if verbose:
+            print ' - Command = %s' % cmd
+            pass
+        self._process = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin, stderr=pstderr, preexec_fn=preexec_fn)
+        if force:
+            self._process.stdin.write('y\n')
+            pass
+        return
+    
+    def kill(self):
+        if self._process:
+            self._process.kill()

@@ -3,7 +3,8 @@ import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
 from wasanbon.util import github_ref
-import run
+from wasanbon.core import nameserver
+from wasanbon.core.project import run
 
 class InvalidProjectPathError(Exception):
     def __init__(self):
@@ -278,7 +279,7 @@ class Project():
                 sys.stdout.write(' - Nameserver for rtcd_%s is %s\n' % (lang, ns))
             if not ns in nss:
                 nss.append(ns)
-        return nss
+        return [NameService(ns) for ns in nss]
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
