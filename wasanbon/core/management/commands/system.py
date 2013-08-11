@@ -61,8 +61,29 @@ class Command(object):
 
         elif(argv[2] == 'build'):
             print ' @ Building RTC System in Wasanbon'
-            system.run_system(nobuild=True, nowait=True)
-            
+            nss = [[fullpath.split(':')[0].strip(), fullpath.split(':')[1].strip()] for fullpath in proj.get_nameservers(verbose=verbose)]
+            if verbose:
+                sys.stdout.write(' @ Listing Nameservers:\n')
+                for ns in nss:
+                    sys.stdout.write('    - %s (port=%s)\n' % (ns[0], ns[1]))
+
+            ns_process = None
+            for ns in nss:
+                if ns[0] == 'localhost' or ns[0] == '127.0.0.1':
+                    if force or not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
+                        sys.stdout.write(' - Starting Nameserver %s:%s. Please Wait 5 seconds.\n' % (ns[0], ns[1]))
+                        ns_process = nameserver.launch_nameserver(verbose=verbose, force=force, port=ns[1])
+                        time.sleep(5)
+
+                if not nameserver.is_nameserver_running(ns[0] + ':' + ns[1], verbose=verbose):
+                    sys.stdout.write(' - Nameserver %s:%s is not running\n' % (ns[0], ns[1]))
+                    return
+                else:
+                    if verbose:
+                        sys.stdout.write(' - Nameserver %s:%s is running.\n' % (ns[0], ns[1]))
+
+            proj.launch_all_rtcd(verbose=verbose)
+
             for i in range(0, 5):
                 sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
                 sys.stdout.flush()
@@ -71,17 +92,22 @@ class Command(object):
             system.list_available_configurations()
             system.save_all_system(['localhost'])
 
-            system.terminate_all_process()
+            proj.terminate_all_rtcd(verbose=verbose)
+            if ns_process:
+                ns_process.kill()
+
             return
 
         elif(argv[2] == 'run'):
             signal.signal(signal.SIGINT, signal_action)
             sys.stdout.write(' @ Starting RTC-daemons...\n')
+
             nss = [[fullpath.split(':')[0].strip(), fullpath.split(':')[1].strip()] for fullpath in proj.get_nameservers(verbose=verbose)]
             if verbose:
                 sys.stdout.write(' @ Listing Nameservers:\n')
                 for ns in nss:
                     sys.stdout.write('    - %s (port=%s)\n' % (ns[0], ns[1]))
+
             ns_process = None
             for ns in nss:
                 if ns[0] == 'localhost' or ns[0] == '127.0.0.1':
@@ -112,6 +138,7 @@ class Command(object):
 
             if ns_process:
                 ns_process.kill()
+                #ns_process.send_signal(signal.CTRL_C_EVENT)
             pass
 
         elif(argv[2] == 'datalist'):

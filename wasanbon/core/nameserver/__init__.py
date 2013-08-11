@@ -1,6 +1,32 @@
-import os, sys, subprocess, time
+import os, sys, subprocess, time, signal
+from ctypes import *
 import rtctree
 
+
+SIGSET_NWORDS = 1024 / (8 * sizeof(c_ulong))
+
+class SIGSET(Structure):
+    _fields_ = [
+        ('val', c_ulong * SIGSET_NWORDS)
+    ]
+
+sigs = (c_ulong * SIGSET_NWORDS)()
+sigs[0] = 2 ** (signal.SIGINT - 1)
+mask = SIGSET(sigs)
+
+if sys.platform == 'darwin':
+    libc = CDLL('libc.dylib')
+elif sys.platform == 'linux2':
+    libc = CDLL('libc.so.6')
+
+def handle(sig, _):
+    if sig == signal.SIGINT:
+        pass
+
+def disable_sig():
+    '''Mask the SIGINT in the child process'''
+    SIG_BLOCK = 0
+    libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
 
 def launch_nameserver(verbose=False, port='2809', force=False):
@@ -14,16 +40,19 @@ def launch_nameserver(verbose=False, port='2809', force=False):
         path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
         cmd = [path, port]
         creationflag = 512
+        preexec_fn = None
     else:
         cmd = ['rtm-naming', port]
         creationflag = 0
-        
+        preexec_fn = disable_sig
     if verbose:
         print ' - Command = %s' % cmd
-    p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin, stderr=pstderr)
+    p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin, stderr=pstderr, preexec_fn=preexec_fn)
     if force:
         p.stdin.write('y\n')
     return p
+
+
 
 def is_nameserver_running(ns, try_count=3, verbose=False):
     if not ns.startswith('/'):
