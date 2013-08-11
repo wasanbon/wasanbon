@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
 from wasanbon.util import github_ref
+import run
 
 class InvalidProjectPathError(Exception):
     def __init__(self):
@@ -266,23 +267,26 @@ class Project():
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
 
-    def get_nameservers():
+    def get_nameservers(self, verbose=False):
         nss = []
 
         for lang in self._languages:
             ns = self.rtcconf(lang)['corba.nameservers']
             if not ':' in ns:
                 ns = ns + ':2809'
-            nss.append(ns)
+            if verbose:
+                sys.stdout.write(' - Nameserver for rtcd_%s is %s\n' % (lang, ns))
+            if not ns in nss:
+                nss.append(ns)
         return nss
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
             os.mkdir('log')
 
-        self._process['C++']    = run.start_cpp_rtcd()
-        self._process['Python'] = run.start_python_rtcd()
-        self._process['Java']   = run.start_java_rtcd()
+        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename)
+        self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename)
+        self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename)
         pass
 
     def connect_and_configure(self, try_count=5, verbose=False):
@@ -292,7 +296,7 @@ class Project():
             if run.exe_rtresurrect():
                 return True
             time.sleep(1)
-        return False
+        raise wasanbon.BuildSystemException()
 
     def activate(self, try_count=5, verbose=False):
         if verbose:
@@ -301,7 +305,7 @@ class Project():
             if run.exe_rtstart():
                 return True
             time.sleep(1)
-        return False
+        raise wasanbon.BuildSystemException()
 
     def is_process_terminated(self, verbose=False):
         flags = []
@@ -319,7 +323,7 @@ class Project():
         else:
             return False
 
-    def terminate_all_process(self, verbose=False):
+    def terminate_all_rtcd(self, verbose=False):
         for key, value in self._process:
             value.poll()
             if not value.returncode:

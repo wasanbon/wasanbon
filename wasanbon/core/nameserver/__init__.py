@@ -1,46 +1,31 @@
-import os, sys, subprocess
+import os, sys, subprocess, time
 import rtctree
 
 
 
-def launch_nameserver(ns, verbose=False):
-    if vrerbose:
-        sys.stdout.write(' - Starting Nameserver %s\n' % ns)
+def launch_nameserver(verbose=False, port='2809', force=False):
+    if verbose:
+        sys.stdout.write(' - Starting Nameserver \n')
 
-    if ns.startswith('/'):
-        ns = ns[1:]
-    token = ns.split(':')
-    if len(token) == 1:
-        addr = token[0].strip()
-        port = 2809
+    pstdout = None if verbose else subprocess.PIPE 
+    pstderr = None if verbose else subprocess.PIPE
+    pstdin = subprocess.PIPE
+    if sys.platform == 'win32':
+        path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
+        cmd = [path, port]
+        creationflag = 512
     else:
-        addr = token[0].strip()
-        port = token[1].strip()
+        cmd = ['rtm-naming', port]
+        creationflag = 0
         
-    if addr == 'localhost' or addr == '127.0.0.1':
-        pstdout = None if verbose else subprocess.PIPE 
-        pstdin = None if verbose else subprocess.PIPE
+    if verbose:
+        print ' - Command = %s' % cmd
+    p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin, stderr=pstderr)
+    if force:
+        p.stdin.write('y\n')
+    return p
 
-        if sys.platform == 'win32':
-            path = os.path.join(os.environ['RTM_ROOT'], 'bin', 'rtm-naming.bat')
-            cmd = [path, port]
-            creationflag = 512
-        else:
-            cmd = ['rtm-naming', port]
-            creationflag = 0
-
-        if verbose:
-            print ' - Command = %s' % cmd
-        p = subprocess.Popen(cmd, creationflags=creationflag, stdout=pstdout, stdin=pstdin)
-        for i in range(0,5):
-            time.sleep(1)
-        if verbose:
-            print ' - Starting Nameservice okay.'
-        return p
-    return None
-
-
-def is_nameserver_launched(ns, try_count=3, verbose=False):
+def is_nameserver_running(ns, try_count=3, verbose=False):
     if not ns.startswith('/'):
         ns = '/' + ns.strip()
     if verbose:

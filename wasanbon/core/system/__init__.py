@@ -18,11 +18,6 @@ endflag = False
 #import rtctree
 from rtshell import rtcryo
 
-def signal_action(num, frame):
-    print ' - SIGINT captured'
-    global endflag
-    endflag = True
-    pass
 
 def is_all_process_terminated():
     flags = []
