@@ -8,3 +8,7 @@ class RTCReference():
         pass
 
     
+    def outports(self):
+        return self._node.outports
+
+

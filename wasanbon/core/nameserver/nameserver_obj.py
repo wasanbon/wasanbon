@@ -126,31 +126,43 @@ class NameService(object):
         self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
         dir_node = self.tree.get_node(path)
 
-        def func(node, ns):
-            ns.private_rtcs.append(RTCReference(self.tree, node))
+        rtcs = []
+        def func(node, rtcs):
+            rtcs.append(node)
             
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
                 return True
             return False
 
-        self.private_rtcs = []
-        dir_node.iterate(func, self, [filter_func])
-        return self.private_rtcs
+        dir_node.iterate(func, rtcs, [filter_func])
+        return rtcs
     
     @property
     def port_types(self):
         pass
 
     @property
-    def ports(self, type="", direction=""):
+    def ports(self, type="any", direction=['in', 'out']):
         path, port = rtctree.path.parse_path('/' + self.path)
         self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
         dir_node = self.tree.get_node(path)
 
-        def func(node, ns):
-            for dataport in 
-            ns.private_rtcs.append(RTCReference(self.tree, node))
+        ports = []
+        def func(node, ports, type=type, direction=direction):
+            ports__ = []
+            if 'DataInPort' in direction:
+                ports__ = ports__ + node.inports
+            if 'DataOutPort' in direction:
+                ports__ = ports__ + node.outports
+            if 'CorbaPort' in direction:
+                ports__ = ports__ + node.svcports
+            if type == 'any':
+                ports = ports + ports__
+
+            for port in ports__:
+                
+                self._inports.append(
             
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
