@@ -1,7 +1,7 @@
 import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
-from wasanbon.core import system
+from wasanbon.core import system, project
 from wasanbon.core.system import run
 
 
@@ -11,15 +11,19 @@ class Command(object):
         pass
 
     def execute_with_argv(self, argv, verbose, force, clean):
-        if len(argv) < 3:
-            print 'To read help, input "mgr.py nameserver help"'
-            return
+        wasanbon.arg_check(argv, 3)
+        proj = project.Project(os.getcwd())
 
-        if argv[2] == 'list':
+        if argv[2] == 'dir':
+            nss = proj.get_nameservers()
+            for ns in nss:
+                print ns.path
+                print ns.rtcs
+        elif argv[2] == 'list':
             show_nameserver_list(verbose)
             return
 
-        if argv[2] == 'add':
+        elif argv[2] == 'add':
             add_nameserver(argv, verbose=verbose)
             return
 
@@ -88,5 +92,4 @@ def show_nameserver_list(verbose):
     nameservers = y['application']['nameservers']
     print nameservers
         
-            
     pass
