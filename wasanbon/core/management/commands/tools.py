@@ -27,11 +27,21 @@ class Command(object):
             return
 
         if(argv[2] == 'rtse'):
-            print 'Launching Eclipse'
-            #system.run_system(nobuild=True, nowait=True, verbose=verbose)
-            proj.
+            sys.stdout.write(' @ Launching Eclipse\n')
+            nss = proj.get_nameservers(verbose=verbose)
+            for ns in nss:
+                if not ns.check_and_launch(verbose=verbose, force=force):
+                    sys.stdout.write(' @ NameService %s is not running\n' % ns.path)
+                    return False
+            
+            proj.launch_all_rtcd(verbose=verbose)
             tools.launch_eclipse('RTS_DIR', nonblock=False, verbose=verbose)
-            system.terminate_all_process()
-            return
-    
-        wasanbon.show_help_description('tools')
+            
+            ns_addrs = [ns.path for ns in nss]
+            project.save_all_system(ns_addrs)
+            proj.terminate_all_rtcd(verbose=verbose)
+            
+            for ns in nss:
+                ns.kill()
+
+        raise wasanbon.InvalidUsageException()

@@ -1,7 +1,7 @@
 import os, sys, yaml, subprocess, shutil
 import wasanbon
 from wasanbon.util import git
-
+from connection import *
 from project_obj import *
 from repository import *
 
