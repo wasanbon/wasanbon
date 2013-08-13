@@ -3,20 +3,32 @@ import wasanbon
 from . import download, install, archive
 
 
-def choice(alts, msg='Choice'):
-    print msg
+def choice(alts, callback, msg='Choice'):
+    alts.append('Quit(Q)')
     while True:
+        print msg
         for i in range(0, len(alts)):
-            sys.stdout.write('  - %s:%s\n' % (i+1, alts[i]))
+            sys.stdout.write(' - %s:%s\n' % (i+1, alts[i]))
         sys.stdout.write('Choice?:')
         i = raw_input()
         try:
+            if i == 'q' or i == 'Q':
+                sys.stdout.write('Quit.\n')
+                break
             ans = int(i)
         except ValueError, e:
+            sys.stdout.write(' - ValueError.\n') 
             continue
         if ans < 1 or ans > len(alts):
+            sys.stdout.write(' - RangeError.\n')
             continue
-        return ans-1
+        if ans == len(alts):
+            sys.stdout.write(' - Quit.\n')
+            break
+        if callback(ans-1):
+            sys.stdout.write(' - Quit.\n')
+            break
+        
 
 def yes_no(msg):
     sys.stdout.write('%s (Y/n)' % msg)

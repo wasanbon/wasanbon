@@ -1,4 +1,4 @@
-import os, sys, time, subprocess, signal, yaml, getpass, threading
+import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
@@ -6,6 +6,10 @@ from wasanbon import util
 #from wasanbon.core.system import run
 from wasanbon.core import project, nameserver
 
+
+import rtctree
+import omniORB
+from rtshell import rtcryo
 ev = threading.Event()
 
 endflag = False
@@ -16,6 +20,21 @@ def signal_action(num, frame):
     global endflag
     endflag = True
     pass
+
+
+def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=False):
+    if verbose:
+        sys.stdout.write(" - Saving System on %s to %s\n" % (str(nameservers), filepath))
+    try:
+        argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', filepath]
+        argv = argv + nameservers
+        rtcryo.main(argv=argv)
+    except omniORB.CORBA.UNKNOWN, e:
+        traceback.print_exc()
+        pass
+    except Exception, e:
+        traceback.print_exc()
+        return False
 
 
 def comp_full_path(comp):
@@ -88,36 +107,58 @@ class Command(object):
                 sys.stdout.flush()
                 time.sleep(1)
 
-
-            #project.list_available_connections()
-            
-            outports = []
             for ns in nss:
-                ns.refresh(force=True)
-                outports = outports + ns.dataports(port_type='DataOutPort')
-            print outports
-            for outport in outports:
-                inports = []
+                ns.refresh(verbose=verbose, force=True)
+
+            pairs = proj.available_connection_pairs(nameservers=nss, verbose=verbose)
+            for outport, inport in pairs:
+                msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
+                if util.no_yes(msg) == 'yes':
+                    sys.stdout.write(' @ Connecting...')
+                    try:
+                        inport.connect([outport])
+                        sys.stdout.write(' OK.\n')
+                    except Exception, ex:
+                        sys.stdout.write(' Failed.\n')
+
+            rtcs = []
+            for ns in nss:
+                rtcs = rtcs + ns.rtcs
+            rtc_choices = [comp_full_path(rtc) for rtc in rtcs]
+                
+            def on_rtc_selected(rtc_num):
+                rtcs = []
                 for ns in nss:
-                    inports = inports + ns.dataports(port_type='DataInPort', data_type=outport.properties['dataport.data_type'])
+                    ns.refresh()
+                    rtcs = rtcs + ns.rtcs
+                
+                sys.stdout.write(' @ RTC(%s) is chosen.\n' % rtc_choices[rtc_num])
+                set_name = rtcs[rtc_num].active_conf_set_name
+                if len(set_name) == 0:
+                    sys.stdout.write(' @ There is NO ACTIVE CONFIGURATION SET.\n')
+                    sys.stdout.write(' @ Quit.\n')
+                    return False
+                sys.stdout.write(' @ Active Configuration Set = %s\n' % set_name)
+                conf_choices = [key + ':' + value for key, value in rtcs[rtc_num].active_conf_set.data.items()]
 
-                for inport in inports:
-                    msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
-                    if util.no_yes(msg) == 'yes':
-                        sys.stdout.write(' @ Connecting...')
-                        for i in range(0, 3):
-                            try:
-                                inport.connect([outport])
-                                sys.stdout.write(' OK.\n')
-                            except Exception, ex:
-                                print ex
-                                sys.stdout.write(' Failed.\n')
-                                pass
+                def on_conf_selected(conf_num):
+                    sys.stdout.write(conf_choices[conf_num] +' is chosen.\n')
+                    key = conf_choices[conf_num].split(':')[0].strip()
+                    old_val = rtcs[rtc_num].active_conf_set.data[key]
+                    sys.stdout.write(' %s :' % key)
+                    val = raw_input()
+                    if util.yes_no(' - %s:%s : %s ==> %s' % (set_name, key, old_val, val)) == 'yes':
+                        #rtcs[rtc_num].active_conf_set.set_param(key, val)
+                        rtcs[rtc_num].set_conf_set_value(set_name, key, val)
+                        rtcs[rtc_num].activate_conf_set(set_name)
+                        sys.stdout.write(' @ Updated.\n')
+                        return True
+                    return False
+                util.choice(conf_choices, callback=on_conf_selected, msg=' @ Select Configuration to modify.')
+                return False
 
-
-
-                    
-            project.list_available_configurations()
+            util.choice(rtc_choices, callback=on_rtc_selected, msg=' @ Select RTC to configure')
+            
             project.save_all_system(['localhost'])
             proj.terminate_all_rtcd(verbose=verbose)
 
