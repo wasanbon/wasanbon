@@ -2,6 +2,10 @@ tutorial01:
   description : 'ConsoleIn and ConsoleOut'
   git : 'https://github.com/sugarsweetrobotics/tutorial01.git'
 
+tutorial02:
+  description : 'ConsoleIn and Multiplyer and ConsoleOut'
+  git : 'https://github.com/sugarsweetrobotics/tutorial02.git'
+
 simvehicle:
   description : 'Simulation Vehicle'
   git : 'https://github.com/sugarsweetrobotics/simvehicle.git'

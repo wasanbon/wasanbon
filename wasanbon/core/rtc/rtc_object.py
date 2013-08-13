@@ -60,9 +60,9 @@ class RtcObject():
         if self.language == 'C++':
             build.build_rtc_cpp(self.rtcprofile, verbose=verbose)
         elif self.language == 'Python':
-            build.build_rtc_python(rtcp, verbose=verbose)
+            build.build_rtc_python(self.rtcprofile, verbose=verbose)
         elif self.language == 'Java':
-            build.build_rtc_java(rtcp, verbose=verbose)
+            build.build_rtc_java(self.rtcprofile, verbose=verbose)
         pass
     
     @property
@@ -94,6 +94,12 @@ class RtcObject():
         github_obj = github_ref.GithubReference(user, passwd)
         github_obj.pullrequest(self.repository.url, title, body, verbose=verbose)
         return self
+
+    def git_branch(self, verbose=False):
+        #git symbolic-ref --short HEAD
+        p = git.git_command(['symbolic-ref', '--short', 'HEAD'], verbose=False, path=self.path, pipe=True)
+        p.wait()
+        return p.stdout.readline().strip()
 
     @property
     def git(self):
