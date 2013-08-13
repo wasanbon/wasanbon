@@ -262,11 +262,15 @@ class Project():
         pass
                
 
+    def push(self, verbose=False):
+        git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
+        pass
+
     def github_init(self, user, passwd, verbose=False):
         github_obj = github_ref.GithubReference(user, passwd)
         repo = github_obj.create_repo(self.name)
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
-        git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)
+        self.push(verbose=verbose)
 
     def get_nameservers(self, verbose=False):
         nss = []

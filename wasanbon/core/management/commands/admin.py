@@ -23,6 +23,13 @@ class Command(object):
             user, passwd = wasanbon.user_pass()
             proj.github_init(user=user, passwd=passwd, verbose=verbose)
 
+        elif argv[2] == 'commit':
+            wasanbon.arg_check(argv, 4)
+            proj.commit(argv[3], verbose=verbose)
+
+        elif argv[2] == 'push':
+            proj.push(verbose=verbose)
+
         else:
             raise wasanbon.InvalidUsageException()
 

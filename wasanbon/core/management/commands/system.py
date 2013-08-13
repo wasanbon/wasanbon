@@ -159,7 +159,7 @@ class Command(object):
 
             util.choice(rtc_choices, callback=on_rtc_selected, msg=' @ Select RTC to configure')
             
-            project.save_all_system(['localhost'])
+            save_all_system(['localhost'])
             proj.terminate_all_rtcd(verbose=verbose)
 
             for ns in nss:
