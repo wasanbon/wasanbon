@@ -58,15 +58,13 @@ class NameService(object):
 
     def check_and_launch(self,verbose=False, force=False):
         if self.address != 'localhost' or self.address != '127.0.0.1':
-            if self.is_running(verbose=verbose) and not force:
-                sys.stdout.write(' -- okay.\n')
-                return True
+            if force or not self.is_running(verbose=verbose):
+                self.launch(verbose=verbose, force=force)
 
-            self.launch(verbose=verbose, force=force)
-            for i in range(0, 5):
-                if verbose:
-                    sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
-                time.sleep(1)
+                for i in range(0, 5):
+                    if verbose:
+                        sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
+                    time.sleep(1)
         return self.is_running(verbose=verbose)
 
     def is_running(self, verbose=False, try_count=3):
