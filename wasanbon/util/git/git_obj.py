@@ -1,12 +1,10 @@
 #from wasanbon.util import git
 import os
 #import . as git
+import wasanbon
 import wasanbon.util.git 
 #from wasanbon.util.git  import git_command
 
-class GitRepositoryNotFoundException(Exception):
-    def __init__(self):
-        pass
 
 
 class GitRepository():
@@ -15,7 +13,7 @@ class GitRepository():
         self._path = path
         if not os.path.isdir(os.path.join(path, '.git')):
             if not init:
-                raise GitRepositoryNotFoundException()
+                raise wasanbon.RepositoryNotFoundException()
             self.init(verbose=verbose)
 
     def init(self, verbose=False):
