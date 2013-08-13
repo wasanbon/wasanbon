@@ -131,16 +131,15 @@ class NameService(object):
     def rtcs(self, try_count=5):
         for i in range(0, try_count):
             try:
-                path, port = rtctree.path.parse_path('/' + self.path)
-                self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+                if not self.tree:
+                    path, port = rtctree.path.parse_path('/' + self.path)
+                    self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+                    self.dir_node = self.tree.get_node(path)
                 break
-            except:
+            except Exception, e:
                 pass
-
         if not self.tree:
             return None
-        self.dir_node = self.tree.get_node(path)
-
 
         rtcs = []
         def func(node, rtcs):
@@ -187,18 +186,14 @@ class NameService(object):
                 pass
     #@property
     def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5):
-        sys.stdout.write(' - nameserver.dataports\n')
         for i in range(0, try_count):
             try:
                 if not self.tree:
-                    sys.stdout.write(' - initializing tree...\n')
                     self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
                     self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
                     self.dir_node = self.tree.get_node(self.__path)
-                    sys.stdout.write(' - success.\n')
                 break
             except Exception, e:
-                print 'omniORB4'
                 pass
         if not self.tree:
             return None

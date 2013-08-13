@@ -341,6 +341,22 @@ class Project():
             return rtcs_
 
         return rtcs_[language]
+
+    def available_connection_pairs(self, verbose=False, nameservers=None):
+        pairs = []
+        if not nameservers:
+            nameservers = proj.get_nameservers(verbose=verbose)
+        outports = []
+        for ns in nameservers:
+            outports = outports + ns.dataports(port_type='DataOutPort')
+        for outport in outports:
+            inports = []
+            for ns in nameservers:
+                inports = inports + ns.dataports(port_type='DataInPort', data_type=outport.properties['dataport.data_type'])
+            for inport in inports:
+                pairs.append([outport, inport])
+        return pairs
+
         
 def remShut(*args):
     func, path, _ = args 
