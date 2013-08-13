@@ -1,6 +1,7 @@
 import os, sys, time, subprocess, signal, yaml, getpass, threading
 import wasanbon
 from wasanbon.core import rtc
+from wasanbon import util
 #from wasanbon.core import system
 #from wasanbon.core.system import run
 from wasanbon.core import project, nameserver
@@ -15,6 +16,18 @@ def signal_action(num, frame):
     global endflag
     endflag = True
     pass
+
+
+def comp_full_path(comp):
+    str = ""
+    for p in comp.full_path:
+        str = str + p
+        if not str.endswith('/') and not str.endswith('.rtc'):
+            str = str + '/'
+    return str
+
+def port_full_path(port):
+    return comp_full_path(port.owner) + ':' + port.name
 
 class Command(object):
     def __init__(self):
@@ -74,10 +87,39 @@ class Command(object):
                 sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
                 sys.stdout.flush()
                 time.sleep(1)
-            project.list_available_connections()
+
+
+            #project.list_available_connections()
+            
+            outports = []
+            for ns in nss:
+                ns.refresh(force=True)
+                outports = outports + ns.dataports(port_type='DataOutPort')
+            print outports
+            for outport in outports:
+                inports = []
+                for ns in nss:
+                    inports = inports + ns.dataports(port_type='DataInPort', data_type=outport.properties['dataport.data_type'])
+
+                for inport in inports:
+                    msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
+                    if util.no_yes(msg) == 'yes':
+                        sys.stdout.write(' @ Connecting...')
+                        for i in range(0, 3):
+                            try:
+                                inport.connect([outport])
+                                sys.stdout.write(' OK.\n')
+                            except Exception, ex:
+                                print ex
+                                sys.stdout.write(' Failed.\n')
+                                pass
+
+
+
+                    
             project.list_available_configurations()
             project.save_all_system(['localhost'])
-             proj.terminate_all_rtcd(verbose=verbose)
+            proj.terminate_all_rtcd(verbose=verbose)
 
             for ns in nss:
                 ns.kill()

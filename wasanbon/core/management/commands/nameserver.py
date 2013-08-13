@@ -17,8 +17,8 @@ class Command(object):
         if argv[2] == 'dir':
             nss = proj.get_nameservers()
             for ns in nss:
-                print ns.path
-                print ns.rtcs
+                print ns.dataports(port_type='DataOutPort')
+
         elif argv[2] == 'list':
             show_nameserver_list(verbose)
             return

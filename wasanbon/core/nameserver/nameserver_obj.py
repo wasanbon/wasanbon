@@ -42,6 +42,7 @@ class NameService(object):
         self._path = path
         self._process = None
         self._rtcs = None
+        self.tree = None
 
     @property
     def path(self):
@@ -57,12 +58,15 @@ class NameService(object):
 
     def check_and_launch(self,verbose=False, force=False):
         if self.address != 'localhost' or self.address != '127.0.0.1':
-            if not self.is_running(verbose=verbose) or force:
-                self.launch(verbose=verbose, force=force)
-                for i in range(0, 5):
-                    if verbose:
-                        sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
-                    time.sleep(1)
+            if self.is_running(verbose=verbose) and not force:
+                sys.stdout.write(' -- okay.\n')
+                return True
+
+            self.launch(verbose=verbose, force=force)
+            for i in range(0, 5):
+                if verbose:
+                    sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
+                time.sleep(1)
         return self.is_running(verbose=verbose)
 
     def is_running(self, verbose=False, try_count=3):
@@ -70,9 +74,12 @@ class NameService(object):
             try:
                 if verbose:
                     sys.stdout.write(' - Checking Nameservice(%s) is running\n' % self.path)
-                path, port = rtctree.path.parse_path('/' + self.path)
-                tree = rtctree.tree.RTCTree(paths=path, filter=[path])
-                dir_node = tree.get_node(path)
+                if not self.tree:
+                    sys.stdout.write(' - initializing tree...\n')
+                    self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
+                    self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+                    sys.stdout.write(' - success.\n')
                 if verbose:
                     sys.stdout.write(' - Nameservice(%s) is found.\n' % self.path)
                 return True
@@ -121,10 +128,19 @@ class NameService(object):
             self._process.kill()
 
     @property
-    def rtcs(self):
-        path, port = rtctree.path.parse_path('/' + self.path)
-        self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
-        dir_node = self.tree.get_node(path)
+    def rtcs(self, try_count=5):
+        for i in range(0, try_count):
+            try:
+                path, port = rtctree.path.parse_path('/' + self.path)
+                self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
+                break
+            except:
+                pass
+
+        if not self.tree:
+            return None
+        self.dir_node = self.tree.get_node(path)
+
 
         rtcs = []
         def func(node, rtcs):
@@ -135,41 +151,81 @@ class NameService(object):
                 return True
             return False
 
-        dir_node.iterate(func, rtcs, [filter_func])
+        self.dir_node.iterate(func, rtcs, [filter_func])
         return rtcs
     
     @property
     def port_types(self):
         pass
 
-    @property
-    def ports(self, type="any", direction=['in', 'out']):
-        path, port = rtctree.path.parse_path('/' + self.path)
-        self.tree = rtctree.tree.RTCTree(paths=path, filter=[path])
-        dir_node = self.tree.get_node(path)
+    def refresh(self, verbose=False, force=False, try_count=5):
+        for i in range(0, try_count):
+            try:
+                #if self.tree and force:
+                #    del(self.tree)
+                #    del(self.dir_node)
+                #    self.tree = None
+                if self.tree:
+                    orb = self.tree.orb
+                    self.tree.give_away_orb()
+                else:
+                    orb = None
+                if not self.tree or force:
+                    sys.stdout.write(' - refreshing tree... for %s\n' % self.path)
+                    self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
+                    self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path], orb=orb)
+                    self.dir_node = self.tree.get_node(self.__path)
+                    sys.stdout.write(' - success.\n')
+                    return 
+            except omniORB.CORBA.OBJECT_NOT_EXIST, e:
+                print 'omniORB'
+            except omniORB.OBJECT_NOT_EXIST_NoMatch, e:
+                print 'omniORB2'
+            except Exception, e:
+                print 'omniORB3'
+                print e
+                pass
+    #@property
+    def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5):
+        sys.stdout.write(' - nameserver.dataports\n')
+        for i in range(0, try_count):
+            try:
+                if not self.tree:
+                    sys.stdout.write(' - initializing tree...\n')
+                    self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
+                    self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+                    sys.stdout.write(' - success.\n')
+                break
+            except Exception, e:
+                print 'omniORB4'
+                pass
+        if not self.tree:
+            return None
 
         ports = []
-        def func(node, ports, type=type, direction=direction):
+        def func(node, ports, data_type=data_type, port_type=port_type):
             ports__ = []
-            if 'DataInPort' in direction:
+            if 'DataInPort' in port_type:
                 ports__ = ports__ + node.inports
-            if 'DataOutPort' in direction:
+            if 'DataOutPort' in port_type:
                 ports__ = ports__ + node.outports
-            if 'CorbaPort' in direction:
-                ports__ = ports__ + node.svcports
-            if type == 'any':
-                ports = ports + ports__
 
-            for port in ports__:
-                
-                self._inports.append(
+            if data_type == 'any':
+                for port in ports__:
+                    ports.append(port)
+            else:
+                for port in ports__:
+                    if port.properties['dataport.data_type'] == data_type:
+                        ports.append(port)
+                #for port in [port for port in ports__ if port.properties['dataport.data_type'] == data_type]:
+                #    ports.append(port)
             
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
                 return True
             return False
 
-        self.private_rtcs = []
-        dir_node.iterate(func, self, [filter_func])
-        return self.private_rtcs
+        self.dir_node.iterate(func, ports, [filter_func])
+        return ports
         
