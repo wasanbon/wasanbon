@@ -67,8 +67,8 @@ class GitRepository():
     def checkout(self, verbose=False, hash=""):
         curdir = os.getcwd()
         os.chdir(self.path)
-        if len(hash):
-            wasanbon.util.git.git_command(['checkout' 'master', '--force'], verbose=verbose)
+        if len(hash) == 0:
+            wasanbon.util.git.git_command(['checkout', 'master', '--force'], verbose=verbose)
         else:
             wasanbon.util.git.git_command(['checkout', hash], verbose=verbose)
         os.chdir(curdir)

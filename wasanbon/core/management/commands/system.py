@@ -60,7 +60,10 @@ class Command(object):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
-                proj.install(proj.rtcs, verbose=verbose)
+                for rtc in proj.rtcs:
+                    sys.stdout.write(' @ Installing %s\n' % rtc.name)
+                    proj.install(rtc, verbose=verbose)
+                return
 
             for name in argv[3:]:
                 try:

@@ -139,7 +139,7 @@ class Project():
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
-                return
+            return
 
         rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
         
@@ -150,11 +150,11 @@ class Project():
         rtcconf.sync()
 
     def install(self, rtc_, verbose=False, preload=True, precreate=True):
-
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
-                return
+            return
+
         if verbose:
             sys.stdout.write(' - Installing RTC in project %s\n' % self.name)
 

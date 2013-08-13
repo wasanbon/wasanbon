@@ -77,8 +77,7 @@ class RtcRepository():
         os.chdir(os.path.join(os.getcwd(), distpath))
 
         if len(self.hash) != 0:
-            git.git_command(['checkout', self.hash], verbose=verbose)
-
+            git.git_command(['checkout', '-b', 'temp_branch', self.hash], verbose=verbose)
         git.git_command(['submodule', 'init'], verbose=verbose)
         git.git_command(['submodule', 'update'], verbose=verbose)
         os.chdir(curdir)

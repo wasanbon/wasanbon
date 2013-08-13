@@ -4,6 +4,7 @@ import os, sys
 import wasanbon
 from wasanbon.core import project as prj
 from wasanbon.util import editor
+from wasanbon import util
 
 
 class Command(object):
@@ -117,6 +118,12 @@ class Command(object):
                     rtc.build(verbose=verbose)
 
         elif argv[2] == 'edit':
+            rtc_ = proj.rtc(argv[3])
+            if rtc_.git_branch() != 'master':
+                sys.stdout.write(' @ You are not in master branch.\n')
+                if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
+                    rtc_.checkout(verbose=verbose)
+                    
             editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
 
         else:
