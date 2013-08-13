@@ -101,15 +101,14 @@ def create_project(prjname, verbose=False, overwrite=False, force_create=False):
 
 
 def clone_project(prjname, verbose=False):
-    projs = get_projects(verbose)
-    if projs:
-        for proj in projs:
-            if proj.name == prjname:
-                if verbose:
-                    print ' - There is %s project in workspace.yaml\n' % prjname
-                    print ' - Please unregister the project\n' 
-                raise wasanbon.ProjectAlreadyExistsException()
-                
+    try:
+        projs = get_projects(verbose)
+        if verbose:
+            print ' - There is %s project in workspace.yaml\n' % prjname
+            print ' - Please unregister the project\n' 
+        raise wasanbon.ProjectAlreadyExistsException()
+    except wasanbon.ProjectNotFoundExeption, ex:
+        pass
 
     appdir = os.path.join(os.getcwd(), prjname)
     if os.path.isdir(appdir) or os.path.isfile(appdir):

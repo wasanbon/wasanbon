@@ -23,13 +23,14 @@ class ProjectRepository():
 
 
     def clone(self, verbose=False):
-        proj = wasanbon.core.project.get_project(self.name, verbose)
-        if proj:
+        try:
+            proj = wasanbon.core.project.get_project(self.name, verbose)
             if verbose:
                 print ' - There is %s project in workspace.yaml\n' % prjname
                 print ' - Please unregister the project\n' 
-            #return None
             raise ProjectAlreadyExistsException()
+        except wasanbon.ProjectNotFoundException, ex:
+            pass
         
         appdir = os.path.join(os.getcwd(), self.name)
         if os.path.isdir(appdir) or os.path.isfile(appdir):
