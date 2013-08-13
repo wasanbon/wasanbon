@@ -75,6 +75,13 @@ class RtcObject():
             build.clean_rtc_cpp(self.rtcprofile, verbose=verbose)
         pass
 
+    def is_git_repo(self, verbose=False):
+        try:
+            git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)        
+        except wasanbon.RepositoryNotFoundException, ex:
+            return False
+        return True
+
     def git_init(self, verbose=False):
         git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)
         git_obj.add(['.'], verbose=verbose)

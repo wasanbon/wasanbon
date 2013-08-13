@@ -30,12 +30,21 @@ class Command(object):
             sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
             proj.rtc(argv[3]).git_init(verbose=verbose)
 
+        elif argv[2] == 'github_init':
+            wasanbon.arg_check(argv, 4)
+            sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
+            user, passwd = wasanbon.user_pass()
+            rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
+            sys.stdout.write(' @ Updating repository infomation\n')
+            proj.append_rtc_repository(rtc_.repository)
+
         elif argv[2] == 'github_fork':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Forking GITHUB repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
             original_repo = wasanbon.core.rtc.get_repository(argv[3])
             repo = original_repo.fork(user, passwd, verbose=verbose, path=proj.rtc_path)
+            sys.stdout.write(' @ Cloning GITHUB repository in %s\n' % argv[3])            
             rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
             proj.update_rtc_repository(repo, verbose=verbose)
 
@@ -56,7 +65,7 @@ class Command(object):
                 if name.endswith('.git'):
                     name = name[:-4]
                 sys.stdout.write(' @ Cloning RTC %s\n' % argv[3])
-                rtc_ = rtc.Repository(name=name, url=url, desc="").clone(verbose=verbose, path=prjo.rtc_path)
+                rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=proj.rtc_path)
                 proj.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return
                 
@@ -94,13 +103,6 @@ class Command(object):
             sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
             proj.rtc(argv[3]).push(verbose=True) # when pushing always must be verbose 
 
-        elif argv[2] == 'github_init':
-            wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
-            user, passwd = wasanbon.user_pass()
-            rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
-            proj.append_rtc_repository(rtc_.repository)
-
         elif argv[2] == 'clean':
             wasanbon.arg_check(argv, 4)
             build_all = True if 'all' in argv else False
@@ -118,12 +120,13 @@ class Command(object):
                     rtc.build(verbose=verbose)
 
         elif argv[2] == 'edit':
+            wasanbon.arg_check(argv, 4)
             rtc_ = proj.rtc(argv[3])
-            if rtc_.git_branch() != 'master':
-                sys.stdout.write(' @ You are not in master branch.\n')
-                if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
-                    rtc_.checkout(verbose=verbose)
-                    
+            if rtc_.is_git_repo():
+                if rtc_.git_branch() != 'master':
+                    sys.stdout.write(' @ You are not in master branch.\n')
+                    if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
+                        rtc_.checkout(verbose=verbose)
             editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
 
         else:

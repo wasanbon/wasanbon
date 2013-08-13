@@ -18,7 +18,7 @@ class Command(object):
                 prefix = os.path.commonprefix([os.getcwd(), normpath])
                 if os.path.isdir(prefix) and os.stat(prefix) == os.stat(normpath):
                     if verbose:
-                        sys.stdout.write(' - Found %s\n' % proj.name)
+                        sys.stdout.write(' - Found Project (%s)\n' % proj.name)
                     argv.append(proj.name)
 
         wasanbon.arg_check(argv, 3)
@@ -26,6 +26,7 @@ class Command(object):
         proj = prj.get_project(argv[2])
         if verbose:
             sys.stdout.write(' - Changing direcotry to %s\n' % proj.path)
+        curdir = os.getcwd()
         os.chdir(proj.path)
         reload(wasanbon)
 
@@ -34,8 +35,11 @@ class Command(object):
                 if verbose:
                     sys.stdout.write(' - Found RTC %s\n' % rtc_.name)
                 normpath = os.path.normcase(os.path.normpath(rtc_.path))
-                prefix = os.path.commonprefix([os.getcwd(), normpath])
-                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(proj.path):
+                prefix = os.path.commonprefix([curdir, normpath])
+                if verbose:
+                    sys.stdout.write(' - normpath = %s\n' % normpath)
+                    sys.stdout.write(' - prefix = %s\n' % prefix)
+                if os.path.isdir(prefix) and os.stat(prefix) == os.stat(rtc_.path):
                     if verbose:
                         sys.stdout.write(' - Found %s\n' % rtc_.name)
                     argv.append(rtc_.name)
