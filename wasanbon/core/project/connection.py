@@ -3,7 +3,7 @@ import rtctree
 import omniORB
 import wasanbon
 
-
+from wasanbon import util
 from rtshell import rtcryo
 
 def list_available_connections():
