@@ -68,7 +68,7 @@ def apt_get(url):
     cmd = [e for e in url.split(' ') if not e == '']
     subprocess.call(cmd)
 
-def download_and_install(url, force=False, temp="", verbose=False):
+def download_and_install(url, force=False, temp="", verbose=False, open_only=False):
     if url.startswith("apt-get") or url.startswith("aptitude"):
         apt_get(url)
         return
@@ -87,7 +87,7 @@ def download_and_install(url, force=False, temp="", verbose=False):
                 if dir.endswith('.mpkg'):
                     install.install(os.path.join(root, dir))
     else:
-        install.install(dist_file)
+        install.install(dist_file, open_only=open_only)
     pass
 
 

@@ -36,12 +36,12 @@ class Command(object):
                     sys.stdout.write(' - Found RTC %s\n' % rtc_.name)
                 normpath = os.path.normcase(os.path.normpath(rtc_.path))
                 prefix = os.path.commonprefix([curdir, normpath])
-                if verbose:
-                    sys.stdout.write(' - normpath = %s\n' % normpath)
-                    sys.stdout.write(' - prefix = %s\n' % prefix)
+                #if verbose:
+                #    sys.stdout.write(' - normpath = %s\n' % normpath)
+                #    sys.stdout.write(' - prefix = %s\n' % prefix)
                 if os.path.isdir(prefix) and os.stat(prefix) == os.stat(rtc_.path):
                     if verbose:
-                        sys.stdout.write(' - Found %s\n' % rtc_.name)
+                        sys.stdout.write(' - Match %s\n' % rtc_.name)
                     argv.append(rtc_.name)
 
         wasanbon.arg_check(argv, 4)
