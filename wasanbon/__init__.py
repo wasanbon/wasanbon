@@ -110,7 +110,7 @@ rtm_home = ""
 def get_version():
     """Get wasanbon version.
     """
-    return "0.0.1-2"
+    return "0.0.1-3"
 
 
 def load_settings():

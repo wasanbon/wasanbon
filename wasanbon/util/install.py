@@ -2,9 +2,9 @@ import os, sys, traceback
 import subprocess
 
 
-def install(file):
+def install(file, open_only=False):
     if file.endswith(".dmg"):
-        return install_dmg(file)
+        return install_dmg(file, open_only=open_only)
     elif file.endswith(".app"):
         return install_app(file)
     elif file.endswith(".egg"):
@@ -34,12 +34,19 @@ def install(file):
         sys.stdout.write('Installing %s is failed. Maybe this process must have done by super user.\n' % file)
 
 
-def install_dmg(dmg):
+def install_dmg(dmg, open_only=False):
     cmd = ['hdiutil', 'mount', dmg]
     ret = subprocess.check_output(cmd)
     mountedVolume = [x.strip() for x in ret.split('\t') if x.startswith("/Volumes/")]
     if len(mountedVolume) != 1:
         print 'Error mounting %s' % dmg
+
+    if open_only:
+        cur=os.getcwd()
+        os.chdir(mountedVolume[0])
+        subprocess.call(['open', '.'])
+        os.chdir(cur)
+        return False
 
     for root, dirs, files in os.walk(mountedVolume[0]):
         for dir in dirs:
