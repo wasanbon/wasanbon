@@ -29,7 +29,12 @@ class Command(object):
 
         elif argv[2] == 'push':
             proj.push(verbose=verbose)
-
+        elif argv[2] == 'setting':
+            keylist = proj.setting.keys()[:]
+            keylist.sort()
+            for key in keylist:
+                sys.stdout.write(' %s :\n' % key)
+                sys.stdout.write('   %s\n' % proj.setting[key])
         else:
             raise wasanbon.InvalidUsageException()
 
