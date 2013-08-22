@@ -82,7 +82,6 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
 # Dynamically calculate the version based on django.VERSION.
 version = __import__('wasanbon').get_version()
 
-
 scripts = ['wasanbon/bin/wasanbon-admin.py']
 if sys.platform == 'win32':
     scripts.append('wasanbon/bin/wasanbon-cd.bat')
