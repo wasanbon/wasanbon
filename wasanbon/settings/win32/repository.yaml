@@ -22,7 +22,7 @@ VirtualJoystick :
   git : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
 RTnoProxy :
   description : 'RTno can help to develop RTC available devices using arduino and mbed.'
-  git : 'https://github.com/ysuga/RTnoProxy.git'
+  git : 'https://github.com/sugarsweetrobotics/RTnoProxy.git'
 
 MobileRobotSim : 
   description : 'Mobile Robot Simulator with TimedVelocity2D input.'

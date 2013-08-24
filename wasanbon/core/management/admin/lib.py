@@ -1,6 +1,6 @@
 import sys, os
 import wasanbon
-from wasanbon.core import rtm
+from wasanbon.core import rtm, tools
 from wasanbon import lib, util
 
 def print_repository(repo):
@@ -27,6 +27,9 @@ class Command(object):
 
         elif argv[2] == 'install':
             wasanbon.arg_check(argv, 4)
+            if argv[3] == 'RTno':
+                tools.install_rtno(verbose=verbose, force=force)
+                return 
             repo = lib.get_repository(argv[3], verbose=verbose)
             sys.stdout.write(' @ Installing %s\n' % argv[3])
             util.download_and_install(repo.url, force=force, verbose=verbose, open_only=True)
