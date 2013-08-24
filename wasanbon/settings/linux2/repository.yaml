@@ -17,7 +17,6 @@ TimedLongSeqViewer :
 RTnoProxy :
   description : 'RTno can help to develop RTC available devices using arduino and mbed.'
   git : 'https://github.com/ysuga/RTnoProxy.git'
-
 VirtualJoystick : 
   description : 'Virtual Joypad RT-Component with cross-button GUI'
   git : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
@@ -67,3 +66,6 @@ NAO_python :
 NAO_test :
   description : 'NAO Test Template'
   git : 'https://github.com/ogata-lab/NAOTest.git'
+Roomba :
+  description : 'Roomba RT-component'
+  git : 'https://github.com/sugarsweetrobotics/RoombaRTC.git'
