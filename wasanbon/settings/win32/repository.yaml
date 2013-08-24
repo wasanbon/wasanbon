@@ -66,3 +66,6 @@ CameraViewer_java:
 SpaceNavigator :
   description : '3DConnexion s 3-D mouse RT-component'
   git : 'https://github.com/sugarsweetrobotics/SpaceNavigatorRTC.git'
+Roomba :
+  description : 'Roomba RT-component'
+  git : 'https://github.com/sugarsweetrobotics/RoombaRTC.git'
