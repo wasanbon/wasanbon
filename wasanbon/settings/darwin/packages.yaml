@@ -8,3 +8,4 @@ java : 'http://openjdk-for-os-x-lion.googlecode.com/files/OpenJDK%207%20for%20OS
 setuptools : 'https://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg'
 hg : 'http://mercurial.selenic.com/mac/binaries/Mercurial-2.6-py2.7-macosx10.8.zip'
 pkg-config : 'http://sugarsweetrobotics.com/pub/Darwin/pkgconfig/PkgConfig.dmg'
+arduino : 'http://arduino.googlecode.com/files/arduino-1.0.5-macosx.zip'

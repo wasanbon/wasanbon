@@ -23,7 +23,7 @@ TimedBooleanViewer :
 
 RTnoProxy :
   description : 'RTno can help to develop RTC available devices using arduino and mbed.'
-  git : 'https://github.com/ysuga/RTnoProxy.git'
+  git : 'https://github.com/sugarsweetrobotics/RTnoProxy.git'
 
 VirtualJoystick : 
   description : 'Virtual Joypad RT-Component with cross-button GUI'

@@ -18,6 +18,10 @@ def unpack_tgz(filepath, distpath, force=False):
 
 def unpack_zip(filepath, distpath, force=False):
     path, file = os.path.split(filepath)
+    if sys.platform == 'darwin':
+        cmd = ['unzip', filepath, '-d', distpath]
+        subprocess.call(cmd)
+        return
 
     if sys.platform == 'linux2' or sys.platform == 'darwin':
         home_stat = os.stat(os.environ['HOME'])

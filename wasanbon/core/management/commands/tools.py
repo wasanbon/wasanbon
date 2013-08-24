@@ -20,6 +20,10 @@ class Command(object):
             print 'Launching Eclipse'
             tools.launch_eclipse('RTC_DIR', verbose=verbose)
             return
+        if(argv[2] == 'arduino'):
+            print '- Launching Arduino'
+            tools.launch_arduino('RTC_DIR', verbose=verbose)
+            return
 
         if(argv[2] == 'rtcb'):
             print 'Launching Eclipse'
