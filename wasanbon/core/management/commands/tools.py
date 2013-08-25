@@ -18,16 +18,16 @@ class Command(object):
 
         if(argv[2] == 'eclipse'):
             print 'Launching Eclipse'
-            tools.launch_eclipse('RTC_DIR', verbose=verbose)
+            tools.launch_eclipse(proj.rtc_path, verbose=verbose)
             return
         if(argv[2] == 'arduino'):
             print '- Launching Arduino'
-            tools.launch_arduino('RTC_DIR', verbose=verbose)
+            tools.launch_arduino(".", verbose=verbose)
             return
 
         if(argv[2] == 'rtcb'):
             print 'Launching Eclipse'
-            tools.launch_eclipse('RTC_DIR', verbose=verbose)
+            tools.launch_eclipse(proj.rtc_path, verbose=verbose)
             return
 
         if(argv[2] == 'rtse'):
@@ -39,7 +39,7 @@ class Command(object):
                     return False
             
             proj.launch_all_rtcd(verbose=verbose)
-            tools.launch_eclipse('RTS_DIR', nonblock=False, verbose=verbose)
+            tools.launch_eclipse(proj.system_path, nonblock=False, verbose=verbose)
             
             ns_addrs = [ns.path for ns in nss]
             project.save_all_system(ns_addrs)

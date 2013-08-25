@@ -40,6 +40,10 @@ class Project():
         return os.path.join(self.path, self.setting['RTC_DIR'])
 
     @property
+    def system_path(self):
+        return os.path.join(self.path, self.setting['RTS_DIR'])
+
+    @property
     def rtc_repositories(self):
         repos = []
         dic = yaml.load(open(os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml'), 'r'))

@@ -52,6 +52,25 @@ class Command(object):
             repo = original_repo.fork(user, passwd, verbose=verbose)
             proj = repo.clone(verbose=verbose)
 
+        elif argv[2] == 'diff':
+            wasanbon.arg_check(argv, 5)
+            sys.stdout.write(' @ Diff between %s and %s\n' % (argv[3], argv[4]))
+            repo1 = prj.get_project(argv[3], verbose=verbose)
+            repo2 = prj.get_project(argv[4], verbose=verbose)
+            diff = prj.diff(repo1, repo2)
+            print_diff(diff)
+
         else:
             raise wasanbon.InvalidUsageException()
+
+        
+
+
+def print_diff(diff):
+    [plus, minus] = diff.rtcs
+    sys.stdout.write(' - RTC\n')
+    for rtc in plus:
+        sys.stdout.write('  + %s\n' % rtc.name)
+    for rtc in minus:
+        sys.stdout.write('  - %s\n' % rtc.name)
 
