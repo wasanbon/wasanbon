@@ -13,3 +13,7 @@ simvehicle:
 urgtest:
   description : 'Hokuyo URG sensor Test Project'
   git : 'https://github.com/sugarsweetrobotics/urgtest.git'
+
+roomba_test:
+  description : 'iRobot Roomba RTC and its Test application'
+  git : 'https://github.com/sugarsweetrobotics/roomba_test.git'
