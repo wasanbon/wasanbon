@@ -33,7 +33,7 @@ def search_command(cmd, hints, verbose=False):
     if len(paths) == 0:
         paths = [hint for hint in hints if os.path.isfile(hint)]
         if len(paths) == 0:
-            sys.stdout.write(' not found.\n')
+            sys.stdout.write(' - %s not found.\n' % cmd)
             return ""
 
     if verbose:
