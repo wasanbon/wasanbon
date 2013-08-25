@@ -4,6 +4,7 @@ from wasanbon.util import git
 from connection import *
 from project_obj import *
 from repository import *
+from diff import *
 
 def get_repositories(verbose=False):
     repositories = []
@@ -121,3 +122,5 @@ def clone_project(prjname, verbose=False):
     return project.create_project(self.name, verbose=verbose)
 
 
+def diff(repo1, repo2):
+    return ProjectDiff(repo1, repo2)

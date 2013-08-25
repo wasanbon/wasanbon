@@ -65,7 +65,7 @@ def install_rtno(verbose=False, force=False):
     
     
 
-def launch_eclipse(workbench, nonblock=True, verbose=False):
+def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
@@ -79,14 +79,17 @@ def launch_eclipse(workbench, nonblock=True, verbose=False):
         sys.stdout.write("Please install eclipse by 'wasanbon-admin.py tools install' command.\n")
         return
 
-    if not os.path.isfile(os.path.join(os.getcwd(), "setting.yaml")):
+    if not os.path.isdir(workbench) or workbench == '.':
+        if verbose:
+            sys.stdout.write("Starting eclipse in current directory.\n")
         cmd = [eclipse_cmd]
     else:
-        if 'RTC_DIR' in wasanbon.setting['application'].keys():
-            sys.stdout.write("Starting eclipse in current project directory.\n")
-            cmd = [eclipse_cmd, '-data', os.path.join(os.getcwd(), wasanbon.setting['application'][workbench])]
-        else:
-            cmd = [eclipse_cmd]
+        if verbose:
+            sys.stdout.write("Starting eclipse in current project directory(%s).\n" % workbench)
+        cmd = [eclipse_cmd, '-data', workbench]
+
+    if argv != None:
+        cmd = cmd + argv
 
     if sys.platform == 'win32':
         p = subprocess.Popen(cmd, creationflags=512, env=env, stdout=subprocess.PIPE)
