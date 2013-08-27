@@ -316,6 +316,15 @@ class Project():
             time.sleep(1)
         raise wasanbon.BuildSystemException()
 
+    def deactivate(self, try_count=5, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Deactivate all RTCs\n')
+        for i in range(0, try_count):
+            if run.exe_rtstop():
+                return True
+            time.sleep(1)
+        raise wasanbon.BuildSystemException()
+
     def is_process_terminated(self, verbose=False):
         flags = []
         for key, value in self._process:

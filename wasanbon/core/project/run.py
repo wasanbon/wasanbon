@@ -1,6 +1,6 @@
 import os, sys, time, subprocess, signal
 from ctypes import *
-from rtshell import rtstart, rtresurrect
+from rtshell import rtstart, rtresurrect, rtstop
 
 import wasanbon
 
@@ -99,6 +99,9 @@ def cmd_rtresurrect():
 
 def exe_rtstart():
     return rtstart.main([wasanbon.setting['application']['system']]) == 0
+
+def exe_rtstop():
+    return rtstop.main([wasanbon.setting['application']['system']]) == 0
 
 def cmd_rtstart():
 
