@@ -1,4 +1,4 @@
-import os, sys, yaml, subprocess, shutil, types, time
+import os, sys, yaml, subprocess, shutil, types, time, stat
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.util import git
