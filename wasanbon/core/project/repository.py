@@ -41,6 +41,10 @@ class ProjectRepository():
 
         git.git_command(['clone', self.url, appdir], verbose=verbose)
         proj = wasanbon.core.project.create_project(self.name, verbose=verbose, force_create=True, overwrite=False)
+        
+        # Change ext to OS respondable type
+        proj.validate(verbose=verbose, autofix=True, ext_only=True)
+
         for repo in proj.rtc_repositories:
             if verbose:
                 sys.stdout.write(' - Cloning RTC %s\n' % repo.name)

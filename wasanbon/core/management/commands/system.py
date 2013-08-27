@@ -226,4 +226,11 @@ class Command(object):
                 rtcconf_java.sync()
                 
             pass
+        elif argv[2] == 'validate':
+            proj.validate(verbose=verbose, autofix=force, interactive=True)
+            pass
             
+        else:
+            raise wansanbon.InvalidUsageException
+
+

@@ -365,6 +365,17 @@ class Project():
                 pairs.append([outport, inport])
         return pairs
 
+    def validate(self, verbose=False, autofix=False, interactive=False, ext_only=False):
+        for lang in self._languages:
+            
+            rtcc = self.rtcconf(lang)
+            if lang == 'C++':
+                rtcc.ext_check(verbose=verbose, autofix=autofix, interactive=interactive)
+            if not ext_only:
+                rtcc.validate(verbose=verbose, autofix=autofix, interactive=interactive)
+            rtcc.sync()
+
+        pass
         
 def remShut(*args):
     func, path, _ = args 
