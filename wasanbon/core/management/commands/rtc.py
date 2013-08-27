@@ -114,6 +114,10 @@ class Command(object):
         elif argv[2] == 'build':
             wasanbon.arg_check(argv, 4)
             build_all = True if 'all' in argv else False
+
+            if sys.platform == 'win32':
+                verbose=True
+
             for rtc in proj.rtcs:
                 if build_all or rtc.name in argv:
                     sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
