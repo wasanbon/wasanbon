@@ -15,6 +15,8 @@ class Command(object):
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
+        if sys.platform == 'win32':
+            verbose=True
 
         if not platform.init_rtm_home(force=force, verbose=verbose):
             sys.stdout.write(' - Can not install commands.\n')
