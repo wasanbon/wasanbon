@@ -172,6 +172,9 @@ class Command(object):
 
         elif(argv[2] == 'run'):
             signal.signal(signal.SIGINT, signal_action)
+            if sys.platform == 'win32':
+                print 'SIGBREAK..'
+                signal.signal(signal.SIGBREAK, signal_action)
             sys.stdout.write(' @ Starting RTC-daemons...\n')
 
             nss = proj.get_nameservers(verbose=verbose)
@@ -185,13 +188,15 @@ class Command(object):
             proj.connect_and_configure(verbose=verbose)
             proj.activate(verbose=verbose)
 
-            if sys.platform == 'win32':
-                global endflag
-                while not endflag:
+            global endflag
+            while not endflag:
+                try:
                     time.sleep(0.1)
-            else:
-                signal.pause()
+                except IOError, e:
+                    pass
 
+
+            proj.deactivate(verbose=verbose)
             proj.terminate_all_rtcd(verbose=verbose)
 
             for ns in nss:
