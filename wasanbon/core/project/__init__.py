@@ -1,4 +1,4 @@
-import os, sys, yaml, subprocess, shutil
+import os, sys, yaml, subprocess, shutil, types
 import wasanbon
 from wasanbon.util import git
 from connection import *
@@ -35,8 +35,9 @@ def get_projects(verbose=False):
             sys.stdout.write(' - Opening workspace.yaml.\n')
         y= yaml.load(open(ws_file_name, "r"))
         projs = []
-        for key, value in y.items():
-            projs.append(Project(value))
+        if type(y) != types.NoneType:
+            for key, value in y.items():
+                projs.append(Project(value))
         return projs
 
 def get_project(prjname, verbose=False):
