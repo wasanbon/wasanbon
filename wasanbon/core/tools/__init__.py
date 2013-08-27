@@ -7,7 +7,7 @@ from wasanbon import util
 from wasanbon.util import git
 from wasanbon.core import rtm
 
-def install(force=False):
+def install(force=False, verbose=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
 
     try:
@@ -26,17 +26,17 @@ def install(force=False):
                 import rtctree
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtctree']
-                git.clone_and_setup(url)
+                git.clone_and_setup(url, verbose=verbose)
             try:
                 import rtsprofile
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtsprofile']
-                git.clone_and_setup(url)
+                git.clone_and_setup(url, verbose=verbose)
             try:
                 import rtshell
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtshell']
-                git.clone_and_setup(url)
+                git.clone_and_setup(url, verbose=verbose)
             pass
 
     except ImportError, e:
@@ -45,7 +45,7 @@ def install(force=False):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     if not os.path.isdir(eclipse_dir) or force:
         url = wasanbon.setting[sys.platform]['packages']['eclipse']
-        util.download_and_unpack(url, wasanbon.rtm_home, force)
+        util.download_and_unpack(url, wasanbon.rtm_home, force=force, verbose=verbose)
 
 def install_arduino(verbose=False, force=False):
     arduino_dir = os.path.join(wasanbon.rtm_home, 'arduino')

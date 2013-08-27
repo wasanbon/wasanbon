@@ -6,6 +6,22 @@ from wasanbon.core import tools
 #from xml.etree import ElementTree
 from wasanbon.core import project as prj
 
+from rtshell import rtcryo
+
+def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=False):
+    if verbose:
+        sys.stdout.write(" - Saving System on %s to %s\n" % (str(nameservers), filepath))
+    try:
+        argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', filepath]
+        argv = argv + nameservers
+        rtcryo.main(argv=argv)
+    except omniORB.CORBA.UNKNOWN, e:
+        traceback.print_exc()
+        pass
+    except Exception, e:
+        traceback.print_exc()
+        return False
+
 class Command(object):
     def __init__(self):
         pass
@@ -42,7 +58,7 @@ class Command(object):
             tools.launch_eclipse(proj.system_path, nonblock=False, verbose=verbose)
             
             ns_addrs = [ns.path for ns in nss]
-            prj.save_all_system(ns_addrs)
+            save_all_system(['localhost'])
             proj.terminate_all_rtcd(verbose=verbose)
             
             for ns in nss:
