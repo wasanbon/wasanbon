@@ -42,7 +42,7 @@ class Command(object):
             tools.launch_eclipse(proj.system_path, nonblock=False, verbose=verbose)
             
             ns_addrs = [ns.path for ns in nss]
-            project.save_all_system(ns_addrs)
+            prj.save_all_system(ns_addrs)
             proj.terminate_all_rtcd(verbose=verbose)
             
             for ns in nss:
