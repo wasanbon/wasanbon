@@ -26,7 +26,7 @@ class ProjectRepository():
         try:
             proj = wasanbon.core.project.get_project(self.name, verbose)
             if verbose:
-                print ' - There is %s project in workspace.yaml\n' % prjname
+                print ' - There is %s project in workspace.yaml\n' % self.name
                 print ' - Please unregister the project\n' 
             raise ProjectAlreadyExistsException()
         except wasanbon.ProjectNotFoundException, ex:
@@ -50,7 +50,7 @@ class ProjectRepository():
                 sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
             rtc = repo.clone(path=os.path.join(appdir, proj.setting['RTC_DIR']), verbose=verbose)
             rtc.build(verbose=verbose)
-            proj.install(rtc, precreate=False, preload=True)
+            proj.install(rtc, precreate=False, preload=True, verbose=verbose)
         return Project(appdir)
 
 
