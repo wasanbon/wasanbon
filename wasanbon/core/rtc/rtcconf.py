@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import os, sys
+import wasanbon
+from wasanbon import util
 
 class RTCConf(object):
     def __init__(self, rtcconf, verbose=False):
@@ -125,3 +127,37 @@ class RTCConf(object):
         fin.close()
         os.remove(self.filename + '.bak')
         fout.close()
+
+    def ext_check(self, verbose=False, autofix=False, interactive=False):
+        rtcbins = [rtc.strip() for rtc in self['manager.modules.preload'].split(',') if not len(rtc.strip()) == 0]
+        valid_bins = []
+        for rtcbin in rtcbins:
+            if not rtcbin.endswith(wasanbon.get_bin_file_ext()):
+                if verbose or interactive:
+                    sys.stdout.write(' - Detect invalid bin file expression (%s)\n' % rtcbin)
+                valid_name = rtcbin[:rtcbin.rfind('.')] + wasanbon.get_bin_file_ext()
+                if interactive or autofix:
+                    res = []
+                    if autofix:
+                        res = 'yes'
+                    else:
+                        res = util.yes_no(' - Change file name from %s to %s?' % (rtcbin, valid_name))
+                    if res == 'yes':
+                        if verbose or interactive:
+                            sys.stdout.write(' - Changed.\n')
+                        valid_bins.append(valid_name)
+                    else:
+                        valid_bins.append(rtcbin)
+
+        
+        self['manager.modules.preload'] = ''
+        for rtcbin in valid_bins:
+            self.append('manager.modules.preload', rtcbin)
+        pass
+
+    def validate(self, verbose=False, autofix=False, interactive=False):
+        if verbose:
+            sys.stdout.write('Validating rtc.conf(%s)\n' % self.filename)
+        
+            #self.ext_check(verbose=verbose, autofix=autofix, interactive=interactive)
+        pass
