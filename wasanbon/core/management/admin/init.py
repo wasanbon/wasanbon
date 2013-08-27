@@ -27,7 +27,7 @@ class Command(object):
 
         rtm.install(force=force)
 
-        tools.install(force=force)
+        tools.install(force=force, verbose=verbose)
 
         if sys.platform == 'win32':
             sys.stdout.write("\n=========================================================\n");
