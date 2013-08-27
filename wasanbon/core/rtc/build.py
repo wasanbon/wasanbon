@@ -33,10 +33,11 @@ def build_rtc_cpp(rtcp, verbose=False):
     if sys.platform == 'win32':
         sln = '%s.sln' % rtcp.basicInfo.name
         if sln in os.listdir(os.getcwd()):
-            print ' - Visual C++ Solution File is successfully generated.'
+            sys.stdout.write(' - Visual C++ Solution File is successfully generated.\n')
             cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
-            stdout = None if verbose else subprocess.PIPE
-            print ' - msbuild %s %s %s' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32')
+            #stdout = None if verbose else subprocess.PIPE
+            stdout = None # In windows msbuild always must be launched in verbose mode.
+            sys.stdout.write(' - msbuild %s %s %s\n' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32'))
             subprocess.call(cmd, stdout=stdout)
             return
     elif sys.platform == 'darwin':
