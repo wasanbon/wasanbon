@@ -118,12 +118,15 @@ def build_rtc_java(rtcp, verbose=False):
     for f in javafiles:
         cmd.append(f)
     #print cmd
+    if verbose:
+        sys.stdout.write(' - build_rtc_java:%s\n' % repr(cmd))
     subprocess.call(cmd, env=java_env)
 
     clsfiles = []
     for root, dirs, files in os.walk(cls_dir):
         for f in files:
             if f.endswith('.class'):
+                print ' --- cls:', os.path.join(root, f)[len(cls_dir)+1:]
                 clsfiles.append(os.path.join(root, f)[len(cls_dir)+1:])
 
     jarcmd = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'jar')
@@ -132,7 +135,10 @@ def build_rtc_java(rtcp, verbose=False):
     for f in clsfiles:
         cmd.append(cls_dir)
         cmd.append(f)
-        #print cmd
+
+    if verbose:
+        sys.stdout.write(' - archiving: %s\n' % repr(cmd))
+
     subprocess.call(cmd, env=java_env)
 
 

@@ -16,6 +16,9 @@ java :
 javac :
   - "/usr/local/bin/javac"
   - "/usr/bin/javac"
+jar :
+  - "/usr/local/bin/jar"
+  - "/usr/bin/jar"
 svn :
   - "/usr/local/bin/svn"
   - "/usr/bin/svn"
