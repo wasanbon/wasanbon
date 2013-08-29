@@ -166,7 +166,7 @@ class Command(object):
                     msg = ' - Add Configuration (%s:%s)?' % (key, val)
                     if util.yes_no(msg) == 'yes':
                         rtcc[key] = val
-                        return True
+                        return False
                     else:
                         sys.stdout.write(' - Aborted.\n')
                         return False

@@ -126,7 +126,7 @@ class RtcObject():
 
     def pull(self, verbose=False):
         self.git.pull(verbose=verbose)
-        return selfn
+        return self
 
     def push(self, verbose=False):
         self.git.push(verbose=verbose)
