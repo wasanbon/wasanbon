@@ -3,6 +3,7 @@
 import os, sys
 import wasanbon
 from wasanbon.core import project as prj
+from wasanbon.core import rtc 
 from wasanbon.util import editor
 from wasanbon import util
 
@@ -132,6 +133,52 @@ class Command(object):
                     if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
                         rtc_.checkout(verbose=verbose)
             editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
+        elif argv[2] == 'configure':
+            wasanbon.arg_check(argv, 4)
+            rtc_name = argv[3]
+            targets = []
+            for i in range(0, 16):
+                if rtc_name.endswith(str(i)):
+                    target_file = os.path.join(proj.conf_path, rtc_name + '.conf')
+                    targets.append(target_file)
+                    
+            if len(targets) == 0: # all files
+                for i in range(0, 16):
+                    target_file = os.path.join(proj.conf_path, rtc_name + str(i) + '.conf')
+                    if os.path.isfile(target_file):
+                        targets.append(target_file)
+            print targets
+            for target in targets:
+                sys.stdout.write(' @ Configuring %s\n' % os.path.basename(target))
+                rtcc = wasanbon.core.rtc.RTCConf(target)
+                
+                choice1 = ['add'] + rtcc.keys()
+                msg = ' @ Choice configuration'
+                def callback1(ans1):
+                    if ans1 == 0: # add
+                        sys.stdout.write(' -- Input keyname (ex., conf.default.param1) : ')
+                        key = raw_input()
+                    else:
+                        key = rtcc.keys()[ans1-1]
+
+                    sys.stdout.write(' -- Input value of %s (ex., 1) : ' % key)
+                    val = raw_input()
+                    msg = ' - Add Configuration (%s:%s)?' % (key, val)
+                    if util.yes_no(msg) == 'yes':
+                        rtcc[key] = val
+                        return True
+                    else:
+                        sys.stdout.write(' - Aborted.\n')
+                        return False
+
+                util.choice(choice1, callback1, msg)
+                for key in rtcc.keys():
+                    print ' -- %s' % key
+            
+                rtcc.sync()
+            
+
+            
 
         else:
             raise wasanbon.InvalidUsageException()

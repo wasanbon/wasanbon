@@ -123,6 +123,15 @@ help :
         - '         forkする前の元のリポジトリの管理者に変更を通知することが出来ます．'
         - '         例:  $ mgr.py rtc github_pullrequest ConsoleOutput "Hello This is comment"'
         - '         作者としては，使ってほしい機能ですww'
+        - 'configure :'
+        - '         デフォルトのコンフィグレーションを変更します．'
+        - '         通常，デフォルトのコンフィグレーションは，$PROJECT_PATH/confにありますが，'
+        - '         system runする場合は，RT System Profileに書かれたコンフィグレーションに書きかわるので'
+        - '         あまり効果がありません．ただし，RTnoProxyのようにonInitializeで'
+        - '         UpdateParameterを呼び，コンフィグレーションを読み込むようなRTCには有効です'
+        - '         例： $ mgr.py rtc configure RTnoProxy'
+        - '         複数のRTCを利用している場合は，以下のように添字を使って個別に設定できます'
+        - '         例： $ mgr.py rtc configure RTnoProxy1'
       edit :
         - 'RTコンポーネントのソースコードを編集します．引数にRTC名を取ります．'
         - 'エディタとしてemacsを使います．emacsに不慣れな人は使わないで下さい'
@@ -232,3 +241,4 @@ help :
       lib :
         - 'wasanbon周辺のライブラリを収集します'
         - 'RTnoとの統合に使えます．'
+        - 'RTnoをインストールする場合は， $ wasanbon-admin.py lib install RTno と打ちます'
