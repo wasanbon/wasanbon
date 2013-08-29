@@ -1,6 +1,6 @@
 import os, sys, yaml, subprocess, shutil, types, time, stat
 import wasanbon
-from wasanbon.core import rtc
+from wasanbon.core import rtc, system
 from wasanbon.util import git
 from wasanbon.util import github_ref
 from wasanbon.core import nameserver
@@ -42,6 +42,10 @@ class Project():
     @property
     def system_path(self):
         return os.path.join(self.path, self.setting['RTS_DIR'])
+
+    @property
+    def system_file(self):
+        return os.path.join(self.path, self.setting['system'])
 
     @property
     def rtc_repositories(self):
@@ -124,6 +128,10 @@ class Project():
         shutil.rmtree(rtc_.path, ignore_errors=True)
         self.remove_rtc_repository(rtc_.name)
         pass
+
+    @property
+    def system(self):
+        return system.SystemObject(self.system_file)
 
     @property
     def path(self):

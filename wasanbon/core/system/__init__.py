@@ -1,24 +1,25 @@
 # encoding: UTF-8
-import os, sys, time, signal, traceback, yaml, subprocess
-import github
-import rtctree
-import omniORB
+#import os, sys, time, signal, traceback, yaml, subprocess
+#import github
+#import rtctree
+#import omniORB
 
-import wasanbon
-from wasanbon import util
-from wasanbon.core.system import run
-from wasanbon.core import rtc
-from wasanbon.core.rtc import rtcprofile
-from wasanbon.core.system import rtsprofile
-from wasanbon.core.rtc import rtcconf
+#import wasanbon
+#from wasanbon import util
+#from wasanbon.core.system import run
+#from wasanbon.core import rtc
+#from wasanbon.core.rtc import rtcprofile
+#from wasanbon.core.system import rtsprofile
+#from wasanbon.core.rtc import rtcconf
 
-process = {}
-endflag = False
+#process = {}
+#endflag = False
 
 #import rtctree
-from rtshell import rtcryo
+#from rtshell import rtcryo
 
-
+from system_obj import *
+"""
 def is_all_process_terminated():
     flags = []
     global process
@@ -198,3 +199,4 @@ def list_installed_rtcs():
             pass
     return retval
     pass
+"""
