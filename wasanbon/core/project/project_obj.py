@@ -393,6 +393,9 @@ class Project():
             rtcc.sync()
 
         pass
+    @property
+    def conf_path(self):
+        return os.path.join(self.path, 'conf')
         
 def remShut(*args):
     func, path, _ = args 
