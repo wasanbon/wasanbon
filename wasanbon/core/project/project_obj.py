@@ -201,7 +201,10 @@ class Project():
             targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
             targetconf = targetconf[:-5] + '0' + '.conf'
             shutil.copy(conffile, targetconf)
-            rtcconf.append(rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file', os.path.join('conf', os.path.basename(targetconf)))
+            confpath = 'conf' + '/' + os.path.basename(targetconf)
+            if sys.platform == 'win32':
+                 confpath.replace('\\', '\\\\')
+            rtcconf.append(rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file', confpath )
             pass
         rtcconf.sync()
         pass
