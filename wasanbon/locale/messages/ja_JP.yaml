@@ -22,6 +22,7 @@ help :
       make: 'RTCをビルドします．adminコマンド版です．プロジェクトを自動検索します．'
       nameserver: 'RTシステムが参照するネームサービスのアドレスを指定します．'
       github_admin: 'githubとの連携を管理します．'
+      lib : '周辺ライブラリの入手'
   command:
     description :
       init : 
@@ -47,6 +48,17 @@ help :
         - '         フォルダ自体は残るので，フォルダ内のmgr.pyから，'
         - '          $ mgr.py admin register'
         - '         で，再登録を行うことができます．'
+        - '         --cleanオプションで，プロジェクトのディレクトリを削除します．'
+        - 'repository :'
+        - '         wasanbonに登録されているプロジェクトのリポジトリを表示'
+        - '         $ wasanbon-admin.py project repository'
+        - 'clone :'
+        - '         ネット上からwasanbonに登録されているプロジェクトを'
+        - '         マシン上にコピーします．'
+        - '         例： $wasanbon-admin.py project clone tutorial01'
+        - 'fork :'
+        - '         プロジェクトごと自分のgithubにforkできます．'
+        - '         例：$ wasanbon-admin.py project github_fork tutorial01'
       rtm :
         - 'プラットフォーム上のRTミドルウエアの管理をします．'
         - '以下のサブコマンドが必要です．'
@@ -59,7 +71,8 @@ help :
         - 'wasanbon本体をアップデートします．'
         - 'sudoして実行してください．WindowsではUACをOFFにしてください．'
         - 'selfupdateはinitコマンドが成功している場合に利用可能です．'
-        - '$HOME/rtm/temp以下にgitを使って最新のwasanbonコードをダウンロードしてアップデートします．'
+        - '$HOME/rtm/temp以下にgitを使って最新のwasanbonコードを'
+        - 'マシン上にダウンロードしてアップデートします．'
       rtc :
         - 'プロジェクト内のRTコンポーネントを管理します．'
         - '以下のサブコマンドが必要です．'
@@ -216,3 +229,6 @@ help :
         - '         ssh_initコマンドでは，ssh通信のためのrsa鍵を生成します．'
       ssh_init:
         - 'RSA鍵を作成し，$HOME/.sshディレクトリに保存します．'
+      lib :
+        - 'wasanbon周辺のライブラリを収集します'
+        - 'RTnoとの統合に使えます．'

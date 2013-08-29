@@ -30,6 +30,10 @@ class RepositoryNotFoundException(Exception):
     def __init__(self):
         pass
 
+class RTCNotFoundException(Exception):
+    def __init__(self):
+        pass
+
 class ProjectNotFoundException(Exception):
     def __init__(self):
         pass
