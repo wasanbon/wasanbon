@@ -36,17 +36,24 @@ class Command(object):
             print 'Launching Eclipse'
             tools.launch_eclipse(proj.rtc_path, verbose=verbose)
             return
-        if(argv[2] == 'arduino'):
+        elif(argv[2] == 'arduino'):
             print '- Launching Arduino'
             tools.launch_arduino(".", verbose=verbose)
             return
+        elif argv[2] == 'RTno':
+            sys.stdout.write(' - RTno\n')
+            wasanbon.arg_check(argv, 4)
+            if argv[3] == 'template':
+                # wasanbon.arg_check(argv, 5)
+                rtc_name = argv[4]
+                tools.generate_rtno_temprate(proj, rtc_name, verbose=verbose)
 
-        if(argv[2] == 'rtcb'):
+        elif(argv[2] == 'rtcb'):
             print 'Launching Eclipse'
             tools.launch_eclipse(proj.rtc_path, verbose=verbose)
             return
 
-        if(argv[2] == 'rtse'):
+        elif(argv[2] == 'rtse'):
             sys.stdout.write(' @ Launching Eclipse\n')
             nss = proj.get_nameservers(verbose=verbose)
             for ns in nss:

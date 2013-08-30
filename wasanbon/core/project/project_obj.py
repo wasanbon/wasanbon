@@ -10,9 +10,6 @@ class InvalidProjectPathError(Exception):
     def __init__(self):
         pass
 
-class RTCNotFoundException(Exception):
-    def __init__(self):
-        pass
 
 class Project():
 
@@ -120,7 +117,7 @@ class Project():
                 return rtc_
         if verbose:
             sys.stdout.write(' - Can not find RTC %s\n' % name)
-        raise RTCNotFoundException()
+        raise wasanbon.RTCNotFoundException()
 
     def delete_rtc(self, rtc_, verbose=False):
         if verbose:

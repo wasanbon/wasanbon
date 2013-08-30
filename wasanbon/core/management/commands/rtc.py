@@ -3,7 +3,7 @@
 import os, sys
 import wasanbon
 from wasanbon.core import project as prj
-from wasanbon.core import rtc 
+from wasanbon.core import rtc, tools
 from wasanbon.util import editor
 from wasanbon import util
 
@@ -21,6 +21,9 @@ class Command(object):
             for rtc in proj.rtcs:
                 print_rtc(rtc)
 
+            for rtno in tools.get_rtno_projects(proj, verbose=verbose):
+                print_rtno(rtno)
+
         elif argv[2] == 'repository':
             sys.stdout.write(' @ Listing RTC Repository\n')
             for repo in wasanbon.core.rtc.get_repositories(verbose):
@@ -29,15 +32,25 @@ class Command(object):
         elif argv[2] == 'git_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
-            proj.rtc(argv[3]).git_init(verbose=verbose)
+            try:
+                proj.rtc(argv[3]).git_init(verbose=verbose)
+            except wasanbon.RTCNotFoundException, ex:
+                rtno = tools.get_rtno_project(proj, argv[3], verbose=verbose)
+                rtno.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
-            rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
-            sys.stdout.write(' @ Updating repository infomation\n')
-            proj.append_rtc_repository(rtc_.repository)
+            try:
+                rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
+                sys.stdout.write(' @ Updating repository infomation\n')
+                proj.append_rtc_repository(rtc_.repository)
+            except wasanbon.RTCNotFoundException, ex:
+                rtno = tools.get_rtno_project(proj, argv[3], verbose=verbose)
+                rtno.github_init(user, passwd, verbose=verbose)
+                sys.stdout.write(' @ Updating repository infomation\n')
+                proj.append_rtc_repository(rtc_.repository)                
 
         elif argv[2] == 'github_fork':
             wasanbon.arg_check(argv, 4)
@@ -126,13 +139,25 @@ class Command(object):
 
         elif argv[2] == 'edit':
             wasanbon.arg_check(argv, 4)
-            rtc_ = proj.rtc(argv[3])
-            if rtc_.is_git_repo():
-                if rtc_.git_branch() != 'master':
-                    sys.stdout.write(' @ You are not in master branch.\n')
-                    if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
-                        rtc_.checkout(verbose=verbose)
-            editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
+            try:
+                rtc_ = proj.rtc(argv[3])
+                
+                if rtc_.is_git_repo():
+                    if rtc_.git_branch() != 'master':
+                        sys.stdout.write(' @ You are not in master branch.\n')
+                        if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
+                            rtc_.checkout(verbose=verbose)
+                editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
+            except wasanbon.RTCNotFoundException, ex:
+                rtnos = tools.get_rtno_projects(proj)
+                for rtno in rtnos:
+                    if rtno.name == argv[3]:
+                        tools.launch_arduino(rtno.file, verbose=verbose)
+                        return
+                raise wasanbon.RTCNotFoundException()
+            
+
+
         elif argv[2] == 'configure':
             wasanbon.arg_check(argv, 4)
             rtc_name = argv[3]
@@ -183,6 +208,16 @@ class Command(object):
         else:
             raise wasanbon.InvalidUsageException()
 
+def print_rtno(rtno):
+    str = rtno.name + ' : \n'
+    str = str + '    name       : ' + rtno.name + '\n'
+    str = str + '    language   : ' + 'arduino' + '\n'
+    filename = rtno.file
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    str = str + '    file       : ' + filename + '\n'
+    sys.stdout.write(str)
+
 def print_rtc_profile(rtcp):
     str = rtcp.basicInfo.name + ' : \n'
     str = str + '    name       : ' + rtcp.basicInfo.name + '\n'
@@ -218,6 +253,8 @@ def print_rtc(rtc):
     print_rtc_profile(rtc.rtcprofile)
     print_package_profile(rtc.packageprofile)
     pass
+
+
 
 def print_repository(repo):
     sys.stdout.write(' - %s\n' % repo.name)
