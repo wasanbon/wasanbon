@@ -1,4 +1,4 @@
-import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback
+import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback, optparse
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon import util
@@ -52,8 +52,23 @@ class Command(object):
     def __init__(self):
         pass
 
-    def execute_with_argv(self, argv, clean, verbose, force):
+    def execute_with_argv(self, args, clean, verbose, force):
 
+        usages  = wasanbon.get_help_text(['help', 'command', 'description', 'system'])
+        usage = "mgr.py system [subcommand] ...\n\n"
+        for line in usages:
+            usage = usage + line + '\n'
+        #usage  = usage + '\n\nsubcommand:\n'
+        #for opt in opts:
+        #    usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
+
+        parser = optparse.OptionParser(usage=usage, add_help_option=False)
+        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        try:
+            options, argv = parser.parse_args(args[:])
+        except:
+            return
+        
         proj = project.Project(os.getcwd())
 
         if(argv[2] == 'install'):

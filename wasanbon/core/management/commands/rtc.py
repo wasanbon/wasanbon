@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, optparse
 import wasanbon
 from wasanbon.core import project as prj
 from wasanbon.core import rtc, tools
@@ -18,14 +18,27 @@ class Command(object):
         except wasanbon.RTCNotFoundException, e:
             return tools.get_rtno_project(proj, name, verbose=verbose)
 
-    def execute_with_argv(self, argv, verbose, force, clean):
+    def execute_with_argv(self, args, verbose, force, clean):
+        usages  = wasanbon.get_help_text(['help', 'command', 'description', 'rtc'])
+        usage = "mgr.py rtc [subcommand] ...\n\n"
+        for line in usages:
+            usage = usage + line + '\n'
+
+        parser = optparse.OptionParser(usage=usage, add_help_option=False)
+        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        try:
+            options, argv = parser.parse_args(args[:])
+        except:
+            return
+
+
         wasanbon.arg_check(argv, 3)
         proj = prj.Project(os.getcwd())
 
         if argv[2] == 'list':
             sys.stdout.write(' @ Listing RTCs in current project\n')
             for rtc in proj.rtcs:
-                print_rtc(rtc)
+                print_rtc(rtc, long=options.long_flag)
 
             for rtno in tools.get_rtno_projects(proj, verbose=verbose):
                 print_rtno(rtno)
@@ -33,7 +46,7 @@ class Command(object):
         elif argv[2] == 'repository':
             sys.stdout.write(' @ Listing RTC Repository\n')
             for repo in wasanbon.core.rtc.get_repositories(verbose):
-                print_repository(repo)
+                print_repository(repo, long=options.long_flag)
 
         elif argv[2] == 'git_init':
             wasanbon.arg_check(argv, 4)
@@ -238,47 +251,54 @@ def print_rtno(rtno):
     str = str + '    file       : ' + filename + '\n'
     sys.stdout.write(str)
 
-def print_rtc_profile(rtcp):
-    str = rtcp.basicInfo.name + ' : \n'
-    str = str + '    name       : ' + rtcp.basicInfo.name + '\n'
-    str = str + '    language   : ' + rtcp.getLanguage() + '\n'
-    str = str + '    category   : ' + rtcp.getCategory() + '\n'
-    filename = rtcp.getRTCProfileFileName()
-    if filename.startswith(os.getcwd()):
-        filename = filename[len(os.getcwd()) + 1:]
-    str = str + '    RTC.xml    : ' + filename + '\n'
+def print_rtc_profile(rtcp, long=False):
+    str = ' - ' + rtcp.basicInfo.name
+
+    if long:
+        str = str + ':\n'
+        str = str + '    - name       : ' + rtcp.basicInfo.name + '\n'
+        str = str + '    - language   : ' + rtcp.getLanguage() + '\n'
+        str = str + '    - category   : ' + rtcp.getCategory() + '\n'
+        filename = rtcp.getRTCProfileFileName()
+        if filename.startswith(os.getcwd()):
+            filename = filename[len(os.getcwd()) + 1:]
+        str = str + '    - RTC.xml    : ' + filename 
+    str = str + '\n'
     sys.stdout.write(str)
 
-def print_package_profile(pp):
+def print_package_profile(pp, long=False):
+    if not long:
+        return
     filename = pp.getConfFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    config     : ' + filename + '\n'
+    str = '    - config     : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    binary     : ' + filename + '\n'
+    str = '    - binary     : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCExecutableFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    executable : ' + filename + '\n'
+    str = '    - executable : ' + filename + '\n'
     sys.stdout.write(str)
 
 
-def print_rtc(rtc):
-    print_rtc_profile(rtc.rtcprofile)
-    print_package_profile(rtc.packageprofile)
+def print_rtc(rtc, long=False):
+    print_rtc_profile(rtc.rtcprofile, long=long)
+    print_package_profile(rtc.packageprofile, long=long)
     pass
 
 
 
-def print_repository(repo):
+def print_repository(repo, long=False):
     sys.stdout.write(' - %s\n' % repo.name)
-    sys.stdout.write('    description : %s\n' % repo.description)
-    sys.stdout.write('    protocol    : %s\n' % repo.protocol)
-    sys.stdout.write('    url         : %s\n' % repo.url)
+    if long:
+        sys.stdout.write('    description : %s\n' % repo.description)
+        sys.stdout.write('    protocol    : %s\n' % repo.protocol)
+        sys.stdout.write('    url         : %s\n' % repo.url)
     pass

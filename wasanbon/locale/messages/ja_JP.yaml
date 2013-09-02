@@ -177,13 +177,17 @@ help :
         - '         ここで設定するネームサーバーは起動したすべてのRTCが登録される'
         - '         ネームサーバーを指します．'
         - '         他のRTCが登録されている外部のネームサービスを登録する場合は'
-        - '         $ mgr.py nameserver'
+        - '         $ mgr.py system nameserver 123.456.789.012'
         - '         を実行します．'
+        - 'configure : '
+        - '         システムプロファイル上のRTCのコンフィグレーションのみ変更します．'
+        - '         $ mgr.py system configure'
       tools :
         - 'RTコンポーネント開発ツールを起動します．'
         - '以下のサブコマンドが有効です．' 
         - '           rtcb : RTC Builderを起動します．'
         - '           rtse : RT System Editorを起動します．'
+        - '           arduino : Arduinoを起動します'
       build :
         - 'RTCをBuildします．Java版，C++版に対応しています．'
         - '引数にRTCの名前をとります．'
