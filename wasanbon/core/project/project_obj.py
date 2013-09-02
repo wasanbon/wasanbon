@@ -37,6 +37,10 @@ class Project():
         return os.path.join(self.path, self.setting['RTC_DIR'])
 
     @property
+    def conf_path(self):
+        return os.path.join(self.path, self.setting['CONF_DIR'])
+
+    @property
     def system_path(self):
         return os.path.join(self.path, self.setting['RTS_DIR'])
 
@@ -104,7 +108,7 @@ class Project():
                     try:
                         rtc_obj = rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir))
                         self._rtcs.append(rtc_obj)
-                    except rtc.RTCProfileNotFoundException, ex:
+                    except wasanbon.RTCProfileNotFoundException, ex:
                         pass
                     except Exception, ex:
                         print ex

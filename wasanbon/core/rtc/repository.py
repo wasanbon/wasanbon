@@ -68,7 +68,7 @@ class RtcRepository():
             try:
                 git_obj = git.GitRepository(os.path.join(os.getcwd(), distpath))
                 git_obj.change_upstream_pointer(self.url, verbose=verbose)
-            except git.GitRepositoryNotFoundException, ex:
+            except:# git.GitRepositoryNotFoundException, ex:
                 sys.stdout.write(' - Directory is not git repository\n')
                 return False
             return
@@ -76,8 +76,8 @@ class RtcRepository():
         git.git_command(['clone', self.url, distpath], verbose=verbose)
         os.chdir(os.path.join(os.getcwd(), distpath))
 
-        if len(self.hash) != 0:
-            git.git_command(['checkout', '-b', 'temp_branch', self.hash], verbose=verbose)
+        #if len(self.hash) != 0:
+        #    git.git_command(['checkout', '-b', 'temp_branch', self.hash], verbose=verbose)
         git.git_command(['submodule', 'init'], verbose=verbose)
         git.git_command(['submodule', 'update'], verbose=verbose)
         os.chdir(curdir)

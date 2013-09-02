@@ -43,3 +43,18 @@ class RTnoProjectObject:
     def repository(self):
         git_obj = wasanbon.util.git.GitRepository(self.path)
         return repository.RtcRepository(self.name, url=git_obj.url, desc="", hash=git_obj.hash)
+    def commit(self, comment, verbose=False):
+        self.git.commit(comment, verbose=verbose)
+        return self
+
+    def checkout(self, verbose=False, hash=''):
+        self.git.checkout(verbose=verbose, hash=hash)
+        return self
+
+    def pull(self, verbose=False):
+        self.git.pull(verbose=verbose)
+        return self
+
+    def push(self, verbose=False):
+        self.git.push(verbose=verbose)
+        return self

@@ -44,15 +44,20 @@ def find_rtc_srcs(rtcp):
         return hdrs + srcs
 
 def find_rtc_exec(rtcp):
-    [path, file] = os.path.split(rtcp.filename)
-    exec_file_name = rtcp.basicInfo.name + "Comp"
-    if sys.platform == 'win32':
-        exec_file_name = exec_file_name + ".exe"
-    files = util.search_file(path, exec_file_name)
-    if len(files) == 0:
-        return ""
-    return files[0]
-
+    if rtcp.language.kind == 'C++':
+        [path, file] = os.path.split(rtcp.filename)
+        exec_file_name = rtcp.basicInfo.name + "Comp"
+        if sys.platform == 'win32':
+            exec_file_name = exec_file_name + ".exe"
+        files = util.search_file(path, exec_file_name)
+        if len(files) == 0:
+            return ""
+        return files[0]
+    elif rtcp.language.kind == 'Python':
+        return find_rtc_bin(rtcp)
+    elif rtcp.language.kind == 'Java':
+        return find_rtc_bin(rtcp)
+        
 def find_rtc_bin(rtcp):
     if rtcp.language.kind == 'C++':
         if sys.platform == 'win32':

@@ -76,3 +76,7 @@ OpenCVCameraCapture :
 CameraViewer_java: 
   description : 'CameraImage Viewer (Java version)'
   git : 'https://github.com/sugarsweetrobotics/JCameraViewer.git'
+
+LEDTest:
+  description : 'LED light test for RTno'
+  git : 'https://github.com/sugarsweetrobotics/LEDTest.git'

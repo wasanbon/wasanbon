@@ -132,6 +132,11 @@ help :
         - '         例： $ mgr.py rtc configure RTnoProxy'
         - '         複数のRTCを利用している場合は，以下のように添字を使って個別に設定できます'
         - '         例： $ mgr.py rtc configure RTnoProxy1'
+        - 'run :'
+        - '         RTCの単体での実行．Comp.exeファイルなどを使います．'
+        - '         RTC_CONFフォルダ以下の対応するコンフィグレーション(**0.conf)を検索して使用します．'
+        - '         実行周期などを調整する場合は，rtc configureコマンドを使ってください'
+        - '         例： $ mgr.py rtc run ConsoleOut'
       edit :
         - 'RTコンポーネントのソースコードを編集します．引数にRTC名を取ります．'
         - 'エディタとしてemacsを使います．emacsに不慣れな人は使わないで下さい'
