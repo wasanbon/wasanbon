@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, subprocess
 
 
 import wasanbon
@@ -10,10 +10,6 @@ from wasanbon.core.rtc import packageprofile
 from wasanbon.core.rtc import build
 #from wasanbon.core.rtc import repository
 import repository
-
-class RTCProfileNotFoundException(Exception):
-    def __init__(self):
-        pass
 
 
 class RtcObject():
@@ -31,7 +27,7 @@ class RtcObject():
             if 'RTC.xml' in files:
                 self._rtc_xml = os.path.join(root, 'RTC.xml')
                 return
-        raise RTCProfileNotFoundException()
+        raise wasanbon.RTCProfileNotFoundException()
         pass
 
     @property
@@ -131,3 +127,30 @@ class RtcObject():
     def push(self, verbose=False):
         self.git.push(verbose=verbose)
         return self
+
+    def execute_standalone(self, argv = [], verbose=False):
+        exe_file = self.packageprofile.getRTCExecutableFilePath()
+
+        env = os.environ.copy()
+        if not 'HOME' in env.keys():
+            env['HOME'] = wasanbon.get_home_path()
+            if verbose:
+                sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
+
+
+        if self.language == 'C++':
+            cmd = [exe_file]
+        elif self.language == 'Python':
+            cmd = ['python', exe_file]
+
+        if verbose:
+            sys.stdout.write(' - Executing ... %s\n' % cmd)
+
+        cmd = cmd + argv
+        
+        stdout = None if verbose else subprocess.PIPE
+        stderr = None if verbose else subprocess.PIPE
+
+        p = subprocess.call(cmd, env=env, stdout=stdout, stderr=stderr)
+
+        return p

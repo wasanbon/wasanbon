@@ -34,6 +34,10 @@ class RTCNotFoundException(Exception):
     def __init__(self):
         pass
 
+class RTCProfileNotFoundException(Exception):
+    def __init__(self):
+        pass
+
 class ProjectNotFoundException(Exception):
     def __init__(self):
         pass

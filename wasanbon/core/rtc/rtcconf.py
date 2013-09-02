@@ -79,7 +79,7 @@ class RTCConf(object):
                         self.dic[key] = self.dic[key] + ','
                     self.dic[key] = self.dic[key] + v
         
-    def sync(self):
+    def sync(self, verbose=False):
         if os.path.isfile(self.filename + ".bak"):
             os.remove(self.filename + ".bak")
         os.rename(self.filename, self.filename + '.bak')
@@ -89,6 +89,7 @@ class RTCConf(object):
         keys = self.dic.keys()[:]
         while True:
             line = fin.readline()
+
             if not line:
                 break;
             if line.strip().startswith('#'):

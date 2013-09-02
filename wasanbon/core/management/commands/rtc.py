@@ -12,6 +12,12 @@ class Command(object):
     def __init__(self):
         pass
 
+    def get_rtc_rtno(self, proj, name, verbose=False):
+        try:
+            return proj.rtc(name)
+        except wasanbon.RTCNotFoundException, e:
+            return tools.get_rtno_project(proj, name, verbose=verbose)
+
     def execute_with_argv(self, argv, verbose, force, clean):
         wasanbon.arg_check(argv, 3)
         proj = prj.Project(os.getcwd())
@@ -32,25 +38,17 @@ class Command(object):
         elif argv[2] == 'git_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
-            try:
-                proj.rtc(argv[3]).git_init(verbose=verbose)
-            except wasanbon.RTCNotFoundException, ex:
-                rtno = tools.get_rtno_project(proj, argv[3], verbose=verbose)
-                rtno.git_init(verbose=verbose)
+            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
-            try:
-                rtc_ = proj.rtc(argv[3]).github_init(user, passwd, verbose=verbose)
-                sys.stdout.write(' @ Updating repository infomation\n')
-                proj.append_rtc_repository(rtc_.repository)
-            except wasanbon.RTCNotFoundException, ex:
-                rtno = tools.get_rtno_project(proj, argv[3], verbose=verbose)
-                rtno.github_init(user, passwd, verbose=verbose)
-                sys.stdout.write(' @ Updating repository infomation\n')
-                proj.append_rtc_repository(rtc_.repository)                
+            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_.github_init(user, passwd, verbose=verbose)
+            sys.stdout.write(' @ Updating repository infomation\n')
+            proj.append_rtc_repository(rtc_.repository)
 
         elif argv[2] == 'github_fork':
             wasanbon.arg_check(argv, 4)
@@ -79,14 +77,22 @@ class Command(object):
                 if name.endswith('.git'):
                     name = name[:-4]
                 sys.stdout.write(' @ Cloning RTC %s\n' % argv[3])
-                rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=proj.rtc_path)
+                try:
+                    rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=proj.rtc_path)
+                except wasanbon.RTCProfileNotFoundException, e:
+                    rtc_ = self.get_rtc_rtno(proj, name, verbose=verbose)
+                    
                 proj.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return
                 
             #for i in range(3, len(argv)):
             for name in argv[3:]:
                 sys.stdout.write(' @ Cloning RTC %s\n' % name)
-                rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=proj.rtc_path)
+                try:
+                    rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=proj.rtc_path)
+                except wasanbon.RTCProfileNotFoundException, e:
+                    rtc_ = self.get_rtc_rtno(proj, name, verbose=verbose)
+
                 proj.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'delete':
@@ -98,24 +104,26 @@ class Command(object):
         elif argv[2] == 'commit':
             wasanbon.arg_check(argv, 5)
             sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
-            rtc_ = proj.rtc(argv[3]).commit(comment=argv[4], verbose=verbose)
+            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_.commit(comment=argv[4], verbose=verbose)
             proj.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'pull':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
-            rtc_ =proj.rtc(argv[3]).pull(verbose=verbose)
+            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_.pull(verbose=verbose)
             proj.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'checkout':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
-            proj.rtc(argv[3]).checkout(verbose=verbose)
+            self.get_rtc_rtno(proj, argv[3], verbose=verbose).checkout(verbose=verbose)
 
         elif argv[2] == 'push':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
-            proj.rtc(argv[3]).push(verbose=True) # when pushing always must be verbose 
+            self.get_rtc_rtno(proj, argv[3], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
 
         elif argv[2] == 'clean':
             wasanbon.arg_check(argv, 4)
@@ -172,12 +180,12 @@ class Command(object):
                     target_file = os.path.join(proj.conf_path, rtc_name + str(i) + '.conf')
                     if os.path.isfile(target_file):
                         targets.append(target_file)
-            print targets
+
             for target in targets:
                 sys.stdout.write(' @ Configuring %s\n' % os.path.basename(target))
                 rtcc = wasanbon.core.rtc.RTCConf(target)
                 
-                choice1 = ['add'] + rtcc.keys()
+                choice1 = ['add'] + [key + ':' + rtcc[key] for key in rtcc.keys()]
                 msg = ' @ Choice configuration'
                 def callback1(ans1):
                     if ans1 == 0: # add
@@ -188,8 +196,9 @@ class Command(object):
 
                     sys.stdout.write(' -- Input value of %s (ex., 1) : ' % key)
                     val = raw_input()
-                    msg = ' - Add Configuration (%s:%s)?' % (key, val)
+                    msg = ' - Update Configuration (%s:%s)?' % (key, val)
                     if util.yes_no(msg) == 'yes':
+                        sys.stdout.write(' - Updated.\n')
                         rtcc[key] = val
                         return False
                     else:
@@ -197,12 +206,23 @@ class Command(object):
                         return False
 
                 util.choice(choice1, callback1, msg)
-                for key in rtcc.keys():
-                    print ' -- %s' % key
             
-                rtcc.sync()
-            
+                rtcc.sync(verbose=verbose)
 
+                rtcc = wasanbon.core.rtc.RTCConf(target)
+                for key in rtcc.keys():
+                    print ' -- %s:%s' % (key, rtcc[key])
+        elif argv[2] == 'run':
+            wasanbon.arg_check(argv, 4)
+            sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
+            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            conf_file = os.path.join(proj.conf_path, rtc_.name + '0.conf')
+            if os.path.isfile(conf_file):
+                sys.stdout.write(' - with rtc.conf %s\n' % os.path.basename(conf_file))
+                arg = ['-f', conf_file]
+            else:
+                arg = []
+            rtc_.execute_standalone(arg, verbose=verbose)
             
 
         else:
