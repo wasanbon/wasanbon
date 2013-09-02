@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, optparse
 import wasanbon
 import wasanbon.core.project as prj
 
@@ -6,7 +6,19 @@ class Command(object):
     def __init__(self):
         pass
     
-    def execute_with_argv(self, argv, verbose, force, clean):
+    def execute_with_argv(self, args, verbose, force, clean):
+
+        usages  = wasanbon.get_help_text(['help', 'admin', 'description', 'project'])
+        usage = "wasanbon-admin.py project [subcommand] ...\n\n"
+        for line in usages:
+            usage = usage + line + '\n'
+
+        parser = optparse.OptionParser(usage=usage, add_help_option=False)
+        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        try:
+            options, argv = parser.parse_args(args[:])
+        except:
+            return
 
         if argv[2] == 'create':
             wasanbon.arg_check(argv, 4)
@@ -36,7 +48,8 @@ class Command(object):
             sys.stdout.write(' @ Listing Project Repositories\n')
             repos = prj.get_repositories(verbose=verbose)
             for repo in repos:
-                sys.stdout.write(' ' + repo.name + ' ' * (24-len(repo.name)) + ' : ' + repo.description + '\n')
+                print_repository(repo, long=options.long_flag)
+
 
         elif argv[2] == 'clone':
             wasanbon.arg_check(argv,4)
@@ -63,8 +76,15 @@ class Command(object):
         else:
             raise wasanbon.InvalidUsageException()
 
-        
+def print_repository(repo, long=False):
 
+    if long:
+        sys.stdout.write(' - ' + repo.name + '\n')
+        sys.stdout.write('    - description : ' + repo.description + '\n')
+        sys.stdout.write('    - url         : ' + repo.url + '\n')
+
+    else:
+        sys.stdout.write(' - ' + repo.name + ' ' * (24-len(repo.name)) + ' : ' + repo.description + '\n')
 
 def print_diff(diff):
     [plus, minus] = diff.rtcs
