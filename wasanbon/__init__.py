@@ -236,9 +236,9 @@ if sys.platform == 'darwin':
     platform = 'darwin'
 
 elif sys.platform == 'win32':
-    if sys.getwindowsversion()[1] == '1':
+    if sys.getwindowsversion()[1] == 1:
         platform = 'windows7'
-    elif sys.getwindowsversion()[1] == '2':
+    elif sys.getwindowsversion()[1] == 2:
         platform = 'windows8'
 
     if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
