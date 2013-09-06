@@ -246,5 +246,18 @@ elif sys.platform == 'win32':
     else:
         platform = platform + '_x86'
 
+elif sys.platform == 'linux2':
+    import platform as plt
+    distri = plt.linux_distribution()
+    print distri
+    if distri[0] == 'Ubuntu':
+        platform = 'ubuntu'
 
+        if distri[1] == '12.04':
+            platform = platform + '1204'
+
+    if plt.architecture()[0] == '32bit':
+        platform = platform + '_x86'
+    else:
+        platform = platform + '_x64'
         
