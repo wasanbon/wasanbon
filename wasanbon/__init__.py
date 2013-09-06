@@ -230,4 +230,21 @@ if 'application' in setting.keys():
             setting['app_repo'] = app_repo
             repositories = dict(repositories, **setting['app_repo'])
 
+platform = ""
 
+if sys.platform == 'darwin':
+    platform = 'darwin'
+
+elif sys.platform == 'win32':
+    if sys.getwindowsversion()[1] == '1':
+        platform = 'windows7'
+    elif sys.getwindowsversion()[1] == '2':
+        platform = 'windows8'
+
+    if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
+        platform = platform + '_x64'
+    else:
+        platform = platform + '_x86'
+
+
+        
