@@ -162,6 +162,8 @@ class Project():
         rtcconf.remove('manager.modules.preload', filename)
         rtcconf.sync()
 
+
+
     def install(self, rtc_, verbose=False, preload=True, precreate=True):
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
@@ -170,25 +172,33 @@ class Project():
 
         if verbose:
             sys.stdout.write(' - Installing RTC in project %s\n' % self.name)
-
+            pass
+        
         rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
         filepath = rtc_.packageprofile.getRTCFilePath()
         if len(filepath) == 0:
             sys.stdout.write(" - Can not find RTC file in RTC's directory\n")
             return False
-
+        
         if verbose:
             sys.stdout.write(' - Detect RTC binary %s\n' % filepath)
 
-        bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
-        if not os.path.isdir(bin_dir):
-            os.mkdir(bin_dir)
-            pass
+        if rtc_.language == 'Python':
+            norm_path = os.path.normcase(os.path.normpath(os.path.split(filepath)[0]))
+            prefix = os.path.commonprefix([self.path, norm_path])
+            bin_dir_rel = norm_path[len(self.path)+1:]
+            targetfile = filepath
+        else:
+            bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
+            bin_dir_rel = self.setting['BIN_DIR']
+            if not os.path.isdir(bin_dir):
+                os.mkdir(bin_dir)
+                pass
 
-        targetfile = os.path.join(bin_dir, os.path.basename(filepath))
-        shutil.copy(filepath, targetfile)
+            targetfile = os.path.join(bin_dir, os.path.basename(filepath))
+            shutil.copy(filepath, targetfile)
 
-        rtcconf.append('manager.modules.load_path', self.setting['BIN_DIR'])
+        rtcconf.append('manager.modules.load_path', bin_dir_rel)
         if preload:
             rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
         if precreate:

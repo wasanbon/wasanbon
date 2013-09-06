@@ -53,7 +53,6 @@ class Command(object):
         pass
 
     def execute_with_argv(self, args, clean, verbose, force):
-
         usages  = wasanbon.get_help_text(['help', 'command', 'description', 'system'])
         usage = "mgr.py system [subcommand] ...\n\n"
         for line in usages:

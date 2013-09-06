@@ -235,7 +235,7 @@ class Command(object):
                 arg = ['-f', conf_file]
             else:
                 arg = []
-            rtc_.execute_standalone(arg, verbose=verbose)
+            rtc_.execute_standalone(arg, verbose=True)
             
 
         else:

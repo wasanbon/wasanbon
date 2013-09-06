@@ -85,13 +85,21 @@ def execute(argv=None):
         usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
 
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
-    parser.disable_interspersed_args()
+    #parser.disable_interspersed_args()
     parser.add_option('-h', '--help', help=wasanbon.get_help_text(['help', 'help']), action='store_true', default=False, dest='help_flag')
     parser.add_option('-v', '--verbose', help=wasanbon.get_help_text(['help', 'verbose']), action='store_true', default=False, dest='verbose_flag')
     parser.add_option('-c', '--clean', help=wasanbon.get_help_text(['help', 'clean']), action='store_true', default=False, dest='clean_flag')
     parser.add_option('-f', '--force', help=wasanbon.get_help_text(['help', 'force']), action='store_true', default=False, dest='force_flag')
+    parser.add_option('-l', '--longformat', help=wasanbon.get_help_text(['help', 'long']), action='store_true', default=False, dest='long_flag')
+    
     try:
         options, args = parser.parse_args(argv[:])
+        if options.long_flag:
+            args.append('-l')
+        #args = []
+        #subopts = []
+        #for arg in arg_tmp:
+            
     except:
         return
 
