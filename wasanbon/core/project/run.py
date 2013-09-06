@@ -33,6 +33,7 @@ def start_cpp_rtcd(filepath, verbose=False):
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
+    args['stdin'] = subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
     cmd = ['rtcd', '-f', filepath]
@@ -42,7 +43,7 @@ def start_python_rtcd(filepath, verbose=False):
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
-    args['stdin'] = subprocess.PIPE
+    #args['stdin'] = subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
     if sys.platform == 'win32':
@@ -55,7 +56,7 @@ def start_python_rtcd(filepath, verbose=False):
     else:
         cmd = ['rtcd_python', '-f', filepath]
     p = subprocess.Popen(cmd, **args)
-    p.stdin.write('N\n')
+    #p.stdin.write('N\n')
     return p
  
 def start_java_rtcd(filepath, verbose=False):
