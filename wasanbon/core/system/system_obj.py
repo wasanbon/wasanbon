@@ -1,12 +1,10 @@
-
-
-
 #import rtsprofile
 #import rtsprofile.rts_profile
 #from rtsprofile import rts_profile
 import wasanbon
 import rtsprofile.rts_profile
 import os, sys, shutil
+
 class SystemObject:
     def __init__(self, filename):
         self._filename = filename
