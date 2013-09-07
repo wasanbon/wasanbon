@@ -58,7 +58,7 @@ def get_subcommand_list(package):
     return ret
 
 def show_help_description(subcommand):
-    sys.stdout.write("Usage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
+    sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
     help =  wasanbon.get_help_text(['help','command', 'description', subcommand])
     if type(help) is types.ListType:
         for h in help:
