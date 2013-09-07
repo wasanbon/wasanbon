@@ -8,7 +8,7 @@ from diff import *
 
 def get_repositories(verbose=False):
     repositories = []
-    repos = wasanbon.setting[sys.platform]['projects']
+    repos = wasanbon.setting[wasanbon.platform]['projects']
     for key, value in repos.items():
         repositories.append(ProjectRepository(key, value['description'], value['git']))
     return repositories
