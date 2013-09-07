@@ -4,6 +4,12 @@ import sys, os, locale, getpass
 import yaml, types
 import codecs
 
+def get_version():
+    """Get wasanbon version.
+    """
+    return "0.8.0"
+
+
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 platform = ""
@@ -155,11 +161,6 @@ tagdict = {'$HOME': get_home_path()}
 
 rtm_temp = ""
 rtm_home = ""
-
-def get_version():
-    """Get wasanbon version.
-    """
-    return "0.0.1-3"
 
 
 def load_settings():
