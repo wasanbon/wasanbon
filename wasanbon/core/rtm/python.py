@@ -25,7 +25,7 @@ def install(force=False):
 
 
 def install_pyrtm_win(force):
-    util.download_and_install(wasanbon.setting['win32']['packages']['python'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['python'], force=force)
 
 
 def install_pyrtm_linux(force):

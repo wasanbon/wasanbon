@@ -6,6 +6,43 @@ import codecs
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
+platform = ""
+
+if sys.platform == 'darwin':
+    import platform as plt
+    ver = plt.mac_ver()[0]
+    if ver.startswith('10.8'):
+        platform = 'darwin108'
+    if ver.startswith('10.7'):
+        platform = 'darwin107'
+elif sys.platform == 'win32':
+    if sys.getwindowsversion()[1] == 1:
+        platform = 'windows7'
+    elif sys.getwindowsversion()[1] == 2:
+        platform = 'windows8'
+
+    if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
+        platform = platform + '_x64'
+    else:
+        platform = platform + '_x86'
+
+elif sys.platform == 'linux2':
+    import platform as plt
+    distri = plt.linux_distribution()
+    print distri
+    if distri[0] == 'Ubuntu':
+        platform = 'ubuntu'
+
+        if distri[1] == '12.04':
+            platform = platform + '1204'
+
+    if plt.architecture()[0] == '32bit':
+        platform = platform + '_x86'
+    else:
+        platform = platform + '_x64'
+        
+
+
 class BuildSystemException(Exception):
     def __init__(self):
         pass
@@ -39,6 +76,10 @@ class RTCProfileNotFoundException(Exception):
         pass
 
 class ProjectNotFoundException(Exception):
+    def __init__(self):
+        pass
+
+class NoSuchFileException(Exception):
     def __init__(self):
         pass
 
@@ -204,7 +245,7 @@ rtm_temp = setting['common']['path']['RTM_TEMP']
 if not os.path.isdir(rtm_temp):
     os.makedirs(rtm_temp)
 
-repositories = dict(setting['common']['repository'], **setting[sys.platform]['repository'])
+repositories = dict(setting['common']['repository'], **setting[platform]['repository'])
 
 __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
 if os.path.isfile(__local_setting_file):
@@ -230,34 +271,3 @@ if 'application' in setting.keys():
             setting['app_repo'] = app_repo
             repositories = dict(repositories, **setting['app_repo'])
 
-platform = ""
-
-if sys.platform == 'darwin':
-    platform = 'darwin'
-
-elif sys.platform == 'win32':
-    if sys.getwindowsversion()[1] == 1:
-        platform = 'windows7'
-    elif sys.getwindowsversion()[1] == 2:
-        platform = 'windows8'
-
-    if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
-        platform = platform + '_x64'
-    else:
-        platform = platform + '_x86'
-
-elif sys.platform == 'linux2':
-    import platform as plt
-    distri = plt.linux_distribution()
-    print distri
-    if distri[0] == 'Ubuntu':
-        platform = 'ubuntu'
-
-        if distri[1] == '12.04':
-            platform = platform + '1204'
-
-    if plt.architecture()[0] == '32bit':
-        platform = platform + '_x86'
-    else:
-        platform = platform + '_x64'
-        

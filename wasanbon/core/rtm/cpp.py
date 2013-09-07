@@ -65,15 +65,35 @@ def install(force=False):
 
 
 def install_cpprtm_win(force):
-    util.download_and_install(wasanbon.setting['win32']['packages']['c++'], force=force)
+    if wasanbon.platform.startswith("windows8"):
+        sys.stdout.write(' - Windows8 Detected.\n')
+        util.download_and_unpack(wasanbon.setting[wasanbon.platform]['packages']['vcpvcr71'], wasanbon.rtm_temp)
+        src_dir = os.path.join(wasanbon.rtm_temp, 'vcpvcr71', 'dll')
+        files = ['msvcp71.dll', 'msvcr71.dll']
+        if wasanbon.platform.endswith('_x86'):
+            dst_dir = 'C:\\Windows\\System32'
+        else:
+            dst_dir = 'C:\\Windows\\SysWow64'
+        sys.stdout.write(' - Copying msvcr71 and msvcp71\n')
+        for file in files:
+            src_file = os.path.join(src_dir, file)
+            dst_file = os.path.join(dst_dir, file)
+            if not os.path.isdir(src_file):
+                sys.stdout.write(' @ Can not find %s\n' % src_file)
+                raise wasanbon.NoSuchFileException()
+            if os.path.isdir(dst_dir):
+                sys.stdout.write(' - %s is already exists.\n')
+            else:
+                shutil.copy(src_file, dst_file)
+                
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
 
 def install_cpprtm_linux(force):
-    util.download_and_install(wasanbon.setting['linux2']['packages']['c++_ppa'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
 
 def install_cpprtm_osx(force):
-    util.download_and_install(wasanbon.setting['darwin']['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
     
-
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
 
