@@ -69,6 +69,15 @@ def show_help_description(subcommand):
     print "\n\nOptions:"
     print "  -h, --help   Show This Help"
 
+class ArgumentParser(optparse.OptionParser):
+    def __init__(self, usage, add_help_option):
+        optparse.OptionParser.__init__(self,usage=usage, add_help_option=add_help_option)
+        self.__usage = usage
+    
+    def print_help(self):
+        print self.__usage
+        pass
+
 def execute(argv=None):
     if argv == None:
         argv = sys.argv
@@ -84,7 +93,7 @@ def execute(argv=None):
     for opt in opts:
         usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
 
-    parser = optparse.OptionParser(usage=usage, add_help_option=False)
+    parser = ArgumentParser(usage=usage, add_help_option=False)
     #parser.disable_interspersed_args()
     parser.add_option('-h', '--help', help=wasanbon.get_help_text(['help', 'help']), action='store_true', default=False, dest='help_flag')
     parser.add_option('-v', '--verbose', help=wasanbon.get_help_text(['help', 'verbose']), action='store_true', default=False, dest='verbose_flag')
@@ -99,7 +108,6 @@ def execute(argv=None):
         #args = []
         #subopts = []
         #for arg in arg_tmp:
-            
     except:
         return
 
