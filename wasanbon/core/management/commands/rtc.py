@@ -149,7 +149,7 @@ class Command(object):
         elif argv[2] == 'build':
             wasanbon.arg_check(argv, 4)
             build_all = True if 'all' in argv else False
-
+            found_flag = False
             if sys.platform == 'win32':
                 verbose=True
 
@@ -157,6 +157,10 @@ class Command(object):
                 if build_all or rtc.name in argv:
                     sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
                     rtc.build(verbose=verbose)
+                    found_flag = True
+
+            if not found_flag:
+                sys.stdout.write(' - Can not find RTC.\n')
 
         elif argv[2] == 'edit':
             wasanbon.arg_check(argv, 4)

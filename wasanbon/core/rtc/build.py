@@ -1,5 +1,6 @@
 
 import sys, os, shutil, subprocess
+import xml.etree.ElementTree as et
 
 import wasanbon
 
@@ -83,9 +84,13 @@ def build_rtc_java(rtcp, verbose=False):
     src_dir = os.path.join(rtc_dir, 'src')
     cls_dir = os.path.join(build_dir, 'class')
     bin_dir = os.path.join(build_dir, 'bin')
+    idl_dir = os.path.join(build_dir, 'idl')
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
     rtm_java_classpath = os.path.join(wasanbon.rtm_home, 'jar')           
+
+    stdout = None if verbose else subprocess.PIPE
+    stderr = None if verbose else subprocess.PIPE
 
     if not os.path.isdir(build_dir):
         os.makedirs(build_dir)
@@ -93,7 +98,25 @@ def build_rtc_java(rtcp, verbose=False):
         os.makedirs(cls_dir)
     if not os.path.isdir(bin_dir):
         os.makedirs(bin_dir)
+    if not os.path.isdir(idl_dir):
+        os.makedirs(idl_dir)
 
+    need_idlcompile = False
+    arg = None
+    build_script = os.path.join(rtc_dir, 'build_' + rtc_name + ".xml")
+    if os.path.isfile(build_script):
+        for target in et.parse(build_script).findall('target'):
+            if target.attrib['name'] == 'idlcompile':
+                need_idlcompile = True
+                #arg = et.parse(build_script).findall('arg')
+                arg = target.getiterator('arg')[0].attrib['line'].split()[-1][1:-1]
+    if need_idlcompile:
+        if verbose:
+            sys.stdout.write(' -- IDLCOMPILE\n')
+        idlc = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'idlj')
+        cmd = [idlc, '-td', src_dir, '-fall', arg]
+        subprocess.call(cmd)
+            
 
     java_env = os.environ.copy()
     if not "CLASSPATH" in java_env.keys():
@@ -108,12 +131,20 @@ def build_rtc_java(rtcp, verbose=False):
     java_env['LC_ALL'] = 'en'
 
     javafiles = []
+
+    # if need_idlcompile:
+    #    for root, dirs, files in os.walk(idl_dir):
+    #        for f in files:
+    #            if f.endswith('.java'):
+    #                javafiles.append(os.path.join(root,f))
+
     for root, dirs, files in os.walk(src_dir):
         for f in files:
             if f.endswith('.java'):
                 javafiles.append(os.path.join(root, f))
 
-    cmd = [wasanbon.setting['local']['javac'], '-encoding', 'SJIS', 
+
+    cmd = [wasanbon.setting['local']['javac'], '-J-Dfile.encoding=UTF-8',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:
         cmd.append(f)
@@ -126,11 +157,13 @@ def build_rtc_java(rtcp, verbose=False):
     for root, dirs, files in os.walk(cls_dir):
         for f in files:
             if f.endswith('.class'):
-                print ' --- cls:', os.path.join(root, f)[len(cls_dir)+1:]
+                if verbose:
+                    print ' --- cls:', os.path.join(root, f)[len(cls_dir)+1:]
                 clsfiles.append(os.path.join(root, f)[len(cls_dir)+1:])
 
     jarcmd = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'jar')
-    cmd = [jarcmd, 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C', os.path.join(build_dir, 'class')]
+    #cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class', '')]
+    cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class')]
 
     for f in clsfiles:
         cmd.append(cls_dir)
@@ -139,7 +172,8 @@ def build_rtc_java(rtcp, verbose=False):
     if verbose:
         sys.stdout.write(' - archiving: %s\n' % repr(cmd))
 
-    subprocess.call(cmd, env=java_env)
+
+    subprocess.call(cmd, env=java_env, stdout=stdout, stderr=stderr)
 
 
 def clean_rtc_cpp(rtcp, verbose=False):

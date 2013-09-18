@@ -78,6 +78,7 @@ def start_java_rtcd(filepath, verbose=False):
         sep = ':'
     for jarfile in os.listdir(rtm_java_classpath):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
+    #java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':bin/LeapTest.jar'
     args['env'] = java_env
     
     cmd = [wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', filepath]
