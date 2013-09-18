@@ -1,7 +1,7 @@
 none : 'Can not find corresponding help document'
 help :
   help : 'Show This Help'
-  verbose :'Show Debug Message'
+  verbose : 'Show Debug Message'
   force : 'Force establishing'
   general :
     command :
@@ -11,7 +11,7 @@ help :
       project : 'Project management.'
       rtm : 'Management of RT-middleware'
       selfupdate : 'Selfupdate function. call with sudo'
-      tools :  'External tools (like eclipse, rtshell)'
+      tools : 'External tools (like eclipse, rtshell)'
       help : 'Show this help'
       edit : 'Launch editor'
       build : 'Build RTC'

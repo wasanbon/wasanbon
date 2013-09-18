@@ -80,3 +80,10 @@ CameraViewer_java:
 LEDTest:
   description : 'LED light test for RTno'
   git : 'https://github.com/sugarsweetrobotics/LEDTest.git'
+
+LeapMotion :
+  description : 'LeapMotion RT-component'
+  git : 'https://github.com/sugarsweetrobotics/LeapRTC.git'
+LeapMotionTest :
+  description : 'LeapMotion Test RT-component'
+  git : 'https://github.com/sugarsweetrobotics/LeapTest_py.git'
