@@ -17,3 +17,7 @@ urgtest:
 roomba_test:
   description : 'iRobot Roomba RTC and its Test application'
   git : 'https://github.com/sugarsweetrobotics/roomba_test.git'
+
+leap_test:
+  description : 'LeapMotion RTC and its Test application'
+  git : 'https://github.com/sugarsweetrobotics/leap_test.git'
