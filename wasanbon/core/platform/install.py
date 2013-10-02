@@ -28,15 +28,15 @@ def install_command(cmd, verbose=False):
         return
 
     if sys.platform == 'darwin':
-        return util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd],
+        return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd],
                                   verbose=verbose)
     elif sys.platform == 'win32':
         if cmd == 'emacs':
-            return util.download_and_unpack(wasanbon.setting[sys.platform]['packages'][cmd],
+            return util.download_and_unpack(wasanbon.setting[wasanbon.platform]['packages'][cmd],
                                      dist_path=wasanbon.setting['common']['path']['RTM_HOME'],
                                      verbose=verbose)
         else:
-            return util.download_and_install(wasanbon.setting[sys.platform]['packages'][cmd], 
+            return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd], 
                                       verbose=verbose)
     elif sys.platform == 'linux2':
         return util.download_and_install(wasanbon.setting['linux2']['packages'][cmd],
