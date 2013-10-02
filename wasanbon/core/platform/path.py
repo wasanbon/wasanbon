@@ -10,7 +10,7 @@ def init_tools_path(force=False, verbose=False):
 
 def search_cmd_all(dict, verbose=False):
     for cmd in dict.keys():
-        dict[cmd] = search_command(cmd, wasanbon.setting[sys.platform]['hints'][cmd], verbose=verbose)
+        dict[cmd] = search_command(cmd, wasanbon.setting[wasanbon.platform]['hints'][cmd], verbose=verbose)
     return dict
 
 
