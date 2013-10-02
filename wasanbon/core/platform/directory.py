@@ -18,8 +18,8 @@ def create_rtm_home(force, verbose):
 
 def copy_initial_setting(verbose=False, force=False):
     # Copy initial setting file.
-    template_setting_file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'setting.yaml')
-    template_repository_file = os.path.join(wasanbon.__path__[0], 'settings', sys.platform, 'repository.yaml')
+    template_setting_file = os.path.join(wasanbon.__path__[0], 'settings', wasanbon.platform, 'setting.yaml')
+    template_repository_file = os.path.join(wasanbon.__path__[0], 'settings', wasanbon.platform, 'repository.yaml')
     local_setting_file = os.path.join(wasanbon.rtm_home, 'setting.yaml')
     local_repository_file = os.path.join(wasanbon.rtm_home, 'repository.yaml')
     if os.path.isfile(local_setting_file) or os.path.isfile(local_repository_file):
