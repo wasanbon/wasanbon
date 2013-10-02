@@ -29,6 +29,8 @@ def copy_initial_setting(verbose=False, force=False):
         else:
             return
 
+    if verbose:
+        sys.stdout.write(" - Copying %s to %s\n" % (template_setting_file, local_setting_file))
     shutil.copyfile(template_setting_file, local_setting_file)
     fout = open(local_repository_file, 'w') # create empty file.
     fout.close()
