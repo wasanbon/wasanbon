@@ -12,7 +12,7 @@ from wasanbon.core import rtm
 def install_eclipse(verbose=False, force=False):
     eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
     if not os.path.isdir(eclipse_dir) or force:
-        url = wasanbon.setting[sys.platform]['packages']['eclipse']
+        url = wasanbon.setting[wasanbon.platform]['packages']['eclipse']
         util.download_and_unpack(url, wasanbon.rtm_home, force=force, verbose=verbose)
 
 def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
