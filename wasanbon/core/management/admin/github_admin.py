@@ -20,10 +20,10 @@ class Command(object):
             if verbose:
                 print " - Initializing Github account's ssh key"
             sys.stdout.write('  - Input Github User Name:')
-            user = raw_input()
+            username = raw_input()
             sys.stdout.write('  - Input Github Password :')
             passwd = getpass.getpass()
-            g = Github(user, passwd)
+            g = Github(username, passwd)
             user = g.get_user()
             try:
                 user.login
@@ -50,14 +50,14 @@ class Command(object):
         if argv[2] == 'init' or argv[2] == 'set_user':
             if verbose:
                 sys.stdout.write(" - Initializing host's config (user, email)\n")
-            if not user:
+            if not username:
                 sys.stdout.write(' - Input Git User Name:')
-                user = raw_input()
+                username = raw_input()
             if not email:
                 sys.stdout.write(' - Input Git Email:')
                 email = raw_input()
                 
-            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.name', user]
+            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.name', username]
             subprocess.call(cmd)
             cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.email', email]
             subprocess.call(cmd)

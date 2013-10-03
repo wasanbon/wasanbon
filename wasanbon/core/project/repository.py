@@ -46,9 +46,9 @@ class ProjectRepository():
         proj.validate(verbose=verbose, autofix=True, ext_only=True)
 
         for repo in proj.rtc_repositories:
-            if verbose:
-                sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
+            sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
             rtc = repo.clone(path=os.path.join(appdir, proj.setting['RTC_DIR']), verbose=verbose)
+            sys.stdout.write(' - Building RTC %s\n' % repo.name)
             rtc.build(verbose=verbose)
             proj.install(rtc, precreate=False, preload=True, verbose=verbose)
         return Project(appdir)
