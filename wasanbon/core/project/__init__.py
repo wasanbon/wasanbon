@@ -27,6 +27,7 @@ def get_projects(verbose=False):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if not os.path.isfile(ws_file_name):
         sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
+        sys.stdout.write(' - Creating workspace.yaml\n')
         fout = open(ws_file_name, "w")
         fout.close()
         return []
@@ -37,7 +38,11 @@ def get_projects(verbose=False):
         projs = []
         if type(y) != types.NoneType:
             for key, value in y.items():
-                projs.append(Project(value))
+                try:
+                    projs.append(Project(value))
+                except wasanbon.InvalidProjectPathError, ex:
+                    sys.stdout.write(' - Invalid Project Path (%s:%s)\n' % (key,value))
+
         return projs
 
 def get_project(prjname, verbose=False):
