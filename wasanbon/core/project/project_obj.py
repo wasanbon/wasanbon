@@ -6,9 +6,6 @@ from wasanbon.util import github_ref
 from wasanbon.core import nameserver
 from wasanbon.core.project import run
 
-class InvalidProjectPathError(Exception):
-    def __init__(self):
-        pass
 
 
 class Project():
@@ -16,7 +13,7 @@ class Project():
     def __init__(self, path):
         self._path = path
         if not os.path.isfile(os.path.join(path, 'setting.yaml')):
-            raise InvalidProjectPathError()
+            raise wasanbon.InvalidProjectPathError()
         self._rtcs = []
         self._name = os.path.basename(path)
         self._process = {}
