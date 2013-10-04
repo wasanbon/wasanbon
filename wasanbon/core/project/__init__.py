@@ -23,7 +23,7 @@ def get_repository(name, verbose=False):
     raise wasanbon.RepositoryNotFoundException()
 
 
-def get_projects(verbose=False):
+def get_projects(verbose=False, force=True):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if not os.path.isfile(ws_file_name):
         sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
@@ -41,8 +41,12 @@ def get_projects(verbose=False):
                 try:
                     projs.append(Project(value))
                 except wasanbon.InvalidProjectPathError, ex:
-                    sys.stdout.write(' - Invalid Project Path (%s:%s)\n' % (key,value))
-
+                    if force:
+                        if verbose:
+                            sys.stdout.write(' - Invalid Project Path (%s:%s)\n' % (key,value))
+                        pass
+                    else:
+                        raise ex
         return projs
 
 def get_project(prjname, verbose=False):

@@ -1,6 +1,7 @@
 import os, sys, optparse
 import wasanbon
 import wasanbon.core.project as prj
+from  wasanbon.core.project import workspace
 
 class Command(object):
     def __init__(self):
@@ -28,8 +29,22 @@ class Command(object):
         elif argv[2] == 'unregister':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Removing workspace %s\n' % argv[3])
-            proj = prj.get_project(argv[3], verbose=verbose)
-            proj.unregister(verbose=verbose, clean=clean)
+            dic = workspace.load_workspace()
+            if not argv[3] in dic.keys():
+                sys.stdout.write(' - Can not find project %s\n' % argv[3])
+                return
+            try:
+                proj = prj.get_project(argv[3], verbose=verbose)
+                proj.unregister(verbose=verbose, clean=clean)
+            except wasanbon.ProjectNotFoundException, ex:
+                sys.stdout.write(' - Project Not Found (%s).\n' % argv[3])
+                from wasanbon import util
+                if util.yes_no('Do you want to remove the record?') == 'yes':
+                    dic = workspace.load_workspace()
+                    dic.pop(argv[3])
+                    workspace.save_workspace(dic)
+                    sys.stdout.write(' - Removed.\n')
+
 
         elif argv[2] == 'list':
             sys.stdout.write(' @ Listing projects.\n')
