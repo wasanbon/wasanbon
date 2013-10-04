@@ -5,6 +5,7 @@ from wasanbon.util import git
 from wasanbon.util import github_ref
 from wasanbon.core import nameserver
 from wasanbon.core.project import run
+from wasanbon.core.project import workspace
 
 
 
@@ -252,21 +253,10 @@ class Project():
         return True
 
     def _open_workspace(self):
-        ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
-        if not os.path.isfile(ws_file_name):
-            fout = open(ws_file_name, "w")
-            fout.close()
-            pass
-
-        y = yaml.load(open(ws_file_name, "r"))
-        if not y:
-            y = {}
-        return y
+        return workspace.open_workspace()
 
     def _save_workspace(self, dic):
-        ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
-        yaml.dump(dic, open(ws_file_name, "w"), encoding='utf8', allow_unicode=True, default_flow_style=False)
-        pass
+        workspace.save_workspace(dic)
 
     def git_init(self, verbose=False):
         git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)
