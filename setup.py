@@ -128,6 +128,7 @@ setup(
 try:
     import setuptools
 except:
+    import wasanbon
     from wasanbon import *
     from wasanbon import util
     from wasanbon.core.management import *
