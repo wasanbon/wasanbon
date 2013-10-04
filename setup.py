@@ -12,11 +12,27 @@ try:
 except:
     curdir = os.getcwd()
     if sys.platform == 'win32':
-        import wasanbon.util
+        import urllib
         url = "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe"
-        wasanbon.util.download(url, dist="thirdparty", force=True)
+        filename = os.path.basename(url)
+        #wasanbon.util.download(url, dist="thirdparty", force=True)
+        file = os.path.join(curdir, 'thirdparty', filename)
+        if not os.path.isfile(file):
+            class DownloadReport(object):
+                def __init__(self):
+                    pass
+                
+                def __call__(self, read_blocks, block_size, total_bytes):
+                    end = read_blocks * block_size / float(total_bytes) * 100.0
+                    sys.stdout.write('\rProgress %3.2f [percent] ended' % end)
+                    sys.stdout.flush()
+                    pass
+
+            urllib.urlretrieve(url, file+'.part', DownloadReport())
+            os.rename(file+'.part', file)
+
         os.chdir(os.path.join(curdir, 'thirdparty'))
-        subprocess.call(['PyYAML-3.10.win32-py2.6.exe'])
+        subprocess.call([file])
         os.chdir(curdir)
         pass
     else:
