@@ -3,7 +3,7 @@ from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 import os
 import sys
-
+import subprocess
 
     
 # if yaml is not installed, install pyyaml in thirdparty directory
@@ -11,10 +11,18 @@ try:
     import yaml
 except:
     curdir = os.getcwd()
-    import subprocess
-    os.chdir(os.path.join(curdir, 'thirdparty', 'PyYAML-3.10'))
-    subprocess.call(['python', 'setup.py', 'install'])
-    os.chdir(curdir)
+    if sys.platform == 'win32':
+        import wasanbon.util
+        url = "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe"
+        wasanbon.util.download(url, dist="thirdparty", force=True)
+        os.chdir(os.path.join(curdir, 'thirdparty'))
+        subprocess.call(['PyYAML-3.10.win32-py2.6.exe'])
+        os.chdir(curdir)
+        pass
+    else:
+        os.chdir(os.path.join(curdir, 'thirdparty', 'PyYAML-3.10'))
+        subprocess.call(['python', 'setup.py', 'install'])
+        os.chdir(curdir)
 
 
 
@@ -125,7 +133,7 @@ except:
     from wasanbon.core.management import *
     from wasanbon.core import *
     setting = load_settings()
-    util.download_and_install(setting[sys.platform]['packages']['setuptools'],
+    util.download_and_install(setting[wasanbon.platform]['packages']['setuptools'],
                               temp=os.getcwd())
     
 try:
