@@ -241,7 +241,11 @@ def __load_subdir(root):
                 ret[dir[:len(dir)-5]] = __load_yaml(path)
     return ret
 
+def __load_repositories():
+    return dict(setting['common']['repository'], **setting[platform]['repository'])
+
 setting = load_settings()
+
 rtm_home = setting['common']['path']['RTM_HOME']
 if not os.path.isdir(rtm_home):
     os.makedirs(rtm_home)
@@ -250,7 +254,7 @@ rtm_temp = setting['common']['path']['RTM_TEMP']
 if not os.path.isdir(rtm_temp):
     os.makedirs(rtm_temp)
 
-repositories = dict(setting['common']['repository'], **setting[platform]['repository'])
+repositories = __load_repositories()
 
 __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
 if os.path.isfile(__local_setting_file):

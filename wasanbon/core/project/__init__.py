@@ -22,12 +22,16 @@ def get_repository(name, verbose=False):
 
     raise wasanbon.RepositoryNotFoundException()
 
+def update_repositories(verbose=False):
+    
+    pass
 
 def get_projects(verbose=False, force=True):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if not os.path.isfile(ws_file_name):
-        sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
-        sys.stdout.write(' - Creating workspace.yaml\n')
+        if verbose:
+            sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)
+            sys.stdout.write(' - Creating workspace.yaml\n')
         fout = open(ws_file_name, "w")
         fout.close()
         return []
