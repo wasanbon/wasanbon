@@ -61,10 +61,18 @@ class Command(object):
 
         elif argv[2] == 'repository':
             sys.stdout.write(' @ Listing Project Repositories\n')
-            repos = prj.get_repositories(verbose=verbose)
-            for repo in repos:
-                print_repository(repo, long=options.long_flag)
-
+            from wasanbon.core import repositories
+            rtcs, packs = repositories.load_repositories(verbose=verbose)
+            print packs
+            if len(argv) == 3: # list
+                argv.append('list')
+                pass
+            if argv[3] == 'list':
+                repos = prj.get_repositories(verbose=verbose)
+                for repo in repos:
+                    print_repository(repo, long=options.long_flag)
+            elif argv[3] == 'update':
+                prj.update_repositories(verbose=verbose)
 
         elif argv[2] == 'clone':
             wasanbon.arg_check(argv,4)
