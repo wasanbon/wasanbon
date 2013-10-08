@@ -273,11 +273,11 @@ if os.path.isfile(__application_setting_file):
     if 'application' in appsetting.keys():
         setting['application'] = appsetting['application']
 
-if 'application' in setting.keys():
-    __application_repository_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
-    if os.path.isfile(__application_repository_file):
-        app_repo = yaml.load(open(__application_repository_file, 'r'))
-        if type(app_repo) != types.NoneType:
-            setting['app_repo'] = app_repo
-            repositories = dict(repositories, **setting['app_repo'])
+#if 'application' in setting.keys():
+#    __application_repository_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
+#    if os.path.isfile(__application_repository_file):
+#        app_repo = yaml.load(open(__application_repository_file, 'r'))
+#        if type(app_repo) != types.NoneType:
+#            setting['app_repo'] = app_repo
+#            repositories = dict(repositories, **setting['app_repo'])
 
