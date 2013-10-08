@@ -20,13 +20,13 @@ def get_rtm_root():
         return ""
 
 
-def install(force=False):
+def install(force=False, verbose=False):
     if sys.platform == 'linux2':
         __ppa_preparation()
 
-    cpp.install(force)
-    python.install(force)
-    java.install(force)
+    cpp.install(force, verbose=verbose)
+    python.install(force, verbose=verbose)
+    java.install(force, verbose=verbose)
 
     if sys.platform == 'darwin':
         post_install_darwin(force)

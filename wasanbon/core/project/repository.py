@@ -2,7 +2,7 @@ import sys
 import wasanbon
 import wasanbon.core
 from wasanbon.core.project import *
-
+from wasanbon.util import git
 
 class ProjectAlreadyExistsException(Exception):
     def __init__(self):

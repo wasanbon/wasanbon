@@ -5,13 +5,14 @@ from connection import *
 from project_obj import *
 from repository import *
 from diff import *
+from wasanbon.core import repositories
 
 def get_repositories(verbose=False):
-    repositories = []
-    repos = wasanbon.setting[wasanbon.platform]['projects']
-    for key, value in repos.items():
-        repositories.append(ProjectRepository(key, value['description'], value['git']))
-    return repositories
+    rtcs, packs = repositories.load_repositories(verbose=verbose)
+    repos = []
+    for key, value in packs.items():
+        repos.append(ProjectRepository(key, value['description'], value['url']))
+    return repos
 
 
 def get_repository(name, verbose=False):
@@ -19,11 +20,10 @@ def get_repository(name, verbose=False):
     for repo in repos:
         if repo.name == name:
             return repo
-
     raise wasanbon.RepositoryNotFoundException()
 
-def update_repositories(verbose=False):
-    
+def update_repositories(verbose=False, force=False):
+    repositories.update_repositories(verbose=verbose, force=force)
     pass
 
 def get_projects(verbose=False, force=True):
