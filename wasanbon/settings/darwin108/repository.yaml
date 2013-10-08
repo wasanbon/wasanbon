@@ -1,8 +1,0 @@
-repository:
-  name: 'Sugar Sweet Robotics'
-  author: 'Yuki Suga'
-  mail: 'ysuga@sugarsweetrobotics.com'
-  update-type: git
-  url: https://github.com/sugarsweetrobotics/rtc_repositories.git
-  file: darwin108
-  
