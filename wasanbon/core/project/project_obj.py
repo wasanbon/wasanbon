@@ -253,7 +253,7 @@ class Project():
         return True
 
     def _open_workspace(self):
-        return workspace.open_workspace()
+        return workspace.load_workspace()
 
     def _save_workspace(self, dic):
         workspace.save_workspace(dic)
