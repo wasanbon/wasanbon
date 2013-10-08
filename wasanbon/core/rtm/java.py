@@ -8,7 +8,7 @@ def is_installed():
     return os.path.isfile(os.path.join(wasanbon.setting['common']['path']['RTM_ROOT_JAVA'], wasanbon.setting['common']['file']['RTM_JAR']))
 
 
-def install(force=False):
+def install(force=False, verbose=False):
     if is_installed() and not force:
         print " - Your system have OpenRTM_aist java file in RTM_HOME directory."
         return False

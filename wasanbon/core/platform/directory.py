@@ -4,14 +4,23 @@ import wasanbon
 from wasanbon import util
 
 def create_rtm_home(force, verbose):
+    if verbose:
+        sys.stdout.write(' - Initializing RTM_HOME.\n')
     os.umask(0000)
     repo = wasanbon.setting['common']['repository']['wasanbon']
     if not os.path.isdir(wasanbon.rtm_home):
+        if verbose:
+            sys.stdout.write(' - No RTM_HOME found. Creating RTM_HOME in %s\n' % wasanbon.rtm_home)
         os.mkdir(wasanbon.rtm_home, 0777)
+        
     if not os.path.isdir(wasanbon.rtm_temp):
+        if verbose:
+            sys.stdout.write(' - No RTM_HOME found. Creating RTM_TEMP in %s\n' % wasanbon.rtm_temp)            
         os.mkdir(wasanbon.rtm_temp, 0777)
             
     if sys.platform == 'linux2' or sys.platform == 'darwin':
+        if verbose:
+            sys.stdout.write(' - Changing the Ownership of RTM_HOME and RTM_TEMP\n')
         home_stat = os.stat(os.environ['HOME'])
         os.chown(wasanbon.rtm_home, home_stat.st_uid, home_stat.st_gid)
         os.chown(wasanbon.rtm_temp, home_stat.st_uid, home_stat.st_gid)

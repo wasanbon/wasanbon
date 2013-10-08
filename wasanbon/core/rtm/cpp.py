@@ -50,7 +50,7 @@ def is_installed():
 
 
 
-def install(force=False):
+def install(force=False, verbose=False):
     if is_installed() and not force:
         print " - Your system seems to have OpenRTM C++."
         return False

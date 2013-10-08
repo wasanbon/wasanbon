@@ -7,7 +7,7 @@ from wasanbon import util
 from wasanbon.core import platform
 from wasanbon.core import tools
 from wasanbon.core import rtm
-
+from wasanbon.core import repositories
 
 class Command(object):
     def __init__(self):
@@ -18,17 +18,25 @@ class Command(object):
         if sys.platform == 'win32':
             verbose=True
 
+        sys.stdout.write(' @ Installing RTM_HOME\n')
         if not platform.init_rtm_home(force=force, verbose=verbose):
             sys.stdout.write(' - Can not install commands.\n')
+            return False
 
-        sys.stdout.write(' - Commands are successfully found.\n')
+        sys.stdout.write(' @ Commands are successfully found.\n')
 
         if not 'local' in wasanbon.setting.keys():
             wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home,
                                                                     'setting.yaml'), 'r'))
+        sys.stdout.write(' @ Downloading Repository\n')
+        if not repositories.download_repositories(verbose=verbose):
+            sys.stdout.write(' - Downloading Failed.\n')
+            return False
 
-        rtm.install(force=force)
+        sys.stdout.write(' @ Installing RTM\n')
+        rtm.install(verbose=verbose, force=force)
 
+        sys.stdout.write(' @ Installing Tools\n')
         tools.install(force=force, verbose=verbose)
 
         if sys.platform == 'win32':

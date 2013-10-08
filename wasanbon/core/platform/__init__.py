@@ -7,9 +7,6 @@ from . import directory, path, install
 
 
 def init_rtm_home(force=False, verbose=False):
-    """
-    Initialize RTM_TEMP and RTM_HOME
-    """
     directory.create_rtm_home(force=force, verbose=verbose)
     directory.copy_initial_setting(verbose=verbose, force=force)
     path.init_tools_path(force=force, verbose=verbose)

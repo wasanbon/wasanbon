@@ -57,15 +57,17 @@ def no_yes(msg):
 def download_and_unpack(url, dist_path, force=False, verbose=False):
     filename = os.path.basename(url)
     dist_file = os.path.join(wasanbon.rtm_temp, filename)
-    download.download(url, dist_file, force=force)
+    download.download(url, dist_file, force=force, verbose=verbose)
     if filename.endswith(".zip"):
         archive.unpack_zip(dist_file, dist_path)
     elif filename.endswith(".tar.gz"):
         archive.unpack_tgz(dist_file, dist_path)
     pass
 
-def apt_get(url):
+def apt_get(url, verbose=False):
     cmd = [e for e in url.split(' ') if not e == '']
+    if verbose:
+        sys.stdout.write(' - Executing apt-get : %s\n' % cmd)
     subprocess.call(cmd)
 
 def download_and_install(url, force=False, temp="", verbose=False, open_only=False):
@@ -77,11 +79,11 @@ def download_and_install(url, force=False, temp="", verbose=False, open_only=Fal
         temp = wasanbon.rtm_temp
 
     dist_file = os.path.join(temp, filename)
-    download.download(url, dist_file, force=force)
+    download.download(url, dist_file, force=force, verbose=verbose)
 
     if dist_file.endswith(".zip"):
         dist_path = dist_file[:-4]
-        archive.unpack_zip(dist_file, dist_path)
+        archive.unpack_zip(dist_file, dist_path, verbose=verbose)
         for root, dirs, files in os.walk(dist_path):
             for dir in dirs:
                 if dir.endswith('.mpkg'):

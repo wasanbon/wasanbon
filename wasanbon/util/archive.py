@@ -16,27 +16,25 @@ def unpack_tgz(filepath, distpath, force=False):
     os.chdir(old_dir)
     pass
 
-def unpack_zip(filepath, distpath, force=False):
-    path, file = os.path.split(filepath)
-    if sys.platform == 'darwin':
-        cmd = ['unzip', filepath, '-d', distpath]
-        subprocess.call(cmd)
-        return
+def unpack_zip(filepath, distpath, force=False, verbose=True):
+    if verbose:
+        sys.stdout.write(' - Unpacking %s\n'% filepath)
 
-    if sys.platform == 'linux2' or sys.platform == 'darwin':
+    path, file = os.path.split(filepath)
+    if sys.platform == 'darwin' or sys.platform == 'darwin':
+        cmd = ['unzip', filepath, '-d', distpath]
+        stdout = None if verbose else subprocess.PIPE
+        subprocess.call(cmd, stdout=stdout)
+
         home_stat = os.stat(os.environ['HOME'])
         uid = home_stat.st_uid
         gid = home_stat.st_gid
+        return
 
-    if not os.path.isdir(distpath):
-        os.mkdir(distpath)
-        if sys.platform == 'linux2' or sys.platform == 'darwin':
-            os.chown(distpath, uid, gid)
-
-    sys.stdout.write('Unpacking %s\n'% filepath)
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
-        sys.stdout.write(" - %s\n" % filepath)
+        if verbose:
+            sys.stdout.write(" -- %s\n" % filepath)
         fullpath = os.path.join(distpath, filepath)
         path, filename = os.path.split(fullpath)
         if not os.path.isdir(path) and len(path) > 0:
