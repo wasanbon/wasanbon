@@ -28,7 +28,7 @@ def download(url, dist="", force=False, verbose=False):
             sys.stdout.write("Downloading from URL: %s\n" % url)
         urllib.urlretrieve(url, dist+'.part', DownloadReport(verbose=verbose))
         os.rename(dist+'.part', dist)
-        if verobse:
+        if verbose:
             sys.stdout.write("Saved in Directory  :%s\n" % dist)
     pass
 
