@@ -241,8 +241,9 @@ def __load_subdir(root):
                 ret[dir[:len(dir)-5]] = __load_yaml(path)
     return ret
 
-def __load_repositories():
-    return dict(setting['common']['repository'], **setting[platform]['repository'])
+
+#def __load_repositories():
+#    return dict(setting['common']['repository'], **setting[platform]['repository'])
 
 setting = load_settings()
 
@@ -254,17 +255,17 @@ rtm_temp = setting['common']['path']['RTM_TEMP']
 if not os.path.isdir(rtm_temp):
     os.makedirs(rtm_temp)
 
-repositories = __load_repositories()
+#repositories = __load_repositories()
 
 __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
 if os.path.isfile(__local_setting_file):
     setting['local'] = yaml.load(open(__local_setting_file, 'r'))
 
-__local_repository_file = os.path.join(rtm_home, 'repository.yaml')
-if os.path.isfile(__local_repository_file):
-    setting['local_repo'] = yaml.load(open(__local_repository_file, 'r'))
-    if type(setting['local_repo']) != types.NoneType:
-        repositories = dict(repositories, **setting['local_repo'])
+#__local_repository_file = os.path.join(rtm_home, 'repository.yaml')
+#if os.path.isfile(__local_repository_file):
+#    setting['local_repo'] = yaml.load(open(__local_repository_file, 'r'))
+#    if type(setting['local_repo']) != types.NoneType:
+#        repositories = dict(repositories, **setting['local_repo'])
 
 __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
 if os.path.isfile(__application_setting_file):
