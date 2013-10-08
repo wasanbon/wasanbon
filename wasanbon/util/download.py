@@ -3,7 +3,7 @@ import urllib
 
 class DownloadReport(object):
     def __init__(self, verbose=True):
-        self.verbose
+        self.verbose = verbose
         pass
 
     def __call__(self, read_blocks, block_size, total_bytes):
