@@ -29,13 +29,14 @@ def disable_sig():
     SIG_BLOCK = 0
     libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
-def start_cpp_rtcd(filepath, verbose=False):
+def start_cpp_rtcd(filepath, verbose=True):
     if verbose:
         sys.stdout.write(' - Starting C++ rtcd.\n')
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
-    args['stdin'] = subprocess.PIPE
+    args['stdout'] = None if verbose else subprocess.PIPE
+    args['stdin'] = None if verbose else subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
     cmd = ['rtcd', '-f', filepath]
@@ -47,6 +48,8 @@ def start_python_rtcd(filepath, verbose=False):
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
+    args['stdout'] = None if verbose else subprocess.PIPE
+    args['stdin'] = None if verbose else subprocess.PIPE
     #args['stdin'] = subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
@@ -70,7 +73,8 @@ def start_java_rtcd(filepath, verbose=False):
     args = {}
     #args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
-    args['stdin'] = subprocess.PIPE
+    args['stdout'] = None if verbose else subprocess.PIPE
+    args['stdin'] = None if verbose else subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
 

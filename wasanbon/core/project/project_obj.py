@@ -148,7 +148,7 @@ class Project():
 
     @property
     def console_bind(self):
-        return ['C++', 'Python']
+        return ['C++']
 
     def uninstall(self, rtc_, verbose=False):
         if type(rtc_) == types.ListType:
@@ -306,8 +306,9 @@ class Project():
         if not os.path.isdir('log'):
             os.mkdir('log')
 
-        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename,
-                                                     'C++' in self.console_bind)
+        print 'Launching All RTCDaemon'
+        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, verbose=True)
+        ##verbose=('C++' in self.console_bind))
         self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
                                                         'Python' in self.console_bind)
         self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
