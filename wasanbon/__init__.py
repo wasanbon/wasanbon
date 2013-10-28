@@ -65,7 +65,7 @@ class DirectoryAlreadyExistsException(Exception):
     def __init__(self):
         pass
 
-class ProjectAlreadyExistsException(Exception):
+class PackageAlreadyExistsException(Exception):
     def __init__(self):
         pass
 
@@ -77,7 +77,7 @@ class RTCNotFoundException(Exception):
     def __init__(self):
         pass
 
-class InvalidProjectPathError(Exception):
+class InvalidPackagePathError(Exception):
     def __init__(self):
         pass
 
@@ -85,7 +85,7 @@ class RTCProfileNotFoundException(Exception):
     def __init__(self):
         pass
 
-class ProjectNotFoundException(Exception):
+class PackageNotFoundException(Exception):
     def __init__(self):
         pass
 

@@ -4,7 +4,6 @@ import wasanbon
 from wasanbon.core import tools 
 #from wasanbon.core import system
 #from xml.etree import ElementTree
-from wasanbon.core import project as prj
 
 class Command(object):
     def __init__(self):

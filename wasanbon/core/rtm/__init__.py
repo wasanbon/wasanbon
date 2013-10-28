@@ -29,7 +29,7 @@ def install(force=False, verbose=False):
     java.install(force, verbose=verbose)
 
     if sys.platform == 'darwin':
-        post_install_darwin(force)
+        post_install_darwin(force, verbose)
 
     if sys.platform == 'linux2':
         post_install_linux2(force)
@@ -68,12 +68,12 @@ def __apt_preperation():
 
     subprocess.call(['apt-get', 'update'])
 
-def post_install_darwin(force):
+def post_install_darwin(force, verbose=False):
     start_str = '#-- Starting Setup Script of wasanbon --#'
     stop_str  = '#-- Ending Setup Script of wasanbon --#'
     target = os.path.join(wasanbon.get_home_path(), ".bash_profile")
+
     script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform, "bashrc"), "r").read()
-    
     
     if os.path.isfile(target):
         erase = False

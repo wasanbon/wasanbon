@@ -1,19 +1,19 @@
 import sys
 import wasanbon
 import wasanbon.core
-from wasanbon.core.project import *
+from wasanbon.core.package import *
 from wasanbon.util import git
 
-class ProjectAlreadyExistsException(Exception):
+class PackageAlreadyExistsException(Exception):
     def __init__(self):
         pass
 
 
-class ProjectDirectoryExistsException(Exception):
+class PackageDirectoryExistsException(Exception):
     def __init__(self):
         pass
 
-class ProjectRepository():
+class PackageRepository():
 
     def __init__(self, name, desc, url):
         self._name = name
@@ -24,50 +24,50 @@ class ProjectRepository():
 
     def clone(self, verbose=False):
         try:
-            proj = wasanbon.core.project.get_project(self.name, verbose)
+            _package = wasanbon.core.package.get_package(self.name, verbose)
             if verbose:
-                print ' - There is %s project in workspace.yaml\n' % self.name
-                print ' - Please unregister the project\n' 
-            raise ProjectAlreadyExistsException()
-        except wasanbon.ProjectNotFoundException, ex:
+                print ' - There is %s package in workspace.yaml\n' % self.name
+                print ' - Please unregister the package\n' 
+            raise PackageAlreadyExistsException()
+        except wasanbon.PackageNotFoundException, ex:
             pass
         
         appdir = os.path.join(os.getcwd(), self.name)
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
                 print ' - There seems to be %s here. Please change application name.' % prjname
-            raise ProjectDirectoryExistsException()
+            raise PackageDirectoryExistsException()
             #return False
 
         git.git_command(['clone', self.url, appdir], verbose=verbose)
-        proj = wasanbon.core.project.create_project(self.name, verbose=verbose, force_create=True, overwrite=False)
+        _package = wasanbon.core.package.create_package(self.name, verbose=verbose, force_create=True, overwrite=False)
         
         # Change ext to OS respondable type
-        proj.validate(verbose=verbose, autofix=True, ext_only=True)
+        _package.validate(verbose=verbose, autofix=True, ext_only=True)
 
-        for repo in proj.rtc_repositories:
+        for repo in _package.rtc_repositories:
             sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
-            rtc = repo.clone(path=os.path.join(appdir, proj.setting['RTC_DIR']), verbose=verbose)
+            rtc = repo.clone(path=os.path.join(appdir, _package.setting['RTC_DIR']), verbose=verbose)
             sys.stdout.write(' - Building RTC %s\n' % repo.name)
             rtc.build(verbose=verbose)
-            proj.install(rtc, precreate=False, preload=True, verbose=verbose)
-        return Project(appdir)
+            _package.install(rtc, precreate=False, preload=True, verbose=verbose)
+        return Package(appdir)
 
 
     def fork(self, user, passwd, verbose=False):
-        proj = wasanbon.core.project.get_project(self.name, verbose)
-        if proj:
+        _package = wasanbon.core.package.get_package(self.name, verbose)
+        if _package:
             if verbose:
-                print ' - There is %s project in workspace.yaml\n' % prjname
-                print ' - Please unregister the project\n' 
+                print ' - There is %s package in workspace.yaml\n' % prjname
+                print ' - Please unregister the package\n' 
             #return None
-            raise ProjectAlreadyExistsException()
+            raise PackageAlreadyExistsException()
         
         appdir = os.path.join(os.getcwd(), self.name)
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
                 print ' - There seems to be %s here. Please change application name.' % prjname
-            raise ProjectDirectoryExistsException()
+            raise PackageDirectoryExistsException()
 
             #return False
         sys.stdout.write(' - Forking URL:: %s\n' % url)
@@ -75,7 +75,7 @@ class ProjectRepository():
         repo = github_obj.fork(self.user, self.repo_name, verbose=verbose)
         
         url = 'https://github.com/%s/%s.git' % (user, self.repo_name)
-        return ProjectRepository(user=user, name=self.name, url=url, desc=self.description)
+        return PackageRepository(user=user, name=self.name, url=url, desc=self.description)
         
 
     @property

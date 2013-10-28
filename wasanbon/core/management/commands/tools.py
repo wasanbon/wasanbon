@@ -4,7 +4,7 @@ import wasanbon
 from wasanbon.core import tools 
 #from wasanbon.core import system
 #from xml.etree import ElementTree
-from wasanbon.core import project as prj
+from wasanbon.core import package as pack
 
 from rtshell import rtcryo
 
@@ -33,11 +33,11 @@ class Command(object):
     def execute_with_argv(self, argv, verbose, clean, force):
         wasanbon.arg_check(argv, 3)
 
-        proj = prj.Project(os.getcwd())
+        _package = pack.Package(os.getcwd())
 
         if(argv[2] == 'eclipse'):
             print 'Launching Eclipse'
-            tools.launch_eclipse(proj.rtc_path, verbose=verbose)
+            tools.launch_eclipse(_package.rtc_path, verbose=verbose)
             return
         elif(argv[2] == 'arduino'):
             print '- Launching Arduino'
@@ -49,16 +49,16 @@ class Command(object):
             if argv[3] == 'template':
                 # wasanbon.arg_check(argv, 5)
                 rtc_name = argv[4]
-                tools.generate_rtno_temprate(proj, rtc_name, verbose=verbose)
+                tools.generate_rtno_temprate(_package, rtc_name, verbose=verbose)
 
         elif(argv[2] == 'rtcb'):
             print 'Launching Eclipse'
-            tools.launch_eclipse(proj.rtc_path, verbose=verbose)
+            tools.launch_eclipse(_package.rtc_path, verbose=verbose)
             return
 
         elif(argv[2] == 'rtse'):
             sys.stdout.write(' @ Launching Eclipse\n')
-            nss = proj.get_nameservers(verbose=verbose)
+            nss = _package.get_nameservers(verbose=verbose)
             for ns in nss:
                 if not ns.check_and_launch(verbose=verbose, force=force):
                     sys.stdout.write(' @ NameService %s is not running\n' % ns.path)
@@ -70,8 +70,8 @@ class Command(object):
                 time.sleep(1)
 
             
-            proj.launch_all_rtcd(verbose=verbose)
-            #tools.launch_eclipse(proj.system_path, nonblock=False, verbose=verbose)
+            _package.launch_all_rtcd(verbose=verbose)
+            #tools.launch_eclipse(_package.system_path, nonblock=False, verbose=verbose)
             tools.launch_eclipse(nonblock=False, verbose=verbose)
 
             for i in range(0, 5):
@@ -82,7 +82,7 @@ class Command(object):
             for ns in nss:
                 ns.refresh(verbose=verbose, force=True)
                 
-            #pairs = proj.available_connection_pairs(nameservers=nss, verbose=verbose)
+            #pairs = _package.available_connection_pairs(nameservers=nss, verbose=verbose)
             
             ns_addrs = [ns.path for ns in nss]
             save_all_system(['localhost'])
@@ -92,7 +92,7 @@ class Command(object):
                 sys.stdout.flush()
                 time.sleep(1)
 
-            proj.terminate_all_rtcd(verbose=verbose)
+            _package.terminate_all_rtcd(verbose=verbose)
             
             for ns in nss:
                 ns.kill()

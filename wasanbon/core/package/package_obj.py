@@ -4,17 +4,17 @@ from wasanbon.core import rtc, system
 from wasanbon.util import git
 from wasanbon.util import github_ref
 from wasanbon.core import nameserver
-from wasanbon.core.project import run
-from wasanbon.core.project import workspace
+from wasanbon.core.package import run
+from wasanbon.core.package import workspace
 
 
 
-class Project():
+class Package():
 
     def __init__(self, path):
         self._path = path
         if not os.path.isfile(os.path.join(path, 'setting.yaml')):
-            raise wasanbon.InvalidProjectPathError()
+            raise wasanbon.InvalidPackagePathError()
         self._rtcs = []
         self._name = os.path.basename(path)
         self._process = {}
@@ -180,7 +180,7 @@ class Project():
             return
 
         if verbose:
-            sys.stdout.write(' - Installing RTC in project %s\n' % self.name)
+            sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
             pass
         
         rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
@@ -251,11 +251,11 @@ class Project():
                 return False
     
         y = self._open_workspace()
-        proj_dir = y[self.name]
+        _package_dir = y[self.name]
         if clean:
             if verbose:
                 print ' - Removing Directory'
-            shutil.rmtree(proj_dir, onerror = remShut)
+            shutil.rmtree(_package_dir, onerror = remShut)
         y.pop(self.name)
 
         self._save_workspace(y)
@@ -385,7 +385,7 @@ class Project():
     def available_connection_pairs(self, verbose=False, nameservers=None):
         pairs = []
         if not nameservers:
-            nameservers = proj.get_nameservers(verbose=verbose)
+            nameservers = self.get_nameservers(verbose=verbose)
         outports = []
         for ns in nameservers:
             outports = outports + ns.dataports(port_type='DataOutPort')

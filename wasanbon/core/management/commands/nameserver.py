@@ -1,7 +1,7 @@
 import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
-from wasanbon.core import system, project
+from wasanbon.core import system, package
 from wasanbon.core.system import run
 
 
@@ -12,10 +12,10 @@ class Command(object):
 
     def execute_with_argv(self, argv, verbose, force, clean):
         wasanbon.arg_check(argv, 3)
-        proj = project.Project(os.getcwd())
+        _package = package.Package(os.getcwd())
 
         if argv[2] == 'dir':
-            nss = proj.get_nameservers()
+            nss = _package.get_nameservers()
             for ns in nss:
                 print ns.dataports(port_type='DataOutPort')
 

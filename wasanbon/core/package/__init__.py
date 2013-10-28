@@ -2,7 +2,7 @@ import os, sys, yaml, subprocess, shutil, types
 import wasanbon
 from wasanbon.util import git
 from connection import *
-from project_obj import *
+from package_obj import *
 from repository import *
 from diff import *
 from wasanbon.core import repositories
@@ -11,7 +11,7 @@ def get_repositories(verbose=False):
     rtcs, packs = repositories.load_repositories(verbose=verbose)
     repos = []
     for key, value in packs.items():
-        repos.append(ProjectRepository(key, value['description'], value['url']))
+        repos.append(PackageRepository(key, value['description'], value['url']))
     return repos
 
 
@@ -26,7 +26,7 @@ def update_repositories(verbose=False, force=False):
     repositories.update_repositories(verbose=verbose, force=force)
     pass
 
-def get_projects(verbose=False, force=True):
+def get_packages(verbose=False, force=True):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
     if not os.path.isfile(ws_file_name):
         if verbose:
@@ -43,23 +43,23 @@ def get_projects(verbose=False, force=True):
         if type(y) != types.NoneType:
             for key, value in y.items():
                 try:
-                    projs.append(Project(value))
-                except wasanbon.InvalidProjectPathError, ex:
+                    projs.append(Package(value))
+                except wasanbon.InvalidPackagePathError, ex:
                     if force:
                         if verbose:
-                            sys.stdout.write(' - Invalid Project Path (%s:%s)\n' % (key,value))
+                            sys.stdout.write(' - Invalid Package Path (%s:%s)\n' % (key,value))
                         pass
                     else:
                         raise ex
         return projs
 
-def get_project(prjname, verbose=False):
+def get_package(prjname, verbose=False):
     target = None
-    projs = get_projects(verbose)
+    projs = get_packages(verbose)
     for proj in projs:
         if proj.name == prjname:
             return proj
-    raise wasanbon.ProjectNotFoundException()
+    raise wasanbon.PackageNotFoundException()
 
 def parse_and_copy(src, dist, dic, verbose=False):
     fin = open(src, "r")
@@ -73,13 +73,13 @@ def parse_and_copy(src, dist, dic, verbose=False):
     fin.close()
     fout.close()
 
-def create_project(prjname, verbose=False, overwrite=False, force_create=False):
-    projs = get_projects(verbose)
+def create_package(prjname, verbose=False, overwrite=False, force_create=False):
+    projs = get_packages(verbose)
     proj_names = [prj.name for prj in projs]
     if prjname in proj_names:
         if verbose:
-            print ' - There is %s project in workspace.yaml already\n' % prjname
-        raise wasanbon.ProjectAlreadyExistsException()
+            print ' - There is %s package in workspace.yaml already\n' % prjname
+        raise wasanbon.PackageAlreadyExistsException()
 
     tempdir = os.path.join(wasanbon.__path__[0], 'template')
     appdir = os.path.join(os.getcwd(), prjname)
@@ -109,20 +109,20 @@ def create_project(prjname, verbose=False, overwrite=False, force_create=False):
         cmd = ['chmod', '755', os.path.join(prjname, 'mgr.py')]
         subprocess.call(cmd)
 
-    proj = Project(appdir)
+    proj = Package(appdir)
     proj.register(verbose)
     return proj
 
 
 
-def clone_project(prjname, verbose=False):
+def clone_package(prjname, verbose=False):
     try:
-        projs = get_projects(verbose)
+        projs = get_packages(verbose)
         if verbose:
-            print ' - There is %s project in workspace.yaml\n' % prjname
-            print ' - Please unregister the project\n' 
-        raise wasanbon.ProjectAlreadyExistsException()
-    except wasanbon.ProjectNotFoundExeption, ex:
+            print ' - There is %s package in workspace.yaml\n' % prjname
+            print ' - Please unregister the package\n' 
+        raise wasanbon.PackageAlreadyExistsException()
+    except wasanbon.PackageNotFoundExeption, ex:
         pass
 
     appdir = os.path.join(os.getcwd(), prjname)
@@ -133,8 +133,8 @@ def clone_project(prjname, verbose=False):
     
     repo = get_repository(projname)
     git.git_command(['clone', repo.url, appdir], verbose)
-    return project.create_project(self.name, verbose=verbose)
+    return package.create_package(self.name, verbose=verbose)
 
 
 def diff(repo1, repo2):
-    return ProjectDiff(repo1, repo2)
+    return PackageDiff(repo1, repo2)

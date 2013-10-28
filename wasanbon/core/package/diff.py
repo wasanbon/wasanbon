@@ -1,9 +1,5 @@
 
-
-
-
-
-class ProjectDiff():
+class PackageDiff():
     def __init__(self, repo1, repo2):
         self.repos = (repo1, repo2)
         pass
