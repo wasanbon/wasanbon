@@ -24,16 +24,16 @@ def command(commands, verbose = False):
 
     subprocess.call(cmd, env=gitenv, stdout=stdout)
 
-def clone_project(prjname, url, verbose):
-    projs = get_projects(verbose)
-    if projs:
-        if prjname in projs.keys():
+def clone_package(packname, url, verbose):
+    _packages = get_packages(verbose)
+    if _packages:
+        if packname in _packages.keys():
             if verbose:
-                print ' - There is %s project in workspace.yaml\n' % prjname
-                print ' - Please unregister the project\n' 
+                print ' - There is %s package in workspace.yaml\n' % packname
+                print ' - Please unregister the package\n' 
             return False
 
-    appdir = os.path.join(os.getcwd(), prjname)
+    appdir = os.path.join(os.getcwd(), packname)
     if os.path.isdir(appdir) or os.path.isfile(appdir):
         if verbose:
             print ' - There seems to be %s here. Please change application name.' % psjname
@@ -61,7 +61,7 @@ def clone_project(prjname, url, verbose):
                 for line in fin:
                     index = line.find('$APP')
                     if index >= 0:
-                        line = line[:index] + prjname + line[index + len('$APP'):]
+                        line = line[:index] + packname + line[index + len('$APP'):]
                     fout.write(line)
             fin.close()
             fout.close()
@@ -70,20 +70,20 @@ def clone_project(prjname, url, verbose):
         cmd = ['chmod', '755', ('mgr.py')]
         subprocess.call(cmd)
 
-    register_project(prjname, appdir, verbose=verbose)    
+    register_package(packname, appdir, verbose=verbose)    
     os.chdir(curdir)
     pass
 
-def fork_project(prjname, user, passwd, url, verbose):
-    projs = get_projects(verbose)
-    if projs:
-        if prjname in projs.keys():
+def fork_package(packname, user, passwd, url, verbose):
+    _packages = get_packages(verbose)
+    if _packages:
+        if packname in _packages.keys():
             if verbose:
-                print ' - There is %s project in workspace.yaml\n' % prjname
-                print ' - Please unregister the project\n' 
+                print ' - There is %s package in workspace.yaml\n' % packname
+                print ' - Please unregister the package\n' 
             return False
 
-    appdir = os.path.join(os.getcwd(), prjname)
+    appdir = os.path.join(os.getcwd(), packname)
     if os.path.isdir(appdir) or os.path.isfile(appdir):
         if verbose:
             print ' - There seems to be %s here. Please change application name.' % psjname

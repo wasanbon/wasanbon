@@ -52,7 +52,7 @@ def is_installed():
 
 def install(force=False, verbose=False):
     if is_installed() and not force:
-        print " - Your system seems to have OpenRTM C++."
+        sys.stdout.write(" - OpenRTM C++ Version OK.\n")
         return False
 
     if sys.platform == 'darwin':

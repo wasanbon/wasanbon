@@ -1,7 +1,7 @@
 import os, sys, optparse
 import wasanbon
-import wasanbon.core.project as prj
-from  wasanbon.core.project import workspace
+import wasanbon.core.package as pack
+from  wasanbon.core.package import workspace
 
 class Command(object):
     def __init__(self):
@@ -9,8 +9,8 @@ class Command(object):
     
     def execute_with_argv(self, args, verbose, force, clean):
 
-        usages  = wasanbon.get_help_text(['help', 'admin', 'description', 'project'])
-        usage = "wasanbon-admin.py project [subcommand] ...\n\n"
+        usages  = wasanbon.get_help_text(['help', 'admin', 'description', 'package'])
+        usage = "wasanbon-admin.py package [subcommand] ...\n\n"
         for line in usages:
             usage = usage + line + '\n'
 
@@ -21,23 +21,25 @@ class Command(object):
         except:
             return
 
+        wasanbon.arg_check(argv, 3)
+
         if argv[2] == 'create':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Creating workspace %s\n' % argv[3])
-            proj = prj.create_project(argv[3], verbose=verbose)
+            _package = pack.create_package(argv[3], verbose=verbose)
 
         elif argv[2] == 'unregister':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Removing workspace %s\n' % argv[3])
             dic = workspace.load_workspace()
             if not argv[3] in dic.keys():
-                sys.stdout.write(' - Can not find project %s\n' % argv[3])
+                sys.stdout.write(' - Can not find package %s\n' % argv[3])
                 return
             try:
-                proj = prj.get_project(argv[3], verbose=verbose)
-                proj.unregister(verbose=verbose, clean=clean)
-            except wasanbon.ProjectNotFoundException, ex:
-                sys.stdout.write(' - Project Not Found (%s).\n' % argv[3])
+                _package = pack.get_package(argv[3], verbose=verbose)
+                _package.unregister(verbose=verbose, clean=clean)
+            except wasanbon.PackageNotFoundException, ex:
+                sys.stdout.write(' - Package Not Found (%s).\n' % argv[3])
                 from wasanbon import util
                 if util.yes_no('Do you want to remove the record?') == 'yes':
                     dic = workspace.load_workspace()
@@ -47,15 +49,15 @@ class Command(object):
 
 
         elif argv[2] == 'list':
-            sys.stdout.write(' @ Listing projects.\n')
-            projs = prj.get_projects(verbose=verbose)
-            for proj in projs:
-                sys.stdout.write(' ' + proj.name + ' '*(10-len(proj.name)) + ':' + proj.path + '\n')
+            sys.stdout.write(' @ Listing packages.\n')
+            _packages = pack.get_packages(verbose=verbose)
+            for _package in _packages:
+                sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
 
         elif argv[2] == 'directory':
             try:
-                proj = prj.get_project(argv[3].strip())
-                print proj.path
+                _package = pack.get_package(argv[3].strip())
+                print _package.path
             except:
                 print '.'
 
@@ -66,34 +68,34 @@ class Command(object):
                 pass
 
             if argv[3] == 'list':
-                sys.stdout.write(' @ Listing Project Repositories\n')
-                repos = prj.get_repositories(verbose=verbose)
+                sys.stdout.write(' @ Listing Package Repositories\n')
+                repos = pack.get_repositories(verbose=verbose)
                 for repo in repos:
                     print_repository(repo, long=options.long_flag)
             elif argv[3] == 'update':
-                sys.stdout.write(' @ Updating Project Repositories\n')
-                prj.update_repositories(verbose=verbose)
+                sys.stdout.write(' @ Updating Package Repositories\n')
+                pack.update_repositories(verbose=verbose)
 
         elif argv[2] == 'clone':
             wasanbon.arg_check(argv,4)
-            sys.stdout.write(' @ Cloning Project from Repository %s\n' % argv[3])
-            repo = prj.get_repository(argv[3], verbose=verbose)
-            proj = repo.clone(verbose=verbose)
+            sys.stdout.write(' @ Cloning Package from Repository %s\n' % argv[3])
+            repo = pack.get_repository(argv[3], verbose=verbose)
+            _package = repo.clone(verbose=verbose)
 
         elif argv[2] == 'fork':
             wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Forking Project from Repository %s\n' % argv[3])
+            sys.stdout.write(' @ Forking Package from Repository %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
-            original_repo = prj.get_repository(argv[3], verbose=verbose)
+            original_repo = pack.get_repository(argv[3], verbose=verbose)
             repo = original_repo.fork(user, passwd, verbose=verbose)
-            proj = repo.clone(verbose=verbose)
+            _package = repo.clone(verbose=verbose)
 
         elif argv[2] == 'diff':
             wasanbon.arg_check(argv, 5)
             sys.stdout.write(' @ Diff between %s and %s\n' % (argv[3], argv[4]))
-            repo1 = prj.get_project(argv[3], verbose=verbose)
-            repo2 = prj.get_project(argv[4], verbose=verbose)
-            diff = prj.diff(repo1, repo2)
+            repo1 = pack.get_package(argv[3], verbose=verbose)
+            repo2 = pack.get_package(argv[4], verbose=verbose)
+            diff = pack.diff(repo1, repo2)
             print_diff(diff)
 
         else:

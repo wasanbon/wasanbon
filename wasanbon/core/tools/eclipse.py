@@ -1,5 +1,3 @@
-
-
 import os, sys, subprocess
 import yaml
 import wasanbon
@@ -35,7 +33,7 @@ def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
         cmd = [eclipse_cmd]
     else:
         if verbose:
-            sys.stdout.write("Starting eclipse in current project directory(%s).\n" % workbench)
+            sys.stdout.write("Starting eclipse in current package directory(%s).\n" % workbench)
         cmd = [eclipse_cmd, '-data', workbench]
 
     if argv != None:

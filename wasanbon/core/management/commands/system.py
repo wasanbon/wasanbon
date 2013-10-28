@@ -4,7 +4,7 @@ from wasanbon.core import rtc
 from wasanbon import util
 #from wasanbon.core import system
 #from wasanbon.core.system import run
-from wasanbon.core import project, nameserver
+from wasanbon.core import package, nameserver
 
 
 import rtctree
@@ -68,20 +68,20 @@ class Command(object):
         except:
             return
         
-        proj = project.Project(os.getcwd())
+        _package = package.Package(os.getcwd())
 
         if(argv[2] == 'install'):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
-                for rtc in proj.rtcs:
+                for rtc in _package.rtcs:
                     sys.stdout.write(' @ Installing %s\n' % rtc.name)
-                    proj.install(rtc, verbose=verbose)
+                    _package.install(rtc, verbose=verbose)
                 return
 
             for name in argv[3:]:
                 try:
-                    proj.install(proj.rtc(name), verbose=verbose)
+                    _package.install(_package.rtc(name), verbose=verbose)
                 except Exception, ex:
                     print ex
                     sys.stdout.write(' - Installing RTC %s failed.\n' % name)
@@ -91,18 +91,18 @@ class Command(object):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Uninstalling RTC.\n')
             if 'all' in argv[3:]:
-                proj.uninstall(proj.rtcs)
+                _package.uninstall(_package.rtcs)
 
             for name in argv[3:]:
                 try:
-                    proj.uninstall(proj.rtc(name))
+                    _package.uninstall(_package.rtc(name))
                 except:
                     sys.stdout.write(' - Unnstalling RTC %s failed.\n' % name)
 
 
         elif(argv[2] == 'list'):
             sys.stdout.write(' @ Listing installed RTCs.\n')
-            rtcs_map = proj.installed_rtcs()
+            rtcs_map = _package.installed_rtcs()
             for lang, rtcs in rtcs_map.items():
                 sys.stdout.write(' @ %s:\n' % lang)
                 for rtc_ in rtcs:
@@ -110,14 +110,14 @@ class Command(object):
 
         elif(argv[2] == 'build'):
             print ' @ Building RTC System in Wasanbon'
-            nss = proj.get_nameservers(verbose=verbose)
+            nss = _package.get_nameservers(verbose=verbose)
             ns_process = None
             for ns in nss:
                 if not ns.check_and_launch(verbose=verbose, force=force):
                     sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
                     return
 
-            proj.launch_all_rtcd(verbose=verbose)
+            _package.launch_all_rtcd(verbose=verbose)
 
             for i in range(0, 5):
                 sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
@@ -127,7 +127,7 @@ class Command(object):
             for ns in nss:
                 ns.refresh(verbose=verbose, force=True)
 
-            pairs = proj.available_connection_pairs(nameservers=nss, verbose=verbose)
+            pairs = _package.available_connection_pairs(nameservers=nss, verbose=verbose)
             for outport, inport in pairs:
                 msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
                 if util.no_yes(msg) == 'yes':
@@ -177,7 +177,7 @@ class Command(object):
             util.choice(rtc_choices, callback=on_rtc_selected, msg=' @ Select RTC to configure')
             
             save_all_system(['localhost'])
-            proj.terminate_all_rtcd(verbose=verbose)
+            _package.terminate_all_rtcd(verbose=verbose)
 
             for ns in nss:
                 ns.kill()
@@ -191,16 +191,16 @@ class Command(object):
                 signal.signal(signal.SIGBREAK, signal_action)
             sys.stdout.write(' @ Starting RTC-daemons...\n')
 
-            nss = proj.get_nameservers(verbose=verbose)
+            nss = _package.get_nameservers(verbose=verbose)
             ns_process = None
             for ns in nss:
                 if not ns.check_and_launch(verbose=verbose, force=force):
                     sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
                     return
 
-            proj.launch_all_rtcd(verbose=verbose)
-            proj.connect_and_configure(verbose=verbose)
-            proj.activate(verbose=verbose)
+            _package.launch_all_rtcd(verbose=verbose)
+            _package.connect_and_configure(verbose=verbose)
+            _package.activate(verbose=verbose)
 
             global endflag
             while not endflag:
@@ -210,15 +210,15 @@ class Command(object):
                     pass
 
 
-            proj.deactivate(verbose=verbose)
-            proj.terminate_all_rtcd(verbose=verbose)
+            _package.deactivate(verbose=verbose)
+            _package.terminate_all_rtcd(verbose=verbose)
 
             for ns in nss:
                 ns.kill()
                 
 
         elif(argv[2] == 'datalist'):
-            project.list_rtcs_by_dataport()
+            package.list_rtcs_by_dataport()
                  
             pass
 
@@ -246,10 +246,10 @@ class Command(object):
                 
             pass
         elif argv[2] == 'validate':
-            proj.validate(verbose=verbose, autofix=force, interactive=True)
+            _package.validate(verbose=verbose, autofix=force, interactive=True)
             pass
         elif argv[2] == 'configure':
-            sysobj = proj.system
+            sysobj = _package.system
             def select_rtc(ans):
                 confs = sysobj.active_conf_data(sysobj.rtcs[ans])
                 conf_names = [conf.name +':' + conf.data for conf in confs]

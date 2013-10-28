@@ -137,6 +137,8 @@ def execute(argv=None):
     comm = sys.modules[module_name].Command()
     try:
         comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
+    except wasanbon.PackageAlreadyExistsException, ex:
+        sys.stdout.write(' # Error. Package is already exists.\n')
     except wasanbon.InvalidUsageException, ex:
         show_help_description(subcommand)
     pass

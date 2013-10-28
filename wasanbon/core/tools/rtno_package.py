@@ -3,7 +3,7 @@ import wasanbon
 from wasanbon.util import git, github_ref
 from wasanbon.core.rtc import repository
 
-class RTnoProjectObject:
+class RTnoPackageObject:
     def __init__(self, root, file):
         self._path = root
         self._file = os.path.join(root, file)

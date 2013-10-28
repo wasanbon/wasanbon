@@ -13,7 +13,7 @@ def is_installed():
 
 def install(force=False, verbose=False):
     if is_installed() and not force:
-        sys.stdout.write(' - Your system can safely import OpenRTM_aist package.\n')
+        sys.stdout.write(' - OpenRTM Python Version OK.\n')
         return True
 
     if verbose:

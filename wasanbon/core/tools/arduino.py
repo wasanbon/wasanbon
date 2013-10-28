@@ -4,7 +4,7 @@ from wasanbon import util
 from wasanbon.util import git
 from wasanbon.core import rtm
 
-from rtno_project import *
+from rtno_package import *
 
 def _get_arduino_path():
     if sys.platform == 'darwin':
@@ -78,9 +78,9 @@ def launch_arduino_win32(workbench, nonblock=True, verbose=False):
         p.wait()
 
 
-def generate_rtno_temprate(proj, rtc_name, verbose=False):
+def generate_rtno_temprate(pack, rtc_name, verbose=False):
     temp_file = os.path.join(_get_library_path(), 'RTno', 'examples', 'RTnoTemplate', 'RTnoTemplate.ino')
-    target_dir = os.path.join(proj.path, proj.setting['RTC_DIR'], rtc_name)
+    target_dir = os.path.join(pack.path, pack.setting['RTC_DIR'], rtc_name)
     if os.path.isdir(target_dir):
         sys.stdout.write(' - Failed to create directory %s\n' % target_dir)
         return False
@@ -91,20 +91,20 @@ def generate_rtno_temprate(proj, rtc_name, verbose=False):
 
 
 
-def get_rtno_projects(proj, verbose=False):
+def get_rtno_packages(pack, verbose=False):
     rtnos = []
-    rtc_path = os.path.join(proj.path, proj.setting['RTC_DIR'])
+    rtc_path = os.path.join(pack.path, pack.setting['RTC_DIR'])
     for root, dirs, files in os.walk(rtc_path):
         for file in files:
             if file.endswith(".ino"):
                 if verbose:
                     sys.stdout.write(' - %s found.\n' % file)
-                rtnos.append(RTnoProjectObject(root, file))
+                rtnos.append(RTnoPackageObject(root, file))
     return rtnos
 
 
-def get_rtno_project(proj, rtno_name, verbose=False):
-    rtnos = get_rtno_projects(proj, verbose=False)
+def get_rtno_package(pack, rtno_name, verbose=False):
+    rtnos = get_rtno_packages(pack, verbose=False)
     for rtno in rtnos:
         if rtno.name == rtno_name:
             return rtno

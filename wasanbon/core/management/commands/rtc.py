@@ -2,7 +2,7 @@
 
 import os, sys, optparse
 import wasanbon
-from wasanbon.core import project as prj
+from wasanbon.core import package as pack
 from wasanbon.core import rtc, tools
 from wasanbon.util import editor
 from wasanbon import util
@@ -12,11 +12,11 @@ class Command(object):
     def __init__(self):
         pass
 
-    def get_rtc_rtno(self, proj, name, verbose=False):
+    def get_rtc_rtno(self, _package, name, verbose=False):
         try:
-            return proj.rtc(name)
+            return _package.rtc(name)
         except wasanbon.RTCNotFoundException, e:
-            return tools.get_rtno_project(proj, name, verbose=verbose)
+            return tools.get_rtno_package(_package, name, verbose=verbose)
 
     def execute_with_argv(self, args, verbose, force, clean):
         usages  = wasanbon.get_help_text(['help', 'command', 'description', 'rtc'])
@@ -33,14 +33,14 @@ class Command(object):
 
 
         wasanbon.arg_check(argv, 3)
-        proj = prj.Project(os.getcwd())
+        _package = pack.Package(os.getcwd())
 
         if argv[2] == 'list':
-            sys.stdout.write(' @ Listing RTCs in current project\n')
-            for rtc in proj.rtcs:
+            sys.stdout.write(' @ Listing RTCs in current package\n')
+            for rtc in _package.rtcs:
                 print_rtc(rtc, long=options.long_flag)
 
-            for rtno in tools.get_rtno_projects(proj, verbose=verbose):
+            for rtno in tools.get_rtno_packages(_package, verbose=verbose):
                 print_rtno(rtno)
 
         elif argv[2] == 'repository':
@@ -51,33 +51,33 @@ class Command(object):
         elif argv[2] == 'git_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
-            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.github_init(user, passwd, verbose=verbose)
             sys.stdout.write(' @ Updating repository infomation\n')
-            proj.append_rtc_repository(rtc_.repository)
+            _package.append_rtc_repository(rtc_.repository)
 
         elif argv[2] == 'github_fork':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Forking GITHUB repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
             original_repo = wasanbon.core.rtc.get_repository(argv[3])
-            repo = original_repo.fork(user, passwd, verbose=verbose, path=proj.rtc_path)
+            repo = original_repo.fork(user, passwd, verbose=verbose, path=_package.rtc_path)
             sys.stdout.write(' @ Cloning GITHUB repository in %s\n' % argv[3])            
-            rtc_ = repo.clone(verbose=verbose, path=proj.rtc_path)
-            proj.update_rtc_repository(repo, verbose=verbose)
+            rtc_ = repo.clone(verbose=verbose, path=_package.rtc_path)
+            _package.update_rtc_repository(repo, verbose=verbose)
 
         elif argv[2] == 'github_pullrequest':
             wasanbon.arg_check(argv, 6)
             sys.stdout.write(' @ Sending Pullrequest.\n')
             user, passwd = wasanbon.user_pass()
-            rtc_ = proj.rtc(argv[3])
+            rtc_ = _package.rtc(argv[3])
             rtc_.github_pullrequest(user, passwd, argv[4], argv[5], verbose=verbose)
             
         elif argv[2] == 'clone':
@@ -91,57 +91,57 @@ class Command(object):
                     name = name[:-4]
                 sys.stdout.write(' @ Cloning RTC %s\n' % argv[3])
                 try:
-                    rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=proj.rtc_path)
+                    rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=_package.rtc_path)
                 except wasanbon.RTCProfileNotFoundException, e:
-                    rtc_ = self.get_rtc_rtno(proj, name, verbose=verbose)
+                    rtc_ = self.get_rtc_rtno(_package, name, verbose=verbose)
                     
-                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+                _package.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return
                 
             #for i in range(3, len(argv)):
             for name in argv[3:]:
                 sys.stdout.write(' @ Cloning RTC %s\n' % name)
                 try:
-                    rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=proj.rtc_path)
+                    rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=_package.rtc_path)
                 except wasanbon.RTCProfileNotFoundException, e:
-                    rtc_ = self.get_rtc_rtno(proj, name, verbose=verbose)
+                    rtc_ = self.get_rtc_rtno(_package, name, verbose=verbose)
 
-                proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+                _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'delete':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Deleting RTC %s\n' % argv[3])
             for rtcname in argv[3:]:
-                proj.delete_rtc(proj.rtc(rtcname), verbose=verbose)
+                _package.delete_rtc(_package.rtc(rtcname), verbose=verbose)
             
         elif argv[2] == 'commit':
             wasanbon.arg_check(argv, 5)
             sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.commit(comment=argv[4], verbose=verbose)
-            proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'pull':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.pull(verbose=verbose)
-            proj.update_rtc_repository(rtc_.repository, verbose=verbose)
+            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
         elif argv[2] == 'checkout':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
-            self.get_rtc_rtno(proj, argv[3], verbose=verbose).checkout(verbose=verbose)
+            self.get_rtc_rtno(_package, argv[3], verbose=verbose).checkout(verbose=verbose)
 
         elif argv[2] == 'push':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
-            self.get_rtc_rtno(proj, argv[3], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
+            self.get_rtc_rtno(_package, argv[3], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
 
         elif argv[2] == 'clean':
             wasanbon.arg_check(argv, 4)
             build_all = True if 'all' in argv else False
-            for rtc in proj.rtcs:
+            for rtc in _package.rtcs:
                 if build_all or rtc.name in argv:
                     sys.stdout.write(' @ Cleaning Up RTC %s\n' % rtc.name)
                     rtc.clean(verbose=verbose)
@@ -153,7 +153,7 @@ class Command(object):
             if sys.platform == 'win32':
                 verbose=True
 
-            for rtc in proj.rtcs:
+            for rtc in _package.rtcs:
                 if build_all or rtc.name in argv:
                     sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
                     rtc.build(verbose=verbose)
@@ -165,16 +165,16 @@ class Command(object):
         elif argv[2] == 'edit':
             wasanbon.arg_check(argv, 4)
             try:
-                rtc_ = proj.rtc(argv[3])
+                rtc_ = _package.rtc(argv[3])
                 
                 if rtc_.is_git_repo():
                     if rtc_.git_branch() != 'master':
                         sys.stdout.write(' @ You are not in master branch.\n')
                         if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
                             rtc_.checkout(verbose=verbose)
-                editor.edit_rtc(proj.rtc(argv[3]), verbose=verbose)
+                editor.edit_rtc(_package.rtc(argv[3]), verbose=verbose)
             except wasanbon.RTCNotFoundException, ex:
-                rtnos = tools.get_rtno_projects(proj)
+                rtnos = tools.get_rtno_packages(_package)
                 for rtno in rtnos:
                     if rtno.name == argv[3]:
                         tools.launch_arduino(rtno.file, verbose=verbose)
@@ -189,12 +189,12 @@ class Command(object):
             targets = []
             for i in range(0, 16):
                 if rtc_name.endswith(str(i)):
-                    target_file = os.path.join(proj.conf_path, rtc_name + '.conf')
+                    target_file = os.path.join(_package.conf_path, rtc_name + '.conf')
                     targets.append(target_file)
                     
             if len(targets) == 0: # all files
                 for i in range(0, 16):
-                    target_file = os.path.join(proj.conf_path, rtc_name + str(i) + '.conf')
+                    target_file = os.path.join(_package.conf_path, rtc_name + str(i) + '.conf')
                     if os.path.isfile(target_file):
                         targets.append(target_file)
 
@@ -232,8 +232,8 @@ class Command(object):
         elif argv[2] == 'run':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(proj, argv[3], verbose=verbose)
-            conf_file = os.path.join(proj.conf_path, rtc_.name + '0.conf')
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
+            conf_file = os.path.join(_package.conf_path, rtc_.name + '0.conf')
             if os.path.isfile(conf_file):
                 sys.stdout.write(' - with rtc.conf %s\n' % os.path.basename(conf_file))
                 arg = ['-f', conf_file]

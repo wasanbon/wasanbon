@@ -1,6 +1,6 @@
 import sys, os
 import wasanbon
-from wasanbon.core import project as prj
+from wasanbon.core import package as pack
 
 class Command(object):
     def __init__(self):
@@ -8,33 +8,33 @@ class Command(object):
 
     def execute_with_argv(self, argv, force, verbose, clean):
         wasanbon.arg_check(argv,3)
-        proj = prj.Project(os.getcwd())
+        _package = pack.Package(os.getcwd())
 
         if argv[2] == 'register':
-            sys.stdout.write(' @ Initializing Project in %s\n' % proj.name)
-            proj.register(verbose=verbose)
+            sys.stdout.write(' @ Initializing Package in %s\n' % _package.name)
+            _package.register(verbose=verbose)
             
         elif argv[2] == 'git_init':
-            sys.stdout.write(' @ Initializing GIT repository in %s\n' % proj.name)
-            proj.git_init(verbose=verbose)
+            sys.stdout.write(' @ Initializing GIT repository in %s\n' % _package.name)
+            _package.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
-            sys.stdout.write(' @ Initializing github.com repository in %s\n' % proj.name)
+            sys.stdout.write(' @ Initializing github.com repository in %s\n' % _package.name)
             user, passwd = wasanbon.user_pass()
-            proj.github_init(user=user, passwd=passwd, verbose=verbose)
+            _package.github_init(user=user, passwd=passwd, verbose=verbose)
 
         elif argv[2] == 'commit':
             wasanbon.arg_check(argv, 4)
-            proj.commit(argv[3], verbose=verbose)
+            _package.commit(argv[3], verbose=verbose)
 
         elif argv[2] == 'push':
-            proj.push(verbose=verbose)
+            _package.push(verbose=verbose)
         elif argv[2] == 'setting':
-            keylist = proj.setting.keys()[:]
+            keylist = _package.setting.keys()[:]
             keylist.sort()
             for key in keylist:
                 sys.stdout.write(' %s :\n' % key)
-                sys.stdout.write('   %s\n' % proj.setting[key])
+                sys.stdout.write('   %s\n' % _package.setting[key])
         else:
             raise wasanbon.InvalidUsageException()
 
