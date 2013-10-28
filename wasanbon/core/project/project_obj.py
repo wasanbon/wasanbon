@@ -148,7 +148,14 @@ class Project():
 
     @property
     def console_bind(self):
-        return ['C++']
+        if not 'console_bind' in self.setting.keys():
+            bind_languages = ['C++', 'Python', 'Java']
+        else:
+            bind_languages = self.setting['console_bind']
+            if type(bind_languages) != types.ListType:
+                bind_languages = [bind_languages]
+                
+        return bind_languages
 
     def uninstall(self, rtc_, verbose=False):
         if type(rtc_) == types.ListType:
@@ -308,7 +315,6 @@ class Project():
 
         print 'Launching All RTCDaemon'
         self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, verbose=True)
-        ##verbose=('C++' in self.console_bind))
         self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
                                                         'Python' in self.console_bind)
         self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
