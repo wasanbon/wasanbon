@@ -30,6 +30,8 @@ def disable_sig():
     libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
 def start_cpp_rtcd(filepath, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Starting C++ rtcd.\n')
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
@@ -40,6 +42,8 @@ def start_cpp_rtcd(filepath, verbose=False):
     return subprocess.Popen(cmd, **args)
 
 def start_python_rtcd(filepath, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Starting Python rtcd.\n')
     args = {}
     args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig
@@ -60,6 +64,9 @@ def start_python_rtcd(filepath, verbose=False):
     return p
  
 def start_java_rtcd(filepath, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Starting Java rtcd.\n')
+
     args = {}
     #args['env'] = os.environ.copy()
     args['preexec_fn'] = None if sys.platform == 'win32' else disable_sig

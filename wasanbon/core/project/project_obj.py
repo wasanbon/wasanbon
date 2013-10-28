@@ -146,6 +146,10 @@ class Project():
     def rtcconf(self, language, verbose=False):
         return rtc.RTCConf(os.path.join(self.path, self.setting['conf.' + language]), verbose=verbose)
 
+    @property
+    def console_bind(self):
+        return ['C++', 'Python']
+
     def uninstall(self, rtc_, verbose=False):
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
@@ -302,9 +306,12 @@ class Project():
         if not os.path.isdir('log'):
             os.mkdir('log')
 
-        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename)
-        self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename)
-        self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename)
+        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename,
+                                                     'C++' in self.console_bind)
+        self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
+                                                        'Python' in self.console_bind)
+        self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
+                                                      'Java' in self.console_bind)
         pass
 
     def connect_and_configure(self, try_count=5, verbose=False):
