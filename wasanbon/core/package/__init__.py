@@ -23,7 +23,7 @@ def get_repository(name, verbose=False):
     raise wasanbon.RepositoryNotFoundException()
 
 def update_repositories(verbose=False, force=False):
-    repositories.update_repositories(verbose=verbose, force=force)
+    repositories.download_repositories(verbose=verbose, force=force)
     pass
 
 def get_packages(verbose=False, force=True):
