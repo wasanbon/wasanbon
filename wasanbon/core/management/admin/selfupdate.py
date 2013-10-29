@@ -10,7 +10,7 @@ def pull_and_update(verbose, force, branch):
     if verbose:
         sys.stdout.write(' - Pulling from %s in branch %s\n' % (wasanbon.setting['common']['repository']['wasanbon']['git'], branch))
 
-    cmd = [wasanbon.setting['local']['git'], 'pull', branch]
+    cmd = [wasanbon.setting['local']['git'], 'pull','origin',  branch]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output = p.stdout.readline()
     if output.strip() == 'Already up-to-date.' and not force:
@@ -86,7 +86,8 @@ class Command(object):
         if verbose:
             sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp)
             pass
-        if len(argv) > 3:
+
+        if len(argv) >= 3:
             branch = argv[2]
         else:
             branch = 'master'

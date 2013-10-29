@@ -172,7 +172,8 @@ def load_settings():
 
     root_dir = os.path.join(__path__[0], 'settings')
     setting = __load_subdir(root_dir)
-    
+
+    print setting
     pathdict = setting['common']['path']
     if sys.platform == 'win32':
         for key in pathdict.keys():
