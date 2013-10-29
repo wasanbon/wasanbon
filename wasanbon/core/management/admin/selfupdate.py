@@ -3,14 +3,14 @@ import os, sys, subprocess, shutil
 import wasanbon
 from wasanbon import util
 
-def pull_and_update(verbose, force):
+def pull_and_update(verbose, force, branch):
     cwd = os.getcwd()
     os.chdir(os.path.join(wasanbon.rtm_temp, 'wasanbon'))
 
     if verbose:
-        sys.stdout.write(' - Pulling from %s\n' % wasanbon.setting['common']['repository']['wasanbon']['git'])
+        sys.stdout.write(' - Pulling from %s in branch %s\n' % (wasanbon.setting['common']['repository']['wasanbon']['git'], branch))
 
-    cmd = [wasanbon.setting['local']['git'], 'pull']
+    cmd = [wasanbon.setting['local']['git'], 'pull', branch]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output = p.stdout.readline()
     if output.strip() == 'Already up-to-date.' and not force:
@@ -20,14 +20,14 @@ def pull_and_update(verbose, force):
     cleanup(verbose=verbose)
     return install(verbose=verbose, force=force)
 
-def clone_and_update(verbose, force):
+def clone_and_update(verbose, force, branch):
     cwd = os.getcwd()
     os.chdir(wasanbon.rtm_temp)
 
     if verbose: 
-        sys.stdout.write(' - Cloning %s\n' % wasanbon.setting['common']['repository']['wasanbon']['git'])
+        sys.stdout.write(' - Cloning %s in branch %s\n' % (wasanbon.setting['common']['repository']['wasanbon']['git'], branch))
 
-    cmd = [wasanbon.setting['local']['git'], 'clone', 
+    cmd = [wasanbon.setting['local']['git'], 'clone', '-b', branch, 
            wasanbon.setting['common']['repository']['wasanbon']['git']]
     subprocess.call(cmd)
 
@@ -85,12 +85,18 @@ class Command(object):
 
         if verbose:
             sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp)
+            pass
+        if len(argv) > 3:
+            branch = argv[2]
+        else:
+            branch = 'master'
+
         os.chdir(wasanbon.rtm_temp)
         if not os.path.isdir('wasanbon'):
             if not clean:
-                clone_and_update(verbose=verbose, force=force)
+                clone_and_update(verbose=verbose, force=force, branch=branch)
         else:
             #cleanup(verbose=verbose)
-            pull_and_update(verbose=verbose, force=force)
+            pull_and_update(verbose=verbose, force=force, branch=branch)
 
         os.chdir(cwd)
