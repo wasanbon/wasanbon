@@ -35,7 +35,7 @@ elif sys.platform == 'win32':
 elif sys.platform == 'linux2':
     import platform as plt
     distri = plt.linux_distribution()
-    print distri
+    #print distri
     if distri[0] == 'Ubuntu':
         platform = 'ubuntu'
 
@@ -173,7 +173,7 @@ def load_settings():
     root_dir = os.path.join(__path__[0], 'settings')
     setting = __load_subdir(root_dir)
 
-    print setting
+    #print setting
     pathdict = setting['common']['path']
     if sys.platform == 'win32':
         for key in pathdict.keys():
