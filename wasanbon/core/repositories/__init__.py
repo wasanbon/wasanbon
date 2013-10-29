@@ -36,7 +36,7 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
     
     return rtc_repos, package_repos
 
-def download_repositories(verbose=False):
+def download_repositories(verbose=False, force=False):
     file_path = os.path.join(wasanbon.__path__[0], 'settings', 'repository.yaml')
     if verbose:
         sys.stdout.write(' - Downloading Repositories....\n')
