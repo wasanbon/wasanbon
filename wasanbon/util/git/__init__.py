@@ -14,7 +14,10 @@ def clone_and_setup(url, verbose=False, force=False):
 
     if os.path.isdir(distpath):
         print ' - Path (%s) is existing' % distpath
-        if force:
+        if not force:
+            print ' - Aborting'
+            return
+        else:
             print ' - Force to install'
             if verbose:
                 print ' - Removing Path (%S)' % distpath
@@ -24,12 +27,14 @@ def clone_and_setup(url, verbose=False, force=False):
     if verbose:
         print ' - Cloning %s' % url
     subprocess.call(cmd, stdout=stdout)
+
     crrdir = os.getcwd()
     os.chdir(distpath)
     cmd = ['python', 'setup.py', 'install', '--record', 'installed_files.txt']
     if verbose:
         print ' - Install (setup.py install) in %s' % distpath
     subprocess.call(cmd, stdout=stdout)
+
     os.chdir(crrdir)
 
 
