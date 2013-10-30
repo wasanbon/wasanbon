@@ -1,0 +1,7 @@
+system :
+  darwin109 : darwin108
+  darwin108 : darwin108
+  darwin107 : darwin108
+  windows7_x64 : windows7_x64
+  ubuntu1204_x64 : ubuntu1204_x64
+  
