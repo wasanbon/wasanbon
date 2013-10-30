@@ -144,7 +144,7 @@ def build_rtc_java(rtcp, verbose=False):
                 javafiles.append(os.path.join(root, f))
 
 
-    cmd = [wasanbon.setting['local']['javac'], '-J-Dfile.encoding=UTF-8',
+    cmd = [wasanbon.setting['local']['javac'], '-J-Dfile.encoding=UTF-8', '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:
         cmd.append(f)

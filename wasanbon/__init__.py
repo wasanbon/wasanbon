@@ -17,6 +17,8 @@ platform = ""
 if sys.platform == 'darwin':
     import platform as plt
     ver = plt.mac_ver()[0]
+    if ver.startswith('10.9'):
+        platform = 'darwin108'
     if ver.startswith('10.8'):
         platform = 'darwin108'
     if ver.startswith('10.7'):
