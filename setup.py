@@ -41,6 +41,39 @@ except:
         os.chdir(curdir)
 
 
+# if yaml is not installed, install pyyaml in thirdparty directory
+try:
+    import psutil
+except:
+    curdir = os.getcwd()
+    if sys.platform == 'win32':
+        import urllib
+        url = "https://pypi.python.org/packages/2.6/p/psutil/psutil-1.1.2.win32-py2.6.exe#md5=00ba55472837ee48c8977351fae4daee"
+        filename = os.path.basename(url)
+        #wasanbon.util.download(url, dist="thirdparty", force=True)
+        file = os.path.join(curdir, 'thirdparty', filename)
+        if not os.path.isfile(file):
+            class DownloadReport(object):
+                def __init__(self):
+                    pass
+                
+                def __call__(self, read_blocks, block_size, total_bytes):
+                    end = read_blocks * block_size / float(total_bytes) * 100.0
+                    sys.stdout.write('\rProgress %3.2f [percent] ended' % end)
+                    sys.stdout.flush()
+                    pass
+
+            urllib.urlretrieve(url, file+'.part', DownloadReport())
+            os.rename(file+'.part', file)
+
+        os.chdir(os.path.join(curdir, 'thirdparty'))
+        subprocess.call([file])
+        os.chdir(curdir)
+        pass
+    else: # for linux, OSX
+        os.chdir(os.path.join(curdir, 'thirdparty', 'PyYAML-3.10'))
+        subprocess.call(['python', 'setup.py', 'install'])
+        os.chdir(curdir)
 
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
