@@ -312,14 +312,29 @@ class Package():
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
             os.mkdir('log')
+        if not os.path.isdir('pid'):
+            os.mkdir('pid')
 
-        print 'Launching All RTCDaemon'
+        if verbose:
+            sys.stdout.write(' - Launching All RTCDaemon\n')
+
         self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, verbose=True)
+        if verbose:
+            sys.stdout.write(' - PID = %s\n' % self._process['C++'].pid)
+
+        open(os.path.join('pid', str(self._process['C++'].pid)), 'w').close()
         self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
                                                         'Python' in self.console_bind)
+        open(os.path.join('pid', str(self._process['Python'].pid)), 'w').close()
         self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
                                                       'Java' in self.console_bind)
+        open(os.path.join('pid', str(self._process['Java'].pid)), 'w').close()
+
+        
         pass
+
+    def getpid(self, language):
+        return self._process[language].pid
 
     def connect_and_configure(self, try_count=5, verbose=False):
         if verbose:
