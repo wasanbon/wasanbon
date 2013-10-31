@@ -1,4 +1,4 @@
-import os, sys, yaml, subprocess, shutil, types, time, stat
+import os, sys, yaml, subprocess, shutil, types, time, stat, psutil
 import wasanbon
 from wasanbon.core import rtc, system
 from wasanbon.util import git
@@ -315,6 +315,13 @@ class Package():
         if not os.path.isdir('pid'):
             os.mkdir('pid')
 
+        if os.path.isdir('pid'):
+            for file in os.listdir('pid'):
+                for proc in psutil.process_iter():
+                    if file == str(proc.pid):
+                        proc.kill()
+                os.remove(os.path.join('pid', file))
+
         if verbose:
             sys.stdout.write(' - Launching All RTCDaemon\n')
 
@@ -364,9 +371,18 @@ class Package():
         raise wasanbon.BuildSystemException()
 
     def is_process_terminated(self, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Checking RTCDaemon process is dead.\n')
         flags = []
         for key, value in self._process:
-            if value.returncode:
+            if value.returncode: # Process is killed.
+                print 'Process is killed.'
+                pid = self._process[key].pid
+                if os.path.isdir(os.path.join(self.path, 'pid')):
+                    for file in os.listdir('pid'):
+                        print ' - package_obj.py checking process :', file
+                        if file == str(pid):
+                            os.remove(os.path.join('pid', file))
                 flags.append(True)
             else:
                 value.polll()
@@ -381,11 +397,23 @@ class Package():
 
     def terminate_all_rtcd(self, verbose=False):
         for key, value in self._process.items():
-            value.poll()
-            if not value.returncode:
+
+
+            if value.poll() == None:
                 if verbose:
                     sys.stdout.write(' - Terminating rtcd(%s)\n' % key)
-                value.kill()
+                try:
+                    value.kill()
+
+                except OSError, e:
+                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
+            if os.path.isdir('pid'):
+                sys.stdout.write(' - checking pid directory\n')
+                for file in os.listdir('pid'):
+                    if file == str(value.pid):
+                        sys.stdout.write(' - removing file %s\n' % file)
+                        os.remove(os.path.join('pid', file))
+
 
     def installed_rtcs(self, language='all', verbose=False):
         rtcs_ = {}
