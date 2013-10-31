@@ -167,7 +167,7 @@ def build_rtc_java(rtcp, verbose=False):
     #cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class', '')]
     cmd = [jarcmd,
            #'-J-Dfile.encoding=UTF-8',
-           'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class')]
+           'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C', os.path.join(build_dir, 'class')]
 
     for f in clsfiles:
         cmd.append(cls_dir)
