@@ -144,7 +144,9 @@ def build_rtc_java(rtcp, verbose=False):
                 javafiles.append(os.path.join(root, f))
 
 
-    cmd = [wasanbon.setting['local']['javac'], '-J-Dfile.encoding=UTF-8', '-encoding', 'SJIS',
+    cmd = [wasanbon.setting['local']['javac'], 
+           #'-J-Dfile.encoding=UTF-8', 
+           '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:
         cmd.append(f)
@@ -163,7 +165,9 @@ def build_rtc_java(rtcp, verbose=False):
 
     jarcmd = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'jar')
     #cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class', '')]
-    cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class')]
+    cmd = [jarcmd,
+           #'-J-Dfile.encoding=UTF-8',
+           'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class')]
 
     for f in clsfiles:
         cmd.append(cls_dir)
