@@ -71,7 +71,8 @@ except:
         os.chdir(curdir)
         pass
     else: # for linux, OSX
-        os.chdir(os.path.join(curdir, 'thirdparty', 'PyYAML-3.10'))
+        os.chdir(os.path.join(curdir, 'thirdparty', 'psutil-1.1.2'))
+        subprocess.call(['python', 'setup.py', 'build'])
         subprocess.call(['python', 'setup.py', 'install'])
         os.chdir(curdir)
 
