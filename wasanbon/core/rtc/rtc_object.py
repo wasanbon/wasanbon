@@ -69,6 +69,8 @@ class RtcObject():
     def clean(self, verbose=False):
         if self.language == 'C++':
             build.clean_rtc_cpp(self.rtcprofile, verbose=verbose)
+        elif self.language == 'Java':
+            build.clean_rtc_java(self.rtcprofile, verbose=verbose)
         pass
 
     def is_git_repo(self, verbose=False):
