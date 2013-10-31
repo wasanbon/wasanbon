@@ -3,5 +3,7 @@
 *.yaml~
 *.log
 *.lck
-build/*
+build
 temp/*
+.DS_Store
+thirdparty/PyGithub/dist
