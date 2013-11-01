@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil
+import os, sys, yaml, shutil, traceback
 import wasanbon
 from wasanbon.util import git
 
@@ -9,14 +9,13 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
     package_repos = {}
 
     for root, dirs, files in os.walk(repo_dir):
-
         try:
             if not 'setting.yaml' in files:
                 continue
 
             setting_file = os.path.join(root, 'setting.yaml')
             if verbose:
-                sys.stdout.write(' - Loading setting file.\n')
+                sys.stdout.write(' - Loading setting file (%s)\n' % os.path.join(root, 'setting.yaml'))
             repo_setting = yaml.load(open(setting_file, 'r'))
             repo_dirs = repo_setting['repositories'][wasanbon.platform]
             for repo_child_dir in repo_dirs:
@@ -24,14 +23,26 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
                 rtc_file_name = os.path.join(dirname, 'rtcs.yaml') 
                 pack_file_name = os.path.join(dirname, 'packages.yaml') 
                 if os.path.isfile(rtc_file_name):
-                    with open(rtc_file_name, 'r') as rtc_file:
-                        rtc_repos = dict(rtc_repos, **yaml.load(rtc_file))
+                    try:
+                        if verbose:
+                            sys.stdout.write(' - Opening %s\n' % rtc_file_name)
+                        with open(rtc_file_name, 'r') as rtc_file:
+                            rtc_repos = dict(rtc_repos, **yaml.load(rtc_file))
+                    except Exception, ex:
+                        if verbose:
+                            traceback.print_exc()
                 if os.path.isfile(pack_file_name):
-                    with open(pack_file_name, 'r') as pack_file:
-                        package_repos = dict(package_repos, **yaml.load(pack_file))
+                    try:
+                        if verbose:
+                            sys.stdout.write(' - Opening %s\n' % pack_file_name)
+                        with open(pack_file_name, 'r') as pack_file:
+                            package_repos = dict(package_repos, **yaml.load(pack_file))
+                    except Exception, ex:
+                        if verbose:
+                            traceback.print_exc()
 
         except Exception, ex:
-            print ex
+            traceback.print_exc()
             pass
     
     return rtc_repos, package_repos
