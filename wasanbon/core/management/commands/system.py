@@ -198,24 +198,29 @@ class Command(object):
                     sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
                     return
 
-            _package.launch_all_rtcd(verbose=verbose)
-            _package.connect_and_configure(verbose=verbose)
-            _package.activate(verbose=verbose)
+            try:
+                _package.launch_all_rtcd(verbose=verbose)
+                _package.connect_and_configure(verbose=verbose)
+                _package.activate(verbose=verbose)
 
-            global endflag
-            while not endflag:
-                try:
-                    time.sleep(0.1)
-                except IOError, e:
+                global endflag
+                while not endflag:
+                    try:
+                        time.sleep(0.1)
+                    except IOError, e:
+                        pass
+
                     pass
-
-
+            except wasanbon.BuildSystemException, ex:
+                sys.stdout.write(' @ Exception: Build System Exception\n')
+                traceback.print_exc()
+                
             _package.deactivate(verbose=verbose)
             _package.terminate_all_rtcd(verbose=verbose)
-
+                
             for ns in nss:
                 ns.kill()
-                
+                pass
 
         elif(argv[2] == 'datalist'):
             package.list_rtcs_by_dataport()
