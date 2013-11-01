@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import os, traceback
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
@@ -156,7 +156,7 @@ class RTCProfile(Node):
                 #                               dport.attrib['{%s}portType' % uri]))
 
         except Exception, e:
-            print e
+            traceback.print_exc()
             raise InvalidRTCProfileError(filename_, 'Parsing Error')
 
         pass

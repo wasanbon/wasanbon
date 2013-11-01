@@ -75,6 +75,11 @@ class Command(object):
             elif argv[3] == 'update':
                 sys.stdout.write(' @ Updating Package Repositories\n')
                 pack.update_repositories(verbose=verbose)
+            elif argv[3] == 'clone':
+                wasanbon.arg_check(argv,5)
+                sys.stdout.write(' @ Cloning Package Repositories\n')
+                pack.update_repositories(verbose=verbose, url=argv[4])
+
 
         elif argv[2] == 'clone':
             wasanbon.arg_check(argv,4)

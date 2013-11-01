@@ -36,26 +36,35 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
     
     return rtc_repos, package_repos
 
-def download_repositories(verbose=False, force=False):
+def download_repository(url, verbose=False, force=False):
+    repository_path = os.path.join(wasanbon.rtm_home, 'repositories', url.split('/')[-2])
+    target_path = os.path.join(repository_path, url.split('/')[-1])
+    if os.path.isdir(target_path):
+        git.git_command(['pull'], verbose=True, path=target_path)
+        pass
+    else:
+        if not os.path.isdir(target_path):
+            os.makedirs(target_path)
+            pass
+        git.git_command(['clone', url, target_path], verbose=verbose)
+        pass
+
+    pass
+
+def download_repositories(verbose=False, force=False, url=None):
     file_path = os.path.join(wasanbon.__path__[0], 'settings', 'repository.yaml')
     if verbose:
         sys.stdout.write(' - Downloading Repositories....\n')
         sys.stdout.write(' - Opening setting file in %s\n' % file_path)
 
+    if url:
+        download_repository(url, verbose=verbose, force=force)
+        return True
     with open(file_path, 'r') as repo_setting:
         for name, value in yaml.load(repo_setting).items():
             if verbose:
                 sys.stdout.write(' - Repository : %s\n' % name)
-            repository_path = os.path.join(wasanbon.rtm_home, 'repositories', value['url'].split('/')[-2])
-            target_path = os.path.join(repository_path, value['url'].split('/')[-1])
-            if os.path.isdir(target_path):
-                git.git_command(['pull'], verbose=True, path=target_path)
-                pass
-            else:
-                if not os.path.isdir(target_path):
-                    os.makedirs(target_path)
-                git.git_command(['clone', value['url'], target_path], verbose=verbose)
-                pass
+            download_repository(value['url'], verbose=verbose, force=force)
 
     return True
                 

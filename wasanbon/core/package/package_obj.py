@@ -204,8 +204,23 @@ class Package():
                 os.mkdir(bin_dir)
                 pass
 
+            if sys.platform == 'darwin':
+                ext = 'dylib'
+            elif sys.platform == 'win32':
+                ext = 'dll'
+            elif sys.platform == 'linux2':
+                ext = 'so'
+                
+            files = [filepath]
+            for file in os.listdir(os.path.dirname(filepath)):
+                if file.endswith(ext):
+                    files.append(os.path.join(os.path.dirname(filepath), file))
+                
+            for file in files:
+                target = os.path.join(bin_dir, os.path.basename(file))
+                shutil.copy(filepath, target)
+
             targetfile = os.path.join(bin_dir, os.path.basename(filepath))
-            shutil.copy(filepath, targetfile)
 
         rtcconf.append('manager.modules.load_path', bin_dir_rel)
         if preload:
