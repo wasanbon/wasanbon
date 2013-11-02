@@ -2,4 +2,94 @@ Wasanbon
 
 
 
-1. How To Install
+A. How To Install
+
+A.a OSX
+
+1 Setup Developmental Environment
+
+1.1 Allow to install downloaded program
+
+First, allow installing programs from Unidentified Developers. Open the System Preferences of your OSX, and select “Security & Privacy”.
+
+Make change in “Allow applications downloaded” option to “Anywhere”.
+
+–REFERENCE
+Apple Official
+DoIT Help Desk
+
+1.2 Install Xcode
+
+Install Xcode 4.9 from the AppStore, and install command-line tools.
+
+–REFERENCE
+Apple Official
+Mac OS X: Install GCC Compiler with Xcode
+How to Install Xcode, Homebrew, Git, RVM, Ruby & Rails on Snow Leopard, Lion, and Mountain Lion
+
+2. Terminal
+
+Launch terminal from Launcher, then execute….
+
+$ git clone https://github.com/sugarsweetrobotics/wasanbon.git
+$ cd wasanbon
+$ sudo python setup.py install
+$ sudo wasanbon-admin.py init --force
+You will be asked from “cmake” installer if you want to launch cmake from command-line (or not). We recommend you to select “yes” option just for your convenience.
+
+
+
+A.b Windows 7 x64
+
+1. Install Developmental Environment
+
+1.1 Install Python
+
+Download Python 2.6.8 from this link.
+
+After finishing installing the python,
+you must add “C:¥Python26; C:¥Python26¥Scripts” to PATH environmental variable.
+
+– REFERENCE
+Computer Hope
+Using Python in Windows – Python.org
+
+1.2 Install Visual Studio
+
+Install Visual Studio 2010. Currently, you can find the visual studio 2010 express edition in HERE.
+
+–REFERENCE
+Visual Studio Official Web
+
+1.3 Turn the UAC off
+
+Turn off your UAC (User Account Control) from your control panel, and reboot your windows.
+
+– REFERENCE
+Windows Official
+
+2. Download and Install
+
+2.1 Download
+
+Download ZIP archive from https://github.com/sugarsweetrobotics/wasanbon.
+
+
+After the download, extract the archive file.
+
+2.2 Lauch Prompt
+
+Open the automatically generated directory “wasanbon-master”, and launch “prompt.bat” with double clicking.
+
+Then, input the commands below:
+
+$ python setup.py install
+$ wasanbon-admin.py init --force
+While installing, several installers are automatically downloaded and executed. You can see several install dialogs and you must select some options and press “OK” buttons.
+Do not change installing directories. Install programs into the default directories. In some software, we recommend you to select “yes” option if you are asked whether you want to use the programs from command-line.
+
+
+
+A.c Ubuntu
+
+Under construction
