@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil, traceback
+import os, sys, yaml, shutil, traceback, types
 import wasanbon
 from wasanbon.util import git
 
@@ -48,6 +48,8 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
     return rtc_repos, package_repos
 
 def download_repository(url, verbose=False, force=False):
+    if verbose:
+        sys.stdout.write(' - Downloading repository %s\n' % url)
     repository_path = os.path.join(wasanbon.rtm_home, 'repositories', url.split('/')[-2])
     target_path = os.path.join(repository_path, url.split('/')[-1])
     if os.path.isdir(target_path):
@@ -60,6 +62,17 @@ def download_repository(url, verbose=False, force=False):
         git.git_command(['clone', url, target_path], verbose=verbose)
         pass
 
+    if verbose:
+        sys.stdout.write(' - Parsing child repositories\n')
+    setting_file_path = os.path.join(target_path, 'setting.yaml')
+    if os.path.isfile(setting_file_path):
+        with open(setting_file_path, 'r') as setting_file:
+            setting = yaml.load(setting_file)
+            if type(setting) is types.DictType:
+                child_repos = setting.get('child_repositories', [])
+                for repo in child_repos:
+                    download_repository(repo, verbose, force)
+                    
     pass
 
 def download_repositories(verbose=False, force=False, url=None):
