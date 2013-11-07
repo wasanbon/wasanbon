@@ -25,6 +25,8 @@ def clone_and_setup(url, verbose=False, force=False):
                 print ' - Removing Path (%S)' % distpath
             shutil.rmtree(distpath)
 
+    os.mkdir(distpath)
+
     cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
     if verbose:
         print ' - Cloning %s' % url
@@ -42,7 +44,6 @@ def clone_and_setup(url, verbose=False, force=False):
 
 def git_command(commands, path='.', verbose = False, pipe=False):
     cur_dir = os.getcwd()
-    
     os.chdir(path)
     gitenv = os.environ.copy()
     if not 'HOME' in gitenv.keys():
