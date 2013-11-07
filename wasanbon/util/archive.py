@@ -21,16 +21,15 @@ def unpack_zip(filepath, distpath, force=False, verbose=True):
         sys.stdout.write(' - Unpacking %s\n'% filepath)
 
     path, file = os.path.split(filepath)
-    if sys.platform == 'darwin' or sys.platform == 'darwin':
+    if sys.platform == 'darwin' or sys.platform == 'linux2':
         cmd = ['unzip', filepath, '-d', distpath]
         stdout = None if verbose else subprocess.PIPE
         subprocess.call(cmd, stdout=stdout)
-
-        home_stat = os.stat(os.environ['HOME'])
-        uid = home_stat.st_uid
-        gid = home_stat.st_gid
         return
 
+    home_stat = os.stat(os.environ['HOME'])
+    uid = home_stat.st_uid
+    gid = home_stat.st_gid
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
         if verbose:
