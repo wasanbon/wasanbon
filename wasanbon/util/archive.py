@@ -25,11 +25,13 @@ def unpack_zip(filepath, distpath, force=False, verbose=True):
         cmd = ['unzip', filepath, '-d', distpath]
         stdout = None if verbose else subprocess.PIPE
         subprocess.call(cmd, stdout=stdout)
+
+        home_stat = os.stat(os.environ['HOME'])
+        uid = home_stat.st_uid
+        gid = home_stat.st_gid
+
         return
 
-    home_stat = os.stat(os.environ['HOME'])
-    uid = home_stat.st_uid
-    gid = home_stat.st_gid
     zf = zipfile.ZipFile(filepath)
     for filepath in zf.namelist():
         if verbose:
