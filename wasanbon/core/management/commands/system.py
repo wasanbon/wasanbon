@@ -61,6 +61,7 @@ class Command(object):
         #for opt in opts:
         #    usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
 
+        print 'args:' + args
         parser = optparse.OptionParser(usage=usage, add_help_option=False)
         parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
         parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
