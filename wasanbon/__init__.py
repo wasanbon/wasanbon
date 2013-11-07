@@ -22,7 +22,7 @@ if sys.platform == 'darwin':
     if ver.startswith('10.8'):
         platform = 'darwin108'
     if ver.startswith('10.7'):
-        platform = 'darwin107'
+        platform = 'darwin108'
 elif sys.platform == 'win32':
     if sys.getwindowsversion()[1] == 1:
         platform = 'windows7'

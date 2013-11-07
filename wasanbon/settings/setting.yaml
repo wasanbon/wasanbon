@@ -4,4 +4,4 @@ system :
   darwin107 : darwin108
   windows7_x64 : windows7_x64
   ubuntu1204_x64 : ubuntu1204_x64
-  
+  ubuntu1204_x86 : ubuntu1204_x86  
