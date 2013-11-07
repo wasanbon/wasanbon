@@ -39,7 +39,7 @@ def install_command(cmd, verbose=False):
             return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd], 
                                       verbose=verbose)
     elif sys.platform == 'linux2':
-        return util.download_and_install(wasanbon.setting['linux2']['packages'][cmd],
+        return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd],
                                   verbose=verbose)
     raise wasanbon.UnsupportedPlatformError()
 
