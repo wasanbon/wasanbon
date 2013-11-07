@@ -22,7 +22,7 @@ def clone_and_setup(url, verbose=False, force=False):
         else:
             print ' - Force to install'
             if verbose:
-                print ' - Removing Path (%S)' % distpath
+                print ' - Removing Path (%s)' % distpath
             shutil.rmtree(distpath)
 
 
