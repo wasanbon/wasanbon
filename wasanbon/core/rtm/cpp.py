@@ -89,7 +89,8 @@ def install_cpprtm_win(force):
     util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
 
 def install_cpprtm_linux(force):
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
+    #util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
 
 def install_cpprtm_osx(force):
     util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
