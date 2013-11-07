@@ -187,9 +187,15 @@ class Command(object):
         elif(argv[2] == 'run'):
             signal.signal(signal.SIGINT, signal_action)
             if sys.platform == 'win32':
-                print 'SIGBREAK..'
+                sys.stdout.write(' - Escaping SIGBREAK...\n')
                 signal.signal(signal.SIGBREAK, signal_action)
             sys.stdout.write(' @ Starting RTC-daemons...\n')
+            interactive = False
+
+            if '-i' in argv:
+                sys.stdout.write(' @ Interactive Mode\n')
+                verbose = True
+                interactive = True
 
             nss = _package.get_nameservers(verbose=verbose)
             ns_process = None
@@ -197,10 +203,23 @@ class Command(object):
                 if not ns.check_and_launch(verbose=verbose, force=force):
                     sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
                     return
+            if interactive:
+                sys.stdout.write(' - Nameserver Checked. Press Enter.\n')
+                raw_input()
 
             try:
+
                 _package.launch_all_rtcd(verbose=verbose)
+                if interactive:
+                    sys.stdout.write(' - rtcd launched. Press Enter.\n')
+                    raw_input()
+
                 _package.connect_and_configure(verbose=verbose)
+
+                if interactive:
+                    sys.stdout.write(' - connection okay. Press Enter.\n')
+                    raw_input()
+
                 _package.activate(verbose=verbose)
 
                 global endflag
