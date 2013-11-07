@@ -63,6 +63,7 @@ class Command(object):
 
         parser = optparse.OptionParser(usage=usage, add_help_option=False)
         parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
         try:
             options, argv = parser.parse_args(args[:])
         except:
@@ -192,7 +193,7 @@ class Command(object):
             sys.stdout.write(' @ Starting RTC-daemons...\n')
             interactive = False
 
-            if '-i' in argv:
+            if options.interactive_flag in argv:
                 sys.stdout.write(' @ Interactive Mode\n')
                 verbose = True
                 interactive = True
