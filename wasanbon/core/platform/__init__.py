@@ -1,12 +1,21 @@
-import os, sys, yaml
+import os, sys, yaml, subprocess
 import wasanbon
+
 from wasanbon import util
+
 from wasanbon.core.template import *
 
 from . import directory, path, install
 
 
 def init_rtm_home(force=False, verbose=False):
+    if wasanbon.platform.startswith("ubuntu"):
+        cmd = ['apt-get', 'update']
+        subprocess.call(cmd)
+
+        cmd = ['apt-get', 'install', '--force-yes', '-y', 'aptitude']
+        subprocess.call(cmd)
+
     directory.create_rtm_home(force=force, verbose=verbose)
     directory.copy_initial_setting(verbose=verbose, force=force)
     path.init_tools_path(force=force, verbose=verbose)
