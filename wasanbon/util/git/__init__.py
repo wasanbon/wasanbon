@@ -6,6 +6,8 @@ from github_obj  import *
 from git_obj import *
 
 def clone_and_setup(url, verbose=False, force=False):
+    if verbose:
+        sys.stdout.write(' - Clone and setup.py: %s\n' % url)
     distpath = os.path.join(wasanbon.rtm_temp, os.path.basename(url)[:-4])
     if not 'local' in wasanbon.setting.keys():
         wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
@@ -26,7 +28,7 @@ def clone_and_setup(url, verbose=False, force=False):
     cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
     if verbose:
         print ' - Cloning %s' % url
-    subprocess.call(cmd, stdout=stdout)
+    git_command(['clone', url], path=distpath, verbose=verbose)
 
     crrdir = os.getcwd()
     os.chdir(distpath)
