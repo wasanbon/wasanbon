@@ -23,18 +23,19 @@ def install_rtshell(force=False, verbose=False):
             try:
                 import rtctree
             except ImportError, e:
+                
                 url = wasanbon.setting['common']['git']['rtctree']
-                git.clone_and_setup(url, verbose=verbose)
+                git.clone_and_setup(url, verbose=True)
             try:
                 import rtsprofile
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtsprofile']
-                git.clone_and_setup(url, verbose=verbose)
+                git.clone_and_setup(url, verbose=True)
             try:
                 import rtshell
             except ImportError, e:
                 url = wasanbon.setting['common']['git']['rtshell']
-                git.clone_and_setup(url, verbose=verbose)
+                git.clone_and_setup(url, verbose=True)
             pass
 
     except ImportError, e:
