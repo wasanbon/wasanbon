@@ -1,0 +1,13 @@
+precise:
+  - 'rm -rf /etc/apt/sources.list.d/openrtm-aist.list'
+  - 'sh -c echo "deb http://www.openrtm.org/pub/Linux/ubuntu/ precise main" >> /etc/apt/sources.list.d/openrtm-aist.list'
+  - 'sh -c echo "deb http://www.openrtm.org/pub/Linux/ubuntu/ precise-unstable main" >> /etc/apt/sources.list.d/openrtm-aist.list' 
+  - 'apt-get update'
+  - 'apt-get install -y --force-yes aptitude'
+  - 'aptitude install -y --force-yes gcc g++ make uuid-dev cmake-gui doxygen openjdk-7-jre openjdk-7-jdk'
+  - 'aptitude install -y --force-yes libcv2.3 libcv-dev libcvaux2.3 libcvaux-dev libhighgui-dev libhighgui2.31 libopencv-contrib-dev libopencv-contrib2.3'
+  - 'aptitude install -y --force-yes libomniorb4-1 libomniorb4-dev omniidl omniorb-nameserver'
+  - 'aptitude install -y --force-yes openrtm-aist openrtm-aist-dev openrtm-aist-example openrtm-aist-doc'
+  - 'aptitude install -y --force-yes python-omniorb-omg omniidl-python' 
+  - 'aptitude install -y --force-yes openrtm-aist-python openrtm-aist-python-example'
+
