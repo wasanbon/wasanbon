@@ -39,7 +39,7 @@ def install_pyrtm_win(force, verbose=True):
     util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['python'], force=force, verbose=verbose)
 
 def install_pyrtm_linux(force, verbose=True):
-    #util.download_and_install(wasanbon.setting['linux2']['packages']['python_ppa'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['python'], force=force)
     install_pyrtm_osx(force, verbose=verbose) # install from source.
 
 def install_pyrtm_osx(force, verbose=True):
