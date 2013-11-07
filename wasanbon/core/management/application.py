@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os, sys, yaml, types, optparse
-
 import wasanbon
 import wasanbon.core.management.commands
 import wasanbon.core.management.admin
@@ -100,11 +99,14 @@ def execute(argv=None):
     parser.add_option('-c', '--clean', help=wasanbon.get_help_text(['help', 'clean']), action='store_true', default=False, dest='clean_flag')
     parser.add_option('-f', '--force', help=wasanbon.get_help_text(['help', 'force']), action='store_true', default=False, dest='force_flag')
     parser.add_option('-l', '--longformat', help=wasanbon.get_help_text(['help', 'long']), action='store_true', default=False, dest='long_flag')
+    parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
     
     try:
         options, args = parser.parse_args(argv[:])
         if options.long_flag:
             args.append('-l')
+        if options.interactive_flag:
+            args.append('-i')
         #args = []
         #subopts = []
         #for arg in arg_tmp:
