@@ -332,8 +332,16 @@ class Package():
 
         if os.path.isdir('pid'):
             for file in os.listdir('pid'):
+                if file.startswith('rtcd_cpp_'):
+                    pid = file[len('rtcd_cpp_'):]
+                elif file.startswith('rtcd_py_'):
+                    pid = file[len('rtcd_py_'):]
+                elif file.startswith('rtcd_java_'):
+                    pid = file[len('rtcd_java_'):]
+                else:
+                    continue
                 for proc in psutil.process_iter():
-                    if file == str(proc.pid):
+                    if str(proc.pid) == pid:
                         proc.kill()
                 os.remove(os.path.join('pid', file))
 
@@ -344,13 +352,13 @@ class Package():
         if verbose:
             sys.stdout.write(' - PID = %s\n' % self._process['C++'].pid)
 
-        open(os.path.join('pid', str(self._process['C++'].pid)), 'w').close()
+        open(os.path.join('pid', 'rtcd_cpp_' + str(self._process['C++'].pid)), 'w').close()
         self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
                                                         'Python' in self.console_bind)
-        open(os.path.join('pid', str(self._process['Python'].pid)), 'w').close()
+        open(os.path.join('pid', 'rtcd_py_' + str(self._process['Python'].pid)), 'w').close()
         self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
                                                       'Java' in self.console_bind)
-        open(os.path.join('pid', str(self._process['Java'].pid)), 'w').close()
+        open(os.path.join('pid', 'rtcd_java_' + str(self._process['Java'].pid)), 'w').close()
 
         
         pass
@@ -395,8 +403,17 @@ class Package():
                 pid = self._process[key].pid
                 if os.path.isdir(os.path.join(self.path, 'pid')):
                     for file in os.listdir('pid'):
+                        if file.startswith('rtcd_cpp_'):
+                            _process = file[len('rtcd_cpp_'):]
+                        elif file.startswith('rtcd_py_'):
+                            _process = file[len('rtcd_py_'):]
+                        elif file.startswith('rtcd_java_'):
+                            _process = file[len('rtcd_java_'):]
+                        else:
+                            continue
+
                         print ' - package_obj.py checking process :', file
-                        if file == str(pid):
+                        if _process == str(pid):
                             os.remove(os.path.join('pid', file))
                 flags.append(True)
             else:
@@ -425,7 +442,15 @@ class Package():
             if os.path.isdir('pid'):
                 sys.stdout.write(' - checking pid directory\n')
                 for file in os.listdir('pid'):
-                    if file == str(value.pid):
+                    if file.startswith('rtcd_cpp_'):
+                        _process = file[len('rtcd_cpp_'):]
+                    elif file.startswith('rtcd_py_'):
+                        _process = file[len('rtcd_py_'):]
+                    elif file.startswith('rtcd_java_'):
+                        _process = file[len('rtcd_java_'):]
+                    else:
+                        continue
+                    if _process == str(value.pid):
                         sys.stdout.write(' - removing file %s\n' % file)
                         os.remove(os.path.join('pid', file))
 
