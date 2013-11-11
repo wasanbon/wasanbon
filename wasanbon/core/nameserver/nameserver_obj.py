@@ -1,4 +1,4 @@
-import os, sys, subprocess, time, signal
+import os, sys, subprocess, time, signal, psutil
 from wasanbon.core.nameserver.rtc_ref import *
 from ctypes import *
 import rtctree
@@ -91,13 +91,26 @@ class NameService(object):
             
 
     def launch(self, verbose=False, force=False):
+
         if self.address != 'localhost' and self.address != '127.0.0.1':
             return False
 
+        if not os.path.isdir('pid'):
+            os.mkdir('pid')
+
+        if os.path.isdir('pid'):
+            for file in os.listdir('pid'):
+                if file.startswith('nameserver_'):
+                    pid = file[len('nameserver_'):]
+                    for proc in psutil.process_iter():
+                        if str(proc.pid) == pid:
+                            if verbose:
+                                sys.stdout.write(' @ Stopping Nameservice of PID (%s)\n' % pid)
+                            proc.kill()
+                    os.remove(os.path.join('pid', file))
         if verbose:
             sys.stdout.write(' - Starting Nameserver \n')
             pass
-    
         pstdout = None if verbose else subprocess.PIPE 
         pstderr = None if verbose else subprocess.PIPE
         pstdin = subprocess.PIPE
@@ -112,6 +125,7 @@ class NameService(object):
             creationflag = 0
             preexec_fn = disable_sig
             pass
+
         if verbose:
             print ' - Command = %s' % cmd
             pass
@@ -119,11 +133,27 @@ class NameService(object):
         if force:
             self._process.stdin.write('y\n')
             pass
-        return
+
+        if verbose:
+            sys.stdout.write(' - Creating PID file (%s)\n' % self._process.pid)
+            sys.stdout.write('  - Filename :%s\n' % os.path.join(os.getcwd(), 'pid', 'nameserver_' + str(self._process.pid)))
+        open(os.path.join('pid', 'nameserver_' +  str(self._process.pid)), 'w').close()
+        if verbose:
+            sys.stdout.write(' - OK.\n')
+        return 
     
     def kill(self):
         if self._process:
             self._process.kill()
+        if os.path.isdir('pid'):
+            for file in os.listdir('pid'):
+                if file.startswith('nameserver_'):
+                    pid = file[len('nameserver_'):]
+                    for proc in psutil.process_iter():
+                        if str(proc.pid) == pid:
+                            sys.stdout.write(' - Stopping NameService.....\n')
+                            proc.kill()
+                    os.remove(os.path.join('pid', file))
 
     @property
     def rtcs(self, try_count=5):
