@@ -13,11 +13,11 @@ def install_rtshell(force=False, verbose=False):
 
         if force:
             url = wasanbon.setting['common']['git']['rtctree']
-            git.clone_and_setup(url, force=True, verbose=verbose)
+            git.clone_and_setup(url, force=True, verbose=True)
             url = wasanbon.setting['common']['git']['rtsprofile']
-            git.clone_and_setup(url, force=True, verbose=verbose)
+            git.clone_and_setup(url, force=True, verbose=True)
             url = wasanbon.setting['common']['git']['rtshell']
-            git.clone_and_setup(url, force=True, verbose=verbose)
+            git.clone_and_setup(url, force=True, verbose=True)
 
         else:
             try:
