@@ -35,7 +35,7 @@ class PackageRepository():
         appdir = os.path.join(os.getcwd(), self.name)
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
-                print ' - There seems to be %s here. Please change application name.' % prjname
+                print ' - There seems to be %s here. Please change application name.' % appdir
             raise PackageDirectoryExistsException()
             #return False
 
