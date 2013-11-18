@@ -56,15 +56,15 @@ def install(force=False, verbose=False):
         return False
 
     if sys.platform == 'darwin':
-        install_cpprtm_osx(force)
+        install_cpprtm_osx(force, verbose=verbose)
     elif sys.platform == 'win32':
-        install_cpprtm_win(force)
+        install_cpprtm_win(force, verbose=verbose)
     elif sys.platform == 'linux2':
-        install_cpprtm_linux(force)
+        install_cpprtm_linux(force, verbose=verbose)
     pass
 
 
-def install_cpprtm_win(force):
+def install_cpprtm_win(force, verbose=False):
     if wasanbon.platform.startswith("windows8"):
         sys.stdout.write(' - Windows8 Detected.\n')
         util.download_and_unpack(wasanbon.setting[wasanbon.platform]['packages']['vcpvcr71'], wasanbon.rtm_temp)
@@ -86,14 +86,14 @@ def install_cpprtm_win(force):
             else:
                 shutil.copy(src_file, dst_file)
                 
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
 
-def install_cpprtm_linux(force):
+def install_cpprtm_linux(force, verbose=False):
     #util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
 
-def install_cpprtm_osx(force):
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force)
+def install_cpprtm_osx(force=False, verbose=False):
+    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
     
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
