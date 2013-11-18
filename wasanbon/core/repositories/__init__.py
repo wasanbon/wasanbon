@@ -17,7 +17,13 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
             if verbose:
                 sys.stdout.write(' - Loading setting file (%s)\n' % os.path.join(root, 'setting.yaml'))
             repo_setting = yaml.load(open(setting_file, 'r'))
-            repo_dirs = repo_setting['repositories'][wasanbon.platform]
+            try:
+                repo_dirs = repo_setting['repositories'][wasanbon.platform]
+            except KeyError, ex:
+                sys.stdout.write(' @ Error: repository(%s) does not have repository list for %s\n' % (os.path.join(root, 'setting.yaml'), wasanbon.platform))
+                continue
+                pass
+
             for repo_child_dir in repo_dirs:
                 dirname = os.path.join(root, repo_child_dir)
                 rtc_file_name = os.path.join(dirname, 'rtcs.yaml') 
@@ -26,21 +32,24 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
                     try:
                         if verbose:
                             sys.stdout.write(' - Opening %s\n' % rtc_file_name)
+                            pass
                         with open(rtc_file_name, 'r') as rtc_file:
                             rtc_repos = dict(rtc_repos, **yaml.load(rtc_file))
                     except Exception, ex:
                         if verbose:
                             traceback.print_exc()
+                            pass
                 if os.path.isfile(pack_file_name):
                     try:
                         if verbose:
                             sys.stdout.write(' - Opening %s\n' % pack_file_name)
+                            pass
                         with open(pack_file_name, 'r') as pack_file:
                             package_repos = dict(package_repos, **yaml.load(pack_file))
                     except Exception, ex:
                         if verbose:
                             traceback.print_exc()
-
+                            pass
         except Exception, ex:
             traceback.print_exc()
             pass
