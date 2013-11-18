@@ -78,10 +78,10 @@ def install_cpprtm_win(force):
         for file in files:
             src_file = os.path.join(src_dir, file)
             dst_file = os.path.join(dst_dir, file)
-            if not os.path.isdir(src_file):
+            if not os.path.isfile(src_file):
                 sys.stdout.write(' @ Can not find %s\n' % src_file)
                 raise wasanbon.NoSuchFileException()
-            if os.path.isdir(dst_dir):
+            if os.path.isfile(dst_dir):
                 sys.stdout.write(' - %s is already exists.\n')
             else:
                 shutil.copy(src_file, dst_file)
