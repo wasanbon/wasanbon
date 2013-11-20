@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil, subprocess
+import os, sys, yaml, shutil, subprocess, traceback
 if sys.platform == 'darwin' or sys.platform == 'linux2':
     import pwd, grp
 import wasanbon
@@ -15,6 +15,27 @@ class Command(object):
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
+
+        usage = "wasanbon-admin.py init [subcommand] ...\n\n"        
+        parser = optparse.OptionParser(usage=usage, add_help_option=False)
+        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
+        #parser.add_option('-p', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
+        try:
+            options, argv = parser.parse_args(args[:])
+        except:
+            return
+        interactive = False
+        proxy = False
+        if options.interactive_flag :
+            sys.stdout.write(' @ Interactive Mode\n')
+            verbose = True
+            interactive = True
+            pass
+
+        if verbose:
+            sys.stdout.write(' - wasanbon init with argv:%s\n' % str(argv))
+
         if sys.platform == 'win32':
             verbose=True
 
@@ -24,6 +45,32 @@ class Command(object):
             return False
 
         sys.stdout.write(' @ Commands are successfully found.\n')
+
+        if proxy:
+            addr, port = address.split(':')
+            util.set_proxy(addr, port, verbose=True)            
+        elif interactive:
+            sys.stdout.write(' @ The command line tools must communicate with several internet services.\n')
+            if util.no_yes(' @ Do you need to use proxy service?') == 'yes':
+                while True:
+                    try:
+                        sys.stdout.write(' -- Input proxy server address:')
+                        addr = raw_input()
+                        sys.stdout.write(' -- Input proxy server port:')
+                        port = int(raw_input())
+                        msg = ('@ Address(%s), Port(%s) : OK?' % (addr, port))
+                        if util.yes_no(msg) == 'yes':
+                            break
+                    except Exception, e:
+                        sys.stdout.write(' @ Exception:\n')
+                        traceback.print_exc()
+                if len(addr) == 0:
+                    sys.stdout.write(' --- Invalid Proxy Server Address.\n')
+                    sys.stdout.write(' --- Following Process does not use proxy.\n')
+                else:
+                    util.set_proxy(addr, port, verbose=True)
+            else:
+                util.omit_proxy(verbose=True)
 
         if not 'local' in wasanbon.setting.keys():
             wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home,
