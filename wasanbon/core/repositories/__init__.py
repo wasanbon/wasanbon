@@ -1,8 +1,31 @@
-import os, sys, yaml, shutil, traceback, types
+import os, sys, yaml, shutil, traceback, types, github
 import wasanbon
-from wasanbon.util import git
+from wasanbon import util
+from wasanbon.util import git, github_ref
 
+owner_sign = '_owner'
 
+def create_local_repository(user, passwd, repo_name, repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
+    if verbose:
+        sys.stdout.write(' - Initializing Your Repository\n')
+        pass
+    target_path = os.path.join(repo_dir, user + owner_sign, repo_name)
+    url = 'https://github.com/' + user + '/' + repo_name + '.git'
+    #Check if repository exists...
+    github_obj = github_ref.GithubReference(user, passwd)
+    if github_obj.exists_repo(repo_name):
+        sys.stdout.write(' @ You have already created your own repository.\n')
+        sys.stdout.write(' @ wasanbon just clone it.\n')
+        download_repository(url=url, target_path=target_path, verbose=verbose)
+        return True
+        
+    local_repo_dir = os.path.join(repo_dir, user, repo_name + '.git')
+    if os.path.isdir(local_repo_dir):
+        download_repository(url=url, target_path=target_path, verbose=verbose)
+        return True
+
+    repo_obj = github_obj.create_repo(repo_name)
+    download_repository(url=url, target_path=target_path, verbose=verbose)
 
 def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
     rtc_repos = {}
@@ -56,11 +79,12 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
     
     return rtc_repos, package_repos
 
-def download_repository(url, verbose=False, force=False):
+def download_repository(url, target_path='',verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Downloading repository %s\n' % url)
     repository_path = os.path.join(wasanbon.rtm_home, 'repositories', url.split('/')[-2])
-    target_path = os.path.join(repository_path, url.split('/')[-1])
+    if len(target_path) == 0:
+        target_path = os.path.join(repository_path, url.split('/')[-1])
     if os.path.isdir(target_path):
         git.git_command(['pull'], verbose=True, path=target_path)
         pass
