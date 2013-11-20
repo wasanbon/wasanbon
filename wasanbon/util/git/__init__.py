@@ -68,3 +68,31 @@ def git_command(commands, path='.', verbose = False, pipe=False):
         p = subprocess.Popen(cmd, env=gitenv, stdout=stdout, stderr=stderr)
     os.chdir(cur_dir)
     return p
+
+
+def set_proxy(addr, port, verbose=False):
+    if verbose:
+        sys.stdout.write(' - setting svn proxy\n')
+        pass
+
+    cmd = ['config', '--global', 'http.proxy', addr+':'+port]
+    git_command(cmd, verbose=verbose)
+    cmd = ['config', '--global', 'https.proxy', addr+':'+port]
+    git_command(cmd, verbose=verbose)
+    cmd = ['config', '--global', 'url."https://".insteadOf', 'git://']
+    git_command(cmd, verbose=verbose)
+
+    pass
+
+def omit_proxy(verbose=False):
+    if verbose:
+        sys.stdout.write(' - remove setting svn proxy\n')
+        pass
+
+    cmd = ['config', '--global', '--unset', 'http.proxy']
+    git_command(cmd, verbose=verbose)
+    cmd = ['config', '--global', '--unset', 'https.proxy']
+    git_command(cmd, verbose=verbose)
+    cmd = ['config', '--global', '--unset', 'url."https://".insteadOf']
+    git_command(cmd, verbose=verbose)
+    pass

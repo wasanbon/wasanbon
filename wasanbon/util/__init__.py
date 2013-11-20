@@ -1,6 +1,6 @@
 import os, sys, subprocess
 import wasanbon
-from . import download, install, archive
+from . import download, install, archive, svn, git
 
 
 def choice(alts, callback, msg='Choice'):
@@ -111,3 +111,20 @@ def search_file(rootdir, filename):
                 found_files_.append(fullpath_)
     return found_files_
 
+def set_proxy(addr, port, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Set Proxy Server:(%s:%s)\n' % (addr, port))
+        pass
+    svn.set_proxy(addr, port, verbose=verbose)
+    git.set_proxy(addr, port, verbose=verbose)
+
+    pass
+
+
+def omit_proxy(verbose=False):
+    if verbose:
+        sys.stdout.write(' - Omitting Proxy Server setting.\n')
+        pass
+    svn.omit_proxy(verbose=verbose)
+    git.omit_proxy(verbose=verbose)
+    pass
