@@ -1,7 +1,8 @@
-import os, sys, optparse
+import os, sys, optparse, getpass
 import wasanbon
 import wasanbon.core.package as pack
 from  wasanbon.core.package import workspace
+from wasanbon.core import repositories
 
 class Command(object):
     def __init__(self):
@@ -72,6 +73,14 @@ class Command(object):
                 repos = pack.get_repositories(verbose=verbose)
                 for repo in repos:
                     print_repository(repo, long=options.long_flag)
+            elif argv[3] == 'create':
+                sys.stdout.write('  - Input Github User Name:')
+                username = raw_input()
+                #sys.stdout.write('  - Input Github Password :')
+                passwd = getpass.getpass()
+                sys.stdout.write('  - Input repository name :')
+                repo_name = raw_input()
+                repositories.create_local_repository(username, passwd, repo_name, verbose=verbose)
             elif argv[3] == 'update':
                 sys.stdout.write(' @ Updating Package Repositories\n')
                 pack.update_repositories(verbose=verbose)
