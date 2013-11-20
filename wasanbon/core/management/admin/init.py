@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil, subprocess, traceback
+import os, sys, yaml, shutil, subprocess, traceback, optparse
 if sys.platform == 'darwin' or sys.platform == 'linux2':
     import pwd, grp
 import wasanbon
@@ -13,7 +13,7 @@ class Command(object):
     def __init__(self):
         pass
 
-    def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
+    def execute_with_argv(self, args, force=False, verbose=False, clean=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
 
         usage = "wasanbon-admin.py init [subcommand] ...\n\n"        
@@ -25,6 +25,7 @@ class Command(object):
             options, argv = parser.parse_args(args[:])
         except:
             return
+
         interactive = False
         proxy = False
         if options.interactive_flag :

@@ -81,10 +81,13 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
 
 def download_repository(url, target_path='',verbose=False, force=False):
     if verbose:
-        sys.stdout.write(' - Downloading repository %s\n' % url)
+        sys.stdout.write(' - Downloading repository %s into %s\n' % (url, target_path))
     repository_path = os.path.join(wasanbon.rtm_home, 'repositories', url.split('/')[-2])
-    if len(target_path) == 0:
+    if not target_path:
         target_path = os.path.join(repository_path, url.split('/')[-1])
+        if verbose:
+            sys.stdout.write(' - Downloading repository %s into %s\n' % (url, target_path))
+
     if os.path.isdir(target_path):
         git.git_command(['pull'], verbose=True, path=target_path)
         pass
@@ -104,7 +107,7 @@ def download_repository(url, target_path='',verbose=False, force=False):
             if type(setting) is types.DictType:
                 child_repos = setting.get('child_repositories', [])
                 for repo in child_repos:
-                    download_repository(repo, verbose, force)
+                    download_repository(repo, verbose=verbose, force=force)
                     
     pass
 
