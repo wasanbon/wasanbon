@@ -20,7 +20,7 @@ def _get_library_path():
 
 def install_arduino(verbose=False, force=False):
     if not os.path.isdir(_get_arduino_path()) or force:
-        url = wasanbon.setting[sys.platform]['packages']['arduino']
+        url = wasanbon.setting[wasanbon.platform]['packages']['arduino']
         util.download_and_unpack(url, wasanbon.rtm_home, force)
 
 def install_rtno(verbose=False, force=False):
