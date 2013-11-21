@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon import util
 from wasanbon.util import git
 from wasanbon.core import rtm
+from wasanbon import lib
 
 from rtno_package import *
 
