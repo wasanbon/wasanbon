@@ -25,7 +25,7 @@ def get_repository(name, verbose=False):
 def update_repositories(verbose=False, force=False, url=None):
     repo_path = os.path.join(wasanbon.rtm_home, 'repositories')
     for dir in os.listdir(repo_path):
-        if dir.endswith(owner_sign):
+        if dir.endswith(repositories.owner_sign):
             user = dir[:-len(owner_sign)]
             for repo_name in os.listdir(os.path.join(repo_path, dir)):
                 url = 'https://github.com/' + user + '/' + repo_name + '.git'
