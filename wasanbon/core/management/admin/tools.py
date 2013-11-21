@@ -15,7 +15,7 @@ class Command(object):
         wasanbon.arg_check(argv, 3)
         if argv[2] == 'proxy':
             if len(argv) >= 4:
-                host, port = argv[2].split(':')
+                host, port = argv[3].split(':')
                 util.set_proxy(host, port, verbose=True)
                 return
             else:
