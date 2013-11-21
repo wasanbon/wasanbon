@@ -8,7 +8,7 @@ import wasanbon.util.github_ref
 
 def get_repositories(verbose=False):
     repos = []
-    for name, value in wasanbon.setting[sys.platform]['libraries'].items():
+    for name, value in wasanbon.setting[wasanbon.platform]['libraries'].items():
         if 'git' in value.keys():
             protocol = 'git'
         elif 'hg' in value.keys():
