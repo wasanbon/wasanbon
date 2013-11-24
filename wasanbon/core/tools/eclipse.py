@@ -40,10 +40,11 @@ def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
         cmd = cmd + argv
 
     stdout = None if verbose else subprocess.PIPE
+    stderr = None if verbose else subprocess.PIPE
     if sys.platform == 'win32':
-        p = subprocess.Popen(cmd, creationflags=512, env=env, stdout=stdout)
+        p = subprocess.Popen(cmd, creationflags=512, env=env, stdout=stdout, stderr=stderr)
     else:
-        p = subprocess.Popen(cmd, env=env, stdout=stdout)
+        p = subprocess.Popen(cmd, env=env, stdout=stdout, stderr=stderr)
 
     if not nonblock:
         p.wait()
