@@ -28,7 +28,9 @@ def install_rtno(verbose=False, force=False):
     install_arduino(verbose, force)
     dist_path = os.path.join(_get_library_path(), 'RTno')
     if os.path.isdir(dist_path):
-        print ' - Error exit.'
+        sys.stdout.write(' - Found "%s"\n' % dist_path)
+        sys.stdout.write(' - You have already installed RTno into your arduino.\n')
+        git.git_command(['pull'], verbose=verbose)
         return 
     repo = lib.get_repository('RTno', verbose=verbose)
     git.git_command(['clone', repo.url, dist_path], verbose=verbose)
