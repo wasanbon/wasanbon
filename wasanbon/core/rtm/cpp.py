@@ -1,5 +1,5 @@
 import wasanbon
-import os, sys
+import os, sys, subprocess
 import shutil
 from wasanbon import util
 
@@ -98,7 +98,11 @@ def install_cpprtm_osx(force=False, verbose=False):
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]
 
-    sys.stdout.write(' - Copying omniORBpy modules');
+    sys.stdout.write(' - Please check license agreement of Xcode.\n')
+    cmd = ['xcodebuild', '-license']
+    subprocess.call(cmd)
+
+    sys.stdout.write(' - Copying omniORBpy modules\n');
     for file in os.listdir(srcdir):
         filepath = os.path.join(srcdir, file)
         distpath = os.path.join(distdir, file)
