@@ -2,7 +2,7 @@
 
 import sys, os, locale, getpass
 import yaml, types
-import codecs
+import codecs, subprocess
 
 def get_version():
     """Get wasanbon version.
@@ -14,15 +14,25 @@ sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 platform = ""
 
+def xcode_check():
+    p = subprocess.Popen(['gcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    line = p.stdout.read()
+    if line.find('darwin13'):
+        return 'xcode5'
+    elif line.find('darwin12'):
+        return 'xcode4'
+    else:
+        raise UnsupportedPlatformException()
+
 if sys.platform == 'darwin':
     import platform as plt
     ver = plt.mac_ver()[0]
     if ver.startswith('10.9'):
-        platform = 'darwin109'
+        platform = 'osx10.9_' + xcode_check()
     if ver.startswith('10.8'):
-        platform = 'darwin108'
+        platform = 'osx10.8_' + xcode_check()
     if ver.startswith('10.7'):
-        platform = 'darwin108'
+        platform = 'osx10.7_' + xcode_check()
 elif sys.platform == 'win32':
     if sys.getwindowsversion()[1] == 1:
         platform = 'windows7'
