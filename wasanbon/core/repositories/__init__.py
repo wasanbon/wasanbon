@@ -27,6 +27,10 @@ def create_local_repository(user, passwd, repo_name, repo_dir=os.path.join(wasan
     repo_obj = github_obj.create_repo(repo_name)
     download_repository(url=url, target_path=target_path, verbose=verbose)
 
+def parse_rtc_repo_dir(repo_dir):
+
+    pass
+
 def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
     rtc_repos = {}
     package_repos = {}
@@ -37,6 +41,8 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
                 continue
 
             setting_file = os.path.join(root, 'setting.yaml')
+
+            """
             if verbose:
                 sys.stdout.write(' - Loading setting file (%s)\n' % os.path.join(root, 'setting.yaml'))
             repo_setting = yaml.load(open(setting_file, 'r'))
@@ -46,29 +52,35 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
                 sys.stdout.write(' @ Error: repository(%s) does not have repository list for %s\n' % (os.path.join(root, 'setting.yaml'), wasanbon.platform))
                 continue
                 pass
+            """
+            if verbose:
+                sys.stdout.write(' - Loading setting file (%s)\n' % os.path.join(root, 'setting.yaml'))
+            repo_setting = yaml.load(open(setting_file, 'r'))
 
-            for repo_child_dir in repo_dirs:
-                dirname = os.path.join(root, repo_child_dir)
-                rtc_file_name = os.path.join(dirname, 'rtcs.yaml') 
-                pack_file_name = os.path.join(dirname, 'packages.yaml') 
-                if os.path.isfile(rtc_file_name):
+            # process repo_setting file
+            
+            rtcs_dir = os.path.join(root, 'rtcs')
+            if os.path.isdir(rtcs_dir):
+                for file in os.listdir(rtcs_dir):
+                    if not file.endswith('.yaml'):
+                        continue
+
                     try:
-                        if verbose:
-                            sys.stdout.write(' - Opening %s\n' % rtc_file_name)
-                            pass
-                        with open(rtc_file_name, 'r') as rtc_file:
-                            rtc_repos = dict(rtc_repos, **yaml.load(rtc_file))
+                        with open(os.path.join(rtcs_dir, file), 'r') as f:
+                            rtc_repos = dict(rtc_repos, **yaml.load(f))
                     except Exception, ex:
                         if verbose:
                             traceback.print_exc()
                             pass
-                if os.path.isfile(pack_file_name):
+                        
+            pack_dir = os.path.join(root, 'packages')
+            if os.path.isdir(pack_dir):
+                for file in os.listdir(pack_dir):
+                    if not file.endswith('.yaml'):
+                        continue
                     try:
-                        if verbose:
-                            sys.stdout.write(' - Opening %s\n' % pack_file_name)
-                            pass
-                        with open(pack_file_name, 'r') as pack_file:
-                            package_repos = dict(package_repos, **yaml.load(pack_file))
+                        with open(os.path.join(pack_dir, file), 'r') as f:
+                            package_repos = dict(package_repos, **yaml.load(f))
                     except Exception, ex:
                         if verbose:
                             traceback.print_exc()
@@ -76,8 +88,28 @@ def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), 
         except Exception, ex:
             traceback.print_exc()
             pass
+
+    filtered_rtc_repos = {}
+    for name, repo in rtc_repos.items():
+        if not 'platform' in repo.keys():
+            filtered_rtc_repos[name] = repo
+        elif platform_check(repo['platform'], verbose=verbose):
+            filtered_rtc_repos[name] = repo
+
+    filtered_package_repos = {}
+    for name, repo in package_repos.items():
+        if not 'platform' in repo.keys():
+            filtered_package_repos[name] = repo
+        elif platform_check(repo['platform'], verbose=verbose):
+            filtered_package_repos[name] = repo
     
-    return rtc_repos, package_repos
+    return filtered_rtc_repos, filtered_package_repos
+
+def platform_check(args, verbose=False):
+    flg = False
+    for arg in args:
+        flg = flg or (wasanbon.platform.find(arg) >= 0)
+    return flg
 
 def download_repository(url, target_path='',verbose=False, force=False):
     if verbose:

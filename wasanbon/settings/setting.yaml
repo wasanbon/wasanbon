@@ -1,7 +1,8 @@
 system :
-  darwin109 : darwin108
-  darwin108 : darwin108
-  darwin107 : darwin108
+  osx109_xcode5 : osx_xcode5
+  osx109_xcode4 : osx_xcode4
+  osx108_xcode4 : osx_xcode4
+  osx107_xcode4 : osx_xcode4
   windows7_x64 : windows7_x64
   ubuntu1204_x64 : ubuntu1204_x64
   ubuntu1204_x86 : ubuntu1204_x86  
