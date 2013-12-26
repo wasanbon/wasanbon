@@ -25,12 +25,18 @@ def get_repository(name, verbose=False):
 def update_repositories(verbose=False, force=False, url=None):
     repo_path = os.path.join(wasanbon.rtm_home, 'repositories')
     for dir in os.listdir(repo_path):
+        if dir.startswith('.'):
+            continue
         if dir.endswith(repositories.owner_sign):
             user = dir[:-len(owner_sign)]
-            for repo_name in os.listdir(os.path.join(repo_path, dir)):
-                url = 'https://github.com/' + user + '/' + repo_name + '.git'
-                repositories.download_repositories(verbose=verbose, force=force, url=url)
+        else:
+            user = dir
+        for repo_name in os.listdir(os.path.join(repo_path, dir)):
+            url = 'https://github.com/' + user + '/' + repo_name
+            repositories.download_repositories(verbose=verbose, force=force, url=url)
     pass
+
+
 
 def get_packages(verbose=False, force=True):
     ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
