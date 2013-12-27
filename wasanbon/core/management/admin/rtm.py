@@ -1,7 +1,7 @@
 import sys, os
 import wasanbon
-from wasanbon.core import rtm
-
+from wasanbon.core import rtm, tools
+from wasanbon.core.rtm import cpp, python, java
 class Command(object):
     def __init__(self):
         pass
@@ -10,20 +10,51 @@ class Command(object):
         return True
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
-        if len(argv) < 3:
-            print ' - To read help, "%s rtm -h"' % os.path.basename(argv[0])
-            return
+        wasanbon.arg_check(argv, 3)
             
         if(argv[2] == 'install'):
-            sys.stdout.write('Installing OpenRTM-aist\n')
-            if len(argv) >= 4 and argv[3] == '--force':
-                rtm.install_rtm(force=True)
+            wasanbon.arg_check(argv, 4)
+            if 'all' in argv:
+                argv = ['c++', 'python', 'java', 'eclipse', 'arduino']
             else:
-                rtm.install_rtm(False)
+                argv = argv[3:]
+            for arg in argv:
+                if arg == 'c++':
+                    cpp.install(force=force, verbose=verbose)
+                elif arg == 'python':
+                    python.install(force=force, verbose=verbose)
+                elif arg == 'java':
+                    java.install(force=force, verbose=verbose)
+                elif arg == 'eclipse':
+                    tools.install_eclipse(force=force, verbose=verbose)
+                elif arg == 'arduino':
+                    tools.install_rtno(force=force, verbose=verbose)
+
         elif(argv[2] == 'status'):
-            print 'OpenRTM-aist Status'
-            ret = rtm.get_status()
-            print ' - OpenRTM-aist C++    : %s' % ret['c++']
-            print ' - OpenRTM-aist Python : %s' % ret['python']
-            print ' - OpenRTM-aist Java   : %s' % ret['java']
+            sys.stdout.write(' - Checking OpenRTM-aist installation\n')
+            sys.stdout.write('    - OpenRTM-aist C++    : %s\n' % cpp.is_installed())
+            sys.stdout.write('    - OpenRTM-aist Python : %s\n' % python.is_installed())
+            sys.stdout.write('    - OpenRTM-aist Java   : %s\n' % java.is_installed())
+            sys.stdout.write(' - Checking tools intallation\n')
+            sys.stdout.write('    - rtshell : %s\n' % tools.is_installed_rtshell())
+            sys.stdout.write('    - eclipse : %s\n' % tools.is_installed_eclipse())
+            sys.stdout.write('    - arduino : %s\n' % tools.is_installed_arduino())
+        elif argv[2] == 'launch':
+            wasanbon.arg_check(argv, 4)
+            if argv[3] == 'eclipse':
+                if len(argv) > 4:
+                    args = argv[4:]
+                else:
+                    args = None
+                tools.launch_eclipse('.', argv=args, verbose=verbose)
+            elif argv[3] == 'arduino':
+                sys.stdout.write('- Launching Arduino\n')
+                if len(argv) > 4:
+                    args = argv[4:]
+                else:
+                    args = None
+                tools.launch_arduino('.', verbose=verbose)
+
+
+
                 

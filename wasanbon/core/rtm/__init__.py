@@ -4,11 +4,6 @@ from . import cpp, python, java
 
 rtm_root_hints = ['/usr/local/include/openrtm-1.1', '/usr/include/openrtm-1.1']
 
-def get_status():
-    return {'c++' : cpp.is_installed() ,
-            'python' : python.is_installed() ,
-            'java' : java.is_installed() }
-
 
 def get_rtm_root():
     if 'RTM_ROOT' in os.environ.keys():
@@ -19,7 +14,14 @@ def get_rtm_root():
                 return hint
         return ""
 
+def post_install_care(force=False):
+    if sys.platform == 'darwin':
+        post_install_darwin(force, verbose)
 
+    if sys.platform == 'linux2':
+        post_install_linux2(force)
+    pass
+    
 def install(force=False, verbose=False):
     if sys.platform == 'linux2':
         __ppa_preparation()
@@ -27,12 +29,7 @@ def install(force=False, verbose=False):
     cpp.install(force, verbose=verbose)
     python.install(force, verbose=verbose)
     java.install(force, verbose=verbose)
-
-    if sys.platform == 'darwin':
-        post_install_darwin(force, verbose)
-
-    if sys.platform == 'linux2':
-        post_install_linux2(force)
+    post_install_care(force=force)
     
     pass
 
