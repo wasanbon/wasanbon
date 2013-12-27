@@ -1,7 +1,12 @@
-import sys, os, yaml
+import sys, os, yaml, getpass
 import wasanbon
 from wasanbon.core import repositories
 from wasanbon.core import package as pack
+from wasanbon.util import editor, git
+
+def get_repo_name(path):
+    return os.path.basename(os.path.split(path)[0])
+
 class Command(object):
     def __init__(self):
         pass
@@ -20,8 +25,13 @@ class Command(object):
         if argv[2] == 'status':
             sys.stdout.write(' - Checking Repositories.\n')
             paths = repositories.parse_rtc_repo_dir()
+
             for path in paths:
-                sys.stdout.write('  - Repository : %s\n' % (path))
+                owner_name = os.path.basename(os.path.dirname(path))
+                if owner_name.endswith(repositories.owner_sign):
+                    owner_name = owner_name[:-len(repositories.owner_sign)]
+                sys.stdout.write('  - Repository : %s/%s\n' 
+                                 % (owner_name, os.path.basename(path)))
                 rtcs_dir = os.path.join(path, 'rtcs')
                 if os.path.isdir(rtcs_dir):
                     sys.stdout.write('   - rtcs : \n')
@@ -57,6 +67,35 @@ class Command(object):
 
         elif argv[2] == 'update':
             pack.update_repositories(verbose=verbose)
+
+        elif argv[2] == 'commit':
+            wasanbon.arg_check(argv, 4)
+            paths = repositories.parse_rtc_repo_dir()
+            for path in paths:
+                owner_name = os.path.basename(os.path.dirname(path))
+                if owner_name.endswith(repositories.owner_sign):
+                    git.git_command(['commit', '-a', '-m', argv[3]], path=path, verbose=verbose)
+                    return
+
+        elif argv[2] == 'push':
+            paths = repositories.parse_rtc_repo_dir()
+            for path in paths:
+                owner_name = os.path.basename(os.path.dirname(path))
+                if owner_name.endswith(repositories.owner_sign):
+                    git.git_command(['push'], path=path, verbose=verbose)
+                    return
         
-        
-                    
+        elif argv[2] == 'create':
+            sys.stdout.write(' - Input Github User Name:')
+            username = raw_input()
+            passwd = getpass.getpass()
+            sys.stdout.write(' - Creating wasanbon_repositories in your github\n')
+            repositories.create_local_repository(username, passwd, verbose=verbose)
+
+        elif argv[2] == 'edit':
+            paths = repositories.parse_rtc_repo_dir()
+            for path in paths:
+                owner_name = os.path.basename(os.path.dirname(path))
+                if owner_name.endswith(repositories.owner_sign):
+                    editor.edit_dirs([os.path.join(path, 'rtcs'), os.path.join(path, 'packages')])
+                    return

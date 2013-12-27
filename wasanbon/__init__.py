@@ -64,6 +64,10 @@ class WasanbonException(Exception):
     def msg(self):
         return 'Wasanbon Exception'
 
+class GithubLogingException(WasanbonException):
+    def msg(self):
+        return 'LogIn Failed.'
+
 class BuildSystemException(WasanbonException):
     def msg(self):
         return 'Build System Failed.'
@@ -92,6 +96,10 @@ class PackageAlreadyExistsException(WasanbonException):
 class RepositoryNotFoundException(WasanbonException):
     def msg(self):
         return 'Repository Not Found'
+
+class RepositoryAlreadyExistsException(WasanbonException):
+    def msg(self):
+        return 'Repository Already Exists'
 
 class RTCNotFoundException(WasanbonException):
     def msg(self):
