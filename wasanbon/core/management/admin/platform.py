@@ -12,10 +12,7 @@ class Command(object):
         return True
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
-
-        if len(argv) < 3:
-            print ' - To read help, "%s rtm -h"' % os.path.basename(argv[0])
-            return
+        wasanbon.arg_check(argv, 3)
 
         platform.init_rtm_home(force=False, verbose=verbose, update=False)
 

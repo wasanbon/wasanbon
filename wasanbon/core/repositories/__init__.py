@@ -27,9 +27,20 @@ def create_local_repository(user, passwd, repo_name, repo_dir=os.path.join(wasan
     repo_obj = github_obj.create_repo(repo_name)
     download_repository(url=url, target_path=target_path, verbose=verbose)
 
-def parse_rtc_repo_dir(repo_dir):
-
-    pass
+def parse_rtc_repo_dir(repo_dir="", verbose=False):
+    if len(repo_dir) == 0:
+        repo_dir = os.path.join(wasanbon.rtm_home, 'repositories')
+        pass
+    paths = []
+    for root, dirs, files in os.walk(repo_dir):
+        try:
+            if not 'setting.yaml' in files:
+                continue
+            setting_file = os.path.join(root, 'setting.yaml')
+            paths.append(root)
+        except:
+            traceback.print_exc()
+    return paths
 
 def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
     rtc_repos = {}
