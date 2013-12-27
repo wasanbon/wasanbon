@@ -3,7 +3,7 @@ import os, sys, yaml
 
 def init_tools_path(force=False, verbose=False):
     if verbose:
-        sys.stdout.write(' - Initializing Tools Command.\n')
+        sys.stdout.write(' - Initializing Dependencies...\n')
     filename = os.path.join(wasanbon.rtm_home, 'setting.yaml')
     y = yaml.load(open(filename, 'r'))
     y = search_cmd_all(y, verbose=verbose)
@@ -12,11 +12,11 @@ def init_tools_path(force=False, verbose=False):
 
 def search_cmd_all(dict, verbose=False):
     for cmd in dict.keys():
-        dict[cmd] = search_command(cmd, wasanbon.setting[wasanbon.platform]['hints'][cmd], verbose=verbose)
+        dict[cmd] = search_command(cmd=cmd, path=dict[cmd], hints=wasanbon.setting[wasanbon.platform]['hints'][cmd], verbose=verbose)
     return dict
 
 
-def search_command(cmd, hints, verbose=False):
+def search_command(cmd, path, hints, verbose=False):
     if sys.platform == 'win32':
         path_splitter = ';'
         cmd = cmd + '.exe'
@@ -28,18 +28,22 @@ def search_command(cmd, hints, verbose=False):
         raise wasanbon.UnsupportedPlatformError()
 
     if verbose:
-        sys.stdout.write(' - Search [%s] ' % cmd)
+        sys.stdout.write('   - Searching %s ... ' % (cmd))
+    if path.endswith(cmd) and os.path.isfile(path):
+        if verbose:
+            sys.stdout.write(' Found in %s\n' % path)
+        return path
 
     paths = [os.path.join(p,cmd) for p in os.environ['PATH'].split(path_splitter) \
                  if os.path.isfile(os.path.join(p,cmd))]
     if len(paths) == 0:
         paths = [hint for hint in hints if os.path.isfile(hint)]
         if len(paths) == 0:
-            sys.stdout.write(' : not found.\n')
+            sys.stdout.write(' Not found.\n')
             return ""
 
     if verbose:
-        sys.stdout.write( ' '*(8-len(cmd)) + ' : found in %s. \n' % paths[0])
+        sys.stdout.write(' Found in %s. \n' % paths[0])
     return paths[0]
     
 

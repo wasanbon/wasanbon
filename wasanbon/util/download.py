@@ -1,5 +1,6 @@
 import os, sys
 import urllib
+import wasanbon
 
 class DownloadReport(object):
     def __init__(self, verbose=True):
@@ -25,10 +26,16 @@ def download(url, dist="", force=False, verbose=False):
         if os.path.isfile(dist + '.part'):
             os.remove(dist+'.part')
         if verbose:
-            sys.stdout.write("Downloading from URL: %s\n" % url)
-        urllib.urlretrieve(url, dist+'.part', DownloadReport(verbose=verbose))
-        os.rename(dist+'.part', dist)
+            sys.stdout.write("    - Downloading from URL: %s\n" % url)
+        try:
+            urllib.urlretrieve(url, dist+'.part', DownloadReport(verbose=verbose))
+            os.rename(dist+'.part', dist)
+            sys.stdout.write('\r - Progress 100.00 [percent] ended\n')
+            sys.stdout.flush()
+        except IOError, e:
+            sys.stdout.write('     @ Failed to Download from %s\n' % url)
+            raise wasanbon.DownloadFailedException()
         if verbose:
-            sys.stdout.write("Saved in Directory  :%s\n" % dist)
-    pass
+            sys.stdout.write("    - Saved in Directory  :%s\n" % dist)
+    return True
 

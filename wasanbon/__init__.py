@@ -60,50 +60,64 @@ elif sys.platform == 'linux2':
         platform = platform + '_x64'
         
 
+class WasanbonException(Exception):
+    def msg(self):
+        return 'Wasanbon Exception'
 
-class BuildSystemException(Exception):
+class BuildSystemException(WasanbonException):
+    def msg(self):
+        return 'Build System Failed.'
+
+class InvalidUsageException(WasanbonException):
+    def msg(self):
+        return 'Invalid Usage'
+
+class UnsupportedPlatformException(WasanbonException):
     def __init__(self):
         pass
 
-class InvalidUsageException(Exception):
-    def __init__(self):
-        pass
+    def msg(self):
+        return 'Unsupported Platform'
 
-class UnsupportedPlatformException(Exception):
+class DirectoryAlreadyExistsException(WasanbonException):
     def __init__(self):
         pass
+    def msg(self):
+        return 'Directory Already Exists.'
 
-class DirectoryAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
+class PackageAlreadyExistsException(WasanbonException):
+    def msg(self):
+        return 'Package Already Exists'
 
-class PackageAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
+class RepositoryNotFoundException(WasanbonException):
+    def msg(self):
+        return 'Repository Not Found'
 
-class RepositoryNotFoundException(Exception):
-    def __init__(self):
-        pass
+class RTCNotFoundException(WasanbonException):
+    def msg(self):
+        return 'RTC Not Found'
 
-class RTCNotFoundException(Exception):
-    def __init__(self):
-        pass
+class InvalidPackagePathError(WasanbonException):
+    def msg(self):
+        return 'Invalid Package Path'
 
-class InvalidPackagePathError(Exception):
-    def __init__(self):
-        pass
+class RTCProfileNotFoundException(WasanbonException):
+    def msg(self):
+        return 'RTCProfile Not Found'
 
-class RTCProfileNotFoundException(Exception):
-    def __init__(self):
-        pass
+class PackageNotFoundException(WasanbonException):
+    def msg(self):
+        return 'Package Not Found'
 
-class PackageNotFoundException(Exception):
-    def __init__(self):
-        pass
+class NoSuchFileException(WasanbonException):
+    def __init__(self, msg):
+        self.msg = msg
+    def msg(self):
+        return 'No Such File :' + msg
 
-class NoSuchFileException(Exception):
-    def __init__(self):
-        pass
+class DownloadFailedException(WasanbonException):
+    def msg(self):
+        return 'Download Failed'
 
 def arg_check(argv, num):
     if len(argv) < num:

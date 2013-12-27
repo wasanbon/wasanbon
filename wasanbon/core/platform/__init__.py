@@ -8,8 +8,8 @@ from wasanbon.core.template import *
 from . import directory, path, install
 
 
-def init_rtm_home(force=False, verbose=False):
-    if wasanbon.platform.startswith("ubuntu"):
+def init_rtm_home(force=False, verbose=False, update=True):
+    if update and wasanbon.platform.startswith("ubuntu"):
         cmd = ['apt-get', 'update']
         subprocess.call(cmd)
 
