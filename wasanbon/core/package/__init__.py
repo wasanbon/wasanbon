@@ -28,7 +28,7 @@ def update_repositories(verbose=False, force=False, url=None):
         if dir.startswith('.'):
             continue
         if dir.endswith(repositories.owner_sign):
-            user = dir[:-len(owner_sign)]
+            user = dir[:-len(repositories.owner_sign)]
         else:
             user = dir
         for repo_name in os.listdir(os.path.join(repo_path, dir)):
