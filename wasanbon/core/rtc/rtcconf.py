@@ -49,6 +49,12 @@ class RTCConf(object):
     def keys(self):
         return self.dic.keys()
 
+    def values(self):
+        return self.dic.values()
+
+    def items(self):
+        return zip(self.keys(), self.values())
+
     def __getitem__(self, key):
         return self.dic.get(key, "")
 
