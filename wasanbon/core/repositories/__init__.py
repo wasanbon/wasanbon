@@ -5,11 +5,11 @@ from wasanbon.util import git, github_ref
 
 owner_sign = '_owner'
 
-def create_local_repository(user, passwd, repo_name, repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
+def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
     if verbose:
         sys.stdout.write(' - Initializing Your Repository\n')
         pass
-    target_path = os.path.join(repo_dir, user + owner_sign, repo_name)
+    target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
     url = 'https://github.com/' + user + '/' + repo_name + '.git'
     #Check if repository exists...
     github_obj = github_ref.GithubReference(user, passwd)
@@ -18,13 +18,9 @@ def create_local_repository(user, passwd, repo_name, repo_dir=os.path.join(wasan
         sys.stdout.write(' @ wasanbon just clone it.\n')
         download_repository(url=url, target_path=target_path, verbose=verbose)
         return True
-        
-    local_repo_dir = os.path.join(repo_dir, user, repo_name + '.git')
-    if os.path.isdir(local_repo_dir):
-        download_repository(url=url, target_path=target_path, verbose=verbose)
-        return True
-
-    repo_obj = github_obj.create_repo(repo_name)
+    repo_obj = github_obj.fork_repo('sugarsweetrobotics', 
+                                    'wasanbon_repositories_template')
+    repo_obj.edit(repo_name)
     download_repository(url=url, target_path=target_path, verbose=verbose)
 
 def parse_rtc_repo_dir(repo_dir="", verbose=False):

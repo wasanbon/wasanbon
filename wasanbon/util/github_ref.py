@@ -1,18 +1,8 @@
 import sys, os, time
 import github
+import wasanbon
 from . import git
 
-class GithubLogingException(Exception):
-    def __init__(self):
-        pass
-
-class RepositoryAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
-
-class RepositoryNotFoundException(Exception):
-    def __init__(self):
-        pass
 
 
 class GithubReference ():
@@ -23,9 +13,8 @@ class GithubReference ():
         try:
             git_user.login
         except:
-            raise GithubLoginException()
+            raise wasanbon.GithubLoginException()
             return
-        
 
     @property
     def user(self):
@@ -50,14 +39,14 @@ class GithubReference ():
                 if verbose:
                     sys.stdout.write(' - Searching Repository %s/%s\n' % (self.user, name))
                 repo = self._github.get_user().get_repo(name)
-                print 'REPO', repo
+
         except Exception, ex:
-            raise RepositoryNotFoundException()
+            raise wasanbon.RepositoryNotFoundException()
         return repo
 
     def create_repo(self, name):
         if self.exists_repo(name):
-            raise RepositoryAlreadyExistsException()
+            raise wasanbon.RepositoryAlreadyExistsException()
         repo = self._github.get_user().create_repo(name)
         return repo
 
@@ -66,12 +55,11 @@ class GithubReference ():
             sys.stdout.write(' - Forking Repositoy %s/%s\n' %  (user, name))
 
         if self.exists_repo(name, verbose):
-            raise RepositoryAlreadyExistsException()
+            raise wasanbon.RepositoryAlreadyExistsException()
         
         his_repo = self.get_repo(user=user, name=name, verbose=verbose)
-        self._github.get_user().create_fork(his_repo)
+        ret = self._github.get_user().create_fork(his_repo)
         time.sleep(5)
-
         for i in range(0, 5): # try 5 times
             try:
                 if verbose:
@@ -82,7 +70,7 @@ class GithubReference ():
                 pass
         if verbose:
             sys.stdout.write(' - Can not find your repository.\n')
-        raise RepositoryNotFoundException()
+        raise wasanbon.RepositoryNotFoundException()
 
 
     def pull_request(self, name, title, body, verbose=False):

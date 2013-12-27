@@ -3,6 +3,17 @@ import wasanbon
 def signal_action(num, frame):
     pass
 
+def edit_dirs(paths, verbose=False):
+    editenv = os.environ.copy()
+    if not 'HOME' in editenv.keys():
+        editenv['HOME'] = wasanbon.get_home_path()
+    if sys.platform == 'darwin':
+        cmd = [wasanbon.setting['local']['emacs']]
+    else:
+        cmd = [wasanbon.setting['local']['emacs'], '-nw']
+    cmd = cmd + paths
+    signal.signal(signal.SIGINT, signal_action)    
+    subprocess.call(cmd, env=editenv)
 
 def edit_rtc(rtc_obj, verbose=False):
     editenv = os.environ.copy()
