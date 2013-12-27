@@ -19,19 +19,27 @@ def _get_library_path():
     else:
         return os.path.join(_get_arduino_path(), 'libraries')
 
+def is_installed_arduino(verbose=False):
+    return os.path.isdir(_get_arduino_path())
+
 def install_arduino(verbose=False, force=False):
+    if verbose:
+        sys.stdout.write(' - Installing Arduino and RTno\n')
     if not os.path.isdir(_get_arduino_path()) or force:
         url = wasanbon.setting[wasanbon.platform]['packages']['arduino']
-        util.download_and_unpack(url, wasanbon.rtm_home, force)
+        util.download_and_unpack(url, wasanbon.rtm_home, force=force, verbose=verbose)
 
 def install_rtno(verbose=False, force=False):
     install_arduino(verbose, force)
     dist_path = os.path.join(_get_library_path(), 'RTno')
+    sys.stdout.write(' - Searching RTno Package Installation...\n')
     if os.path.isdir(dist_path):
-        sys.stdout.write(' - Found "%s"\n' % dist_path)
-        sys.stdout.write(' - You have already installed RTno into your arduino.\n')
-        git.git_command(['pull'], verbose=verbose)
+        sys.stdout.write('    - Found "%s"\n' % dist_path)
+        sys.stdout.write('    - You have already installed RTno into your arduino.\n')
+        if util.no_yes(' - Do you want to update RTno?') == 'yes':
+            git.git_command(['pull'], verbose=verbose)
         return 
+    sys.stdout.write(' @ Not Found. Now Installing RTno\n')
     repo = lib.get_repository('RTno', verbose=verbose)
     git.git_command(['clone', repo.url, dist_path], verbose=verbose)
 
