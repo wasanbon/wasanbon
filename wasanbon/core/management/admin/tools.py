@@ -13,6 +13,7 @@ class Command(object):
 
     def execute_with_argv(self, argv, verbose, clean, force):
         wasanbon.arg_check(argv, 3)
+
         if argv[2] == 'proxy':
             if len(argv) >= 4:
                 host, port = argv[3].split(':')
@@ -22,7 +23,7 @@ class Command(object):
                 util.omit_proxy(verbose=True)
                 return
 
-        if(argv[2] == 'eclipse'):
+        elif(argv[2] == 'eclipse'):
             print 'Launching Eclipse'
             if len(argv) > 3:
                 args = argv[3:]
@@ -30,7 +31,7 @@ class Command(object):
                 args = None
             tools.launch_eclipse('.', argv=args, verbose=verbose)
             return
-        if(argv[2] == 'arduino'):
+        elif(argv[2] == 'arduino'):
             print '- Launching Arduino'
             if len(argv) > 3:
                 args = argv[3:]

@@ -32,11 +32,15 @@ def copy_initial_setting(verbose=False, force=False):
     local_setting_file = os.path.join(wasanbon.rtm_home, 'setting.yaml')
     local_repository_file = os.path.join(wasanbon.rtm_home, 'repository.yaml')
     if os.path.isfile(local_setting_file) or os.path.isfile(local_repository_file):
-        if util.yes_no(' - There seems to be a setting file in %s.\n - Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
+        if not force:
+            if verbose and util.no_yes(' - There seems to be a setting file in %s.\n - Do you want to initialize?' % wasanbon.rtm_home) == 'yes':
+                os.remove(local_repository_file)
+                os.remove(local_setting_file)
+            else:
+                return
+        else:
             os.remove(local_repository_file)
             os.remove(local_setting_file)
-        else:
-            return
 
     if verbose:
         sys.stdout.write(" - Copying %s to %s\n" % (template_setting_file, local_setting_file))
