@@ -61,9 +61,12 @@ class Command(object):
                                                 + ' '*(15-len(key))
                                                 + ': ' + y[key]['description'] + '\n')
         elif argv[2] == 'install':
-            wasanbon.arg_check(argv,4)
-            sys.stdout.write(' @ Cloning Package Repositories\n')
-            pack.update_repositories(verbose=verbose, url=argv[3])
+            if len(argv) == 3:
+                sys.stdout.write(' @ Installing Default Repositories\n')
+                repositories.download_repositories(verbose=verbose)
+            else:
+                sys.stdout.write(' @ Cloning Package Repositories\n')
+                pack.update_repositories(verbose=verbose, url=argv[3])
 
         elif argv[2] == 'update':
             pack.update_repositories(verbose=verbose)
