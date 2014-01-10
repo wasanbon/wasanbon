@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import os, sys, optparse
+import os, sys, optparse, yaml, types
 import wasanbon
 from wasanbon.core import package as pack
-from wasanbon.core import rtc, tools
+from wasanbon.core import rtc, tools, repositories
 from wasanbon.util import editor
 from wasanbon import util
 
@@ -240,6 +240,58 @@ class Command(object):
             else:
                 arg = []
             rtc_.execute_standalone(arg, verbose=True)
+
+        elif argv[2] == 'release':
+            wasanbon.arg_check(argv,4)
+            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
+            name = rtc_.name
+            url = rtc_.repository.url
+            repo_type = 'git'
+            description = raw_input(" - Input explanation of your RTC :")
+            sys.stdout.write(' - Your current platform is %s.\n' % wasanbon.platform)
+            platform_str = raw_input(" - Input your RTC's platform:")
+            platform = yaml.safe_load(platform_str)
+            if not type(platform) is types.ListType:
+                platform = [platform]
+
+            sys.stdout.write(' - Checking out the RTC repository %s\n' % name)
+
+            paths = repositories.parse_rtc_repo_dir()
+            for path in paths:
+                owner_name = os.path.basename(os.path.dirname(path))
+                if owner_name.endswith(repositories.owner_sign):
+                    file_list = [f for f in os.listdir(os.path.join(path, 'rtcs')) if f.endswith('.yaml')]
+                    file_list.append('Create New Repository File:')
+                    def function01(num):
+                        if num == len(file_list)-2:
+                            while True:
+                                sys.stdout.write(' @ Input Filename:')
+                                filename = raw_input()
+                                if not filename.endswith('.yaml'):
+                                    sys.stdout.write(' @@ Filename must be ended with .yaml\n')
+                                    continue
+                                break
+                            file = os.path.join(path, 'rtcs', filename)
+                            open(file, 'w').close()
+                            git.git_command(['add', filename], path=os.path.join(path, 'rtcs'), verbose=verbose)
+                        else:
+                            file = os.path.join(path, 'rtcs', file_list[num])
+                        y = yaml.safe_load(open(file, 'r'))
+                        if name in y.keys():
+                            sys.stdout.write(' @ Error. RTC(%s) is already released.\n' % name)
+                            return True
+                        f = open(file, 'a')
+                        f.write('\n%s :\n' % name)
+                        f.write('  type : %s\n' % repo_type)
+                        f.write('  url  : %s\n' % url)
+                        f.write('  description : %s\n' % description)
+                        f.write('  platform : %s\n' % platform)
+                        f.close()
+                        sys.stdout.write(' - Updated.\n')
+                        sys.stdout.write(' - If you want to confirm the update, use "wasanbon-admin.py repository status"\n')
+                        return True
+                    util.choice(file_list, function01, ' - Select RTC repository file')
+            
             
 
         else:

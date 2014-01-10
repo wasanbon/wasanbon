@@ -13,7 +13,7 @@ help :
       repository : 'リポジトリの設定をおこないます'
       selfupdate : '自己アップデート機能．sudoして呼んでください'
       tools :  'eclipseやrtshellなどのツールの管理と実行．'
-      cond : 'rtcconfの編集'
+      conf : 'rtcconfの編集'
       help : 'このヘルプの表示'
       edit : 'エディタの実行．RTC固有のファイルを開く'
       build : 'RTCのビルド'
@@ -264,11 +264,11 @@ help :
         - '         これを利用してeditor環境からのビルドが可能になりました．'
       conf : 
         - 'rtc.confを編集します．３つの言語のrtc.confを一度に変更したりする場合に便利です'
-        - 'status:'
+        - 'status :'
         - '         $ mgr.py conf status'
         - '         rtc.confの内容を表示します．言語共通の値は一行で，言語ごとに異なる場合はリストの形で表示します'
-        - 'set:'
-        - '         $ mgr.py conf set [language] [key] [value]
+        - 'set :'
+        - '         $ mgr.py conf set [language] [key] [value]'
         - '         rtc.confの内容を編集します．languageには，C++, Java, Pythonおよびallの値を取ることが出来ます．'
         - '         keyはrtc.confの設定項目，valueは値です．'
         - '         例： $ mgr.py conf set all corba.nameservers localhost:2809'

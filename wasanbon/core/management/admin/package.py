@@ -112,6 +112,7 @@ class Command(object):
             diff = pack.diff(repo1, repo2)
             print_diff(diff)
 
+
         else:
             raise wasanbon.InvalidUsageException()
 
