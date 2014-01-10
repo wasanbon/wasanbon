@@ -3,8 +3,9 @@ import wasanbon
 from . import download, install, archive, svn, git
 
 
-def choice(alts, callback, msg='Choice'):
-    alts.append('Quit(Q)')
+def choice(alts, callback, msg='Choice', noquit=False):
+    if not noquit:
+        alts.append('Quit(Q)')
     while True:
         print msg
         for i in range(0, len(alts)):

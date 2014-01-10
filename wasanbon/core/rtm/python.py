@@ -13,7 +13,7 @@ def is_installed():
 
 def install(force=False, verbose=False):
     if is_installed() and not force:
-        sys.stdout.write(' - OpenRTM Python Version OK.\n')
+        sys.stdout.write(' - OpenRTM Python Version is already installed.\n')
         return True
 
     if verbose:

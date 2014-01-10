@@ -48,9 +48,9 @@ class PackageRepository():
         for repo in _package.rtc_repositories:
             sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
             rtc = repo.clone(path=os.path.join(appdir, _package.setting['RTC_DIR']), verbose=verbose)
-            sys.stdout.write(' - Building RTC %s\n' % repo.name)
-            rtc.build(verbose=verbose)
-            _package.install(rtc, precreate=False, preload=True, verbose=verbose)
+            #sys.stdout.write(' - Building RTC %s\n' % repo.name)
+            #rtc.build(verbose=verbose)
+            #_package.install(rtc, precreate=False, preload=True, verbose=verbose)
         return Package(appdir)
 
 

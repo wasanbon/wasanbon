@@ -10,7 +10,7 @@ def is_installed():
 
 def install(force=False, verbose=False):
     if is_installed() and not force:
-        sys.stdout.write(" - OpenRTM Java Version OK.\n")
+        sys.stdout.write(" - OpenRTM Java Version is already installed.\n")
         return False
     rtm_root_java = wasanbon.setting['common']['path']['RTM_ROOT_JAVA']
     if not os.path.isdir(rtm_root_java):
