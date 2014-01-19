@@ -79,6 +79,7 @@ help :
         - 'install:'
         - '         $ wasanbon-admin.py repository install [url]'
         - '         url にあるレポジトリパッケージを手動でインストールします'
+        - '         urlを省略した場合は，デフォルトのリポジトリの再インストールを試みます'
         - 'update:'
         - '         $ wasanbon-admin.py repository update'
         - '         リポジトリを最新に保ちます'
