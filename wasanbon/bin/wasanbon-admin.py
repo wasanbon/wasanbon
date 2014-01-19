@@ -10,7 +10,7 @@ if sys.platform == 'win32':
     sys.stdout = codecs.getwriter('cp932')(sys.stdout)
 
 
-import wasanbon
+#import wasanbon
 from wasanbon.core.management import application
 
 if __name__ == '__main__':

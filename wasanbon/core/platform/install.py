@@ -5,7 +5,7 @@ from wasanbon import util
 def check_commands(verbose=False, install=False):
     if verbose:
         sys.stdout.write(' - Now checking Installation of commands.\n')
-    y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+    y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
     return [check_command(cmd, y[cmd], verbose=verbose, install=install) for cmd in y.keys()]
 
 
@@ -34,18 +34,18 @@ def install_command(cmd, verbose=False, force=False):
         return False
 
     if sys.platform == 'darwin':
-        return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd],
+        return util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages'][cmd],
                                   verbose=verbose, force=force)
     elif sys.platform == 'win32':
         if cmd == 'emacs':
-            return util.download_and_unpack(wasanbon.setting[wasanbon.platform]['packages'][cmd],
-                                     dist_path=wasanbon.setting['common']['path']['RTM_HOME'],
+            return util.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages'][cmd],
+                                     dist_path=wasanbon.setting()['common']['path']['RTM_HOME'],
                                      verbose=verbose, force=force)
         else:
-            return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd], 
+            return util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages'][cmd], 
                                       verbose=verbose, force=force)
     elif sys.platform == 'linux2':
-        return util.download_and_install(wasanbon.setting[wasanbon.platform]['packages'][cmd],
+        return util.download_and_install(wasanbon.setting()[wasanbon.platform8)]['packages'][cmd],
                                   verbose=verbose, force=force)
     raise wasanbon.UnsupportedPlatformError()
 

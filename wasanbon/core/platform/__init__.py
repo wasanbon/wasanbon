@@ -9,21 +9,10 @@ from . import directory, path, install
 
 
 def init_rtm_home(force=False, verbose=False, update=True):
-    if update and wasanbon.platform.startswith("ubuntu"):
-        cmd = ['apt-get', 'update']
-        subprocess.call(cmd)
-
-        cmd = ['apt-get', 'install', '--force-yes', '-y', 'aptitude']
-        subprocess.call(cmd)
-
     directory.create_rtm_home(force=force, verbose=verbose)
     directory.copy_initial_setting(verbose=verbose, force=force)
-    path.init_tools_path(force=force, verbose=verbose)
-    retval = install.check_commands(verbose=verbose, install=True)
-    path.init_tools_path(force=force, verbose=verbose)
-    retval = install.check_commands(verbose=verbose, install=False)
     create_dot_emacs()
-    return all(retval)
+    return True #all(retval)
 
 
 def create_dot_emacs():

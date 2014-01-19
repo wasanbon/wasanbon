@@ -49,15 +49,12 @@ def git_command(commands, path='.', verbose = False, pipe=False):
         if verbose:
             sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
 
-    if verbose:
-        sys.stdout.write(" - GIT command %s in repository\n" % (repr(commands)))
-
     cmd = [wasanbon.setting['local']['git']] + commands
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
 
     if verbose:
-        sys.stdout.write(' - COMMAND:')
+        sys.stdout.write(' - wasanbon.git command = ')
         for c in cmd:
             sys.stdout.write(c + ' ')
         sys.stdout.write('\n')

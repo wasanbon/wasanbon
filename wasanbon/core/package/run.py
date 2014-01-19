@@ -79,7 +79,7 @@ def start_java_rtcd(filepath, verbose=False):
         args['creationflags'] = 512
 
 
-    rtm_java_classpath = os.path.join(wasanbon.rtm_home, 'jar')
+    rtm_java_classpath = os.path.join(wasanbon.rtm_home(), 'jar')
     java_env = os.environ.copy()
     if not "CLASSPATH" in java_env.keys():
         java_env["CLASSPATH"]=os.getcwd() 
@@ -92,18 +92,18 @@ def start_java_rtcd(filepath, verbose=False):
     #java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':bin/LeapTest.jar'
     args['env'] = java_env
     
-    cmd = [wasanbon.setting['local']['java'], 'rtcd.rtcd', '-f', filepath]
+    cmd = [wasanbon.setting()['local']['java'], 'rtcd.rtcd', '-f', filepath]
     return subprocess.Popen(cmd, **args)
 
 
 def exe_rtresurrect():
-    return rtresurrect.main([wasanbon.setting['application']['system']]) == 0
+    return rtresurrect.main([wasanbon.setting()['application']['system']]) == 0
 
 def cmd_rtresurrect():
     if sys.platform == 'win32':
-        cmd = ['rtresurrect.bat', wasanbon.setting['application']['system']]
+        cmd = ['rtresurrect.bat', wasanbon.setting()['application']['system']]
     else:
-        cmd = ['rtresurrect', wasanbon.setting['application']['system']]
+        cmd = ['rtresurrect', wasanbon.setting()['application']['system']]
     while True:
         p = subprocess.Popen(cmd)
         if p.wait() == 0:
@@ -111,17 +111,17 @@ def cmd_rtresurrect():
         time.sleep(1)
 
 def exe_rtstart():
-    return rtstart.main([wasanbon.setting['application']['system']]) == 0
+    return rtstart.main([wasanbon.setting()['application']['system']]) == 0
 
 def exe_rtstop():
-    return rtstop.main([wasanbon.setting['application']['system']]) == 0
+    return rtstop.main([wasanbon.setting()['application']['system']]) == 0
 
 def cmd_rtstart():
 
     if sys.platform == 'win32':
-        cmd = ['rtstart.bat', wasanbon.setting['application']['system']]
+        cmd = ['rtstart.bat', wasanbon.setting()['application']['system']]
     else:
-        cmd = ['rtstart', wasanbon.setting['application']['system']]
+        cmd = ['rtstart', wasanbon.setting()['application']['system']]
         
     while True:
         p = subprocess.Popen(cmd)

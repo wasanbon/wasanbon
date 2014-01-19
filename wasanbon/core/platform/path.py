@@ -4,7 +4,7 @@ import os, sys, yaml
 def init_tools_path(force=False, verbose=False):
     if verbose:
         sys.stdout.write(' - Initializing Dependencies...\n')
-    filename = os.path.join(wasanbon.rtm_home, 'setting.yaml')
+    filename = os.path.join(wasanbon.rtm_home(), 'setting.yaml')
     y = yaml.load(open(filename, 'r'))
     y = search_cmd_all(y, verbose=verbose)
     yaml.dump(y, open(filename, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)
@@ -12,7 +12,7 @@ def init_tools_path(force=False, verbose=False):
 
 def search_cmd_all(dict, verbose=False):
     for cmd in dict.keys():
-        dict[cmd] = search_command(cmd=cmd, path=dict[cmd], hints=wasanbon.setting[wasanbon.platform]['hints'][cmd], verbose=verbose)
+        dict[cmd] = search_command(cmd=cmd, path=dict[cmd], hints=wasanbon.setting()[wasanbon.platform()]['hints'][cmd], verbose=verbose)
     return dict
 
 

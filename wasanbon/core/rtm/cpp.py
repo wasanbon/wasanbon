@@ -66,12 +66,12 @@ def install(force=False, verbose=False):
 
 
 def install_cpprtm_win(force, verbose=False):
-    if wasanbon.platform.startswith("windows8"):
+    if wasanbon.platform().startswith("windows8"):
         sys.stdout.write(' - Windows8 Detected.\n')
-        util.download_and_unpack(wasanbon.setting[wasanbon.platform]['packages']['vcpvcr71'], wasanbon.rtm_temp)
-        src_dir = os.path.join(wasanbon.rtm_temp, 'vcpvcr71', 'dll')
+        util.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages']['vcpvcr71'], wasanbon.rtm_temp())
+        src_dir = os.path.join(wasanbon.rtm_temp(), 'vcpvcr71', 'dll')
         files = ['msvcp71.dll', 'msvcr71.dll']
-        if wasanbon.platform.endswith('_x86'):
+        if wasanbon.platform().endswith('_x86'):
             dst_dir = 'C:\\Windows\\System32'
         else:
             dst_dir = 'C:\\Windows\\SysWow64'
@@ -87,14 +87,14 @@ def install_cpprtm_win(force, verbose=False):
             else:
                 shutil.copy(src_file, dst_file)
                 
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
+    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['c++'], force=force, verbose=verbose)
 
 def install_cpprtm_linux(force, verbose=False):
     #util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
+    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['c++'], force=force, verbose=verbose)
 
 def install_cpprtm_osx(force=False, verbose=False):
-    util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++'], force=force, verbose=verbose)
+    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['c++'], force=force, verbose=verbose)
     
     srcdir = '/usr/local/lib/python2.7/site-packages' 
     distdir = os.path.split(wasanbon.__path__[0])[0]

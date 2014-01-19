@@ -5,6 +5,7 @@ from wasanbon import util
 from wasanbon.core import platform
 from wasanbon.core import tools
 from wasanbon.core import rtm
+from wasanbon.util import git
 
 from github import Github
 
@@ -57,9 +58,11 @@ class Command(object):
                 sys.stdout.write(' - Input Git Email:')
                 email = raw_input()
                 
-            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.name', username]
-            subprocess.call(cmd)
-            cmd = [wasanbon.setting['local']['git'], 'config', '--global', 'user.email', email]
-            subprocess.call(cmd)
+            #cmd = [wasanbon.setting()['local']['git'], 'config', '--global', 'user.name', username]
+            #subprocess.call(cmd)
+            git.git_command(['config', '--global', 'user.name', username])
+            git.git_command(['config', '--global', 'user.email', email])
+            #cmd = [wasanbon.setting()['local']['git'], 'config', '--global', 'user.email', email]
+            #subprocess.call(cmd)
             if verbose:
                 sys.stdout.write('  - Completed.\n')

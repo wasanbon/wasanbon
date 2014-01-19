@@ -1,7 +1,0 @@
-# configure.py
-
-import wasanbon
-
-
-
-

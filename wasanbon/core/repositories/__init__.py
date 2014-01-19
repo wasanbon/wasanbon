@@ -5,7 +5,7 @@ from wasanbon.util import git, github_ref
 
 owner_sign = '_owner'
 
-def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
+def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False):
     if verbose:
         sys.stdout.write(' - Initializing Your Repository\n')
         pass
@@ -25,7 +25,7 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
 
 def parse_rtc_repo_dir(repo_dir="", verbose=False):
     if len(repo_dir) == 0:
-        repo_dir = os.path.join(wasanbon.rtm_home, 'repositories')
+        repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
         pass
     paths = []
     for root, dirs, files in os.walk(repo_dir):
@@ -38,7 +38,7 @@ def parse_rtc_repo_dir(repo_dir="", verbose=False):
             traceback.print_exc()
     return paths
 
-def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home, 'repositories'), verbose=False):
+def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False):
     rtc_repos = {}
     package_repos = {}
 
@@ -119,16 +119,17 @@ def platform_check(args, verbose=False):
     return flg
 
 def download_repository(url, target_path='',verbose=False, force=False):
-    if verbose:
-        sys.stdout.write(' - Downloading repository %s into %s\n' % (url, target_path))
-    repository_path = os.path.join(wasanbon.rtm_home, 'repositories', url.split('/')[-2])
+    repository_path = os.path.join(wasanbon.rtm_home(), 'repositories', url.split('/')[-2])
     if not target_path:
         target_path = os.path.join(repository_path, url.split('/')[-1])
-        if verbose:
-            sys.stdout.write(' - Downloading repository %s into %s\n' % (url, target_path))
+    if verbose:
+        sys.stdout.write('    - Downloading repository %s into %s\n' % (url, target_path))
 
     if os.path.isdir(target_path):
-        git.git_command(['pull'], verbose=True, path=target_path)
+        if os.path.isdir(os.path.join(target_path, '.git')):
+            git.git_command(['pull'], verbose=True, path=target_path)
+        else: # Directory exists but not git repository dir
+            git.git_command(['clone', url, target_path], verbose=verbose)
         pass
     else:
         if not os.path.isdir(target_path):
@@ -138,7 +139,7 @@ def download_repository(url, target_path='',verbose=False, force=False):
         pass
 
     if verbose:
-        sys.stdout.write(' - Parsing child repositories\n')
+        sys.stdout.write('    - Parsing child repositories\n')
     setting_file_path = os.path.join(target_path, 'setting.yaml')
     if os.path.isfile(setting_file_path):
         with open(setting_file_path, 'r') as setting_file:
@@ -147,14 +148,13 @@ def download_repository(url, target_path='',verbose=False, force=False):
                 child_repos = setting.get('child_repositories', [])
                 for repo in child_repos:
                     download_repository(repo, verbose=verbose, force=force)
-                    
     pass
 
 def download_repositories(verbose=False, force=False, url=None):
     file_path = os.path.join(wasanbon.__path__[0], 'settings', 'repository.yaml')
     if verbose:
         sys.stdout.write(' - Downloading Repositories....\n')
-        sys.stdout.write(' - Opening setting file in %s\n' % file_path)
+        sys.stdout.write('    - Opening setting file in %s\n' % file_path)
 
     if url:
         download_repository(url, verbose=verbose, force=force)
@@ -162,7 +162,7 @@ def download_repositories(verbose=False, force=False, url=None):
     with open(file_path, 'r') as repo_setting:
         for name, value in yaml.load(repo_setting).items():
             if verbose:
-                sys.stdout.write(' - Repository : %s\n' % name)
+                sys.stdout.write('    - Repository : %s\n' % name)
             download_repository(value['url'], verbose=verbose, force=force)
 
     return True
@@ -177,7 +177,7 @@ def upload_repositories(comment, verbose=False):
         for name, value in yaml.load(repo_setting).items():
             if verbose:
                 sys.stdout.write(' - Repository : %s\n' % name)
-            target_path = os.path.join(wasanbon.rtm_home, 'repositories', value['url'].split('/')[-2])
+            target_path = os.path.join(wasanbon.rtm_home(), 'repositories', value['url'].split('/')[-2])
             if os.path.isdir(target_path):
                 git.git_command(['commit', '-a', '-m', comment], verbose=True, path=target_path)
                 git.git_command(['push'], verbose=True, path=target_path)
