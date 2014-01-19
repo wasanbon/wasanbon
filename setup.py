@@ -11,6 +11,7 @@ try:
     import yaml
 except:
     curdir = os.getcwd()
+    sys.stdout.write(' - Installing PyYAML-3.10\n')
     if sys.platform == 'win32':
         import urllib
         url = "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe"
@@ -46,6 +47,7 @@ try:
     import psutil
 except:
     curdir = os.getcwd()
+    sys.stdout.write(' - Installing psutil-1.1.2\n')
     if sys.platform == 'win32':
         import urllib
         url = "https://pypi.python.org/packages/2.6/p/psutil/psutil-1.1.2.win32-py2.6.exe#md5=00ba55472837ee48c8977351fae4daee"
@@ -72,6 +74,7 @@ except:
         pass
     else: # for linux, OSX
         os.chdir(os.path.join(curdir, 'thirdparty', 'psutil-1.1.2'))
+
         subprocess.call(['python', 'setup.py', 'build'])
         subprocess.call(['python', 'setup.py', 'install'])
         os.chdir(curdir)
@@ -184,7 +187,8 @@ except:
     from wasanbon.core.management import *
     from wasanbon.core import *
     setting = load_settings()
-    util.download_and_install(setting[wasanbon.platform]['packages']['setuptools'],
+    sys.stdout.write(' - Installing setuptools package.\n')
+    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['setuptools'],
                               temp=os.getcwd())
     
 try:
@@ -192,7 +196,22 @@ try:
 except:
     curdir = os.getcwd()
     import subprocess
+    sys.stdout.write(' - Installing PyGithub package.\n')
     os.chdir(os.path.join(curdir, 'thirdparty', 'PyGithub'))
     subprocess.call(['python', 'setup.py', 'install'])
     os.chdir(curdir)
+
+import wasanbon
+from wasanbon.core import platform
+sys.stdout.write(' - Installing RTM_HOME in %s\n' % wasanbon.get_home_path())
+if not platform.init_rtm_home(force=True, verbose=True):
+    sys.stdout.write(' - Can not install %HOME%rtm\n')
+
+from wasanbon.core.platform import path
+path.init_tools_path(verbose=False)
+
+#from wasanbon.core import repositories
+#sys.stdout.write(' - Downloading Repository\n')
+#if not repositories.download_repositories(verbose=True):
+#    sys.stdout.write(' - Downloading Failed.\n')
 

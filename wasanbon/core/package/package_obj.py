@@ -260,7 +260,7 @@ class Package():
     def unregister(self, verbose=False, clean=False):
         if verbose:
             print ' - Unregistering workspace:'
-            ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
+            ws_file_name = os.path.join(wasanbon.rtm_home(), "workspace.yaml")
             if not os.path.isfile(ws_file_name):
                 if verbose:
                     print ' - workspace.yaml can not be found in RTM_HOME'

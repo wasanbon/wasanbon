@@ -13,7 +13,7 @@ class Command(object):
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         wasanbon.arg_check(argv, 3)
 
-        y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))    
+        y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))    
 
         if 'all' in argv:
             argv = ['rtm_c++', 'rtm_python', 'rtm_java', 'eclipse', 'arduino'] + y.keys()

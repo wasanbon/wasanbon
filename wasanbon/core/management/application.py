@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import os, sys, yaml, types, optparse, traceback
-import wasanbon
-import wasanbon.core.management.commands
-import wasanbon.core.management.admin
+import wasanbon.core.management
+#import wasanbon.core.management.commands
+#import wasanbon.core.management.admin
 
 
 """
@@ -63,7 +63,7 @@ def show_help_description(subcommand):
         for h in help:
             print "  " +  h
     else:
-        print "  " +  h
+        print "  " +  help
 
     print "\n\nOptions:"
     print "  -h, --help   Show This Help"
@@ -86,11 +86,15 @@ def execute(argv=None):
     else:
         package = 'commands'
 
-    opts = get_subcommand_list(package)
+    #opts = get_subcommand_list(package)
+
     usage  = wasanbon.get_help_text(['help', 'general', 'command'])
+
+    """
     usage  = usage + '\n\nsubcommand:\n'
     for opt in opts:
         usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
+    """
 
     parser = ArgumentParser(usage=usage, add_help_option=False)
     #parser.disable_interspersed_args()
@@ -100,7 +104,7 @@ def execute(argv=None):
     parser.add_option('-f', '--force', help=wasanbon.get_help_text(['help', 'force']), action='store_true', default=False, dest='force_flag')
     parser.add_option('-l', '--longformat', help=wasanbon.get_help_text(['help', 'long']), action='store_true', default=False, dest='long_flag')
     parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
-    
+    parser.add_option('-a', '--alternative', help="command alternative", action='store_true', default=False, dest='alter_flag')
     try:
         options, args = parser.parse_args(argv[:])
         if options.long_flag:
@@ -113,10 +117,27 @@ def execute(argv=None):
     except:
         return
 
+    index = 1
     try:
-        subcommand = args[1]
+
+        while args[index].startswith('-'):
+            index = index + 1
+        subcommand = args[index]
     except IndexError:
+
+        if options.alter_flag:
+            # list subcommands
+            subcommands = get_subcommand_list(package)
+            for i, subcmd in enumerate(subcommands):
+                sys.stdout.write(subcmd)
+                if i == len(subcommands) -1:
+                    sys.stdout.write('\n')
+                else:
+                    sys.stdout.write(' ')
+
+            return
         subcommand = 'help'
+    opts = get_subcommand_list(package)
     if not subcommand in opts:
         subcommand = 'help'
 
@@ -125,7 +146,10 @@ def execute(argv=None):
         return
 
     try:
-        arg1 = args[2]
+        index = index + 1
+        while args[index].startswith('-'):
+            index = index + 1
+        arg1 = args[index]
         if arg1 == 'help': 
             options.help_flag = True
     except:

@@ -23,7 +23,7 @@ def get_repository(name, verbose=False):
     raise wasanbon.RepositoryNotFoundException()
 
 def update_repositories(verbose=False, force=False, url=None):
-    repo_path = os.path.join(wasanbon.rtm_home, 'repositories')
+    repo_path = os.path.join(wasanbon.rtm_home(), 'repositories')
     for dir in os.listdir(repo_path):
         if dir.startswith('.'):
             continue
@@ -39,7 +39,7 @@ def update_repositories(verbose=False, force=False, url=None):
 
 
 def get_packages(verbose=False, force=True):
-    ws_file_name = os.path.join(wasanbon.rtm_home, "workspace.yaml")
+    ws_file_name = os.path.join(wasanbon.rtm_home(), "workspace.yaml")
     if not os.path.isfile(ws_file_name):
         if verbose:
             sys.stdout.write(' - Can not find workspace.yaml: %s\n' % ws_file_name)

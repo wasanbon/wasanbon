@@ -16,10 +16,12 @@ class Command(object):
         #wasanbon.arg_check(argv, 2)
 
         platform.init_rtm_home(force=False, verbose=verbose, update=False)
+        sys.stdout.write(' - Checking Platform Status.\n')
+        sys.stdout.write('    - wasanbon.platform: %s\n' % wasanbon.platform() )
 
         sys.stdout.write(' - Checking Platform installation.\n')
         path.init_tools_path(verbose=verbose)
-        y = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+        y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
         for cmd, stat in y.items():
             if len(stat.strip()) == 0:
                 stat = 'Not Installed'

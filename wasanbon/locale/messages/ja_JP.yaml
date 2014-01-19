@@ -7,9 +7,11 @@ help :
     command :
       '%prog [options] subcommand arg2 ...'
     brief :
-      init : 'wasanbonの初期化をします．最初に呼ばれるべきコマンド．'
+      init : 'wasanbonの初期化をします．最初に呼ばれるべきコマンドです．'
       package : 'プロジェクトの開始や管理をします．'
       rtm : 'RTミドルウエアの管理をします．'
+      install : 'ツールやRTミドルウエアのインストールを行います'
+      status : 'RTミドルウエアや依存ツール群の状態チェックをします'
       repository : 'リポジトリの設定をおこないます'
       selfupdate : '自己アップデート機能．sudoして呼んでください'
       tools :  'eclipseやrtshellなどのツールの管理と実行．'

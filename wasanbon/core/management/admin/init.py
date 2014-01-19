@@ -16,24 +16,6 @@ class Command(object):
     def execute_with_argv(self, args, force=False, verbose=False, clean=False):
         sys.stdout.write(' - Starting wasanbon environment.\n')
 
-        usage = "wasanbon-admin.py init [subcommand] ...\n\n"        
-        parser = optparse.OptionParser(usage=usage, add_help_option=False)
-        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
-        parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
-        #parser.add_option('-p', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
-        try:
-            options, argv = parser.parse_args(args[:])
-        except:
-            return
-
-        interactive = False
-        proxy = False
-        if options.interactive_flag :
-            sys.stdout.write(' @ Interactive Mode\n')
-            verbose = True
-            interactive = True
-            pass
-
         if verbose:
             sys.stdout.write(' - wasanbon init with argv:%s\n' % str(argv))
 

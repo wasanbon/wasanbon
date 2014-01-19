@@ -21,8 +21,15 @@ class Command(object):
             longformat = True
         else:
             longformat = False
+          
+        if argv[2] == 'setup':
+            sys.stdout.write(' - Downloading Repositories.\n')
+            if not repositories.download_repositories(verbose=True):
+                sys.stdout.write(' - Downloading Failed.\n')
+                return
+            return
 
-        if argv[2] == 'status':
+        elif argv[2] == 'status':
             sys.stdout.write(' - Checking Repositories.\n')
             paths = repositories.parse_rtc_repo_dir()
 

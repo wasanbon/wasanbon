@@ -9,9 +9,9 @@ from rtno_package import *
 
 def _get_arduino_path():
     if sys.platform == 'darwin':
-        return os.path.join(wasanbon.rtm_home, 'Arduino.app')
+        return os.path.join(wasanbon.rtm_home(), 'Arduino.app')
     else:
-        return os.path.join(wasanbon.rtm_home, 'arduino-1.0.5')
+        return os.path.join(wasanbon.rtm_home(), 'arduino-1.0.5')
 
 def _get_library_path():
     if sys.platform == 'darwin':
@@ -26,8 +26,8 @@ def install_arduino(verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Installing Arduino and RTno\n')
     if not os.path.isdir(_get_arduino_path()) or force:
-        url = wasanbon.setting[wasanbon.platform]['packages']['arduino']
-        util.download_and_unpack(url, wasanbon.rtm_home, force=force, verbose=verbose)
+        url = wasanbon.setting()[wasanbon.platform()]['packages']['arduino']
+        util.download_and_unpack(url, wasanbon.rtm_home(), force=force, verbose=verbose)
 
 def install_rtno(verbose=False, force=False):
     install_arduino(verbose, force)

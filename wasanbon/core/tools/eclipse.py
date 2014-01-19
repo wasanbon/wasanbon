@@ -8,16 +8,16 @@ from wasanbon.util import git
 from wasanbon.core import rtm
 
 def is_installed_eclipse(verbose=False):
-    eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
+    eclipse_dir = os.path.join(wasanbon.rtm_home(), 'eclipse')
     return  os.path.isdir(eclipse_dir)
 
 def install_eclipse(verbose=False, force=False):
     if not is_installed_eclipse() or force:
-        url = wasanbon.setting[wasanbon.platform]['packages']['eclipse']
-        util.download_and_unpack(url, wasanbon.rtm_home, force=force, verbose=verbose)
+        url = wasanbon.setting[wasanbon.platform()]['packages']['eclipse']
+        util.download_and_unpack(url, wasanbon.rtm_home(), force=force, verbose=verbose)
 
 def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
-    eclipse_dir = os.path.join(wasanbon.rtm_home, 'eclipse')
+    eclipse_dir = os.path.join(wasanbon.rtm_home(), 'eclipse')
     eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
 
     env = os.environ

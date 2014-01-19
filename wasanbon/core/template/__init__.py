@@ -13,7 +13,7 @@ def command(commands, verbose = False):
     if verbose:
         sys.stdout.write(" - GIT command %s in repository\n" % (repr(commands)))
 
-    cmd = [wasanbon.setting['local']['git']] + commands
+    cmd = [wasanbon.setting()['local']['git']] + commands
     stdout = None if verbose else subprocess.PIPE
 
     if verbose:

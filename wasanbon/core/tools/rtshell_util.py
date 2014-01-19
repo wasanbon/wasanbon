@@ -40,13 +40,13 @@ def install_rtshell(force=False, verbose=False):
         import OpenRTM_aist
 
         if not is_installed_rtctree(verbose=verbose) or force:
-            url = wasanbon.setting['common']['git']['rtctree']
+            url = wasanbon.setting()['common']['git']['rtctree']
             git.clone_and_setup(url, verbose=True, force=force)
         if not is_installed_rtsprofile(verbose=verbose) or force:
-            url = wasanbon.setting['common']['git']['rtsprofile']
+            url = wasanbon.setting()['common']['git']['rtsprofile']
             git.clone_and_setup(url, verbose=True, force=force)
         if not is_installed_rtshell(verbose=verbose) or force:
-            url = wasanbon.setting['common']['git']['rtshell']
+            url = wasanbon.setting()['common']['git']['rtshell']
             git.clone_and_setup(url, verbose=True, force=force)
 
 

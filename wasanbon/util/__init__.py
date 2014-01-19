@@ -57,7 +57,7 @@ def no_yes(msg):
 
 def download_and_unpack(url, dist_path, force=False, verbose=False):
     filename = os.path.basename(url)
-    dist_file = os.path.join(wasanbon.rtm_temp, filename)
+    dist_file = os.path.join(wasanbon.rtm_temp(), filename)
     download.download(url, dist_file, force=force, verbose=verbose)
     if filename.endswith(".zip"):
         archive.unpack_zip(dist_file, dist_path)
@@ -77,7 +77,7 @@ def download_and_install(url, force=False, temp="", verbose=False, open_only=Fal
         return
     filename = os.path.basename(url)
     if len(temp)==0:
-        temp = wasanbon.rtm_temp
+        temp = wasanbon.rtm_temp()
 
     dist_file = os.path.join(temp, filename)
     download.download(url, dist_file, force=force, verbose=verbose)

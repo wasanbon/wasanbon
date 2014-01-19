@@ -70,7 +70,7 @@ def post_install_darwin(force, verbose=False):
     stop_str  = '#-- Ending Setup Script of wasanbon --#'
     target = os.path.join(wasanbon.get_home_path(), ".bash_profile")
 
-    script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform, "bashrc"), "r").read()
+    script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform(), "bashrc"), "r").read()
     
     if os.path.isfile(target):
         erase = False
@@ -113,7 +113,7 @@ def post_install_linux2(force):
     start_str = '#-- Starting Setup Script of wasanbon --#'
     stop_str  = '#-- Ending Setup Script of wasanbon --#'
     target = os.path.join(wasanbon.get_home_path(), ".bashrc")
-    script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform, "bashrc"), "r").read()
+    script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform(), "bashrc"), "r").read()
     
     if os.path.isfile(target):
         erase = False

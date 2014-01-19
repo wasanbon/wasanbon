@@ -5,12 +5,12 @@ from wasanbon import util
 
 def pull_and_update(verbose, force, branch):
     cwd = os.getcwd()
-    os.chdir(os.path.join(wasanbon.rtm_temp, 'wasanbon'))
+    os.chdir(os.path.join(wasanbon.rtm_temp(), 'wasanbon'))
 
     if verbose:
-        sys.stdout.write(' - Pulling from %s in branch %s\n' % (wasanbon.setting['common']['repository']['wasanbon']['git'], branch))
+        sys.stdout.write(' - Pulling from %s in branch %s\n' % (wasanbon.setting()['common']['repository']['wasanbon']['git'], branch))
 
-    cmd = [wasanbon.setting['local']['git'], 'pull','origin',  branch]
+    cmd = [wasanbon.setting()['local']['git'], 'pull','origin',  branch]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output = p.stdout.readline()
     if output.strip() == 'Already up-to-date.' and not force:
@@ -22,20 +22,20 @@ def pull_and_update(verbose, force, branch):
 
 def clone_and_update(verbose, force, branch):
     cwd = os.getcwd()
-    os.chdir(wasanbon.rtm_temp)
+    os.chdir(wasanbon.rtm_temp())
 
     if verbose: 
-        sys.stdout.write(' - Cloning %s in branch %s\n' % (wasanbon.setting['common']['repository']['wasanbon']['git'], branch))
+        sys.stdout.write(' - Cloning %s in branch %s\n' % (wasanbon.setting()['common']['repository']['wasanbon']['git'], branch))
 
-    cmd = [wasanbon.setting['local']['git'], 'clone', '-b', branch, 
-           wasanbon.setting['common']['repository']['wasanbon']['git']]
+    cmd = [wasanbon.setting()['local']['git'], 'clone', '-b', branch, 
+           wasanbon.setting()['common']['repository']['wasanbon']['git']]
     subprocess.call(cmd)
 
     return install(verbose=verbose, force=force)
 
 
 def cleanup(verbose):
-    dirname = os.path.join(wasanbon.rtm_temp, 'wasanbon')
+    dirname = os.path.join(wasanbon.rtm_temp(), 'wasanbon')
     if not os.path.isdir(dirname):
         return False
 
@@ -56,7 +56,7 @@ def cleanup(verbose):
     return True
 
 def install(verbose, force):
-    dirname = os.path.join(wasanbon.rtm_temp, 'wasanbon')
+    dirname = os.path.join(wasanbon.rtm_temp(), 'wasanbon')
     if not os.path.isdir(dirname):
         return False
     cwd = os.getcwd()
@@ -84,7 +84,7 @@ class Command(object):
         cwd = os.getcwd()
 
         if verbose:
-            sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp)
+            sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp())
             pass
 
         if len(argv) >= 3:
@@ -92,7 +92,7 @@ class Command(object):
         else:
             branch = 'master'
 
-        os.chdir(wasanbon.rtm_temp)
+        os.chdir(wasanbon.rtm_temp())
         if not os.path.isdir('wasanbon'):
             if not clean:
                 clone_and_update(verbose=verbose, force=force, branch=branch)

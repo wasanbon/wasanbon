@@ -26,7 +26,7 @@ def build_rtc_cpp(rtcp, verbose=False):
             print ' - Creating build directory : %s' % build_dir
         os.makedirs(build_dir)
     os.chdir(build_dir)
-    cmd = [wasanbon.setting['local']['cmake'], '..']
+    cmd = [wasanbon.setting()['local']['cmake'], '..']
     stdout = None if verbose else subprocess.PIPE
     print ' - Cross Platform Make (CMAKE)'
     subprocess.call(cmd, env=os.environ, stdout=stdout)
@@ -35,7 +35,7 @@ def build_rtc_cpp(rtcp, verbose=False):
         sln = '%s.sln' % rtcp.basicInfo.name
         if sln in os.listdir(os.getcwd()):
             sys.stdout.write(' - Visual C++ Solution File is successfully generated.\n')
-            cmd = [wasanbon.setting['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
+            cmd = [wasanbon.setting()['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
             #stdout = None if verbose else subprocess.PIPE
             stdout = None # In windows msbuild always must be launched in verbose mode.
             sys.stdout.write(' - msbuild %s %s %s\n' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32'))
@@ -87,7 +87,7 @@ def build_rtc_java(rtcp, verbose=False):
     idl_dir = os.path.join(build_dir, 'idl')
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
-    rtm_java_classpath = os.path.join(wasanbon.rtm_home, 'jar')           
+    rtm_java_classpath = os.path.join(wasanbon.rtm_home(), 'jar')           
 
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
@@ -113,7 +113,7 @@ def build_rtc_java(rtcp, verbose=False):
     if need_idlcompile:
         if verbose:
             sys.stdout.write(' -- IDLCOMPILE\n')
-        idlc = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'idlj')
+        idlc = os.path.join(os.path.split(wasanbon.setting()['local']['javac'])[0], 'idlj')
         cmd = [idlc, '-td', src_dir, '-fall', arg]
         subprocess.call(cmd)
             
@@ -144,7 +144,7 @@ def build_rtc_java(rtcp, verbose=False):
                 javafiles.append(os.path.join(root, f))
 
 
-    cmd = [wasanbon.setting['local']['javac'], 
+    cmd = [wasanbon.setting()['local']['javac'], 
            #'-J-Dfile.encoding=UTF-8', 
            '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
@@ -163,7 +163,7 @@ def build_rtc_java(rtcp, verbose=False):
                     print ' --- cls:', os.path.join(root, f)[len(cls_dir)+1:]
                 clsfiles.append(os.path.join(root, f)[len(cls_dir)+1:])
 
-    jarcmd = os.path.join(os.path.split(wasanbon.setting['local']['javac'])[0], 'jar')
+    jarcmd = os.path.join(os.path.split(wasanbon.setting()['local']['javac'])[0], 'jar')
     #cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class', '')]
     cmd = [jarcmd,
            #'-J-Dfile.encoding=UTF-8',

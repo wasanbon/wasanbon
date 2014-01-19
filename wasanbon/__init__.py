@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os, locale, getpass
+import platform as plt
 import yaml, types
 import codecs, subprocess
 
@@ -12,53 +13,8 @@ def get_version():
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
-platform = ""
 
-def xcode_check():
-    p = subprocess.Popen(['gcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    line = p.stdout.read()
-    if line.find('darwin13'):
-        return 'xcode5'
-    elif line.find('darwin12'):
-        return 'xcode4'
-    else:
-        raise UnsupportedPlatformException()
 
-if sys.platform == 'darwin':
-    import platform as plt
-    ver = plt.mac_ver()[0]
-    if ver.startswith('10.9'):
-        platform = 'osx10.9_' + xcode_check()
-    if ver.startswith('10.8'):
-        platform = 'osx10.8_' + xcode_check()
-    if ver.startswith('10.7'):
-        platform = 'osx10.7_' + xcode_check()
-elif sys.platform == 'win32':
-    if sys.getwindowsversion()[1] == 1:
-        platform = 'windows7'
-    elif sys.getwindowsversion()[1] == 2:
-        platform = 'windows8'
-
-    if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
-        platform = platform + '_x64'
-    else:
-        platform = platform + '_x86'
-
-elif sys.platform == 'linux2':
-    import platform as plt
-    distri = plt.linux_distribution()
-    #print distri
-    if distri[0] == 'Ubuntu':
-        platform = 'ubuntu'
-
-        if distri[1] == '12.04':
-            platform = platform + '1204'
-
-    if plt.architecture()[0] == '32bit':
-        platform = platform + '_x86'
-    else:
-        platform = platform + '_x64'
-        
 
 class WasanbonException(Exception):
     def msg(self):
@@ -280,21 +236,36 @@ def __load_subdir(root):
 #def __load_repositories():
 #    return dict(setting['common']['repository'], **setting[platform]['repository'])
 
-setting = load_settings()
 
-rtm_home = setting['common']['path']['RTM_HOME']
-if not os.path.isdir(rtm_home):
-    os.makedirs(rtm_home)
+def setting():
+    __setting =  load_settings()
+    __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
+    if os.path.isfile(__local_setting_file):
+       __setting['local'] = yaml.load(open(__local_setting_file, 'r'))
 
-rtm_temp = setting['common']['path']['RTM_TEMP']
-if not os.path.isdir(rtm_temp):
-    os.makedirs(rtm_temp)
+    __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
+    if os.path.isfile(__application_setting_file):
+        appsetting = yaml.load(open(__application_setting_file, 'r'))
+        if 'application' in appsetting.keys():
+            __setting['application'] = appsetting['application']
+    return __setting
+
+def rtm_home():
+    return setting()['common']['path']['RTM_HOME']
+
+#if not os.path.isdir(rtm_home):
+#    os.makedirs(rtm_home)
+
+def rtm_temp():
+    return setting()['common']['path']['RTM_TEMP']
+
+
+#rtm_temp = setting['common']['path']['RTM_TEMP']
+#if not os.path.isdir(rtm_temp):
+#    os.makedirs(rtm_temp)
 
 #repositories = __load_repositories()
 
-__local_setting_file = os.path.join(rtm_home, 'setting.yaml')
-if os.path.isfile(__local_setting_file):
-    setting['local'] = yaml.load(open(__local_setting_file, 'r'))
 
 #__local_repository_file = os.path.join(rtm_home, 'repository.yaml')
 #if os.path.isfile(__local_repository_file):
@@ -302,11 +273,6 @@ if os.path.isfile(__local_setting_file):
 #    if type(setting['local_repo']) != types.NoneType:
 #        repositories = dict(repositories, **setting['local_repo'])
 
-__application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
-if os.path.isfile(__application_setting_file):
-    appsetting = yaml.load(open(__application_setting_file, 'r'))
-    if 'application' in appsetting.keys():
-        setting['application'] = appsetting['application']
 
 #if 'application' in setting.keys():
 #    __application_repository_file = os.path.join(os.getcwd(), setting['application']['RTC_DIR'], 'repository.yaml')
@@ -315,4 +281,55 @@ if os.path.isfile(__application_setting_file):
 #        if type(app_repo) != types.NoneType:
 #            setting['app_repo'] = app_repo
 #            repositories = dict(repositories, **setting['app_repo'])
+
+def xcode_check():
+    p = subprocess.Popen(['gcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    line = p.stdout.read()
+    if line.find('darwin13'):
+        return 'xcode5'
+    elif line.find('darwin12'):
+        return 'xcode4'
+    else:
+        raise UnsupportedPlatformException()
+
+
+def platform():
+    if sys.platform == 'darwin':
+        import platform as plt
+        ver = plt.mac_ver()[0]
+        if ver.startswith('10.9'):
+            _platform = 'osx10.9_' + xcode_check()
+        elif ver.startswith('10.8'):
+            _platform = 'osx10.8_' + xcode_check()
+        elif ver.startswith('10.7'):
+            _platform = 'osx10.7_' + xcode_check()
+    elif sys.platform == 'win32':
+        if sys.getwindowsversion()[1] == 1:
+            _platform = 'windows7'
+        elif sys.getwindowsversion()[1] == 2:
+            _platform = 'windows8'
+            
+        if os.environ['PROCESSOR_ARCHITEW6432'] == 'AMD64':
+            _platform = _platform + '_x64'
+        else:
+            _platform = _platform + '_x86'
+            
+    elif sys.platform == 'linux2':
+        import platform as plt
+        distri = plt.linux_distribution()
+        
+        if distri[0] == 'Ubuntu':
+            _platform = 'ubuntu'
+            
+        if distri[1] == '12.04':
+            _platform = _platform + '1204'
+            
+        if plt.architecture()[0] == '32bit':
+            _platform = _platform + '_x86'
+        else:
+            _platform = _platform + '_x64'
+            
+    return _platform
+
+
 
