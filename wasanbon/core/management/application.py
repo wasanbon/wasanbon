@@ -127,7 +127,7 @@ def execute(argv=None):
 
         if options.alter_flag:
             # list subcommands
-            subcommands = get_subcommand_list(package)
+            subcommands = opts#get_subcommand_list(package)
             for i, subcmd in enumerate(subcommands):
                 sys.stdout.write(subcmd)
                 if i == len(subcommands) -1:
