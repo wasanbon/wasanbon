@@ -7,6 +7,9 @@ from wasanbon import util
 class Command(object):
     def __init__(self):
         pass
+    
+    def alternative(self):
+        return []
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         if len(argv) >= 3:

@@ -6,6 +6,9 @@ import wasanbon.core.package as pack
 class Command(object):
     def __init__(self):
         pass
+
+    def alternative(self):
+        return []
     
     def execute_with_argv(self, argv, verbose, clean, force):
         if verbose:

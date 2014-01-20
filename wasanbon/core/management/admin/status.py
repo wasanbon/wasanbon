@@ -8,9 +8,9 @@ from wasanbon.core.rtm import cpp, python, java
 class Command(object):
     def __init__(self):
         pass
-
-    def is_admin(self):
-        return True
+    
+    def alternative(self):
+        return []
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         #wasanbon.arg_check(argv, 2)
