@@ -236,18 +236,20 @@ def __load_subdir(root):
 #def __load_repositories():
 #    return dict(setting['common']['repository'], **setting[platform]['repository'])
 
-
+__setting = []
 def setting():
-    __setting =  load_settings()
-    __local_setting_file = os.path.join(rtm_home, 'setting.yaml')
-    if os.path.isfile(__local_setting_file):
-       __setting['local'] = yaml.load(open(__local_setting_file, 'r'))
+    global __setting
+    if not __setting:
+        __setting =  load_settings()
+        __local_setting_file = os.path.join(rtm_home(), 'setting.yaml')
+        if os.path.isfile(__local_setting_file):
+            __setting['local'] = yaml.load(open(__local_setting_file, 'r'))
 
-    __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
-    if os.path.isfile(__application_setting_file):
-        appsetting = yaml.load(open(__application_setting_file, 'r'))
-        if 'application' in appsetting.keys():
-            __setting['application'] = appsetting['application']
+        __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
+        if os.path.isfile(__application_setting_file):
+            appsetting = yaml.load(open(__application_setting_file, 'r'))
+            if 'application' in appsetting.keys():
+                __setting['application'] = appsetting['application']
     return __setting
 
 def rtm_home():
