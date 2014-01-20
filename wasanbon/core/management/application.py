@@ -81,20 +81,20 @@ def execute(argv=None):
     if argv == None:
         argv = sys.argv
     command = os.path.basename(argv[0])
+
     if command == 'wasanbon-admin.py':
         package = 'admin'
     else:
         package = 'commands'
 
-    #opts = get_subcommand_list(package)
-
+    opts = get_subcommand_list(package)
     usage  = wasanbon.get_help_text(['help', 'general', 'command'])
 
-    """
+
     usage  = usage + '\n\nsubcommand:\n'
     for opt in opts:
         usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
-    """
+
 
     parser = ArgumentParser(usage=usage, add_help_option=False)
     #parser.disable_interspersed_args()
