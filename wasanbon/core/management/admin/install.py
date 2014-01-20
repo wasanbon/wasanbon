@@ -7,8 +7,9 @@ class Command(object):
     def __init__(self):
         pass
 
-    def is_admin(self):
-        return True
+    def alternative(self):
+        y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
+        return ['rtm_c++', 'rtm_python', 'rtm_java', 'eclipse', 'arduino'] + y.keys()
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         wasanbon.arg_check(argv, 3)
