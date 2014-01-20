@@ -119,13 +119,12 @@ def execute(argv=None):
 
     index = 1
     try:
-
         while args[index].startswith('-'):
             index = index + 1
         subcommand = args[index]
-    except IndexError:
 
-        if options.alter_flag:
+    except IndexError:
+        if len(args) == 1 and options.alter_flag:
             # list subcommands
             subcommands = opts#get_subcommand_list(package)
             for i, subcmd in enumerate(subcommands):
@@ -137,9 +136,11 @@ def execute(argv=None):
 
             return
         subcommand = 'help'
-    opts = get_subcommand_list(package)
+
+    #opts = get_subcommand_list(package)
     if not subcommand in opts:
         subcommand = 'help'
+    
 
     if subcommand == 'help':
         parser.print_help()
@@ -162,7 +163,17 @@ def execute(argv=None):
     __import__(module_name)
     comm = sys.modules[module_name].Command()
     try:
-        comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
+        if options.alter_flag:
+            alternative = comm.alternative()
+            for i, cmd in enumerate(alternative):
+                sys.stdout.write(cmd)
+                if i == len(alternative) - 1:
+                    sys.stdout.write('\n')
+                else:
+                    sys.stdout.write(' ')
+            pass
+        else:
+            comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
     except wasanbon.InvalidUsageException, ex:
         show_help_description(subcommand)
         
