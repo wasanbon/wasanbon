@@ -10,3 +10,50 @@ wasanbon-cd() {
     cd `wasanbon-admin.py package directory ${1}` 
   fi
 };
+
+
+_wsb_svc_cmpl() {
+    local cur prev target subtarget subcmds subsubcmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    subcmds=`wasanbon-admin.py -a`
+    for val in ${subcmds[@]}; do
+	if [[ ${val} == ${prev} ]]
+	then
+	    subsubcmds=`wasanbon-admin.py ${prev} -a`
+	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
+	    COMPREPLY=(${subtarget[@]})
+            return 0
+	fi
+    done
+
+    target=( $(compgen -W "${subcmds}" -- ${cur}) )
+    COMPREPLY=(${target[@]})
+    return 0
+}
+
+_mgr_svc_cmpl() {
+    local cur prev target subtarget subcmds subsubcmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    subcmds=`./mgr.py -a`
+    #target=( $(compgen -W "${subcmds}" -- $1) )    
+    for val in ${subcmds[@]}; do
+	if [[ ${val} == ${prev} ]]
+	then
+	    subsubcmds=`./mgr.py ${prev} -a`
+	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
+	    COMPREPLY=(${subtarget[@]})
+            return 0
+	fi
+    done
+    target=( $(compgen -W "${subcmds}" -- ${cur}) )
+    COMPREPLY=(${target[@]})
+    return 0
+}
+
+
+complete -o nospace -F _wsb_svc_cmpl wasanbon-admin.py
+complete -o nospace -F _mgr_svc_cmpl ./mgr.py
