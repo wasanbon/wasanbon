@@ -106,15 +106,19 @@ def user_pass():
     passwd = getpass.getpass()
     return (user, passwd)
 
+__help_dic = []
 def get_help_text(arg):
     locale_name = locale.getdefaultlocale()[0]
-    filename = 'en_US.yaml'
-    path = os.path.join(__path__[0], 'locale', 'messages')
-    for file in os.listdir(path):
-        if file.endswith('.yaml'):
-            if file[:len(file)-5] == locale_name:
-                filename = locale_name + '.yaml'
-    y = data = yaml.load(open(os.path.join(path, filename), 'r'))
+    global __help_dic
+    if not __help_dic:
+        filename = 'en_US.yaml'
+        path = os.path.join(__path__[0], 'locale', 'messages')
+        for file in os.listdir(path):
+            if file.endswith('.yaml'):
+                if file[:len(file)-5] == locale_name:
+                    filename = locale_name + '.yaml'
+        __help_dic = yaml.load(open(os.path.join(path, filename), 'r'))
+    y = data = __help_dic
     for key in arg:
         if not key in y.keys():
             return data['none']#.encode('utf-8')
