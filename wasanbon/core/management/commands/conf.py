@@ -6,8 +6,8 @@ class Command(object):
     def __init__(self):
         pass
 
-    def is_admin(self):
-        return False
+    def alternative(self):
+        return ['set', 'status']
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         wasanbon.arg_check(argv, 3)
