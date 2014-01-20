@@ -52,6 +52,9 @@ class Command(object):
     def __init__(self):
         pass
 
+    def alternative(self):
+        return ['install', 'uninstall', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
+
     def execute_with_argv(self, args, clean, verbose, force):
         usages  = wasanbon.get_help_text(['help', 'command', 'description', 'system'])
         usage = "mgr.py system [subcommand] ...\n\n"

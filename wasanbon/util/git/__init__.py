@@ -10,7 +10,7 @@ def clone_and_setup(url, verbose=False, force=False):
         sys.stdout.write(' - Clone and setup.py: %s\n' % url)
     distpath = os.path.join(wasanbon.rtm_temp, os.path.basename(url)[:-4])
     if not 'local' in wasanbon.setting.keys():
-        wasanbon.setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
+        wasanbon.setting()['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
 
     stdout = None if verbose else subprocess.PIPE
 
@@ -25,7 +25,7 @@ def clone_and_setup(url, verbose=False, force=False):
                 print ' - Removing Path (%s)' % distpath
             shutil.rmtree(distpath)
 
-    cmd = [wasanbon.setting['local']['git'], 'clone', url, distpath]
+    cmd = [wasanbon.setting()['local']['git'], 'clone', url, distpath]
     if verbose:
         print ' - Cloning %s' % url
     git_command(['clone', url], verbose=verbose, path=wasanbon.rtm_temp)
@@ -49,7 +49,7 @@ def git_command(commands, path='.', verbose = False, pipe=False):
         if verbose:
             sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
 
-    cmd = [wasanbon.setting['local']['git']] + commands
+    cmd = [wasanbon.setting()['local']['git']] + commands
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
 

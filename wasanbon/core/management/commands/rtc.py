@@ -12,6 +12,12 @@ class Command(object):
     def __init__(self):
         pass
 
+    def alternative(self):
+        return ['repository', 'git_init', 'github_init', 'github_fork',
+                'github_pullrequest', 'clone', 'delete', 'commit', 'pull',
+                'checkout', 'push', 'clean', 'build', 'edit', 'configure',
+                'run', 'release']
+
     def get_rtc_rtno(self, _package, name, verbose=False):
         try:
             return _package.rtc(name)
@@ -139,49 +145,16 @@ class Command(object):
             self.get_rtc_rtno(_package, argv[3], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
 
         elif argv[2] == 'clean':
-            wasanbon.arg_check(argv, 4)
-            build_all = True if 'all' in argv else False
-            for rtc in _package.rtcs:
-                if build_all or rtc.name in argv:
-                    sys.stdout.write(' @ Cleaning Up RTC %s\n' % rtc.name)
-                    rtc.clean(verbose=verbose)
-
+            sys.stdout.write('now build option is duplicated\n')
+            raise wasanbon.InvalidUsageException()
+            
         elif argv[2] == 'build':
-            wasanbon.arg_check(argv, 4)
-            build_all = True if 'all' in argv else False
-            found_flag = False
-            if sys.platform == 'win32':
-                verbose=True
-
-            for rtc in _package.rtcs:
-                if build_all or rtc.name in argv:
-                    sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
-                    rtc.build(verbose=verbose)
-                    found_flag = True
-
-            if not found_flag:
-                sys.stdout.write(' - Can not find RTC.\n')
+            sys.stdout.write('now build option is duplicated\n')
+            raise wasanbon.InvalidUsageException()
 
         elif argv[2] == 'edit':
-            wasanbon.arg_check(argv, 4)
-            try:
-                rtc_ = _package.rtc(argv[3])
-                
-                if rtc_.is_git_repo():
-                    if rtc_.git_branch() != 'master':
-                        sys.stdout.write(' @ You are not in master branch.\n')
-                        if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
-                            rtc_.checkout(verbose=verbose)
-                editor.edit_rtc(_package.rtc(argv[3]), verbose=verbose)
-            except wasanbon.RTCNotFoundException, ex:
-                rtnos = tools.get_rtno_packages(_package)
-                for rtno in rtnos:
-                    if rtno.name == argv[3]:
-                        tools.launch_arduino(rtno.file, verbose=verbose)
-                        return
-                raise wasanbon.RTCNotFoundException()
-            
-
+            sys.stdout.write(' This funciton is currently deplicated.')
+            raise wasanbon.InvalidUsageException()
 
         elif argv[2] == 'configure':
             wasanbon.arg_check(argv, 4)
@@ -229,6 +202,7 @@ class Command(object):
                 rtcc = wasanbon.core.rtc.RTCConf(target)
                 for key in rtcc.keys():
                     print ' -- %s:%s' % (key, rtcc[key])
+
         elif argv[2] == 'run':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Executing RTC %s\n' % argv[3])

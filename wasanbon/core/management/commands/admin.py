@@ -6,6 +6,9 @@ class Command(object):
     def __init__(self):
         pass
 
+    def alternative(self):
+        return ['register', 'git_init', 'github_init', 'commit', 'push', 'setting']
+
     def execute_with_argv(self, argv, force, verbose, clean):
         wasanbon.arg_check(argv,3)
         _package = pack.Package(os.getcwd())

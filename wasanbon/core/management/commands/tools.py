@@ -30,6 +30,9 @@ class Command(object):
         pass
 
 
+    def alternative(self):
+        return ['eclipse', 'arduino', 'RTno', 'rtcb', 'rtse']
+
     def execute_with_argv(self, argv, verbose, clean, force):
         wasanbon.arg_check(argv, 3)
 
