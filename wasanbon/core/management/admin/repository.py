@@ -11,8 +11,8 @@ class Command(object):
     def __init__(self):
         pass
 
-    def is_admin(self):
-        return True
+    def alternative(self):
+        return ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push']
 
     def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
         wasanbon.arg_check(argv, 3)
@@ -21,6 +21,7 @@ class Command(object):
             longformat = True
         else:
             longformat = False
+        argv = [arg for arg in argv if not arg is '-l']
           
         if argv[2] == 'setup':
             sys.stdout.write(' - Downloading Repositories.\n')
