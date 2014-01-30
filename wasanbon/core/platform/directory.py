@@ -13,7 +13,7 @@ def create_rtm_home(force, verbose):
             sys.stdout.write(' - No RTM_HOME found. Creating RTM_HOME in %s\n' % wasanbon.rtm_home())
         os.mkdir(wasanbon.rtm_home(), 0777)
         
-    if not os.path.isdir(wasanbon.rtm_temp):
+    if not os.path.isdir(wasanbon.rtm_temp()):
         if verbose:
             sys.stdout.write(' - No RTM_HOME found. Creating RTM_TEMP in %s\n' % wasanbon.rtm_temp())
         os.mkdir(wasanbon.rtm_temp(), 0777)
@@ -27,6 +27,9 @@ def create_rtm_home(force, verbose):
 
 def copy_initial_setting(verbose=False, force=False):
     # Copy initial setting file.
+    if verbose:
+        sys.stdout.write(' - Copying initial setting files to RTM_HOME.\n')
+
     template_setting_file = os.path.join(wasanbon.__path__[0], 'settings', wasanbon.platform(), 'setting.yaml')
     template_repository_file = os.path.join(wasanbon.__path__[0], 'settings', wasanbon.platform(), 'repository.yaml')
     local_setting_file = os.path.join(wasanbon.rtm_home(), 'setting.yaml')
