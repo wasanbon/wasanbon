@@ -3,6 +3,7 @@ import os, sys
 import wasanbon
 from wasanbon.util import editor
 from wasanbon.core import package as pack
+from wasanbon.core import tools
 class Command(object):
     def __init__(self):
         pass

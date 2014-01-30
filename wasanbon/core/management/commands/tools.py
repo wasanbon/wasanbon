@@ -31,7 +31,7 @@ class Command(object):
 
 
     def alternative(self):
-        return ['eclipse', 'arduino', 'RTno', 'rtcb', 'rtse']
+        return ['eclipse', 'arduino', 'rtno', 'rtcb', 'rtse']
 
     def execute_with_argv(self, argv, verbose, clean, force):
         wasanbon.arg_check(argv, 3)
@@ -46,7 +46,7 @@ class Command(object):
             print '- Launching Arduino'
             tools.launch_arduino(".", verbose=verbose)
             return
-        elif argv[2] == 'RTno':
+        elif argv[2] == 'rtno':
             sys.stdout.write(' - RTno\n')
             wasanbon.arg_check(argv, 4)
             if argv[3] == 'template':
