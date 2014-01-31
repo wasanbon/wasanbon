@@ -14,9 +14,8 @@ class Command(object):
 
     def alternative(self):
         return ['repository', 'git_init', 'github_init', 'github_fork',
-                'github_pullrequest', 'clone', 'delete', 'commit', 'pull',
-                'checkout', 'push', 'clean', 'build', 'edit', 'configure',
-                'release']
+                'github_pullrequest', 'clone',
+                'configure', 'release']
 
     def get_rtc_rtno(self, _package, name, verbose=False):
         try:
@@ -47,7 +46,7 @@ class Command(object):
                 print_rtc(rtc, long=options.long_flag)
 
             for rtno in tools.get_rtno_packages(_package, verbose=verbose):
-                print_rtno(rtno)
+                print_rtno(rtno, long=options.long_flag)
 
         elif argv[2] == 'repository':
             sys.stdout.write(' @ Listing RTC Repository\n')
@@ -120,29 +119,10 @@ class Command(object):
             for rtcname in argv[3:]:
                 _package.delete_rtc(_package.rtc(rtcname), verbose=verbose)
             
-        elif argv[2] == 'commit':
-            wasanbon.arg_check(argv, 5)
-            sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
-            rtc_.commit(comment=argv[4], verbose=verbose)
-            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
-
-        elif argv[2] == 'pull':
-            wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
-            rtc_.pull(verbose=verbose)
-            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
-
         elif argv[2] == 'checkout':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
             self.get_rtc_rtno(_package, argv[3], verbose=verbose).checkout(verbose=verbose)
-
-        elif argv[2] == 'push':
-            wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
-            self.get_rtc_rtno(_package, argv[3], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
 
         elif argv[2] == 'clean':
             sys.stdout.write('now build option is duplicated\n')
@@ -260,14 +240,17 @@ class Command(object):
         else:
             raise wasanbon.InvalidUsageException()
 
-def print_rtno(rtno):
-    str = rtno.name + ' : \n'
-    str = str + '    name       : ' + rtno.name + '\n'
-    str = str + '    language   : ' + 'arduino' + '\n'
-    filename = rtno.file
-    if filename.startswith(os.getcwd()):
-        filename = filename[len(os.getcwd()) + 1:]
-    str = str + '    file       : ' + filename + '\n'
+def print_rtno(rtno, long=False):
+    str = ' - ' + rtno.name
+    if long:
+        str = str + ':\n'
+        str = str + '    - name       : ' + rtno.name + '\n'
+        str = str + '    - language   : ' + 'arduino' + '\n'
+        filename = rtno.file
+        if filename.startswith(os.getcwd()):
+            filename = filename[len(os.getcwd()) + 1:]
+            str = str + '    - file       : ' + filename
+    str = str + '\n'
     sys.stdout.write(str)
 
 def print_rtc_profile(rtcp, long=False):
