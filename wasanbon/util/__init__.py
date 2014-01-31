@@ -1,4 +1,4 @@
-import os, sys, subprocess
+import os, sys, subprocess, types
 import wasanbon
 from . import download, install, archive, svn, git
 
@@ -11,7 +11,7 @@ def choice(alts, callback, msg='Choice', noquit=False):
         for i in range(0, len(alts)):
             sys.stdout.write(' - %s:%s\n' % (i+1, alts[i]))
         sys.stdout.write('Choice?:')
-        i = raw_input()
+        i = raw_input() # Input 
         try:
             if i == 'q' or i == 'Q':
                 sys.stdout.write('Quit.\n')
@@ -26,7 +26,15 @@ def choice(alts, callback, msg='Choice', noquit=False):
         if ans == len(alts):
             sys.stdout.write(' - Quit.\n')
             break
-        if callback(ans-1):
+        retval = callback(ans-1)
+        if type(retval) == types.ListType:
+            print retval
+            ans = retval[0]
+            alts = retval[1]
+            alts.append('Quit(Q)')
+        else:
+            ans = retval
+        if ans:
             sys.stdout.write(' - Quit.\n')
             break
         

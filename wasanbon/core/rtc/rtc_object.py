@@ -139,20 +139,21 @@ class RtcObject():
             if verbose:
                 sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
 
-
         if self.language == 'C++':
-            cmd = [exe_file]
+            if sys.platform == 'win32':
+                cmd = ['rtcd.exe']
+            else:
+                cmd = ['rtcd']
         elif self.language == 'Python':
             cmd = ['python', exe_file]
 
+        cmd = cmd + argv
         if verbose:
             sys.stdout.write(' - Executing ... %s\n' % cmd)
-
-        cmd = cmd + argv
         
         stdout = None if verbose else subprocess.PIPE
         stderr = None if verbose else subprocess.PIPE
-
+        
         p = subprocess.call(cmd, env=env, stdout=stdout, stderr=stderr)
 
         return p

@@ -188,17 +188,18 @@ class Command(object):
                     val = raw_input()
                     msg = ' - Update Configuration (%s:%s)?' % (key, val)
                     if util.yes_no(msg) == 'yes':
-                        sys.stdout.write(' - Updated.\n')
+                        sys.stdout.write(' - Configuring (key=%s, value=%s).\n' % (key, val))
                         rtcc[key] = val
-                        return False
+                        choice1 = ['add'] + [key + ':' + rtcc[key] for key in rtcc.keys()]
+                        return [False, choice1]
                     else:
                         sys.stdout.write(' - Aborted.\n')
                         return False
 
                 util.choice(choice1, callback1, msg)
-            
                 rtcc.sync(verbose=verbose)
-
+                # del(rtcc)
+                print target
                 rtcc = wasanbon.core.rtc.RTCConf(target)
                 for key in rtcc.keys():
                     print ' -- %s:%s' % (key, rtcc[key])
@@ -207,10 +208,18 @@ class Command(object):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
             rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
-            conf_file = os.path.join(_package.conf_path, rtc_.name + '0.conf')
-            if os.path.isfile(conf_file):
-                sys.stdout.write(' - with rtc.conf %s\n' % os.path.basename(conf_file))
-                arg = ['-f', conf_file]
+            if not rtc_:
+                raise wasanbon.InvalidUsageException()
+
+            rtcconf = _package.rtcconf(rtc_.language)
+            rtc_temp = os.path.join("conf", "rtc_temp.conf")
+            if os.path.isfile(rtc_temp):
+                os.remove(rtc_temp)
+            rtcconf.sync(verbose=True, outfilename=rtc_temp)
+            _package.uninstall(_package.rtcs, rtcconf_filename=rtc_temp)
+            _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False)
+            if os.path.isfile(rtc_temp):
+                arg = ['-f', rtc_temp]
             else:
                 arg = []
             rtc_.execute_standalone(arg, verbose=True)
