@@ -1,13 +1,8 @@
 #!/usr/bin/env python
-
-import os, sys, optparse, yaml, types
+import os, sys
 import wasanbon
 from wasanbon.core import package as pack
-from wasanbon.core import rtc, tools, repositories
-from wasanbon.util import editor
-from wasanbon import util
-
-
+from wasanbon.core import rtc
 class Command(object):
     def __init__(self):
         pass
@@ -25,6 +20,5 @@ class Command(object):
     def execute_with_argv(self, argv, verbose, force, clean):
         wasanbon.arg_check(argv, 3)
         _package = pack.Package(os.getcwd())
-        sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[2])
-        self.get_rtc_rtno(_package, argv[2], verbose=verbose).push(verbose=True) # when pushing always must be verbose 
-
+        sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
+        self.get_rtc_rtno(_package, argv[2], verbose=verbose).checkout(verbose=verbose)
