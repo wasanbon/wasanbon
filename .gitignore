@@ -7,3 +7,4 @@ build
 temp/*
 .DS_Store
 thirdparty/PyGithub/dist
+thirdparty/*
