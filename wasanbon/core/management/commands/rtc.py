@@ -16,7 +16,7 @@ class Command(object):
         return ['repository', 'git_init', 'github_init', 'github_fork',
                 'github_pullrequest', 'clone', 'delete', 'commit', 'pull',
                 'checkout', 'push', 'clean', 'build', 'edit', 'configure',
-                'run', 'release']
+                'release']
 
     def get_rtc_rtno(self, _package, name, verbose=False):
         try:
@@ -203,26 +203,6 @@ class Command(object):
                 rtcc = wasanbon.core.rtc.RTCConf(target)
                 for key in rtcc.keys():
                     print ' -- %s:%s' % (key, rtcc[key])
-
-        elif argv[2] == 'run':
-            wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
-            if not rtc_:
-                raise wasanbon.InvalidUsageException()
-
-            rtcconf = _package.rtcconf(rtc_.language)
-            rtc_temp = os.path.join("conf", "rtc_temp.conf")
-            if os.path.isfile(rtc_temp):
-                os.remove(rtc_temp)
-            rtcconf.sync(verbose=True, outfilename=rtc_temp)
-            _package.uninstall(_package.rtcs, rtcconf_filename=rtc_temp)
-            _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False)
-            if os.path.isfile(rtc_temp):
-                arg = ['-f', rtc_temp]
-            else:
-                arg = []
-            rtc_.execute_standalone(arg, verbose=True)
 
         elif argv[2] == 'release':
             wasanbon.arg_check(argv,4)

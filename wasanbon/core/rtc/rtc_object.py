@@ -8,6 +8,7 @@ from wasanbon.util import github_ref
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.rtc import packageprofile
 from wasanbon.core.rtc import build
+from wasanbon.core.package import run
 #from wasanbon.core.rtc import repository
 import repository
 
@@ -129,31 +130,3 @@ class RtcObject():
     def push(self, verbose=False):
         self.git.push(verbose=verbose)
         return self
-
-    def execute_standalone(self, argv = [], verbose=False):
-        exe_file = self.packageprofile.getRTCExecutableFilePath()
-
-        env = os.environ.copy()
-        if not 'HOME' in env.keys():
-            env['HOME'] = wasanbon.get_home_path()
-            if verbose:
-                sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
-
-        if self.language == 'C++':
-            if sys.platform == 'win32':
-                cmd = ['rtcd.exe']
-            else:
-                cmd = ['rtcd']
-        elif self.language == 'Python':
-            cmd = ['python', exe_file]
-
-        cmd = cmd + argv
-        if verbose:
-            sys.stdout.write(' - Executing ... %s\n' % cmd)
-        
-        stdout = None if verbose else subprocess.PIPE
-        stderr = None if verbose else subprocess.PIPE
-        
-        p = subprocess.call(cmd, env=env, stdout=stdout, stderr=stderr)
-
-        return p

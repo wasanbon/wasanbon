@@ -12,6 +12,12 @@ class Command(object):
     def __init__(self):
         pass
 
+    def get_rtc_rtno(self, _package, name, verbose=False):
+        try:
+            return _package.rtc(name)
+        except wasanbon.RTCNotFoundException, e:
+            return tools.get_rtno_package(_package, name, verbose=verbose)
+
     def alternative(self):
         _package = pack.Package(os.getcwd())
         return [rtc.name for rtc in _package.rtcs]
