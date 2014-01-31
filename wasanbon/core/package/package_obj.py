@@ -158,13 +158,16 @@ class Package():
                 
         return bind_languages
 
-    def uninstall(self, rtc_, verbose=False):
+    def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
             return
-
-        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
+        
+        if len(rtcconf_filename) == 0:
+            rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
+        else:
+            rtcconf = rtc.RTCConf(rtcconf_filename)
         
         name = rtc_.rtcprofile.basicInfo.name 
         filename = name + wasanbon.get_bin_file_ext()
@@ -172,19 +175,7 @@ class Package():
         rtcconf.remove('manager.modules.preload', filename)
         rtcconf.sync()
 
-
-
-    def install(self, rtc_, verbose=False, preload=True, precreate=True):
-        if type(rtc_) == types.ListType:
-            for rtc__ in rtc_:
-                self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
-            return
-
-        if verbose:
-            sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
-            pass
-        
-        rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
+    def copy_binary_from_rtc(self, rtc_, verbose=False):
         filepath = rtc_.packageprofile.getRTCFilePath()
         if len(filepath) == 0:
             sys.stdout.write(" - Can not find RTC file in RTC's directory\n")
@@ -192,12 +183,11 @@ class Package():
         
         if verbose:
             sys.stdout.write(' - Detect RTC binary %s\n' % filepath)
-
         if rtc_.language == 'Python':
             norm_path = os.path.normcase(os.path.normpath(os.path.split(filepath)[0]))
             prefix = os.path.commonprefix([self.path, norm_path])
             bin_dir_rel = norm_path[len(self.path)+1:]
-            targetfile = filepath
+            targetfile = os.path.join(bin_dir_rel, os.path.basename(filepath))
         else:
             bin_dir = os.path.join(self.path, self.setting['BIN_DIR'])
             bin_dir_rel = self.setting['BIN_DIR']
@@ -213,37 +203,62 @@ class Package():
                 ext = 'so'
                 
             files = [filepath]
+            # dlls in the same directry must be copied with rtc's binary.
             for file in os.listdir(os.path.dirname(filepath)):
                 if file.endswith(ext):
                     files.append(os.path.join(os.path.dirname(filepath), file))
-                
+
             for file in files:
                 target = os.path.join(bin_dir, os.path.basename(file))
                 shutil.copy(filepath, target)
 
-            targetfile = os.path.join(bin_dir, os.path.basename(filepath))
+            targetfile = os.path.join(bin_dir_rel, os.path.basename(filepath))
+        
+        return targetfile
 
-        rtcconf.append('manager.modules.load_path', bin_dir_rel)
+    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename=""):
+        if type(rtc_) == types.ListType:
+            for rtc__ in rtc_:
+                self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
+            return
+
+        if verbose:
+            sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
+            pass
+        
+        if len(rtcconf_filename) == 0:
+            rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
+        else:
+            rtcconf = rtc.RTCConf(rtcconf_filename)
+
+        targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose)
+
+        rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
         if preload:
             rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
         if precreate:
             rtcconf.append('manager.components.precreate', rtc_.rtcprofile.basicInfo.name)
+        if copy_conf:
+            confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose)
+            if confpath:
+                key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
+                rtcconf.append(key, confpath)
+        rtcconf.sync()
+        pass
 
+    def copy_conf_from_rtc(self, rtc_, verbose=False):
         conffile = rtc_.packageprofile.getConfFilePath()
         if len(conffile) == 0:
             sys.stdout.write(' - No configuration file for RTC (%s) is found.\n' % rtc_.rtcprofile.basicInfo.name)
+            return []
+        targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
+        targetconf = targetconf[:-5] + '0' + '.conf'
+        shutil.copy(conffile, targetconf)
+        confpath = 'conf' + '/' + os.path.basename(targetconf)
+        if sys.platform == 'win32':
+            confpath.replace('\\', '\\\\')
+        return confpath
 
-        else:
-            targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
-            targetconf = targetconf[:-5] + '0' + '.conf'
-            shutil.copy(conffile, targetconf)
-            confpath = 'conf' + '/' + os.path.basename(targetconf)
-            if sys.platform == 'win32':
-                 confpath.replace('\\', '\\\\')
-            rtcconf.append(rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file', confpath )
-            pass
-        rtcconf.sync()
-        pass
         
     def register(self, verbose=False):
         if verbose:

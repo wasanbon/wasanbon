@@ -75,7 +75,7 @@ class Command(object):
         
         _package = package.Package(os.getcwd())
 
-        if(argv[2] == 'install'):
+        if argv[2] == 'install':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
@@ -92,7 +92,7 @@ class Command(object):
                     sys.stdout.write(' - Installing RTC %s failed.\n' % name)
 
 
-        elif(argv[2] == 'uninstall'):
+        elif argv[2] == 'uninstall':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Uninstalling RTC.\n')
             if 'all' in argv[3:]:

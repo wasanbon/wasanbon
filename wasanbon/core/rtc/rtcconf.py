@@ -85,12 +85,22 @@ class RTCConf(object):
                         self.dic[key] = self.dic[key] + ','
                     self.dic[key] = self.dic[key] + v
         
-    def sync(self, verbose=False):
-        if os.path.isfile(self.filename + ".bak"):
-            os.remove(self.filename + ".bak")
-        os.rename(self.filename, self.filename + '.bak')
-        fin = open(self.filename + '.bak', 'r')
-        fout = open(self.filename, 'w')
+    def sync(self, verbose=False, outfilename=""):
+        filename = self.filename
+        if len(outfilename) == 0:
+            outfilename = filename
+
+        if filename == outfilename:
+            backup_filename = filename + ".bak"
+            if os.path.isfile(backup_filename):
+                os.remove(backup_filename)
+            os.rename(filename, backup_filename)
+            infilename = backup_filename
+        else:
+            infilename = filename
+
+        fin = open(infilename, 'r')
+        fout = open(outfilename, 'w')
 
         keys = self.dic.keys()[:]
         while True:
@@ -132,7 +142,9 @@ class RTCConf(object):
             fout.write(key + ':' + self.dic[key] + '\n')
 
         fin.close()
-        os.remove(self.filename + '.bak')
+        if filename == outfilename:
+            if os.path.isfile(backup_filename):
+                os.remove(backup_filename)
         fout.close()
 
     def ext_check(self, verbose=False, autofix=False, interactive=False):
