@@ -11,7 +11,7 @@ class Command(object):
 
     def execute_with_argv(self, argv, verbose, force, clean):
         sys.stdout.write(' - Initializing ssh-key\n')
-        cmd = os.path.join(os.path.split(wasanbon.setting()['local']['git'])[0], 'ssh-keygen')
+        cmd = os.path.join(os.path.split(wasanbon.setting()['local']['git'])[0], '..', 'bin',  'ssh-keygen')
         if sys.platform == 'win32':
             cmd = cmd + '.exe'
 
@@ -24,7 +24,13 @@ class Command(object):
         file = os.path.join(path, 'id_rsa')
         if not os.path.isfile(file):
             if not util.yes_no(" - id_rsa file is missing. Create it?") == 'yes':
+                sys.stdout.write(' - Aborted.\n')
                 return
-            subprocess.call([cmd, '-t', 'rsa', '-f', file])
+            sys.stdout.write(' - Creating ssh key-gen.\n')
+
+            cmds = [cmd, '-t', 'rsa', '-f', file]
+            sys.stdout.write(' - Command = %s\n' % cmds)
+
+            subprocess.call(cmds)
         else:
             sys.stdout.write(' - $HOME/.ssh/id_rsa file found.\n')
