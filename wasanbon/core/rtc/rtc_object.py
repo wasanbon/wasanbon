@@ -1,15 +1,11 @@
 import sys, os, subprocess
-
-
 import wasanbon
-
 from wasanbon.util import git
 from wasanbon.util import github_ref
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.rtc import packageprofile
 from wasanbon.core.rtc import build
 from wasanbon.core.package import run
-#from wasanbon.core.rtc import repository
 import repository
 
 

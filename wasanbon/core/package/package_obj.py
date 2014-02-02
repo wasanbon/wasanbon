@@ -1,6 +1,8 @@
 import os, sys, yaml, subprocess, shutil, types, time, stat, psutil
 import wasanbon
-from wasanbon.core import rtc, system
+#from wasanbon.core import rtc
+import wasanbon.core.rtc
+from wasanbon.core import system
 from wasanbon.util import git
 from wasanbon.util import github_ref
 from wasanbon.core import nameserver
@@ -52,7 +54,7 @@ class Package():
         dic = yaml.load(open(os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml'), 'r'))
         print os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
         for name, value in dic.items():
-            repos.append(rtc.RtcRepository(name=name, url=value['git'], desc=value['description'], hash=value.get('hash', "")))
+            repos.append(wasanbon.core.rtc.RtcRepository(name=name, url=value['git'], desc=value['description'], hash=value.get('hash', "")))
         return repos
 
     def append_rtc_repository(self, repo, verbose=False):
@@ -105,7 +107,7 @@ class Package():
                     pass
                 else:
                     try:
-                        rtc_obj = rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir))
+                        rtc_obj = wasanbon.core.rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir))
                         self._rtcs.append(rtc_obj)
                     except wasanbon.RTCProfileNotFoundException, ex:
                         pass
@@ -145,7 +147,7 @@ class Package():
     
 
     def rtcconf(self, language, verbose=False):
-        return rtc.RTCConf(os.path.join(self.path, self.setting['conf.' + language]), verbose=verbose)
+        return wasanbon.core.rtc.RTCConf(os.path.join(self.path, self.setting['conf.' + language]), verbose=verbose)
 
     @property
     def console_bind(self):
@@ -167,7 +169,7 @@ class Package():
         if len(rtcconf_filename) == 0:
             rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
         else:
-            rtcconf = rtc.RTCConf(rtcconf_filename)
+            rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
         
         name = rtc_.rtcprofile.basicInfo.name 
         filename = name + wasanbon.get_bin_file_ext()
@@ -229,7 +231,7 @@ class Package():
         if len(rtcconf_filename) == 0:
             rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
         else:
-            rtcconf = rtc.RTCConf(rtcconf_filename)
+            rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
 
         targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose)
 
