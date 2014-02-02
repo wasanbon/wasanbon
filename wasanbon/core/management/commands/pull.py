@@ -24,7 +24,7 @@ class Command(object):
 
     def execute_with_argv(self, argv, verbose, force, clean):
         wasanbon.arg_check(argv, 3)
-        sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
+        sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[2])
         _package = pack.Package(os.getcwd())
         rtc_ = self.get_rtc_rtno(_package, argv[2], verbose=verbose)
         rtc_.pull(verbose=verbose)

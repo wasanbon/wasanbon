@@ -1,15 +1,16 @@
 import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback, optparse
 import wasanbon
-from wasanbon.core import rtc
+#from wasanbon.core import rtc
+from wasanbon.core import package, nameserver
 from wasanbon import util
 #from wasanbon.core import system
 #from wasanbon.core.system import run
-from wasanbon.core import package, nameserver
-
 
 import rtctree
 import omniORB
 from rtshell import rtcryo
+
+
 ev = threading.Event()
 
 endflag = False
@@ -79,8 +80,8 @@ class Command(object):
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Installing RTC.\n')
             if 'all' in argv[3:]:
-                for rtc in _package.rtcs:
-                    sys.stdout.write(' @ Installing %s\n' % rtc.name)
+                for _rtc in _package.rtcs:
+                    sys.stdout.write(' @ Installing %s\n' % _rtc.name)
                     _package.install(rtc, verbose=verbose)
                 return
 
@@ -255,9 +256,9 @@ class Command(object):
             
             y = yaml.load(open('setting.yaml', 'r'))
             
-            rtcconf_cpp = rtc.rtcconf.RTCConf(y['application']['conf.C++'])
-            rtcconf_py = rtc.rtcconf.RTCConf(y['application']['conf.Python'])
-            rtcconf_java = rtc.rtcconf.RTCConf(y['application']['conf.Java'])
+            rtcconf_cpp = rtc.RTCConf(y['application']['conf.C++'])
+            rtcconf_py = rtc.RTCConf(y['application']['conf.Python'])
+            rtcconf_java = rtc.RTCConf(y['application']['conf.Java'])
             
             if len(argv) == 3:
                 sys.stdout.write(' - Listing Nameservers\n')
