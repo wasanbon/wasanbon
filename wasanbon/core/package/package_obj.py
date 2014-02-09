@@ -219,10 +219,6 @@ class Package():
         return targetfile
 
     def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename=""):
-        if type(rtc_) == types.ListType:
-            for rtc__ in rtc_:
-                self.install(rtc__, verbose=verbose, preload=preload, precreate=precreate)
-            return
 
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
@@ -244,9 +240,13 @@ class Package():
             confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose)
             if confpath:
                 key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
+                if verbose:
+                    sys.stdout.write(' - Configuring System. Set (%s) to %s\n' % (key, confpath))
                 rtcconf.append(key, confpath)
         rtcconf.sync()
-        pass
+
+        return True
+
 
     def copy_conf_from_rtc(self, rtc_, verbose=False):
         conffile = rtc_.packageprofile.getConfFilePath()
@@ -255,6 +255,8 @@ class Package():
             return []
         targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
         targetconf = targetconf[:-5] + '0' + '.conf'
+        if verbose:
+            sys.stdout.write(' - Copying Config (%s -> %s)\n' % (conffile, targetconf))
         shutil.copy(conffile, targetconf)
         confpath = 'conf' + '/' + os.path.basename(targetconf)
         if sys.platform == 'win32':
