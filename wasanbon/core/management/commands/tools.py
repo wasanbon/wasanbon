@@ -75,7 +75,7 @@ class Command(object):
             
             _package.launch_all_rtcd(verbose=verbose)
             #tools.launch_eclipse(_package.system_path, nonblock=False, verbose=verbose)
-            tools.launch_eclipse(nonblock=False, verbose=verbose)
+            tools.launch_eclipse(nonblock=False, verbose=verbose, argv=['--clean'])
 
             for i in range(0, 5):
                 sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
