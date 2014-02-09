@@ -2,6 +2,7 @@
 import os, sys
 import wasanbon
 from wasanbon.core import package as pack
+from wasanbon import util
 class Command(object):
     def __init__(self):
         pass
@@ -23,7 +24,13 @@ class Command(object):
         for rtc in _package.rtcs:
             if build_all or rtc.name in argv:
                 sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
-                rtc.build(verbose=verbose)
+                ret = rtc.build(verbose=verbose)
+                if ret[0]:
+                    sys.stdout.write(' - Success\n')
+                else:
+                    sys.stdout.write(' - Failed\n')
+                    if util.yes_no(' - Do you want to watch error message?') == 'yes':
+                        print ret[1]
                 found_flag = True
                 pass
             pass

@@ -52,8 +52,10 @@ def build_rtc_cpp(rtcp, verbose=False):
             stderr = None if verbose else subprocess.PIPE
             if verbose:
                 sys.stdout.write(' - make\n')
-            subprocess.call(cmd, stdout=stdout, stderr=stderr)
-            return
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            p.wait()
+            errmsg = p.stderr.read()
+            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):
             if verbose:

@@ -51,11 +51,11 @@ class RtcObject():
 
     def build(self, verbose=False):
         if self.language == 'C++':
-            build.build_rtc_cpp(self.rtcprofile, verbose=verbose)
+            return build.build_rtc_cpp(self.rtcprofile, verbose=verbose)
         elif self.language == 'Python':
-            build.build_rtc_python(self.rtcprofile, verbose=verbose)
+            return build.build_rtc_python(self.rtcprofile, verbose=verbose)
         elif self.language == 'Java':
-            build.build_rtc_java(self.rtcprofile, verbose=verbose)
+            return build.build_rtc_java(self.rtcprofile, verbose=verbose)
         pass
     
     @property

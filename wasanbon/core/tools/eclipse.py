@@ -18,17 +18,18 @@ def install_eclipse(verbose=False, force=False):
 
 def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
     eclipse_dir = os.path.join(wasanbon.rtm_home(), 'eclipse')
-    eclipse_cmd = os.path.join(eclipse_dir, "eclipse")
+    if sys.platform == 'darwin':
+        eclipse_dir = os.path.join(eclipse_dir, 'Eclipse.app/Contents/MacOS')
+    curdir = os.getcwd()
+    os.chdir(eclipse_dir)
+
+    if sys.platform == 'win32':
+        eclipse_cmd = 'eclipse.exe'
+    else:
+        eclipse_cmd = './eclipse'
 
     env = os.environ
     env['RTM_ROOT'] = rtm.get_rtm_root()
-
-    if sys.platform == 'win32':
-        eclipse_cmd = eclipse_cmd + '.exe'
-    if not os.path.isfile(eclipse_cmd):
-        sys.stdout.write("Eclipse can not be found in %s.\n" % eclipse_cmd)
-        sys.stdout.write("Please install eclipse by 'wasanbon-admin.py tools install' command.\n")
-        return
 
     if not os.path.isdir(workbench) or workbench == '.':
         if verbose:
@@ -51,6 +52,8 @@ def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
 
     if not nonblock:
         p.wait()
+
+    os.chdir(curdir)
 
 
     
