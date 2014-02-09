@@ -1,3 +1,9 @@
+"""
+@author Yuki Suga (Sugar Sweet Robotics)
+@email ysuga@sugarsweetrobotics.com
+@copyright SugarSweetRobotics Co. LTD. 2014
+"""
+
 import os, sys, yaml, subprocess, shutil, types
 import wasanbon
 from wasanbon.util import git
@@ -6,6 +12,25 @@ from package_obj import *
 from repository import *
 from diff import *
 from wasanbon.core import repositories
+
+
+"""
+package : wasanbon.core.package.Package class object
+rtc : string - name of rtc / wasanbon.core.rtc.Rtc class object
+
+option
+verbose : message on/off
+overwrite_conf : overwrite configuration file on/off
+"""
+def install_rtc(package, rtc, verbose=False, overwrite_conf=False):
+    if type(rtc) == types.ListType:
+        return [install_rtc(package, r, verbose=verbose, overwrite_conf=overwrite_conf) for r in rtc]
+    else:
+        if type(rtc) == types.StringType:
+            rtc = package.rtc(rtc)
+        return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf)
+
+############### legacy codes #################
 
 def get_repositories(verbose=False):
     rtcs, packs = repositories.load_repositories(verbose=verbose)

@@ -28,8 +28,10 @@ def build_rtc_cpp(rtcp, verbose=False):
     os.chdir(build_dir)
     cmd = [wasanbon.setting()['local']['cmake'], '..']
     stdout = None if verbose else subprocess.PIPE
-    print ' - Cross Platform Make (CMAKE)'
-    subprocess.call(cmd, env=os.environ, stdout=stdout)
+    stderr = None if verbose else subprocess.PIPE
+    if verbose:
+        sys.stdout.write(' - Cross Platform Make (CMAKE)\n');
+    subprocess.call(cmd, env=os.environ, stdout=stdout, stderr=stderr)
 
     if sys.platform == 'win32':
         sln = '%s.sln' % rtcp.basicInfo.name
@@ -43,19 +45,25 @@ def build_rtc_cpp(rtcp, verbose=False):
             return
     elif sys.platform == 'darwin':
         if 'Makefile' in os.listdir(os.getcwd()):
-            print ' - Makefile is successfully generated.'
+            if verbose:
+                sys.stdout.write(' - Makefile is successfully generated.\n')
             cmd = ['make']
             stdout = None if verbose else subprocess.PIPE
-            print ' - make'
-            subprocess.call(cmd, stdout=stdout)
+            stderr = None if verbose else subprocess.PIPE
+            if verbose:
+                sys.stdout.write(' - make\n')
+            subprocess.call(cmd, stdout=stdout, stderr=stderr)
             return
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):
-            print ' - Makefile is successfully generated.'
+            if verbose:
+                sys.stdout.write(' - Makefile is successfully generated.\n')
             cmd = ['make']
             stdout = None if verbose else subprocess.PIPE
-            print ' - make'
-            subprocess.call(cmd, stdout=stdout)
+            stderr = None if verbose else subprocess.PIPE
+            if verbose:
+                sys.stdout.write(' - make\n')
+            subprocess.call(cmd, stdout=stdout, stderr=stderr)
             return
 
 def build_rtc_python(rtcp, verbose=False):

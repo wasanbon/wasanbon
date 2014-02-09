@@ -54,7 +54,7 @@ class Command(object):
         pass
 
     def alternative(self):
-        return ['install', 'uninstall', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
+        return ['uninstall', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
 
     def execute_with_argv(self, args, clean, verbose, force):
         usages  = wasanbon.get_help_text(['help', 'command', 'description', 'system'])
@@ -76,24 +76,8 @@ class Command(object):
         
         _package = package.Package(os.getcwd())
 
-        if argv[2] == 'install':
-            wasanbon.arg_check(argv, 4)
-            sys.stdout.write(' @ Installing RTC.\n')
-            if 'all' in argv[3:]:
-                for _rtc in _package.rtcs:
-                    sys.stdout.write(' @ Installing %s\n' % _rtc.name)
-                    _package.install(rtc, verbose=verbose)
-                return
 
-            for name in argv[3:]:
-                try:
-                    _package.install(_package.rtc(name), verbose=verbose)
-                except Exception, ex:
-                    print ex
-                    sys.stdout.write(' - Installing RTC %s failed.\n' % name)
-
-
-        elif argv[2] == 'uninstall':
+        if argv[2] == 'uninstall':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Uninstalling RTC.\n')
             if 'all' in argv[3:]:
