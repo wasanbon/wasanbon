@@ -3,15 +3,14 @@ import wasanbon
 from . import download, install, archive, svn, git
 
 
-def choice(alts, callback, msg='Choice', noquit=False):
+def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
     if not noquit:
         alts.append('Quit(Q)')
     while True:
         print msg
         for i in range(0, len(alts)):
             sys.stdout.write(' - %s:%s\n' % (i+1, alts[i]))
-        sys.stdout.write('Choice?:')
-        i = raw_input() # Input 
+        i = raw_input(choice_msg) # Input 
         try:
             if i == 'q' or i == 'Q':
                 sys.stdout.write('Quit.\n')
@@ -28,7 +27,6 @@ def choice(alts, callback, msg='Choice', noquit=False):
             break
         retval = callback(ans-1)
         if type(retval) == types.ListType:
-            print retval
             ans = retval[0]
             alts = retval[1]
             alts.append('Quit(Q)')
