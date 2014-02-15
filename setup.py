@@ -80,6 +80,20 @@ except:
         os.chdir(curdir)
 
 try:
+    import setuptools
+except:
+    import wasanbon
+    from wasanbon import *
+    from wasanbon import util
+    #from wasanbon.core.management import *
+    #from wasanbon.core import *
+    setting = load_settings()
+    sys.stdout.write(' - Installing setuptools package.\n')
+    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['setuptools'],
+                              temp=os.getcwd())
+    
+
+try:
     import github
 except:
     curdir = os.getcwd()
@@ -188,19 +202,6 @@ setup(
    ],
 )
 
-try:
-    import setuptools
-except:
-    import wasanbon
-    from wasanbon import *
-    from wasanbon import util
-    from wasanbon.core.management import *
-    from wasanbon.core import *
-    setting = load_settings()
-    sys.stdout.write(' - Installing setuptools package.\n')
-    util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['setuptools'],
-                              temp=os.getcwd())
-    
 
 import wasanbon
 from wasanbon.core import platform
