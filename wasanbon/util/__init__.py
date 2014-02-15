@@ -1,6 +1,6 @@
 import os, sys, subprocess, types
 import wasanbon
-from . import download, install, archive, svn, git
+from . import download, install, archive, svn#, git
 
 
 def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
@@ -123,6 +123,7 @@ def set_proxy(addr, port, verbose=False):
         sys.stdout.write(' - Set Proxy Server:(%s:%s)\n' % (addr, port))
         pass
     svn.set_proxy(addr, port, verbose=verbose)
+    import git
     git.set_proxy(addr, port, verbose=verbose)
 
     pass
