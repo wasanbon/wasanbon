@@ -79,6 +79,16 @@ except:
         subprocess.call(['python', 'setup.py', 'install'])
         os.chdir(curdir)
 
+try:
+    import github
+except:
+    curdir = os.getcwd()
+    import subprocess
+    sys.stdout.write(' - Installing PyGithub package.\n')
+    os.chdir(os.path.join(curdir, 'thirdparty', 'PyGithub'))
+    subprocess.call(['python', 'setup.py', 'install'])
+    os.chdir(curdir)
+
 class osx_install_data(install_data):
     # On MacOS, the platform-specific lib dir is /System/Library/Framework/Python/.../
     # which is wrong. Python 2.5 supplied with MacOS 10.5 has an Apple-specific fix
@@ -191,15 +201,6 @@ except:
     util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['setuptools'],
                               temp=os.getcwd())
     
-try:
-    import github
-except:
-    curdir = os.getcwd()
-    import subprocess
-    sys.stdout.write(' - Installing PyGithub package.\n')
-    os.chdir(os.path.join(curdir, 'thirdparty', 'PyGithub'))
-    subprocess.call(['python', 'setup.py', 'install'])
-    os.chdir(curdir)
 
 import wasanbon
 from wasanbon.core import platform
