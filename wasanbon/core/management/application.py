@@ -109,13 +109,21 @@ def execute(argv=None):
         parser.add_option('-a', '--alternative', help="command alternative", action='store_true', default=False, dest='alter_flag')
 
     except:
+        traceback.print_exc()
         pass
 
     try:
         options, args = parser.parse_args(argv[:])
+
+        if options.help_flag == True:
+            show_help_description(subcommand)
+            return
+
+        
     except:
         traceback.print_exc()
-        return
+        #return
+        pass
 
     index = 1
     try:
@@ -155,9 +163,6 @@ def execute(argv=None):
             options.help_flag = True
     except:
         pass
-    if options.help_flag == True:
-        show_help_description(subcommand)
-        return
 
 
     module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
