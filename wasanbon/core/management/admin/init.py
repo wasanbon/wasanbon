@@ -1,3 +1,5 @@
+import sys
+
 from wasanbon import setup
 
 class Command(object):

@@ -4,7 +4,7 @@ import sys, os, locale, getpass
 import platform as plt
 import types
 import codecs, subprocess
-
+from help import *
 def get_version():
     """Get wasanbon version.
     """
