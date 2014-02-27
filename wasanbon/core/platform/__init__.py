@@ -5,8 +5,7 @@ from wasanbon import util
 
 from wasanbon.core.template import *
 
-from . import directory, path, install
-
+import directory
 
 def init_rtm_home(force=False, verbose=False, update=True):
     directory.create_rtm_home(force=force, verbose=verbose)

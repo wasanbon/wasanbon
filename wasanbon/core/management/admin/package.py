@@ -50,81 +50,79 @@ def _fork(args, verbose, force ,clean):
     _package = repo.clone(verbose=verbose)
 
                 
-class Command(object):
-    def __init__(self):
-        pass
-
-    def alternative(self):
-        return ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
+def alternative():
+    return ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
     
-    def execute_with_argv(self, args, verbose, force, clean):
-        wasanbon.arg_check(args, 3)
+def execute_with_argv(args, verbose):
+    wasanbon.arg_check(args, 3)
 
-        if '-l' in args:
-            long_option = True
-        else:
-            long_option = False
-        args = [arg for arg in args if not arg is '-l']
+    force = False
+    clean = False
+    
+    if '-l' in args:
+        long_option = True
+    else:
+        long_option = False
+    args = [arg for arg in args if not arg is '-l']
 
-        if args[2] == 'create':
-            _create(args, verbose, force ,clean)
+    if args[2] == 'create':
+        _create(args, verbose, force ,clean)
+        
+    elif args[2] == 'unregister':
+        _unregister(args, verbose, force, clean)
+        
+    elif args[2] == 'list':
+        _list(args, verbose, force, clean)
 
-        elif args[2] == 'unregister':
-            _unregister(args, verbose, force, clean)
+    elif args[2] == 'directory':
+        try:
+            _package = pack.get_package(args[3].strip())
+            print _package.path
+        except:
+            print '.'
 
-        elif args[2] == 'list':
-            _list(args, verbose, force, clean)
+    elif args[2] == 'repository':
+        
+        if len(args) == 3: # list
+            args.append('list')
+            pass
 
-        elif args[2] == 'directory':
-            try:
-                _package = pack.get_package(args[3].strip())
-                print _package.path
-            except:
-                print '.'
-
-        elif args[2] == 'repository':
-
-            if len(args) == 3: # list
-                args.append('list')
-                pass
-
-            if args[3] == 'list':
-                sys.stdout.write(' @ Listing Package Repositories\n')
-                #rtcs, packs = repositories.load_repositories(verbose=verbose)
-                repos = pack.get_repositories(verbose=verbose)
-                for repo in repos:
-                    print_repository(repo, long=long_option)
-            elif args[3] == 'create':
-                (username, passwd) = wasanbon.user_pass()
-                sys.stdout.write('  - Input repository name :')
-                repo_name = raw_input()
-                repositories.create_local_repository(username, passwd, repo_name, verbose=verbose)
-            elif args[3] == 'update':
-                sys.stdout.write(' @ Updating Package Repositories\n')
-                pack.update_repositories(verbose=verbose)
-            elif args[3] == 'clone':
-                wasanbon.arg_check(args,5)
-                sys.stdout.write(' @ Cloning Package Repositories\n')
-                pack.update_repositories(verbose=verbose, url=args[4])
-
-
-        elif args[2] == 'clone':
-            _clone(args, verbose, force, clean)
-
-        elif args[2] == 'fork':
-            _fork(args, verbose, force, clean)
-
-        elif args[2] == 'diff':
-            wasanbon.arg_check(args, 5)
-            sys.stdout.write(' @ Diff between %s and %s\n' % (args[3], args[4]))
-            repo1 = pack.get_package(args[3], verbose=verbose)
-            repo2 = pack.get_package(args[4], verbose=verbose)
-            diff = pack.diff(repo1, repo2)
-            print_diff(diff)
+        if args[3] == 'list':
+            sys.stdout.write(' @ Listing Package Repositories\n')
+            #rtcs, packs = repositories.load_repositories(verbose=verbose)
+            repos = pack.get_repositories(verbose=verbose)
+            for repo in repos:
+                print_repository(repo, long=long_option)
+        elif args[3] == 'create':
+            (username, passwd) = wasanbon.user_pass()
+            sys.stdout.write('  - Input repository name :')
+            repo_name = raw_input()
+            repositories.create_local_repository(username, passwd, repo_name, verbose=verbose)
+            pass
+        elif args[3] == 'update':
+            sys.stdout.write(' @ Updating Package Repositories\n')
+            pack.update_repositories(verbose=verbose)
+        elif args[3] == 'clone':
+            wasanbon.arg_check(args,5)
+            sys.stdout.write(' @ Cloning Package Repositories\n')
+            pack.update_repositories(verbose=verbose, url=args[4])
 
 
-        else:
-            raise wasanbon.InvalidUsageException()
+    elif args[2] == 'clone':
+        _clone(args, verbose, force, clean)
+        
+    elif args[2] == 'fork':
+        _fork(args, verbose, force, clean)
+        
+    elif args[2] == 'diff':
+        wasanbon.arg_check(args, 5)
+        sys.stdout.write(' @ Diff between %s and %s\n' % (args[3], args[4]))
+        repo1 = pack.get_package(args[3], verbose=verbose)
+        repo2 = pack.get_package(args[4], verbose=verbose)
+        diff = pack.diff(repo1, repo2)
+        print_diff(diff)
+    else:
+        raise wasanbon.InvalidUsageException()
 
 def print_repository(repo, long=False):
 
