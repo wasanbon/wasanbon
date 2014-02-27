@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, sys, types, optparse, traceback, inspect
-import wasanbon.core.management
+
+import wasanbon
 from wasanbon import help
-#import wasanbon.core.management.commands
-#import wasanbon.core.management.admin
-
-
     
 def get_subcommand_list(package):
     """
@@ -68,7 +65,13 @@ def execute(argv=None):
     parser.add_option('-a', '--alternative', help="Get subcommand list.", action='store_true', default=False, dest='alter_flag')
     options, args = parser.parse_args(argv[:])
 
-    subcommand = argv[1]
+    if options.alter_flag:
+        return print_alternative(opts)
+        
+    if len(args) == 1:
+        args.append('help')
+
+    subcommand = args[1]
 
     if not subcommand in opts:
         subcommand = 'help'

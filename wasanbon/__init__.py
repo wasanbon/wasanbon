@@ -5,6 +5,7 @@ import platform as plt
 import types
 import codecs, subprocess
 from help import *
+
 def get_version():
     """Get wasanbon version.
     """
@@ -12,8 +13,6 @@ def get_version():
 
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-
-
 
 
 class WasanbonException(Exception):
@@ -306,6 +305,5 @@ def platform():
             _platform = _platform + '_x64'
             
     return _platform
-
 
 
