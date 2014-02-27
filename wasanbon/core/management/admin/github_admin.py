@@ -48,15 +48,12 @@ def set_user(argv, force ,clean, verbose):
     git.git_command(['config', '--global', 'user.email', email])
     sys.stdout.write('  - Completed.\n')
 
-class Command(object):
-    def __init__(self):
-        pass
+def alternative_():
+    return ['init', 'set_user']
 
-    def alternative(self):
-        return ['init', 'set_user']
-
-    def execute_with_argv(self, argv, force, clean, verbose):
-        if argv[2] == 'init':
-            init(argv, force, clean, verbose)
-        if argv[2] == 'init' or argv[2] == 'set_user':
-            set_user(argv, force, clean, verbose)
+alternative = alternative_
+def execute_with_argv(argv, force, clean, verbose):
+    if argv[2] == 'init':
+        init(argv, force, clean, verbose)
+    if argv[2] == 'init' or argv[2] == 'set_user':
+        set_user(argv, force, clean, verbose)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, locale, getpass
+import sys, os, locale, getpass, yaml
 import platform as plt
 import types
 import codecs, subprocess

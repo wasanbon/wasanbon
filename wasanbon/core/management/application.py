@@ -1,48 +1,11 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 import os, sys, types, optparse, traceback
 import wasanbon.core.management
+from wasanbon import help
 #import wasanbon.core.management.commands
 #import wasanbon.core.management.admin
 
-
-"""
-option_list = (
-        make_option('-v', '--verbosity', action='store', dest='verbosity', default='1',
-            type='choice', choices=['0', '1', '2', '3'],
-            help='Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output'),
-        make_option('--settings',
-            help='The Python path to a settings module, e.g. "myproject.settings.main". If this isn\'t provided, the DJANGO_SETTINGS_MODULE environment variable will be used.'),
-        make_option('--pythonpath',
-            help='A directory to add to the Python path, e.g. "/home/djangoprojects/myproject".'),
-        make_option('--traceback', action='store_true',
-            help='Print traceback on exception'),
-    )
-
-"""
-
-def autocomplete(self):
-    if 'TPR_AUTO_COMPLETE' not in os.environ:
-        return
-    
-    cwords = os.environ['COMP_WORDS'].split()[1:]
-    cword = int(os.environ['COMP_CWORDS'])
-    
-    try:
-        curr = cwords[cword-1]
-    except IndexError:
-        curr = ''
-        pass
-
-    subcommands = get_commands().keys() + ['help']
-    options = [('--help', None)]
-    
-    if cword == 1:
-        print ' '.join(sorted(filtar(lambda x: x.startswith(curr), subcommands)))
-    elif cwords[0] in subcommands and cwords[0] != 'help':
-        subcommand_cls = self
-        pass
-    pass
 
     
 def get_subcommand_list(package):
@@ -56,14 +19,18 @@ def get_subcommand_list(package):
     ret.append('help')
     return ret
 
-def show_help_description(subcommand):
+def show_help_description(package, subcommand):
     sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
-    help =  wasanbon.get_help_text(['help','command', 'description', subcommand])
-    if type(help) is types.ListType:
-        for h in help:
-            print "  " +  h
+    msg =  help.get_help_text(package, subcommand, detail=True)
+    if type(msg) == types.ListType:
+        for m in msg:
+            sys.stdout.write(m + '\n')
     else:
-        print "  " +  help
+        sys.stdout.write(msg + '\n')
+
+    module_name = 'wasanbon.core.management.' + package + '.' + subcommand
+    __import__(module_name)
+    print sys.modules[module_name].alternative()
 
     print "\n\nOptions:"
     print "  -h, --help   Show This Help"
@@ -89,23 +56,22 @@ def execute(argv=None):
 
     opts = get_subcommand_list(package)
     try:
-        usage  = wasanbon.get_help_text(['help', 'general', 'command'])
-        usage  = usage + '\n\nsubcommand:\n'
+        usage  = command + ' [subcommand]\n' + 'subcommand:\n'
         for opt in opts:
-            usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + wasanbon.get_help_text(['help', 'general', 'brief', opt]) + '\n'
-    except:
+            usage = usage + ' - ' + opt + ' '*(15-len(opt)) + ':' + help.get_help_text(package, opt) + '\n'
+    except Exception, e:
+        traceback.print_exc()
         usage = "wasanbon-admin.py"
 
     parser = ArgumentParser(usage=usage, add_help_option=False)
     try:
-
         #parser.disable_interspersed_args()
-        parser.add_option('-h', '--help', help=wasanbon.get_help_text(['help', 'help']), action='store_true', default=False, dest='help_flag')
-        parser.add_option('-v', '--verbose', help=wasanbon.get_help_text(['help', 'verbose']), action='store_true', default=False, dest='verbose_flag')
-        parser.add_option('-c', '--clean', help=wasanbon.get_help_text(['help', 'clean']), action='store_true', default=False, dest='clean_flag')
-        parser.add_option('-f', '--force', help=wasanbon.get_help_text(['help', 'force']), action='store_true', default=False, dest='force_flag')
-        parser.add_option('-l', '--longformat', help=wasanbon.get_help_text(['help', 'long']), action='store_true', default=False, dest='long_flag')
-        parser.add_option('-i', '--interactive', help=wasanbon.get_help_text(['help', 'interactive']), action='store_true', default=False, dest='interactive_flag')
+        parser.add_option('-h', '--help', help=usage, action='store_true', default=False, dest='help_flag')
+        parser.add_option('-v', '--verbose', help='You will get more messgaes', action='store_true', default=False, dest='verbose_flag')
+        parser.add_option('-c', '--clean', help="", action='store_true', default=False, dest='clean_flag')
+        parser.add_option('-f', '--force', help='You will force your command execution', action='store_true', default=False, dest='force_flag')
+        parser.add_option('-l', '--longformat', help='You will get longer information', action='store_true', default=False, dest='long_flag')
+        parser.add_option('-i', '--interactive', help='Launching command interactively', action='store_true', default=False, dest='interactive_flag')
         parser.add_option('-a', '--alternative', help="command alternative", action='store_true', default=False, dest='alter_flag')
 
     except:
@@ -140,7 +106,6 @@ def execute(argv=None):
     #opts = get_subcommand_list(package)
     if not subcommand in opts:
         subcommand = 'help'
-    
 
     if subcommand == 'help':
         parser.print_help()
@@ -156,7 +121,7 @@ def execute(argv=None):
     except:
         pass
     if options.help_flag == True:
-        show_help_description(subcommand)
+        show_help_description(package, subcommand)
         return
 
 
@@ -177,7 +142,7 @@ def execute(argv=None):
         else:
             comm.execute_with_argv(args, verbose=options.verbose_flag, clean=options.clean_flag, force=options.force_flag)
     except wasanbon.InvalidUsageException, ex:
-        show_help_description(subcommand)
+        show_help_description(package, subcommand)
         
     except wasanbon.WasanbonException, ex:
         if options.verbose_flag:

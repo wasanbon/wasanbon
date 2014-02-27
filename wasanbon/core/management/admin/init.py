@@ -1,12 +1,9 @@
-from wasanbon import setup
+#from wasanbon import setup
+import sys
 
-class Command(object):
-    def __init__(self):
-        pass
+def alternative():
+    return []
 
-    def alternative(self):
-        return []
-
-    def execute_with_argv(self, args, force=False, verbose=False, clean=False):
-        sys.stdout.write(' - Starting wasanbon environment.\n')
-        
+def execute_with_argv(self, args, force=False, verbose=False, clean=False):
+    sys.stdout.write(' - Starting wasanbon environment.\n')
+    
