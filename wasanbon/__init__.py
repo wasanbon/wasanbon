@@ -4,7 +4,7 @@ import sys, os, locale, getpass, yaml
 import platform as plt
 import types
 import codecs, subprocess
-
+from help import *
 def get_version():
     """Get wasanbon version.
     """
@@ -87,6 +87,14 @@ def arg_check(argv, num):
     if len(argv) < num:
         raise InvalidUsageException()
     pass
+
+def arg_is_long(argv):
+    if '-l' in argv:
+        argv.remove('-l')
+        return True
+    if '--long' in argv:
+        argv.remove('--long')
+        return True
 
 def get_bin_file_ext():
     if sys.platform == 'win32':
