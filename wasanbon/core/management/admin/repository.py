@@ -17,7 +17,7 @@ To update, use:
 import sys, os, yaml, getpass, types
 import wasanbon
 from wasanbon.core import repositories
-from wasanbon.core import package as pack
+#from wasanbon.core import package as pack
 from wasanbon.util import editor, git
 
 def get_repo_name(path):
@@ -90,6 +90,8 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
         if len(argv) == 3:
             sys.stdout.write(' @ Need more argument. See help.\n')
         else:
+            __import__('wasanbon.core.package')
+            pack = sys.modules['wasanbon.core.package']
             sys.stdout.write(' @ Cloning Package Repositories\n')
             pack.update_repositories(verbose=verbose, url=argv[3])
 
