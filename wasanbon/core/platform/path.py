@@ -48,11 +48,12 @@ def search_command(cmd, path, hints, verbose=False):
     if len(paths) == 0:
         paths = [hint for hint in hints if os.path.isfile(hint)]
         if len(paths) == 0:
-            sys.stdout.write(' Not found.\n')
+            if verbose:
+                sys.stdout.write(' - Not found.\n')
             return ""
 
     if verbose:
-        sys.stdout.write(' Found in %s. \n' % paths[0])
+        sys.stdout.write(' - Found in %s. \n' % paths[0])
     return paths[0]
     
 
