@@ -136,7 +136,6 @@ def load_settings():
     root_dir = os.path.join(__path__[0], 'settings')
     setting = __load_subdir(root_dir)
 
-    #print setting
     pathdict = setting['common']['path']
     if sys.platform == 'win32':
         for key in pathdict.keys():
@@ -189,6 +188,8 @@ def __parse_yaml(hash):
     return hash
 
 def __load_yaml(file):
+    __import__('yaml')
+    yaml = sys.modules['yaml']
     dict = yaml.load(open(file, 'r'))
     if type(dict) == types.NoneType:
         return {}
@@ -216,11 +217,11 @@ def setting():
         __setting =  load_settings()
         __local_setting_file = os.path.join(rtm_home(), 'setting.yaml')
         if os.path.isfile(__local_setting_file):
-            __setting['local'] = yaml.load(open(__local_setting_file, 'r'))
+            __setting['local'] = __load_yaml(__local_setting_file)
 
         __application_setting_file = os.path.join(os.getcwd(), 'setting.yaml')
         if os.path.isfile(__application_setting_file):
-            appsetting = yaml.load(open(__application_setting_file, 'r'))
+            appsetting = __load_yaml(__application_setting_file)
             if 'application' in appsetting.keys():
                 __setting['application'] = appsetting['application']
     return __setting
