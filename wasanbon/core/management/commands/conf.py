@@ -1,3 +1,20 @@
+"""
+Configure rtc.conf files for RTC-daemon. Use like...
+ $ mgr.py conf [subcommand] [language] ...
+
+
+subcommands:
+  -set : set configuration value
+  ex.,
+    $ mgr.py conf set C++ corba.endpoint 127.0.0.1:2809
+
+  -status : view all configuration value
+  ex.,
+    $ mgr.py conf status
+
+language: [C++ | Python | Java | all]
+
+"""
 import sys, os, yaml
 import wasanbon
 from wasanbon.core import rtc, package

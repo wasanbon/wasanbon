@@ -52,7 +52,7 @@ class Package():
     def rtc_repositories(self):
         repos = []
         dic = yaml.load(open(os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml'), 'r'))
-        print os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
+        #print os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
         for name, value in dic.items():
             repos.append(wasanbon.core.rtc.RtcRepository(name=name, url=value['git'], desc=value['description'], hash=value.get('hash', "")))
         return repos
