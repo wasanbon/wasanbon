@@ -29,7 +29,7 @@ class PackageRepository():
         if os.path.isdir(appdir) or os.path.isfile(appdir):
             if verbose:
                 print ' - There seems to be %s here. Please change application name.' % appdir
-            raise PackageDirectoryExistsException()
+            raise wasanbon.DirectoryAlreadyExistsException()
             #return False
 
         git.git_command(['clone', self.url, appdir], verbose=verbose)

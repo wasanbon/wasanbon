@@ -17,11 +17,7 @@ def get_subcommand_list(package):
     return ret
 
 def show_help_description(package, subcommand):
-    sys.stdout.write("\nUsage : %s %s [args...]\n"%  (os.path.basename(sys.argv[0]), subcommand))
     print help.get_help_text(package, subcommand)
-
-    print "\n\nOptions:"
-    print "  -h, --help   Show This Help"
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
@@ -56,7 +52,7 @@ def execute(argv=None):
             usage = usage + ' - ' + opt + '\n'
     except Exception, e:
         traceback.print_exc()
-        usage = "wasanbon-admin.py"
+        return 
 
     
     parser = ArgumentParser(usage=usage, add_help_option=False)
@@ -65,7 +61,7 @@ def execute(argv=None):
     parser.add_option('-a', '--alternative', help="Get subcommand list.", action='store_true', default=False, dest='alter_flag')
     options, args = parser.parse_args(argv[:])
 
-    if options.alter_flag:
+    if options.alter_flag and len(args) == 1:
         return print_alternative(opts)
         
     if len(args) == 1:

@@ -49,7 +49,7 @@ def execute_with_argv(args, verbose):
         _unregister(args, verbose, force, clean)
         
     elif args[2] == 'list':
-        _list(args, verbose, force, clean)
+        _list(args, verbose, force, clean, long=long_option)
 
     elif args[2] == 'directory':
         try:
@@ -84,9 +84,6 @@ def execute_with_argv(args, verbose):
             sys.stdout.write(' @ Cloning Package Repositories\n')
             pack.update_repositories(verbose=verbose, url=args[4])
 
-
-    elif args[2] == 'clone':
-        _clone(args, verbose, force, clean)
         
     elif args[2] == 'fork':
         _fork(args, verbose, force, clean)
@@ -136,18 +133,15 @@ def _unregister(args, verbose, force, clean):
             workspace.save_workspace(dic)
             sys.stdout.write(' - Removed.\n')
 
-def _list(args, verbose, force ,clean):
-    sys.stdout.write(' @ Listing packages.\n')
+def _list(args, verbose, force ,clean, long=False):
+    #sys.stdout.write(' @ Listing packages.\n')
     _packages = pack.get_packages(verbose=verbose)
+    if not long:
+        for p in _packages:
+            sys.stdout.write(p.name + ' ')
+        return
     for _package in _packages:
         sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
-
-def _clone(args, verbose, force, clean):
-    wasanbon.arg_check(args,4)
-    sys.stdout.write(' @ Cloning Package from Repository %s\n' % args[3])
-    repo = pack.get_repository(args[3], verbose=verbose)
-    _package = repo.clone(verbose=verbose)
-
 
 def _fork(args, verbose, force ,clean):
     wasanbon.arg_check(args, 4)

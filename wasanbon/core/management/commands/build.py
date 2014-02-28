@@ -1,3 +1,19 @@
+"""
+Build RT-component from source code.
+This command will create build-*** directory in your RTC's directory, and make it.
+
+* This command does not install the compiled binary file into the system.
+* If you want to use it, use 'install' command after compilation.
+
+ex.,
+  $ mgr.py build YOUR_RTC_NAME
+
+If you want to know your RTCs' name, use :
+  $ mgr.py rtc list
+
+
+"""
+
 #!/usr/bin/env python
 import os, sys
 import wasanbon

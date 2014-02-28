@@ -1,3 +1,21 @@
+"""
+RTC administration
+
+$ mgr.py rtc [subcommand] YOUR_RTC_NAME ...
+
+subcommands:
+ - list       : Display RTCs' list which are placed in the current package's rtc directory.
+ - repoistory : Display repository list of the available RTCs. You can download one by 'clone' command
+ - clone      : Download RTC's source code from repository.
+                ex.,
+                 $ mgr.py rtc clone YOUR_RTC_REPOSITORY_NAME
+ - git_init   : You can initialize your RTC as a git repository.
+ - github_init: You can create your RTC repository in the github.com.
+                ex.,
+                 $ mgr.py rtc github_init YOUR_RTC_NAME     
+ 
+"""
+
 #!/usr/bin/env python
 
 import os, sys, optparse, yaml, types
@@ -9,9 +27,9 @@ from wasanbon import util
 
 
 def alternative():
-    return ['repository', 'git_init', 'github_init', 'github_fork',
+    return ['list', 'repository', 'git_init', 'github_init', 'github_fork',
             'github_pullrequest', 'clone',
-            'configure', 'release']
+            'release']
 
 def get_rtc_rtno( _package, name, verbose=False):
     try:
@@ -21,13 +39,9 @@ def get_rtc_rtno( _package, name, verbose=False):
 
 def execute_with_argv(args, verbose, force=False, clean=False):
     if True:
-        usages  = wasanbon.get_help_text(['help', 'command', 'description', 'rtc'])
-        usage = "mgr.py rtc [subcommand] ...\n\n"
-        for line in usages:
-            usage = usage + line + '\n'
-
+        usage = "mgr.py rtc [subcommand] ...\n"
         parser = optparse.OptionParser(usage=usage, add_help_option=False)
-        parser.add_option('-l', '--long', help=wasanbon.get_help_text(['help', 'longformat']), action='store_true', default=False, dest='long_flag')
+        parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
         try:
             options, argv = parser.parse_args(args[:])
         except:

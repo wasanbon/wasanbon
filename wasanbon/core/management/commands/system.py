@@ -1,3 +1,6 @@
+"""
+System administration
+"""
 import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback, optparse
 import wasanbon
 from wasanbon.core import package, nameserver
@@ -11,40 +14,6 @@ ev = threading.Event()
 
 endflag = False
 
-def signal_action(num, frame):
-    print ' - SIGINT captured'
-    ev.set()
-    global endflag
-    endflag = True
-    pass
-
-
-def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=False):
-    if verbose:
-        sys.stdout.write(" - Saving System on %s to %s\n" % (str(nameservers), filepath))
-    try:
-        argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', filepath]
-        argv = argv + nameservers
-        rtcryo.main(argv=argv)
-    except omniORB.CORBA.UNKNOWN, e:
-        traceback.print_exc()
-        pass
-    except Exception, e:
-        traceback.print_exc()
-        return False
-
-
-def comp_full_path(comp):
-    str = ""
-    for p in comp.full_path:
-        str = str + p
-        if not str.endswith('/') and not str.endswith('.rtc'):
-            str = str + '/'
-    return str
-
-def port_full_path(port):
-    return comp_full_path(port.owner) + ':' + port.name
-
 
 def alternative():
     return ['uninstall', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
@@ -56,13 +25,13 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser.add_option('-l', '--long', help='long format information', action='store_true', default=False, dest='long_flag')
     parser.add_option('-i', '--interactive', help='interactive launch', action='store_true', default=False, dest='interactive_flag')
     parser.add_option('-f', '--force', help='Force relaunch nameserver', action='store_true', default=False, dest='force_flag')
-    
     try:
         options, argv = parser.parse_args(args[:])
     except:
         return
 
     force = options.force_flag
+    interactive = options.interactive_flag
     _package = package.Package(os.getcwd())
 
 
@@ -164,61 +133,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
 
     elif(argv[2] == 'run'):
-        signal.signal(signal.SIGINT, signal_action)
-        if sys.platform == 'win32':
-            sys.stdout.write(' - Escaping SIGBREAK...\n')
-            signal.signal(signal.SIGBREAK, signal_action)
-        sys.stdout.write(' @ Starting RTC-daemons...\n')
-        interactive = False
-
-        if options.interactive_flag :
-            sys.stdout.write(' @ Interactive Mode\n')
-            verbose = True
-            interactive = True
-
-        nss = _package.get_nameservers(verbose=verbose)
-        ns_process = None
-        for ns in nss:
-            if not ns.check_and_launch(verbose=verbose, force=force):
-                sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
-                return
-        if interactive:
-            sys.stdout.write(' - Nameserver Checked. Press Enter.\n')
-            raw_input()
-
-        try:
-            _package.launch_all_rtcd(verbose=verbose)
-            if interactive:
-                sys.stdout.write(' - rtcd launched. Press Enter.\n')
-                raw_input()
-
-            _package.connect_and_configure(verbose=verbose)
-
-            if interactive:
-                sys.stdout.write(' - connection okay. Press Enter.\n')
-                raw_input()
-
-            _package.activate(verbose=verbose)
-
-            global endflag
-            while not endflag:
-                try:
-                    time.sleep(0.1)
-                except IOError, e:
-                    pass
-
-                pass
-        except wasanbon.BuildSystemException, ex:
-            sys.stdout.write(' @ Exception: Build System Exception\n')
-            traceback.print_exc()
-                
-        _package.deactivate(verbose=verbose)
-        _package.terminate_all_rtcd(verbose=verbose)
-                
-        for ns in nss:
-            ns.kill()
-            pass
-
+        _run(_package, verbose=verbose, force=force, interactive=interactive)
+        
     elif(argv[2] == 'datalist'):
         package.list_rtcs_by_dataport()
                  
@@ -269,6 +185,92 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         util.choice(sysobj.rtcs, select_rtc, msg='Select RTC')
         sysobj.update()
     else:
-        raise wansanbon.InvalidUsageException
+        raise wasanbon.InvalidUsageException
 
+
+def signal_action(num, frame):
+    print ' - SIGINT captured'
+    ev.set()
+    global endflag
+    endflag = True
+    pass
+
+
+def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=False):
+    if verbose:
+        sys.stdout.write(" - Saving System on %s to %s\n" % (str(nameservers), filepath))
+    try:
+        argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', filepath]
+        argv = argv + nameservers
+        rtcryo.main(argv=argv)
+    except omniORB.CORBA.UNKNOWN, e:
+        traceback.print_exc()
+        pass
+    except Exception, e:
+        traceback.print_exc()
+        return False
+
+
+def comp_full_path(comp):
+    str = ""
+    for p in comp.full_path:
+        str = str + p
+        if not str.endswith('/') and not str.endswith('.rtc'):
+            str = str + '/'
+    return str
+
+def port_full_path(port):
+    return comp_full_path(port.owner) + ':' + port.name
+
+def _run(_package, verbose=False, force=False, interactive=False):
+    signal.signal(signal.SIGINT, signal_action)
+    if sys.platform == 'win32':
+        sys.stdout.write(' - Escaping SIGBREAK...\n')
+        signal.signal(signal.SIGBREAK, signal_action)
+        pass
+    sys.stdout.write(' @ Starting RTC-daemons...\n')
+
+    nss = _package.get_nameservers(verbose=verbose)
+    ns_process = None
+    for ns in nss:
+        if not ns.check_and_launch(verbose=verbose, force=force):
+            sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
+            return
+    if interactive:
+        sys.stdout.write(' - Nameserver Checked. Press Enter.\n')
+        raw_input()
+
+    try:
+        _package.launch_all_rtcd(verbose=verbose)
+        if interactive:
+            sys.stdout.write(' - rtcd launched. Press Enter.\n')
+            raw_input()
+            pass
+
+        _package.connect_and_configure(verbose=verbose)
+
+        if interactive:
+            sys.stdout.write(' - connection okay. Press Enter.\n')
+            raw_input()
+
+        _package.activate(verbose=verbose)
+
+        global endflag
+        while not endflag:
+            try:
+                time.sleep(0.1)
+            except IOError, e:
+                pass
+            
+            pass
+    except wasanbon.BuildSystemException, ex:
+        sys.stdout.write(' @ Exception: Build System Exception\n')
+        traceback.print_exc()
+                
+    _package.deactivate(verbose=verbose)
+    _package.terminate_all_rtcd(verbose=verbose)
+    
+    for ns in nss:
+        ns.kill()
+        pass
 
