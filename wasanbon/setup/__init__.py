@@ -2,12 +2,18 @@ import os, sys, urllib, subprocess
 
 _urls = {
     'yaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
-               'darwin' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz',
-               'linux' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'}
-    ,
+             'darwin' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz',
+             'linux' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
     'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
-                  'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
-                  'linux'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'}
+                'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
+                'linux'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
+    'setuptools': {'darwin' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
+                   'win32' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
+                   'linux' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'},
+    'psutil' : {'darwin' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
+                'linux' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
+                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'}
+                
     }
 
 def _get_url(tag):
