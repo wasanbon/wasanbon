@@ -120,7 +120,8 @@ def download_repository(url, target_path='',verbose=False, force=False):
     if not target_path:
         target_path = os.path.join(repository_path, url.split('/')[-1])
     if verbose:
-        sys.stdout.write('    - Downloading repository %s into %s\n' % (url, target_path))
+        sys.stdout.write('    - Downloading repository %s\n' % url)
+        sys.stdout.write('        into %s\n' % target_path)
 
     if os.path.isdir(target_path):
         if os.path.isdir(os.path.join(target_path, '.git')):

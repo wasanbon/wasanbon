@@ -1,9 +1,14 @@
 """
- -- install.py
- To install dependency modules, use :
+Install the modules that are required with wasanbon.
+
+ To install the modules, use :
   $ wasanbon-admin.py install [modules]
+
  If you want to get alternatives of modules, use:
   $ wasanbon-admin.py install -a
+
+ If you want to check if it's installed or not, use:
+  $ wasanbon-admin.py status
 """
 
 import sys, os,yaml

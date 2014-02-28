@@ -1,3 +1,7 @@
+"""
+Check you wasanbon platform status.
+"""
+
 import sys, os
 import wasanbon
 

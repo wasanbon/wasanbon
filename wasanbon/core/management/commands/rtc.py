@@ -8,22 +8,19 @@ from wasanbon.util import editor
 from wasanbon import util
 
 
-class Command(object):
-    def __init__(self):
-        pass
+def alternative():
+    return ['repository', 'git_init', 'github_init', 'github_fork',
+            'github_pullrequest', 'clone',
+            'configure', 'release']
 
-    def alternative(self):
-        return ['repository', 'git_init', 'github_init', 'github_fork',
-                'github_pullrequest', 'clone',
-                'configure', 'release']
+def get_rtc_rtno( _package, name, verbose=False):
+    try:
+        return _package.rtc(name)
+    except wasanbon.RTCNotFoundException, e:
+        return tools.get_rtno_package(_package, name, verbose=verbose)
 
-    def get_rtc_rtno(self, _package, name, verbose=False):
-        try:
-            return _package.rtc(name)
-        except wasanbon.RTCNotFoundException, e:
-            return tools.get_rtno_package(_package, name, verbose=verbose)
-
-    def execute_with_argv(self, args, verbose, force, clean):
+def execute_with_argv(args, verbose, force=False, clean=False):
+    if True:
         usages  = wasanbon.get_help_text(['help', 'command', 'description', 'rtc'])
         usage = "mgr.py rtc [subcommand] ...\n\n"
         for line in usages:
@@ -56,14 +53,14 @@ class Command(object):
         elif argv[2] == 'git_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
+            rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.git_init(verbose=verbose)
 
         elif argv[2] == 'github_init':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
             user, passwd = wasanbon.user_pass()
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
+            rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
             rtc_.github_init(user, passwd, verbose=verbose)
             sys.stdout.write(' @ Updating repository infomation\n')
             _package.append_rtc_repository(rtc_.repository)
@@ -98,7 +95,7 @@ class Command(object):
                 try:
                     rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=_package.rtc_path)
                 except wasanbon.RTCProfileNotFoundException, e:
-                    rtc_ = self.get_rtc_rtno(_package, name, verbose=verbose)
+                    rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
                     
                 _package.update_rtc_repository(rtc_.repository, verbose=verbose)
                 return
@@ -109,7 +106,7 @@ class Command(object):
                 try:
                     rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=_package.rtc_path)
                 except wasanbon.RTCProfileNotFoundException, e:
-                    rtc_ = self.get_rtc_rtno(_package, name, verbose=verbose)
+                    rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
 
                 _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
@@ -122,7 +119,7 @@ class Command(object):
         elif argv[2] == 'checkout':
             wasanbon.arg_check(argv, 4)
             sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
-            self.get_rtc_rtno(_package, argv[3], verbose=verbose).checkout(verbose=verbose)
+            get_rtc_rtno(_package, argv[3], verbose=verbose).checkout(verbose=verbose)
 
         elif argv[2] == 'clean':
             sys.stdout.write('now build option is duplicated\n')
@@ -186,7 +183,7 @@ class Command(object):
 
         elif argv[2] == 'release':
             wasanbon.arg_check(argv,4)
-            rtc_ = self.get_rtc_rtno(_package, argv[3], verbose=verbose)
+            rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
             name = rtc_.name
             url = rtc_.repository.url
             repo_type = 'git'

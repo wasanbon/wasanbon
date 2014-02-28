@@ -1,17 +1,9 @@
-import sys
+import sys, traceback
 import wasanbon
 import wasanbon.core
 from wasanbon.core.package import *
 from wasanbon.util import git
 
-class PackageAlreadyExistsException(Exception):
-    def __init__(self):
-        pass
-
-
-class PackageDirectoryExistsException(Exception):
-    def __init__(self):
-        pass
 
 class PackageRepository():
 
@@ -26,10 +18,11 @@ class PackageRepository():
         try:
             _package = wasanbon.core.package.get_package(self.name, verbose)
             if verbose:
-                print ' - There is %s package in workspace.yaml\n' % self.name
-                print ' - Please unregister the package\n' 
+                sys.stdout.write(' - There is %s package in workspace.yaml\n' % self.name)
+                sys.stdout.write(' - Please unregister the package\n')
             raise PackageAlreadyExistsException()
         except wasanbon.PackageNotFoundException, ex:
+            #traceback.print_exc()
             pass
         
         appdir = os.path.join(os.getcwd(), self.name)
@@ -46,7 +39,8 @@ class PackageRepository():
         _package.validate(verbose=verbose, autofix=True, ext_only=True)
 
         for repo in _package.rtc_repositories:
-            sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
+            if verbose:
+                sys.stdout.write(' - Cloning RTC %s\n' % repo.name)
             rtc = repo.clone(path=os.path.join(appdir, _package.setting['RTC_DIR']), verbose=verbose)
             #sys.stdout.write(' - Building RTC %s\n' % repo.name)
             #rtc.build(verbose=verbose)
