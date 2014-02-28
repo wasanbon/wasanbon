@@ -1,10 +1,10 @@
 import os, sys
 import wasanbon
 from wasanbon.util import git, github_ref
-from wasanbon.core.rtc import repository
 
 class RTnoPackageObject:
     def __init__(self, root, file):
+
         self._path = root
         self._file = os.path.join(root, file)
 
@@ -19,7 +19,6 @@ class RTnoPackageObject:
     @property
     def file(self):
         return self._file
-
     def git_init(self, verbose=False):
         git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)
         git_obj.add(['.'], verbose=verbose)
@@ -41,8 +40,12 @@ class RTnoPackageObject:
 
     @property
     def repository(self):
+        module_name = 'wasanbon.core.rtc.repository'
+        __import__(module_name)
+        repository = sys.modules[module_name]
         git_obj = wasanbon.util.git.GitRepository(self.path)
         return repository.RtcRepository(self.name, url=git_obj.url, desc="", hash=git_obj.hash)
+
     def commit(self, comment, verbose=False):
         self.git.commit(comment, verbose=verbose)
         return self

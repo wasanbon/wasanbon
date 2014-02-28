@@ -3,7 +3,6 @@ import yaml
 import wasanbon
 from wasanbon import lib
 import wasanbon.core
-from wasanbon import util
 from wasanbon.util import git
 from wasanbon.core import rtm
 
