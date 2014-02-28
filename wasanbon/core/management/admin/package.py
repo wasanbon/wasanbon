@@ -1,55 +1,32 @@
+"""
+ Package Administration.
+ - following subcommands are available:
+
+ - create     : Create New Package. 
+   ex.,
+     $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
+
+ - list       : Show the packages in your platform.
+
+ - repository : Show the package repository
+
+ - clone      : Clone the package from internet. 
+                This create directory in your current directory.
+   ex.,
+     $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+
+ - unregister : Unregister the package from the package database
+   ex.,
+     $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
+"""
+
 import os, sys, optparse, getpass
 import wasanbon
 import wasanbon.core.package as pack
 from  wasanbon.core.package import workspace
 from wasanbon.core import repositories
 
-def _create(args, verbose, force, clean):
-    wasanbon.arg_check(args, 4)
-    sys.stdout.write(' @ Creating package %s\n' % args[3])
-    _package = pack.create_package(args[3], verbose=verbose)
 
-def _unregister(args, verbose, force, clean):
-    wasanbon.arg_check(args, 4)
-    sys.stdout.write(' @ Removing workspace %s\n' % args[3])
-    dic = workspace.load_workspace()
-    if not args[3] in dic.keys():
-        sys.stdout.write(' - Can not find package %s\n' % args[3])
-        return
-    try:
-        _package = pack.get_package(args[3], verbose=verbose)
-        _package.unregister(verbose=verbose, clean=clean)
-    except wasanbon.PackageNotFoundException, ex:
-        sys.stdout.write(' - Package Not Found (%s).\n' % args[3])
-        from wasanbon import util
-        if util.yes_no('Do you want to remove the record?') == 'yes':
-            dic = workspace.load_workspace()
-            dic.pop(args[3])
-            workspace.save_workspace(dic)
-            sys.stdout.write(' - Removed.\n')
-
-def _list(args, verbose, force ,clean):
-    sys.stdout.write(' @ Listing packages.\n')
-    _packages = pack.get_packages(verbose=verbose)
-    for _package in _packages:
-        sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
-
-def _clone(args, verbose, force, clean):
-    wasanbon.arg_check(args,4)
-    sys.stdout.write(' @ Cloning Package from Repository %s\n' % args[3])
-    repo = pack.get_repository(args[3], verbose=verbose)
-    _package = repo.clone(verbose=verbose)
-
-
-def _fork(args, verbose, force ,clean):
-    wasanbon.arg_check(args, 4)
-    sys.stdout.write(' @ Forking Package from Repository %s\n' % args[3])
-    user, passwd = wasanbon.user_pass()
-    original_repo = pack.get_repository(args[3], verbose=verbose)
-    repo = original_repo.fork(user, passwd, verbose=verbose)
-    _package = repo.clone(verbose=verbose)
-
-                
 def alternative():
     return ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
     
@@ -133,6 +110,54 @@ def print_repository(repo, long=False):
 
     else:
         sys.stdout.write('    - ' + repo.name + ' ' * (24-len(repo.name)) + ' : ' + repo.description + '\n')
+
+
+def _create(args, verbose, force, clean):
+    wasanbon.arg_check(args, 4)
+    sys.stdout.write(' @ Creating package %s\n' % args[3])
+    _package = pack.create_package(args[3], verbose=verbose)
+
+def _unregister(args, verbose, force, clean):
+    wasanbon.arg_check(args, 4)
+    sys.stdout.write(' @ Removing workspace %s\n' % args[3])
+    dic = workspace.load_workspace()
+    if not args[3] in dic.keys():
+        sys.stdout.write(' - Can not find package %s\n' % args[3])
+        return
+    try:
+        _package = pack.get_package(args[3], verbose=verbose)
+        _package.unregister(verbose=verbose, clean=clean)
+    except wasanbon.PackageNotFoundException, ex:
+        sys.stdout.write(' - Package Not Found (%s).\n' % args[3])
+        from wasanbon import util
+        if util.yes_no('Do you want to remove the record?') == 'yes':
+            dic = workspace.load_workspace()
+            dic.pop(args[3])
+            workspace.save_workspace(dic)
+            sys.stdout.write(' - Removed.\n')
+
+def _list(args, verbose, force ,clean):
+    sys.stdout.write(' @ Listing packages.\n')
+    _packages = pack.get_packages(verbose=verbose)
+    for _package in _packages:
+        sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
+
+def _clone(args, verbose, force, clean):
+    wasanbon.arg_check(args,4)
+    sys.stdout.write(' @ Cloning Package from Repository %s\n' % args[3])
+    repo = pack.get_repository(args[3], verbose=verbose)
+    _package = repo.clone(verbose=verbose)
+
+
+def _fork(args, verbose, force ,clean):
+    wasanbon.arg_check(args, 4)
+    sys.stdout.write(' @ Forking Package from Repository %s\n' % args[3])
+    user, passwd = wasanbon.user_pass()
+    original_repo = pack.get_repository(args[3], verbose=verbose)
+    repo = original_repo.fork(user, passwd, verbose=verbose)
+    _package = repo.clone(verbose=verbose)
+
+                
 
 def print_diff(diff):
     [plus, minus] = diff.rtcs

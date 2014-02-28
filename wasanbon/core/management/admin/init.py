@@ -1,5 +1,14 @@
 """
-- Use Initialization of wasanbon's environment.
+Initialization of wasanbon's environment.
+This command must be called first. This will do ...
+ 1. Install PyYAML and PyGithub if not.
+ 2. Create RTM_HOME directory, where:
+  2.1 Create 'rtm' directory in your $HOME.
+  2.2 Create 'temp' directory in your $HOME/rtm
+  2.3 Copy 'setting.yaml' file in your $HOME/rtm. This is basic setting file of wasanbon.
+
+You need to start wasanbon, you also have to download repository files from internet.
+Check wasanbon-admin.py repository command.
 """
 import sys, traceback
 import wasanbon

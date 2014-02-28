@@ -78,6 +78,8 @@ class RtcRepository():
 
         #if len(self.hash) != 0:
         #    git.git_command(['checkout', '-b', 'temp_branch', self.hash], verbose=verbose)
+        if verbose:
+            sys.stdout.write(' - Updating Submodules.....\n')
         git.git_command(['submodule', 'init'], verbose=verbose)
         git.git_command(['submodule', 'update'], verbose=verbose)
         os.chdir(curdir)

@@ -137,7 +137,8 @@ def build_rtc_java(rtcp, verbose=False):
         sep = ':'
     for jarfile in os.listdir(rtm_java_classpath):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
-
+        if verbose:
+            java_env['JAVA_TOOL_OPTIONS']='-Dfile.encoding=UTF-8'
     java_env['LC_ALL'] = 'en'
 
     javafiles = []
@@ -155,7 +156,6 @@ def build_rtc_java(rtcp, verbose=False):
 
 
     cmd = [wasanbon.setting()['local']['javac'], 
-           #'-J-Dfile.encoding=UTF-8', 
            '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:
@@ -163,7 +163,11 @@ def build_rtc_java(rtcp, verbose=False):
     #print cmd
     if verbose:
         sys.stdout.write(' - build_rtc_java:%s\n' % repr(cmd))
-    subprocess.call(cmd, env=java_env)
+    p = subprocess.Popen(cmd, env=java_env)
+    ret = p.wait()
+
+    if ret != 0:
+        return (False,  p.stderr.read())
 
     clsfiles = []
     for root, dirs, files in os.walk(cls_dir):
@@ -172,23 +176,30 @@ def build_rtc_java(rtcp, verbose=False):
                 if verbose:
                     print ' --- cls:', os.path.join(root, f)[len(cls_dir)+1:]
                 clsfiles.append(os.path.join(root, f)[len(cls_dir)+1:])
-
+    curdir = os.getcwd()
+    os.chdir(cls_dir)
     jarcmd = os.path.join(os.path.split(wasanbon.setting()['local']['javac'])[0], 'jar')
     #cmd = [jarcmd, '-J-Dfile.encoding=UTF-8', 'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C ' + os.path.join(build_dir, 'class', '')]
     cmd = [jarcmd,
            #'-J-Dfile.encoding=UTF-8',
-           'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C', os.path.join(build_dir, 'class')]
+           #'cfv', os.path.join(bin_dir, rtc_name + '.jar'), '-C', os.path.join(build_dir, 'class')]
+           'cfv', os.path.join(bin_dir, rtc_name + '.jar')]
 
+    #cmd.append('.')
+    #cmd.append('*.class')
     for f in clsfiles:
-        cmd.append(cls_dir)
+    #    cmd.append(cls_dir)
         cmd.append(f)
 
     if verbose:
         sys.stdout.write(' - archiving: %s\n' % repr(cmd))
 
 
-    subprocess.call(cmd, env=java_env, stdout=stdout, stderr=stderr)
+    ret = subprocess.call(cmd, env=java_env, stdout=stdout, stderr=stderr)
+    os.chdir(curdir)
 
+    if ret == 0:
+        return (True, "")
 
 def clean_rtc_cpp(rtcp, verbose=False):
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
