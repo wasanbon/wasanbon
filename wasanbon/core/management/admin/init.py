@@ -57,3 +57,4 @@ def execute_with_argv(args, verbose=False):
     platform = sys.modules['wasanbon.core.platform']        
     platform.init_rtm_home(verbose=verbose)
  
+    
