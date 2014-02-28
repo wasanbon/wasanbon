@@ -47,6 +47,7 @@ def execute_with_argv(args, verbose=False):
 
     yaml = try_import_and_install('yaml', verbose=verbose, force=force)
     github = try_import_and_install('github', verbose=verbose, force=force)
+    psutil = try_import_and_install('psutil', verbose=verbose, force=force)
 
     if not all([yaml, github]):
         sys.stdout.write(' @ Try wasanbon-admin.py init again.\n')
