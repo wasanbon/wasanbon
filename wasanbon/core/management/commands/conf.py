@@ -2,14 +2,12 @@ import sys, os, yaml
 import wasanbon
 from wasanbon.core import rtc, package
 
-class Command(object):
-    def __init__(self):
-        pass
 
-    def alternative(self):
-        return ['set', 'status']
+def alternative():
+    return ['set', 'status']
 
-    def execute_with_argv(self, argv, force=False, verbose=False, clean=False):
+def execute_with_argv(argv, force=False, verbose=False, clean=False):
+    if True:
         wasanbon.arg_check(argv, 3)
         _package = package.Package(os.getcwd())
         rtcconf_cpp = _package.rtcconf('C++')
@@ -45,7 +43,6 @@ class Command(object):
                     sys.stdout.write('    - Java  : ' + rtcconf_java[key] + '\n')
                 
             else:
-                
                 printed_key = []
                 for key, value in rtcconf_cpp.items():
                     if value == rtcconf_py[key] and value == rtcconf_java[key]:
@@ -63,6 +60,17 @@ class Command(object):
                     printed_key.append(key)
 
                 for key, value in rtcconf_py.items():
+                    if not key in printed_key:
+                        sys.stdout.write(' - ' +  key + '\n')
+                        if not len(rtcconf_cpp[key]) == 0:
+                            sys.stdout.write('    - C++   : ' + rtcconf_cpp[key] + '\n')
+                        if not len(rtcconf_py[key]) == 0:
+                            sys.stdout.write('    - Python: ' + rtcconf_py[key] + '\n')
+                        if not len(rtcconf_java[key]) == 0:
+                            sys.stdout.write('    - Java  : ' + rtcconf_java[key] + '\n')
+                        printed_key.append(key)
+
+                for key, value in rtcconf_java.items():
                     if not key in printed_key:
                         sys.stdout.write(' - ' +  key + '\n')
                         if not len(rtcconf_cpp[key]) == 0:
