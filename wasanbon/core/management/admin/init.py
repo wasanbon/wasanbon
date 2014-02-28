@@ -15,6 +15,8 @@ def execute_with_argv(args, verbose=False):
 
     try:
         __import__('yaml')
+        __import__('wasanbon.core.platform')
+        platform = sys.modules['wasanbon.core.platform']
     except ImportError, ex:
         traceback.print_exc()
         sys.stdout.write(' - Impot Error. You need to install PyYAML module.\n')

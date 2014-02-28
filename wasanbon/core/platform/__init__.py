@@ -8,8 +8,6 @@ import wasanbon
 #import directory
 
 
-def create_rtm_home(force=False, verbose=False):
-
 
 def init_rtm_home(force=False, verbose=False, update=True):
     module_name = 'wasanbon.core.platform.directory'
