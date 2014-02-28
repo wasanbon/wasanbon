@@ -1,6 +1,5 @@
 import os, sys, shutil
 import wasanbon
-
 from wasanbon import util
 
 def create_rtm_home(force, verbose):
@@ -65,8 +64,6 @@ def copy_repository_file(verbose=False, force=False):
         else:
             os.remove(local_repository_file)
 
-    if verbose:
-        sys.stdout.write(" - Copying %s to %s\n" % (template_setting_file, local_setting_file))
     fout = open(local_repository_file, 'w') # create empty file.
     fout.close()
         

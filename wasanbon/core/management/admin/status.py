@@ -1,22 +1,29 @@
 import sys, os
 import wasanbon
-from wasanbon.core import rtm, tools
-from wasanbon.core.rtm import cpp, python, java
 
 def alternative(self):
     return []
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
-    #wasanbon.arg_check(argv, 2)
-    
+    wasanbon.arg_check(argv, 2)
     #platform.init_rtm_home(force=False, verbose=verbose, update=False)
     sys.stdout.write(' - Checking Platform Status.\n')
     sys.stdout.write('    - wasanbon.platform: %s\n' % wasanbon.platform() )
     
-    sys.stdout.write(' - Checking Platform installation.\n')
-    path.init_tools_path(verbose=verbose)
     try:
         __import__('yaml')
+
+
+    except ImportError, e:
+        sys.stdout.write(' - Your System does not have PyYAML package.\n')
+        return 
+
+    try:
+        yaml = sys.modules['yaml']
+        __import__('wasanbon.core.platform.path')
+        path = sys.modules['wasanbon.core.platform.path']
+        sys.stdout.write(' - Checking Platform installation.\n')
+        path.init_tools_path(verbose=verbose)
         y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
         for cmd, stat in y.items():
             if len(stat.strip()) == 0:
@@ -24,10 +31,14 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 pass
             sys.stdout.write('    - ' + cmd + ' ' * (10-len(cmd)) + ':' + stat + '\n')
             pass
-
     except ImportError, e:
         sys.stdout.write(' - Your System does not have PyYAML package.\n')
+        return 
+
+
         
+    from wasanbon.core import tools
+    from wasanbon.core.rtm import cpp, python, java
 
     sys.stdout.write(' - Checking OpenRTM-aist installation\n')
     sys.stdout.write('    - rtm_c++    (OpenRTM-aist C++)    : %s\n' % cpp.is_installed())

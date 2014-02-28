@@ -13,7 +13,7 @@ def is_installed_eclipse(verbose=False):
 
 def install_eclipse(verbose=False, force=False):
     if not is_installed_eclipse() or force:
-        url = wasanbon.setting[wasanbon.platform()]['packages']['eclipse']
+        url = wasanbon.setting()[wasanbon.platform()]['packages']['eclipse']
         util.download_and_unpack(url, wasanbon.rtm_home(), force=force, verbose=verbose)
 
 def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):

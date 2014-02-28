@@ -1,5 +1,6 @@
-import wasanbon
 import os, sys, yaml
+import wasanbon
+
 
 def init_tools_path(force=False, verbose=False):
     if verbose:

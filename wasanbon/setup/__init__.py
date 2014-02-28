@@ -1,10 +1,13 @@
 import os, sys, urllib, subprocess
 
 _urls = {
-    'pyyaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
+    'yaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
                'darwin' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz',
                'linux' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'}
-
+    ,
+    'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
+                  'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
+                  'linux'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'}
     }
 
 def _get_url(tag):
@@ -88,9 +91,9 @@ def _setup_py(dirname, args=[['install']], verbose=False):
     if os.path.isfile('setup.py'):
         for arg in args:
             cmd = ['python', 'setup.py'] + arg
-            p = subprocess.Popen(cmd, stdout=out, stdin=out)
-            ret = p.wait()
-
+            if sys.platform == 'linux' or sys.platform == 'darwin':
+                cmd = ['sudo'] + cmd
+            ret = subprocess.call(cmd, stdout=out, stdin=out)
     os.chdir(cwd)
     return ret
 
