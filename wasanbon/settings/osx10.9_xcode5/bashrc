@@ -5,11 +5,14 @@ export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 export CMAKE_PREFIX_PATH=/opt/local/lib/cmake:/usr/local/lib/cmake:$CMAKE_PREFIX_PATH
 wasanbon-cd() {
   if [ ${#} -eq 0 ]; then
-    wasanbon-admin.py package list
+    wasanbon-admin.py package list -l
   else
     cd `wasanbon-admin.py package directory ${1}` 
   fi
 };
+
+
+export PYTHONPATH=/Users/ysuga/Development/rtm/wasanbon/wasanbon/
 
 
 _wsb_svc_cmpl() {
@@ -18,6 +21,7 @@ _wsb_svc_cmpl() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     subcmds=`wasanbon-admin.py -a`
+    #target=( $(compgen -W "${subcmds}" -- $1) )    
     for val in ${subcmds[@]}; do
 	if [[ ${val} == ${prev} ]]
 	then
@@ -27,7 +31,6 @@ _wsb_svc_cmpl() {
             return 0
 	fi
     done
-
     target=( $(compgen -W "${subcmds}" -- ${cur}) )
     COMPREPLY=(${target[@]})
     return 0
@@ -54,6 +57,22 @@ _mgr_svc_cmpl() {
     return 0
 }
 
+_wcd_svc_cmpl() {
+    local cur prev target subtarget subcmds subsubcmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    subcmds=`wasanbon-admin.py package list`
+    target=( $(compgen -W "${subcmds}" -- ${cur}) )
+    COMPREPLY=(${target[@]})
+    return 0
+}
+
+
+
 
 complete -o nospace -F _wsb_svc_cmpl wasanbon-admin.py
 complete -o nospace -F _mgr_svc_cmpl ./mgr.py
+complete -o nospace -F _wcd_svc_cmpl wasanbon-cd
+
+
