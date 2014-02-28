@@ -1,4 +1,4 @@
-import os, sys, urllib
+import os, sys, urllib, subprocess
 
 _urls = {
     'pyyaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
@@ -11,11 +11,19 @@ def _get_url(tag):
     global _urls
     return _urls[tag][sys.platform]
 
-
-def _download_url(url, verbose=False):
+def _download_url(url, verbose=False, force=False, path='downloads'):
     out = None if verbose else subprocess.PIPE
     cur_dir = os.getcwd()
-    file = os.path.join(cur_dir, 'thirdparty', os.path.basename(url))
+    dir = os.path.join(cur_dir, path)
+    if os.path.isdir(dir):
+        if force:
+            pass
+        else:
+            return False
+    else:
+        os.mkdir(dir)
+    file = os.path.join(dir, os.path.basename(url))
+
     if not os.path.isfile(file):
         class DownloadReport(object):
             def __init__(self):
@@ -30,23 +38,25 @@ def _download_url(url, verbose=False):
             sys.stdout.write(' - Downloading url:%s\n' % url)
         urllib.urlretrieve(url, file+'.part', DownloadReport())
         os.rename(file+'.part', file)
-        if verobse:
+        if verbose:
             sys.stdout.write(' - Saved to %s\n' % file)
 
     return file
 
-def _install_exe(file, verbose=False):
+def _install_exe(file, verbose=False, path='downloads'):
     if verbose:
         sys.stdout.write(' - Launching %s\n' % file)
     cur_dir = os.getcwd()
-    os.chdir(os.path.join(cur_dir, 'thirdparty'))
+    os.chdir(os.path.join(cur_dir, path))
     out = None if verbose else subprocess.PIPE
     p = subprocess.Popen([file], stdout=out, stdin=out)
     ret = p.wait()
     os.chdir(cur_dir)
     return ret
 
-def extract_tar(filename, verbose=False):
+def _extract_tar(filename, verbose=False):
+    if verbose:
+        sys.stdout.write(' - Extracting %s\n' % filename)
     cur_dir = os.getcwd()
     os.chdir(os.path.dirname(filename))
     if filename.endswith('.tar.gz'):
@@ -56,20 +66,22 @@ def extract_tar(filename, verbose=False):
     else:
         return (False, "")
 
-    cmd = ['tar', 'zxfv', filename, dirname]
+    cmd = ['tar', 'zxfv', filename]
     out = None if verbose else subprocess.PIPE
     p = subprocess.Popen(cmd, stdout=out, stdin=out)
     ret = p.wait()
     os.chdir(cur_dir)
     return (ret, dirname)
 
-def _extract_tar_and_install(filename, verobse=False):
-    ret, dirname = extract_tar(filename, verbose=verbose)
-    if ret:
-        setup_py(dirname, verbose=verbose)
+def _extract_tar_and_install(filename, verbose=False):
+    ret, dirname = _extract_tar(filename, verbose=verbose)
+    if ret == 0:
+        _setup_py(dirname, verbose=verbose)
+        return True
 
-
-def setup_py(dirname, args=[['install']], verbose=False):
+def _setup_py(dirname, args=[['install']], verbose=False):
+    if verbose:
+        sys.stdout.write(' - Installing Python Module in "%s" with distutil.\n' % dirname)
     cwd = os.getcwd()
     os.chdir(dirname)
     out = None if verbose else subprocess.PIPE
@@ -82,11 +94,13 @@ def setup_py(dirname, args=[['install']], verbose=False):
     os.chdir(cwd)
     return ret
 
-def download_and_install(tag, verbose=False):
+def download_and_install(tag, verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Download and Intall [%s]\n' % tag)
     url = _get_url(tag)
-    filename = download_url(url, verbose=verbose)
+    filename = _download_url(url, verbose=verbose, force=force)
+    if not filename:
+        return False
     if filename.endswith('.exe'):
         return _install_exe(filename, verbose=verbose)
     elif filename.endswith('.tar.gz'):

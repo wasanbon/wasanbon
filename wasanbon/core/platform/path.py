@@ -17,6 +17,14 @@ def search_cmd_all(dict, verbose=False):
 
 
 def search_command(cmd, path, hints, verbose=False):
+    if cmd.startswith('python_'):
+        module_name = cmd[7:]
+        try:
+            __import__(module_name)
+            return sys.modules[module_name].__path__[0]
+        except ImportError, e:
+            return ""
+
     if sys.platform == 'win32':
         path_splitter = ';'
         cmd = cmd + '.exe'

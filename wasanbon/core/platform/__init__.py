@@ -1,15 +1,24 @@
-import os, sys, yaml, subprocess
+import os, sys, subprocess
 import wasanbon
 
-from wasanbon import util
+#from wasanbon import util
 
-from wasanbon.core.template import *
+#from wasanbon.core.template import *
 
-import directory
+#import directory
+
+
+def create_rtm_home(force=False, verbose=False):
+
 
 def init_rtm_home(force=False, verbose=False, update=True):
+    module_name = 'wasanbon.core.platform.directory'
+    __import__(module_name)
+    directory = sys.modules[module_name]
+
     directory.create_rtm_home(force=force, verbose=verbose)
-    directory.copy_initial_setting(verbose=verbose, force=force)
+    directory.copy_setting_file(verbose=verbose, force=True)
+    directory.copy_repository_file(verbose=verbose, force=force)
     create_dot_emacs()
     return True #all(retval)
 
