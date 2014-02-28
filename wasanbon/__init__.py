@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import sys, os, locale, getpass, yaml
+import sys, os, locale, getpass #, yaml
 import platform as plt
 import types
 import codecs, subprocess
-from help import *
+#from help import *
 
 def get_version():
     """Get wasanbon version.

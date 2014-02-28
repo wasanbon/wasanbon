@@ -30,3 +30,5 @@ pkg-config :
   - "/usr/bin/pkg-config"
   - "/opt/local/bin/pkg-config"
   - "/usr/local/bin/pkg-config"
+python_yaml : []
+python_github : []
