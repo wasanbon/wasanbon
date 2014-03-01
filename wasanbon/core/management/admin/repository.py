@@ -23,7 +23,7 @@ from wasanbon.util import editor, git
 def get_repo_name(path):
     return os.path.basename(os.path.split(path)[0])
 
-def alternative():
+def alternative(argv=None):
     return ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push']
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):

@@ -5,7 +5,7 @@ Check you wasanbon platform status.
 import sys, os
 import wasanbon
 
-def alternative(self):
+def alternative(argv=None):
     return []
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
