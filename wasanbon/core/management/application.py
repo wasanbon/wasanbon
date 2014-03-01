@@ -86,7 +86,7 @@ def execute(argv=None):
 
     try:
         if options.alter_flag:
-            print_alternative(mod.alternative())
+            print_alternative(mod.alternative(args))
         else:
             mod.execute_with_argv(args, verbose=options.verbose_flag)
 
@@ -100,7 +100,7 @@ def execute(argv=None):
         traceback.print_exc()
     pass
 
-def print_alternative(alternative):
+def print_alternative(alternative, argv=None):
     for i, cmd in enumerate(alternative):
         sys.stdout.write(cmd)
         if i == len(alternative) - 1:

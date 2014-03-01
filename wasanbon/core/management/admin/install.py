@@ -18,7 +18,7 @@ from wasanbon.core.rtm import cpp, python, java
 from wasanbon.core.platform import install
 
 
-def alternative():
+def alternative(argv=None):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
     return ['rtm_c++', 'rtm_python', 'rtm_java', 'eclipse', 'arduino'] + y.keys()
 

@@ -26,10 +26,21 @@ from wasanbon.util import editor
 from wasanbon import util
 
 
-def alternative():
+def alternative(argv=None):
+    return_rtcs = ['git_init', 'github_init', 'github_pullrequest', 'delete', 'checkout', 'configure']
+    return_rtc_repos = ['clone', 'github_fork']
+    if argv:
+        if argv[2] in return_rtcs:
+            rtcs = pack.Package(os.getcwd()).rtcs
+            return [rtc.name for rtc in rtcs]
+        elif argv[2] in return_rtc_repos:
+            repos = wasanbon.core.rtc.get_repositories()
+            return [repo.name for repo in repos]
+
     return ['list', 'repository', 'git_init', 'github_init', 'github_fork',
             'github_pullrequest', 'clone',
             'release']
+
 
 def get_rtc_rtno( _package, name, verbose=False):
     try:
@@ -55,7 +66,6 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             sys.stdout.write(' @ Listing RTCs in current package\n')
             for rtc in _package.rtcs:
                 print_rtc(rtc, long=options.long_flag)
-
             for rtno in tools.get_rtno_packages(_package, verbose=verbose):
                 print_rtno(rtno, long=options.long_flag)
 

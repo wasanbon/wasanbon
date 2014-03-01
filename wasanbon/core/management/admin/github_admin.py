@@ -48,7 +48,7 @@ def set_user(argv, force ,clean, verbose):
     git.git_command(['config', '--global', 'user.email', email])
     sys.stdout.write('  - Completed.\n')
 
-def alternative_():
+def alternative_(argv=None):
     return ['init', 'set_user']
 
 alternative = alternative_

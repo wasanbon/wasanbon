@@ -27,8 +27,18 @@ from  wasanbon.core.package import workspace
 from wasanbon.core import repositories
 
 
-def alternative():
-    return ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
+def alternative(argv=None):
+    all_cmd = ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
+    return_repo_cmd = ['clone']
+    if not argv:
+        return all_cmd
+    if len(argv) < 2:
+        return all_cmd
+
+    if argv[2] in return_repo_cmd:
+        repos = pack.get_repositories()
+        return [repo.name for repo in repos]
+
     
 def execute_with_argv(args, verbose):
     wasanbon.arg_check(args, 3)
@@ -59,7 +69,6 @@ def execute_with_argv(args, verbose):
             print '.'
 
     elif args[2] == 'repository':
-        
         if len(args) == 3: # list
             args.append('list')
             pass
@@ -70,20 +79,23 @@ def execute_with_argv(args, verbose):
             repos = pack.get_repositories(verbose=verbose)
             for repo in repos:
                 print_repository(repo, long=long_option)
+
         elif args[3] == 'create':
             (username, passwd) = wasanbon.user_pass()
             sys.stdout.write('  - Input repository name :')
             repo_name = raw_input()
             repositories.create_local_repository(username, passwd, repo_name, verbose=verbose)
             pass
+
         elif args[3] == 'update':
             sys.stdout.write(' @ Updating Package Repositories\n')
             pack.update_repositories(verbose=verbose)
-        elif args[3] == 'clone':
-            wasanbon.arg_check(args,5)
-            sys.stdout.write(' @ Cloning Package Repositories\n')
-            pack.update_repositories(verbose=verbose, url=args[4])
 
+    elif args[2] == 'clone':
+        wasanbon.arg_check(args,4)
+        sys.stdout.write(' @ Cloning Package Repositories\n')
+        repo = pack.get_repository(args[3], verbose=verbose)
+        _package = repo.clone(verbose=verbose)
         
     elif args[2] == 'fork':
         _fork(args, verbose, force, clean)
