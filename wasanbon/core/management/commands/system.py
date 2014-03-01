@@ -15,13 +15,18 @@ ev = threading.Event()
 endflag = False
 
 
-def alternative():
-    return ['uninstall', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
+def alternative(argv=None):
+    rtc_names = [rtc.name for rtc in package.Package(os.getcwd()).rtcs]
+    rtcname_return_commands = ['install', 'uninstall']
+    all_commands = rtcname_return_commands + ['build', 'run', 'datalist', 'validate', 'configure', 'list', 'nameserver']
+    if len(argv) >= 3:
+        if argv[2] in rtcname_return_commands:
+            return rtc_names
+    return ['uninstall', 'install', 'list', 'build', 'run', 'datalist', 'nameserver', 'validate', 'configure']
 
 def execute_with_argv(args, verbose, force=False, clean=False):
     usage = 'mgr.py system [subcommand]'
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
-    parser
     parser.add_option('-l', '--long', help='long format information', action='store_true', default=False, dest='long_flag')
     parser.add_option('-i', '--interactive', help='interactive launch', action='store_true', default=False, dest='interactive_flag')
     parser.add_option('-f', '--force', help='Force relaunch nameserver', action='store_true', default=False, dest='force_flag')
@@ -34,8 +39,23 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     interactive = options.interactive_flag
     _package = package.Package(os.getcwd())
 
+    if argv[2] == 'install':
+        if 'all' in argv[2:]:
+            rtc_names = [rtc.name for rtc in _package.rtcs]
+        else:
+            rtc_names = [arg for arg in argv[2:] if not arg.startswith('-')]
 
-    if argv[2] == 'uninstall':
+        for name in rtc_names:
+            sys.stdout.write(' @ Installing RTC (%s).\n' % name)
+            try:
+                #_package.install(_package.rtc(name), verbose=verbose)
+                rtc = _package.rtc(name)
+                package.install_rtc(_package, rtc, verbose=verbose, overwrite_conf=force)
+            except Exception, ex:
+                sys.stdout.write(' - Installing RTC %s failed.\n' % name)
+                print ex
+        
+    elif argv[2] == 'uninstall':
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Uninstalling RTC.\n')
         if 'all' in argv[3:]:
@@ -165,6 +185,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     elif argv[2] == 'validate':
         _package.validate(verbose=verbose, autofix=force, interactive=True)
         pass
+
     elif argv[2] == 'configure':
         sysobj = _package.system
         def select_rtc(ans):
