@@ -1,6 +1,6 @@
 import os, sys
 import wasanbon
-from wasanbon.util import git, github_ref
+from wasanbon.util import git
 import rtc_object
 
 class RtcRepository():

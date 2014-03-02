@@ -4,7 +4,7 @@ import wasanbon
 from repository import *
 #from rtc_object import *
 import github
-import wasanbon.util.github_ref
+#import wasanbon.util.github_ref
 
 def get_repositories(verbose=False):
     repos = []

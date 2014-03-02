@@ -3,17 +3,22 @@ import os, sys, urllib, subprocess
 _urls = {
     'yaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
              'darwin' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz',
-             'linux' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
+             'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
     'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
                 'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
-                'linux'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
+                'linux2'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
     'setuptools': {'darwin' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
                    'win32' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
-                   'linux' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'},
+                   'linux2' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'},
     'psutil' : {'darwin' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
-                'linux' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
-                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'}
-                
+                'linux2' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
+                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
+    'pip' : {'darwin' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
+             'linux2' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
+             'win32' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py'},
+    'bitbucket' : {'darwin' : 'pip install bitbucket-api',
+                   'linux2' : 'pip install bitbucket-api',
+                   'win32' : 'pip install bitbucket-api'}
     }
 
 def _get_url(tag):
@@ -63,6 +68,24 @@ def _install_exe(file, verbose=False, path='downloads'):
     os.chdir(cur_dir)
     return ret
 
+def _install_py(file, verbose=False, path='downloads'):
+    if verbose:
+        sys.stdout.write(' - Launching %s\n' % file)
+    cur_dir = os.getcwd()
+    os.chdir(os.path.join(cur_dir, path))
+    out = None if verbose else subprocess.PIPE
+    p = subprocess.Popen(['python', file], stdout=out, stdin=out)
+    ret = p.wait()
+    os.chdir(cur_dir)
+    return ret
+
+def _install_pip(cmd, verbose=False):
+    cmds = cmd.split()
+    out = None if verbose else subprocess.PIPE
+    p = subprocess.Popen(cmds, stdout=out, stdin=out)
+    ret = p.wait()
+    return ret
+
 def _extract_tar(filename, verbose=False):
     if verbose:
         sys.stdout.write(' - Extracting %s\n' % filename)
@@ -107,10 +130,16 @@ def download_and_install(tag, verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Download and Intall [%s]\n' % tag)
     url = _get_url(tag)
+    
+    if url.startswith('pip'):
+        return _install_pip(url, verbose=verbose)
+    
     filename = _download_url(url, verbose=verbose, force=force)
     if not filename:
         return False
     if filename.endswith('.exe'):
         return _install_exe(filename, verbose=verbose)
+    elif filename.endswith('.py'):
+        return _install_py(filename, verbose=verbose)
     elif filename.endswith('.tar.gz'):
         return _extract_tar_and_install(filename, verbose=verbose)

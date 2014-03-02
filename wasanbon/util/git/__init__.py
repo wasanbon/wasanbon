@@ -40,7 +40,7 @@ def clone_and_setup(url, verbose=False, force=False):
     os.chdir(crrdir)
 
 
-def git_command(commands, path='.', verbose = False, pipe=False):
+def git_command(commands, path='.', verbose = False, pipe=False, interactive=False):
     cur_dir = os.getcwd()
     os.chdir(path)
     gitenv = os.environ.copy()
@@ -55,8 +55,11 @@ def git_command(commands, path='.', verbose = False, pipe=False):
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
 
+    if interactive:
+        stdout = None
+        stderr = None
     if verbose:
-        sys.stdout.write(' - wasanbon.git command = git ')
+        sys.stdout.write(' - wasanbon.git command = %s' % setting['git'])
         for c in cmd:
             sys.stdout.write(c + ' ')
         sys.stdout.write('\n')

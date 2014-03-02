@@ -4,7 +4,7 @@ import wasanbon
 import wasanbon.core.rtc
 from wasanbon.core import system
 from wasanbon.util import git
-from wasanbon.util import github_ref
+#from wasanbon.util import github_ref
 from wasanbon.core import nameserver
 from wasanbon.core.package import run
 from wasanbon.core.package import workspace

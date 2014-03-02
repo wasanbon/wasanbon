@@ -4,8 +4,7 @@ from rtcconf import *
 from repository import *
 from rtc_object import *
 from wasanbon.core import repositories
-import github
-import wasanbon.util.github_ref
+
 
 def get_repositories(verbose=False):
     rtcs, packs = repositories.load_repositories(verbose=verbose)
@@ -25,21 +24,22 @@ def get_repository(name, verbose=False):
     return None
 
 def github_init(user, passwd, rtc_, verbose=False):
-    curdir = os.getcwd()
-    os.chdir(rtc_.path)
-    
-    github_obj = github_ref.GithubReference(user, passwd)
-    repo_name = os.path.split(rtc_.rtcprofile.filename)[0]
-    if not github_obj.create_repo(repo_name):
-        sys.stdout.write(' - failed.\n')
-        os.chdir(curdir)
-        return False
+    """
+    Add upsatream
+    """
+    from wasanbon.core.repositories import github_api
+    github_obj = github_api.GithubReference(user, passwd)
+    repo = github_obj.create_repo(rtc_.name)
+    git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
+    git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
+    return rtc_
 
-    git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + repo_name + '.git'], verbose=verbose)
-    git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose)
-
-    os.chdir(cur_dir)
-
-    url = 'git@github.com:' + user + '/' + repo_name + '.git'
-    return rtc.RtcRepository(rtc_.name, url=url, desc='', hash=rtc_.git.hash)
-
+def bitbucket_init(user, passwd, rtc_, verbose=False):
+    """
+    """
+    from wasanbon.core.repositories import bitbucket_api
+    bb_obj = bitbucket_api.BitbucketReference(user, passwd)
+    repo = bb_obj.create_repo(rtc_.name)
+    git.git_command(['remote', 'add', 'origin', 'https://bitbucket.org/' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
+    git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
+    return rtc_
