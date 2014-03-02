@@ -1,6 +1,6 @@
 import os, sys
 import wasanbon
-from wasanbon.util import git, github_ref
+from wasanbon.util import git#, github_ref
 
 class RTnoPackageObject:
     def __init__(self, root, file):

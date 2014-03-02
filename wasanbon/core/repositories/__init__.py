@@ -1,7 +1,7 @@
-import os, sys, yaml, shutil, traceback, types, github
+import os, sys, yaml, shutil, traceback, types
 import wasanbon
 from wasanbon import util
-from wasanbon.util import git, github_ref
+from wasanbon.util import git
 
 owner_sign = '_owner'
 
@@ -9,6 +9,7 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
     if verbose:
         sys.stdout.write(' - Initializing Your Repository\n')
         pass
+    import github
     target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
     url = 'https://github.com/' + user + '/' + repo_name + '.git'
     #Check if repository exists...

@@ -64,6 +64,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     usage = "mgr.py repository [subcommand] ...\n"
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
+    parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
     try:
         options, argv = parser.parse_args(args[:])
     except:
@@ -87,8 +88,16 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
         user, passwd = wasanbon.user_pass()
+
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        rtc_.github_init(user, passwd, verbose=verbose)
+        #rtc_.github_init(user, passwd, verbose=verbose)
+        if options.service == 'github':
+            rtc.github_init(user, passwd, rtc_, verbose=verbose)
+        elif options.service == 'bitbucket':
+            sys.stdout.write(' - bitbucket service is selected.\n')
+            rtc.bitbucket_init(user, passwd, rtc_, verbose=verbose)
+        else:
+            raise wasanbon.InvalidUsageException()
         sys.stdout.write(' @ Updating repository infomation\n')
         _package.append_rtc_repository(rtc_.repository)
         
