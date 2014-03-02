@@ -27,8 +27,9 @@ from wasanbon import util
 
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run']
-    all_rtcs = ['list'] + return_rtcs 
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure']
+    return_rtc_repos = []
+    all_rtcs = ['list'] + return_rtcs + return_rtc_repos
     if argv:
         if len(argv) <= 2:
             return all_rtcs
@@ -132,18 +133,18 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
         elif argv[2] == 'edit':
             try:
-                rtc_ = _package.rtc(argv[2])
+                rtc_ = _package.rtc(argv[3])
                 
                 if rtc_.is_git_repo():
                     if rtc_.git_branch() != 'master':
                         sys.stdout.write(' @ You are not in master branch.\n')
                         if util.yes_no(' @ Do you want to checkout master first?') == 'yes':
                             rtc_.checkout(verbose=verbose)
-                editor.edit_rtc(_package.rtc(argv[2]), verbose=verbose)
+                editor.edit_rtc(_package.rtc(argv[3]), verbose=verbose)
             except wasanbon.RTCNotFoundException, ex:
                 rtnos = tools.get_rtno_packages(_package)
                 for rtno in rtnos:
-                    if rtno.name == argv[2]:
+                    if rtno.name == argv[3]:
                         tools.launch_arduino(rtno.file, verbose=verbose)
                         return
             raise wasanbon.RTCNotFoundException()

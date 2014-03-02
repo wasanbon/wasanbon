@@ -1,11 +1,14 @@
 import sys, os, subprocess
 import wasanbon
 from wasanbon.util import git
-from wasanbon.util import github_ref
+#from wasanbon.util import github_ref
 from wasanbon.core.rtc import rtcprofile
 from wasanbon.core.rtc import packageprofile
 from wasanbon.core.rtc import build
 from wasanbon.core.package import run
+
+from wasanbon.core.repositories import github_api
+
 import repository
 
 
@@ -86,14 +89,14 @@ class RtcObject():
         return self.git
 
     def github_init(self, user, passwd, verbose=False):
-        github_obj = github_ref.GithubReference(user, passwd)
+        github_obj = github_api.GithubReference(user, passwd)
         repo = github_obj.create_repo(self.name)
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)    
         return self
 
     def github_pullrequest(self, user, passwd, title, body, verbose=False):
-        github_obj = github_ref.GithubReference(user, passwd)
+        github_obj = github_api.GithubReference(user, passwd)
         github_obj.pullrequest(self.repository.url, title, body, verbose=verbose)
         return self
 

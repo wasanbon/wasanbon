@@ -25,15 +25,12 @@ def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=Fa
             pass
 
 
-class Command(object):
-    def __init__(self):
-        pass
 
+def alternative(argv=None):
+    return ['eclipse', 'arduino', 'rtno', 'rtcb', 'rtse']
 
-    def alternative(self):
-        return ['eclipse', 'arduino', 'rtno', 'rtcb', 'rtse']
-
-    def execute_with_argv(self, argv, verbose, clean, force):
+def execute_with_argv(argv, verbose, clean=False, force=False):
+    if True:
         wasanbon.arg_check(argv, 3)
 
         _package = pack.Package(os.getcwd())
@@ -75,7 +72,7 @@ class Command(object):
             
             _package.launch_all_rtcd(verbose=verbose)
             #tools.launch_eclipse(_package.system_path, nonblock=False, verbose=verbose)
-            tools.launch_eclipse(nonblock=False, verbose=verbose, argv=['--clean'])
+            tools.launch_eclipse(workbench='.', nonblock=False, verbose=verbose, argv=['--clean'])
 
             for i in range(0, 5):
                 sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))

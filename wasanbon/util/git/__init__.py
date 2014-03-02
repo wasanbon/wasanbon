@@ -2,7 +2,7 @@ import sys, os, subprocess, yaml
 import shutil
 import wasanbon
 
-from github_obj  import *
+
 from git_obj import *
 
 def clone_and_setup(url, verbose=False, force=False):
