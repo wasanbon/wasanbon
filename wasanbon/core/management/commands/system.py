@@ -40,10 +40,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     _package = package.Package(os.getcwd())
 
     if argv[2] == 'install':
-        if 'all' in argv[2:]:
+        if 'all' in argv[3:]:
             rtc_names = [rtc.name for rtc in _package.rtcs]
         else:
-            rtc_names = [arg for arg in argv[2:] if not arg.startswith('-')]
+            rtc_names = [arg for arg in argv[3:] if not arg.startswith('-')]
 
         for name in rtc_names:
             sys.stdout.write(' @ Installing RTC (%s).\n' % name)
