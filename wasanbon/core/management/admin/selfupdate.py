@@ -76,11 +76,9 @@ def install(verbose, force):
     os.chdir(cwd)
     return True
 
-class Command(object):
-    def __init__(self):
-        pass
 
-    def execute_with_argv(self, argv, verbose=False, force=False, clean=False):
+def execute_with_argv(argv, verbose=False, force=False, clean=False):
+    if True:
         cwd = os.getcwd()
 
         if verbose:
