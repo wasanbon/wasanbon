@@ -16,10 +16,16 @@ export PYTHONPATH=/Users/ysuga/Development/rtm/wasanbon/wasanbon/
 
 
 _wsb_svc_cmpl() {
-    local cur prev target subtarget subcmds subsubcmds
+    local cur prev pprev target subtarget subcmds subsubcmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    pprev=""
+    if [[ $COMP_CWORD == 3 ]]
+    then
+        prev="${COMP_WORDS[COMP_CWORD-2]}"
+        pprev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
     subcmds=`wasanbon-admin.py -a`
     #target=( $(compgen -W "${subcmds}" -- $1) )    
     for val in ${subcmds[@]}; do
@@ -37,16 +43,22 @@ _wsb_svc_cmpl() {
 }
 
 _mgr_svc_cmpl() {
-    local cur prev target subtarget subcmds subsubcmds
+    local cur prev pprev target subtarget subcmds subsubcmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    pprev=""
+    if [[ $COMP_CWORD == 3 ]]
+    then
+        prev="${COMP_WORDS[COMP_CWORD-2]}"
+        pprev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
     subcmds=`./mgr.py -a`
     #target=( $(compgen -W "${subcmds}" -- $1) )    
     for val in ${subcmds[@]}; do
 	if [[ ${val} == ${prev} ]]
 	then
-	    subsubcmds=`./mgr.py ${prev} -a`
+	    subsubcmds=`./mgr.py ${prev} ${pprev} -a`
 	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
 	    COMPREPLY=(${subtarget[@]})
             return 0

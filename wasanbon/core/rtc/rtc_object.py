@@ -37,6 +37,10 @@ class RtcObject():
         return self._rtcprofile
 
     @property
+    def description(self):
+        return self.rtcprofile.basicInfo.description
+
+    @property
     def packageprofile(self):
         return packageprofile.PackageProfile(self.rtcprofile)
 
@@ -65,6 +69,7 @@ class RtcObject():
     def repository(self):
         git_obj = wasanbon.util.git.GitRepository(self.path)
         return repository.RtcRepository(self.name, url=git_obj.url, desc="", hash=git_obj.hash)
+
 
     def clean(self, verbose=False):
         if self.language == 'C++':

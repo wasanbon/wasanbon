@@ -50,6 +50,9 @@ def git_command(commands, path='.', verbose = False, pipe=False, interactive=Fal
             sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
 
     setting = wasanbon.setting()['local']
+    if len(setting['git']) == 0:
+        sys.stdout.write(' @ GIT COMMAND NOT FOUND.....\n')
+        return False
 
     cmd = [setting['git']] + commands
     stdout = None if verbose else subprocess.PIPE

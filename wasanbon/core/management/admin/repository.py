@@ -63,17 +63,22 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             return
         
         for path in paths:
+            owner = False
             owner_name = os.path.basename(os.path.dirname(path))
+            mark = '-'
             if owner_name.endswith(repositories.owner_sign):
                 owner_name = owner_name[:-len(repositories.owner_sign)]
-            sys.stdout.write('  - Repository : %s/%s\n' 
-                             % (owner_name, os.path.basename(path)))
+                owner = True
+                mark = '*'
+            sys.stdout.write('  %s Repository : %s/%s\n' 
+                             % (mark, owner_name, os.path.basename(path)))
+            sys.stdout.write('   %s Owner: %s\n' % (mark, owner))
             rtcs_dir = os.path.join(path, 'rtcs')
             if os.path.isdir(rtcs_dir):
-                sys.stdout.write('   - rtcs : \n')
+                sys.stdout.write('   %s rtcs : \n'% mark)
                 for file in os.listdir(rtcs_dir):
                     if file.endswith('.yaml'):
-                        sys.stdout.write('     - %s:\n' % file)
+                        sys.stdout.write('     %s %s:\n' % (mark, file))
                         if longformat:
                             y = yaml.load(open(os.path.join(rtcs_dir, file), 'r'))
                             if type(y) == types.DictType:
@@ -85,10 +90,10 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                                                      + ': ' + y[key]['description'] + '\n')
             packs_dir = os.path.join(path, 'packages')
             if os.path.isdir(packs_dir):
-                sys.stdout.write('   - packages : \n')
+                sys.stdout.write('   %s packages : \n' % mark)
                 for file in os.listdir(packs_dir):
                     if file.endswith('.yaml'):
-                        sys.stdout.write('     - %s:\n' % file)
+                        sys.stdout.write('     %s %s:\n' % (mark, file))
                         if longformat:
                             y = yaml.load(open(os.path.join(packs_dir, file), 'r'))
                             if type(y) == types.DictType:
