@@ -203,7 +203,8 @@ def owner_add(_package, rtc_name, verbose=False):
                     return False
         if not repositories.append_rtc_repo_to_owner(user, file, rtc_obj, verbose=verbose):
             sys.stdout.write(' @ Failed to save repository data to file.\n')
-            return False
+            sys.stdout.write(' @ If you need to add the RTC to your own repository, try ...\n$ mgr.py repository owner_add YOUR_RTC_NAME\n')
+            return True
         return True
             
     util.choice(files, callback, msg=' - Choice file to save rtc repo.')
