@@ -74,6 +74,12 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
         if verbose:
             sys.stdout.write(' @ Not found target repository file: %s\n' % target_path)
         return False
+
+    y = yaml.load(open(target_path, 'r'))
+    if rtc_obj.name in y.keys():
+        if verbose:
+            sys.stdout.write(' @ Your own repository already have repository %s\n' % rtc_obj.name)
+        return False
     shutil.copyfile(target_path, target_path + '.bak')
     fin = open(target_path+'.bak', 'r')
     fout = open(target_path, 'w')
@@ -91,11 +97,11 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
     
     fout.write('\n# Added in %s/%s/%s/%s:%s:%s\n' % \
                    (now.year, now.month, now.day, now.hour, now.minute, now.second))
-    fout.write(name + ' :\n')
+    fout.write(name + ' : \n')
     fout.write('  description : \'' + description + '\'\n')
     fout.write('  type : ' + type + '\n')
     fout.write('  url : \'' + url + '\'\n')
-    fout.write('  platform :' + platform + '\n')
+    fout.write('  platform : ' + platform + '\n')
     
     return True
 
