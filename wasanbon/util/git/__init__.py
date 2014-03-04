@@ -8,10 +8,11 @@ from git_obj import *
 def clone_and_setup(url, verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Clone and setup.py: %s\n' % url)
-    distpath = os.path.join(wasanbon.rtm_temp, os.path.basename(url)[:-4])
-    if not 'local' in wasanbon.setting.keys():
-        wasanbon.setting()['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home, 'setting.yaml'), 'r'))
-
+    distpath = os.path.join(wasanbon.rtm_temp(), os.path.basename(url)[:-4])
+    setting =  wasanbon.setting()
+    if not 'local' in setting.keys():
+        setting['local'] = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
+        
     stdout = None if verbose else subprocess.PIPE
 
     if os.path.isdir(distpath):
@@ -28,7 +29,7 @@ def clone_and_setup(url, verbose=False, force=False):
     cmd = [wasanbon.setting()['local']['git'], 'clone', url, distpath]
     if verbose:
         print ' - Cloning %s' % url
-    git_command(['clone', url], verbose=verbose, path=wasanbon.rtm_temp)
+    git_command(['clone', url], verbose=verbose, path=wasanbon.rtm_temp())
 
     crrdir = os.getcwd()
     os.chdir(distpath)

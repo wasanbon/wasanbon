@@ -20,7 +20,7 @@ from wasanbon.core.platform import install
 
 def alternative(argv=None):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))
-    return ['rtm_c++', 'rtm_python', 'rtm_java', 'eclipse', 'arduino'] + y.keys()
+    return y.keys() + ['rtm_c++', 'rtm_python', 'rtm_java', 'rtshell', 'eclipse', 'arduino']
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
     wasanbon.arg_check(argv, 3)
@@ -28,7 +28,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))    
     
     if 'all' in argv:
-        argv = ['rtm_c++', 'rtm_python', 'rtm_java', 'eclipse', 'arduino'] + y.keys()
+        argv = y.keys() + ['rtm_c++', 'rtm_python', 'rtm_java', 'rtshell', 'eclipse', 'arduino'] 
     else:
         argv = argv[2:]
         
