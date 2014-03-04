@@ -13,7 +13,7 @@ def is_installed():
         if os.path.isfile(os.path.join(path, file)):
             return True
         if ('RTM_ROOT' in os.environ.keys()):
-            if os.path.isfile(os.environ['RTM_ROOT'], 'rtm', file):
+            if os.path.isfile(os.path.join(os.environ['RTM_ROOT'], 'rtm', file)):
                 return True
         return False
 
