@@ -70,7 +70,6 @@ class GithubReference ():
     def fork_repo(self, user, name, newname, verbose=False):
         if verbose:
             sys.stdout.write(' - Forking Repositoy %s/%s\n' %  (user, name))
-
         if self.exists_repo(name, verbose):
             raise wasanbon.RepositoryAlreadyExistsException()
         

@@ -12,7 +12,7 @@ def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
             sys.stdout.write(' - %s:%s\n' % (i+1, alts[i]))
         i = raw_input(choice_msg) # Input 
         try:
-            if i == 'q' or i == 'Q':
+            if i == 'q' or i == 'Q': # if chice is 'q', quit.
                 sys.stdout.write('Quit.\n')
                 break
             ans = int(i)
@@ -25,6 +25,7 @@ def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
         if ans == len(alts):
             sys.stdout.write(' - Quit.\n')
             break
+        # Callback Function
         retval = callback(ans-1)
         if type(retval) == types.ListType:
             ans = retval[0]
@@ -32,6 +33,8 @@ def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
             alts.append('Quit(Q)')
         else:
             ans = retval
+
+        # if callback function returns True, quit.
         if ans:
             sys.stdout.write(' - Quit.\n')
             break

@@ -30,6 +30,23 @@ def install_rtc(package, rtc, verbose=False, overwrite_conf=False):
             rtc = package.rtc(rtc)
         return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf)
 
+def git_push(package, verbose=False):
+    git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=package.path)
+
+def github_init(package, user, passwd, verbose=False):
+    from wasanbon.core.repositories import github_api
+    github_obj = github_api.GithubReference(user, passwd)
+    repo = github_obj.create_repo(package.name)
+    git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
+    git_push(package, verbose=verbose)
+
+def bitbucket_init(package, user, passwd, verbose=False):
+    from wasanbon.core.repositories import bitbucket_api
+    _obj = bitbucket_api.BitbucketReference(user, passwd)
+    repo = _obj.create_repo(package.name)
+    git.git_command(['remote', 'add', 'origin', 'https://bitbucket.org/' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
+    git_push(package, verbose=verbose)
+
 ############### legacy codes #################
 
 def get_repositories(verbose=False):

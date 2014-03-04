@@ -1,4 +1,4 @@
-import os, sys, yaml, shutil, traceback, types
+import os, sys, yaml, shutil, traceback, types, shutil
 import wasanbon
 from wasanbon import util
 from wasanbon.util import git
@@ -44,6 +44,63 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
         return False
     download_repository(url=url, target_path=target_path, verbose=verbose)
     return True
+
+def owner_repository_path(user, repo_name='wasanbon_repositories'):
+    _repository_path = repository_path()
+    target_path = os.path.join(_repository_path, user + owner_sign, repo_name + '.git')
+    return target_path
+
+def is_local_owner_repository(user, repo_name='wasanbon_repositories'):
+    target_path = owner_repository_path(user, repo_name)
+    return os.path.isdir(target_path)
+
+def get_owner_repository_username_list(verbose=False):
+    repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
+    owner_name_list = []
+    for user in os.listdir(repo_dir):
+        if user.endswith(owner_sign):
+            owner_name_list.append(user[:-len(owner_sign)])
+    return owner_name_list
+
+def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repositories', verbose=False):
+    if verbose:
+        sys.stdout.write(' - Append RTC repository to owner repository\n')
+    if not is_local_owner_repository(user):
+        if verbose:
+            sys.stdout.write(' @ Not found owner repository\n')
+        return False
+    target_path = os.path.join(owner_repository_path(user, repo_name), 'rtcs', filename)
+    if not os.path.isfile(target_path):
+        if verbose:
+            sys.stdout.write(' @ Not found target repository file: %s\n' % target_path)
+        return False
+    shutil.copyfile(target_path, target_path + '.bak')
+    fin = open(target_path+'.bak', 'r')
+    fout = open(target_path, 'w')
+    for line in fin:
+        fout.write(line)
+    
+    repo = rtc_obj.repository
+    name = rtc_obj.name
+    description = rtc_obj.description
+    type = repo.protocol
+    url = rtc_obj.repository.url
+    platform = wasanbon.platform()
+    import datetime
+    now = datetime.datetime.now()
+    
+    fout.write('\n# Added in %s/%s/%s/%s:%s:%s\n' % \
+                   (now.year, now.month, now.day, now.hour, now.minute, now.second))
+    fout.write(name + ' :\n')
+    fout.write('  description : \'' + description + '\'\n')
+    fout.write('  type : ' + type + '\n')
+    fout.write('  url : \'' + url + '\'\n')
+    fout.write('  platform :' + platform + '\n')
+    
+    return True
+
+
+
 def parse_rtc_repo_dir(repo_dir="", verbose=False):
     if len(repo_dir) == 0:
         repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
@@ -136,10 +193,17 @@ def platform_check(args, verbose=False):
             return True
     return False
 
+
+def repository_path(url=None):
+    root = os.path.join(wasanbon.rtm_home(), 'repositories')
+    if url:
+        root = os.path.join(root, url.split('/')[-2])
+    return root
+
 def download_repository(url, target_path='',verbose=False, force=False):
-    repository_path = os.path.join(wasanbon.rtm_home(), 'repositories', url.split('/')[-2])
+    _repository_path = repository_path(url)
     if not target_path:
-        target_path = os.path.join(repository_path, url.split('/')[-1])
+        target_path = os.path.join(_repository_path, url.split('/')[-1])
     if verbose:
         sys.stdout.write('    - Downloading repository %s\n' % url)
         sys.stdout.write('        into %s\n' % target_path)

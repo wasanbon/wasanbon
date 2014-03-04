@@ -44,10 +44,11 @@ class RtcRepository():
         return self._hash
 
     def fork(self, user, passwd, verbose=False, path='.'):
+        from wasanbon.core.repositories import github_api
         if verbose:
             sys.stdout.write(' - Forking RtcRepository %s\n' % self.name)
-        github_obj = wasanbon.util.github_ref.GithubReference(user, passwd)
-        repo = github_obj.fork_repo(self.user, self.repo_name, verbose=verbose)
+        github_obj = github_api.GithubReference(user, passwd)
+        repo = github_obj.fork_repo(self.user, self.repo_name, self.repo_name, verbose=verbose)
         url = 'https://github.com/%s/%s.git' % (user, self.repo_name)
         return RtcRepository(name=self.name, url=url, desc=self.description, hash=self.hash)
 
@@ -68,10 +69,10 @@ class RtcRepository():
             try:
                 git_obj = git.GitRepository(os.path.join(os.getcwd(), distpath))
                 git_obj.change_upstream_pointer(self.url, verbose=verbose)
+                return rtc_object.RtcObject(os.path.join(path, distpath))
             except:# git.GitRepositoryNotFoundException, ex:
                 sys.stdout.write(' - Directory is not git repository\n')
-                return False
-            return
+                return None
         
         git.git_command(['clone', self.url, distpath], verbose=verbose)
         os.chdir(os.path.join(os.getcwd(), distpath))
