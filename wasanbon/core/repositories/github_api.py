@@ -67,7 +67,7 @@ class GithubReference ():
         repo = self._github.get_user().create_repo(name)
         return repo
 
-    def fork_repo(self, user, name, verbose=False):
+    def fork_repo(self, user, name, newname, verbose=False):
         if verbose:
             sys.stdout.write(' - Forking Repositoy %s/%s\n' %  (user, name))
 
@@ -81,7 +81,10 @@ class GithubReference ():
             try:
                 if verbose:
                     sys.stdout.write(' - Trying to check your repository %s\n' % name)
-                return self.get_repo(name)
+                forked_repo = self.get_repo(name)
+                forked_repo.edit(newname)
+                
+                return forked_repo
             except:
                 time.sleep(1)
                 pass

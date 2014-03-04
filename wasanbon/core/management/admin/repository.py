@@ -1,20 +1,18 @@
 """
 Repository Control.
 
-If you want to check the repository status, use:
-  $ wasanbon-admin.py repository status
 
-If you do not have any repositories in your system, use:
-  $ wasanbon-admin.py repository setup
+  $ wasanbon-admin.py repository
 
-If you have your own repository, use:
-  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
-
-To update, use:
-  $ wasanbon-admin.py repository update
+ - status : Check Repository Status.
+ - setup  : Download default repository from www.
+ - install : Download specific repository from url.
+            ex.,  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
+ - update : Update repositories.
+ - create : Create your own repository
 """
 
-import sys, os, yaml, getpass, types
+import sys, os, yaml, getpass, types, optparse, traceback
 import wasanbon
 from wasanbon.core import repositories
 #from wasanbon.core import package as pack
@@ -28,19 +26,33 @@ def alternative(argv=None):
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
     wasanbon.arg_check(argv, 3)
+    usage = "wasanbon-admin.py repository [subcommand] ...\n"
+    parser = optparse.OptionParser(usage=usage, add_help_option=False)
+    parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
+    parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+
+    try:
+        options, argv = parser.parse_args(argv[:])
+    except:
+        traceback.print_exc()
+        return
         
-    if '-l' in argv:
-        longformat = True
-    else:
-        longformat = False
-    argv = [arg for arg in argv if not arg is '-l']
+    longformat = options.long_flag
+    service_name = options.service
           
     if argv[2] == 'setup':
         sys.stdout.write(' - Downloading Repositories.\n')
         if not repositories.download_repositories(verbose=True):
             sys.stdout.write(' - Downloading Failed.\n')
-            return
-        return
+
+    elif argv[2] == 'update':
+        pack.update_repositories(verbose=verbose)
+
+    elif argv[2] == 'create':
+        sys.stdout.write(' - Input %s User Name:' % options.service)
+        user, passwd = wasanbon.user_pass()
+        sys.stdout.write(' - Creating wasanbon_repositories in your %s\n' % service_name)
+        repositories.create_local_repository(user, passwd, verbose=verbose, service=service_name)
 
     elif argv[2] == 'status':
         sys.stdout.write(' - Checking Repositories.\n')
@@ -95,8 +107,6 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             sys.stdout.write(' @ Cloning Package Repositories\n')
             pack.update_repositories(verbose=verbose, url=argv[3])
 
-    elif argv[2] == 'update':
-        pack.update_repositories(verbose=verbose)
 
     elif argv[2] == 'commit':
         wasanbon.arg_check(argv, 4)
@@ -115,12 +125,6 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 git.git_command(['push'], path=path, verbose=verbose)
                 return
         
-    elif argv[2] == 'create':
-        sys.stdout.write(' - Input Github User Name:')
-        username = raw_input()
-        passwd = getpass.getpass()
-        sys.stdout.write(' - Creating wasanbon_repositories in your github\n')
-        repositories.create_local_repository(username, passwd, verbose=verbose)
 
     elif argv[2] == 'edit':
         paths = repositories.parse_rtc_repo_dir()

@@ -5,25 +5,45 @@ from wasanbon.util import git
 
 owner_sign = '_owner'
 
-def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False):
+def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False, service='github'):
     if verbose:
         sys.stdout.write(' - Initializing Your Repository\n')
         pass
-    import github
-    target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
-    url = 'https://github.com/' + user + '/' + repo_name + '.git'
-    #Check if repository exists...
-    github_obj = github_ref.GithubReference(user, passwd)
-    if github_obj.exists_repo(repo_name):
-        sys.stdout.write(' @ You have already created your own repository.\n')
-        sys.stdout.write(' @ wasanbon just clone it.\n')
-        download_repository(url=url, target_path=target_path, verbose=verbose)
-        return True
-    repo_obj = github_obj.fork_repo('sugarsweetrobotics', 
-                                    'wasanbon_repositories_template')
-    repo_obj.edit(repo_name)
-    download_repository(url=url, target_path=target_path, verbose=verbose)
 
+    if service=='github':
+        import github_ref
+        target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
+        url = 'https://github.com/' + user + '/' + repo_name + '.git'
+        #Check if repository exists...
+        github_obj = github_ref.GithubReference(user, passwd)
+        if github_obj.exists_repo(repo_name):
+            sys.stdout.write(' @ You have already created your own repository.\n')
+            sys.stdout.write(' @ wasanbon just clone it.\n')
+            download_repository(url=url, target_path=target_path, verbose=verbose)
+            return True
+        repo_obj = github_obj.fork_repo('sugarsweetrobotics', 
+                                        'wasanbon_repositories_template',
+                                        repo_name, verbose=verbose)
+
+    elif service=='bitbucket':
+        import bitbucket_api
+        target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
+        url = 'https://bitbucket.org/' + user + '/' + repo_name + '.git'
+        _obj = bitbucket_api.BitbucketReference(user, passwd)
+        if _obj.exists_repo(repo_name):
+            sys.stdout.write(' @ You have already created your own repository.\n')
+            sys.stdout.write(' @ wasanbon just clone it.\n')
+            download_repository(url=url, target_path=target_path, verbose=verbose)
+            return True
+        repo_obj = _obj.fork_repo('sugarsweetrobotics', 
+                                  'wasanbon_repositories_template',
+                                  repo_name, verbose=verbose)
+    else:
+        if verbose:
+            sys.stdout.write(' @ Error. Unsupported Version Control Service Name %s.' % service)
+        return False
+    download_repository(url=url, target_path=target_path, verbose=verbose)
+    return True
 def parse_rtc_repo_dir(repo_dir="", verbose=False):
     if len(repo_dir) == 0:
         repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
