@@ -22,7 +22,11 @@ def download(url, dist="", force=False, verbose=False):
         dist = os.path.basename(url)
     if force and os.path.isfile(dist):
         os.remove(dist)
-    if not os.path.isfile(dist):
+    if os.path.isfile(dist):
+        if verbose:
+            sys.stdout.write(' - file : %s is already downloaded.\n' % dist)
+            pass
+    else:
         if os.path.isfile(dist + '.part'):
             os.remove(dist+'.part')
         if verbose:

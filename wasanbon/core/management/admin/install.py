@@ -25,6 +25,9 @@ def alternative(argv=None):
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
     wasanbon.arg_check(argv, 3)
 
+    __import__('wasanbon.core.platform.path')
+    path = sys.modules['wasanbon.core.platform.path']
+    path.init_tools_path(verbose=verbose)
     y = yaml.load(open(os.path.join(wasanbon.rtm_home(), 'setting.yaml'), 'r'))    
     
     if 'all' in argv:
