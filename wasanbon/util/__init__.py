@@ -84,6 +84,10 @@ def download_and_install(url, force=False, temp="", verbose=False, open_only=Fal
     if url.startswith("apt-get") or url.startswith("aptitude"):
         apt_get(url)
         return
+
+    if verbose:
+        sys.stdout.write(' - Download and Install from %s\n' % url)
+
     filename = os.path.basename(url)
     if len(temp)==0:
         temp = wasanbon.rtm_temp()
@@ -97,9 +101,9 @@ def download_and_install(url, force=False, temp="", verbose=False, open_only=Fal
         for root, dirs, files in os.walk(dist_path):
             for dir in dirs:
                 if dir.endswith('.mpkg'):
-                    install.install(os.path.join(root, dir))
+                    install.install(os.path.join(root, dir), verbose=verbose)
     else:
-        install.install(dist_file, open_only=open_only)
+        install.install(dist_file, open_only=open_only, verbose=verbose)
     pass
 
 

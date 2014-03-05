@@ -36,6 +36,10 @@ def search_command(cmd, path, hints, verbose=False):
     else:
         raise wasanbon.UnsupportedPlatformError()
 
+
+    if sys.platform == 'darwin' and (cmd == 'java' or cmd == 'javac'):
+        return check_java_path_in_darwin(cmd, verbose=verbose)
+
     if verbose:
         sys.stdout.write('   - Searching %s ... ' % (cmd))
     if path.endswith(cmd) and os.path.isfile(path):
@@ -57,3 +61,20 @@ def search_command(cmd, path, hints, verbose=False):
     return paths[0]
     
 
+def check_java_path_in_darwin(cmd, verbose=False):
+    if verbose:
+        sys.stdout.write('   - Searching %s ... ' % (cmd))
+    import subprocess
+
+    p = subprocess.Popen([cmd, '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    ret = p.wait()
+    if p.stderr.read().startswith('No Java runtime present'):
+        if verbose:
+            sys.stdout.write(' No Java runtime present\n')
+        return ""
+    else:
+        if verbose:
+            sys.stdout.write(' Java runtime found.\n')
+
+        return "/usr/bin/" + cmd
+    
