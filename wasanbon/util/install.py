@@ -78,13 +78,12 @@ def install_dmg(dmg, open_only=False, verbose=False):
 
         for dir in dirs:
             if verbose:
-                sys.stdout.write(' - Parsing Directory %s\n' % os.path.join(root, dir), verbose=verbose)
-            install(os.path.join(root, dir)) # .pkg and .app is directory but installable.
+                sys.stdout.write(' - Parsing Directory %s\n' % os.path.join(root, dir))
+            install(os.path.join(root, dir), verbose=verbose) # .pkg and .app is directory but installable.
         for file in files:
             if verbose:
-                sys.stdout.write(' - Parsing File %s\n' % os.path.join(root, file), verbose=verbose)
-
-            install(os.path.join(root, file))
+                sys.stdout.write(' - Parsing File %s\n' % os.path.join(root, file))
+            install(os.path.join(root, file), verbose=verbose)
     cmd = ['hdiutil', 'unmount', mountedVolume[0]]
     if verbose:
         sys.stdout.write(' - Executing %s\n' % str(cmd))

@@ -1,12 +1,15 @@
 import os, sys, urllib, subprocess
 
 _urls = {
-    'yaml': {'win32' : "http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.6.exe",
-             'darwin' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz',
+    'yaml': {'win32' : 'pip install pyyaml',
+             'darwin' : 'pip install pyyaml',
              'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
-    'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
-                'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
-                'linux2'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
+    #'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
+    #            'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
+    #            'linux2'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
+    'github' : {'darwin' : 'pip install pygithub',
+                'win32'  : 'pip install pygithub',
+                'linux2'  : 'pip install pygithub'},
     'setuptools': {'darwin' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
                    'win32' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
                    'linux2' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'},
