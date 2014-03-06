@@ -31,7 +31,7 @@ def execute_with_argv(args, verbose=False):
     psutil = try_import_and_install('psutil', verbose=verbose, force=force)
     bitbucket = try_import_and_install('bitbucket', verbose=verbose, force=force)
 
-    if not all([yaml, github]):
+    if not all([pip, yaml, github, psutil, bitbucket]):
         sys.stdout.write(' @ Try wasanbon-admin.py init again.\n')
         return False
 
@@ -39,6 +39,9 @@ def execute_with_argv(args, verbose=False):
     platform = sys.modules['wasanbon.core.platform']        
     platform.init_rtm_home(verbose=verbose)
 
+    __import__('wasanbon.core.platform.path')
+    path = sys.modules['wasanbon.core.platform.path']
+    path.init_tools_path(verbose=verbose)
     
 def try_import_and_install(pack, verbose=False, force=False):
     if verbose:
@@ -57,5 +60,6 @@ def try_import_and_install(pack, verbose=False, force=False):
             setup = sys.modules['wasanbon.setup']
             if not setup.download_and_install(pack, force=force, verbose=verbose):
                 sys.stdout.write(' @ Error. There may be "download" directory in the current path.\n')
-    return False
+                return False
+    return True
     

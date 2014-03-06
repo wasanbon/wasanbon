@@ -101,7 +101,7 @@ class Package():
 
     @property
     def rtcs(self):
-        if True:
+        if not self._rtcs:
             for dir in os.listdir(os.path.join(self.path, self.setting['RTC_DIR'])):
                 if dir.startswith('.') or dir == 'repository.yaml':
                     pass
