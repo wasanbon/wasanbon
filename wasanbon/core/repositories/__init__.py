@@ -11,11 +11,11 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
         pass
 
     if service=='github':
-        import github_ref
+        import github_api
         target_path = os.path.join(repo_dir, user + owner_sign, repo_name + '.git')
         url = 'https://github.com/' + user + '/' + repo_name + '.git'
         #Check if repository exists...
-        github_obj = github_ref.GithubReference(user, passwd)
+        github_obj = github_api.GithubReference(user, passwd)
         if github_obj.exists_repo(repo_name):
             sys.stdout.write(' @ You have already created your own repository.\n')
             sys.stdout.write(' @ wasanbon just clone it.\n')
