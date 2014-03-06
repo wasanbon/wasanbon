@@ -146,8 +146,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 for rtno in rtnos:
                     if rtno.name == argv[3]:
                         tools.launch_arduino(rtno.file, verbose=verbose)
-                        return
-            raise wasanbon.RTCNotFoundException()
+
 
         elif argv[2] == 'configure':
             wasanbon.arg_check(argv, 4)

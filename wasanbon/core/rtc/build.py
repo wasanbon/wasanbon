@@ -1,4 +1,3 @@
-
 import sys, os, shutil, subprocess
 import xml.etree.ElementTree as et
 
@@ -54,7 +53,10 @@ def build_rtc_cpp(rtcp, verbose=False):
                 sys.stdout.write(' - make\n')
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
             p.wait()
-            errmsg = p.stderr.read()
+            if not verbose:
+                errmsg = p.stderr.read()
+            else:
+                errmsg = ""
             return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):

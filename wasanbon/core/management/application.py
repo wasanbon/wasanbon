@@ -47,7 +47,8 @@ def execute(argv=None):
 
     opts = get_subcommand_list(package)
     try:
-        usage  = command + ' [subcommand]\n' + 'subcommand (-h for more information):\n'
+        usage  = command + ' [subcommand] (for help, use -h option with subcommand.)\n'
+        usage = usage + 'subcommand-set :\n'
         for opt in opts:
             usage = usage + ' - ' + opt + '\n'
     except Exception, e:
