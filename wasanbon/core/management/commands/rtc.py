@@ -83,8 +83,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                     rtc.clean(verbose=verbose)
 
         elif argv[2] == 'run':
-            sys.stdout.write(' @ Executing RTC %s\n' % argv[2])
-            rtc_ = _package.rtc(argv[2])
+            sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
+            rtc_ = _package.rtc(argv[3])
             rtcconf = _package.rtcconf(rtc_.language)
             rtc_temp = os.path.join("conf", "rtc_temp.conf")
             if os.path.isfile(rtc_temp):
@@ -95,6 +95,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False)
 
             try:
+                from wasanbon.core.package import run
                 if rtc_.language == 'C++':
                     p = run.start_cpp_rtcd(rtc_temp, verbose=True)
                 elif rtc_.language == 'Python':
