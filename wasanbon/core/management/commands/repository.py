@@ -1,42 +1,35 @@
 """
-RTC's repository control
+en_US:
+ brief : |
+  RTC's repository control
+ description : |
 
-$ mgr.py repository [subcommand] YOUR_RTC_NAME ...
-
-subcommands:
- - list   : List RTC repositories.
-
- - clone  : Clone RTC source code from RTC repository.
-  ex., $ mgr.py repository clone YOUR_RTC_REPOSITORY
-            This command allows to clone from specific url as well.
-  ex., $ mgr.py repository clone YOUR_RTC_URL
- - fork   : Fork RTC source code from RTC repository to your remote repository.
-  ex., $ mgr.py repository fork YOUR_RTC_REPOSITORY
-            You will asked your remote repository address (Currently github only).
-
- - init   : Create local repository in your RTC code directory (current git only)
-  ex., $ mgr.py repository init YOUR_RTC_NAME
-            This command create .git directory in rtc/YOUR_RTC_DIR/
- - fini   : Remove local repository of your RTC
-  ex., $ mgr.py repository fini YOUR_RTC_NAME
-            This command just remove .git directory in rtc/YOUR_RTC_DIR/
-
- - remote_add : Add remote repository as upstream repository
-  ex., $ mgr.py repository remote_add YOUR_RTC_NAME UPSTREAM_URL
- - remote_del : Delete remote repository link
-  ex., $ mgr.py repository remote_del YOUR_RTC_NAME
- - remote_create : Create remote repository in your remote service (currently, github only)
-  ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
-
- - owner_add : Add repository information to your local repository file.
-               This command will edit your own local repository file maybe stored in ~/rtm/repositories/*_owner/
-  ex., $ mgr.py repository owner_add YOUR_RTC_NAME
-
- - commit : Commit change to local repository.
- - push   : Push local commits to upstream repository.
- - pull   : Pull from upstream repository to local repository.
-
-
+ subcommands:
+  list   : List RTC repositories.
+  init   : |
+   Create local repository in your RTC code directory (current git only)
+   ex., $ mgr.py repository init YOUR_RTC_NAME
+   This command create .git directory in rtc/YOUR_RTC_DIR/
+  fini   : |
+   Remove local repository of your RTC
+   ex., $ mgr.py repository fini YOUR_RTC_NAME
+   This command just remove .git directory in rtc/YOUR_RTC_DIR/
+  remote_add : |
+   Add remote repository as upstream repository
+   ex., $ mgr.py repository remote_add YOUR_RTC_NAME UPSTREAM_URL
+  remote_del : |
+   Delete remote repository link
+   ex., $ mgr.py repository remote_del YOUR_RTC_NAME
+  remote_create : |
+   Create remote repository in your remote service (currently, github only)
+   ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
+  owner_add : |
+   Add repository information to your local repository file.
+   This command will edit your own local repository file maybe stored in ~/rtm/repositories/*_owner/
+   ex., $ mgr.py repository owner_add YOUR_RTC_NAME
+  commit : Commit change to local repository.
+  push   : Push local commits to upstream repository.
+  pull   : Pull from upstream repository to local repository.
 """
 
 import os, sys, optparse
@@ -108,27 +101,6 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         _package.append_rtc_repository(rtc_.repository)
         owner_add(_package, argv[3])
         
-    elif argv[2] == 'fork':
-        wasanbon.arg_check(argv, 4)
-        sys.stdout.write(' @ Forking GITHUB repository in %s\n' % argv[3])
-        user, passwd = wasanbon.user_pass()
-        original_repo = wasanbon.core.rtc.get_repository(argv[3])
-        try:
-            repo = original_repo.fork(user, passwd, verbose=verbose, path=_package.rtc_path)
-        except wasanbon.RepositoryAlreadyExistsException, ex:
-            sys.stdout.write(' - Repository is already exists. Trying to clone it....\n')
-            from wasanbon.core.rtc import repository
-            url = 'https://github.com/' + user + '/' + original_repo.name + '.git'
-            repo = repository.RtcRepository(name=original_repo.name, 
-                                            url=url,
-                                            desc=original_repo.description)
-                                            
-
-
-        sys.stdout.write(' @ Cloning GITHUB repository in %s\n' % argv[3])            
-        rtc_ = repo.clone(verbose=verbose, path=_package.rtc_path)
-        _package.update_rtc_repository(repo, verbose=verbose)
-        owner_add(_package, argv[3])
 
     elif argv[2] == 'owner_add':
         owner_add(_package, argv[3])

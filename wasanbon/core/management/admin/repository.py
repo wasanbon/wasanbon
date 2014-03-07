@@ -12,35 +12,23 @@ en_US:
  subcommands :
   status : |
    Check Repository Status. This command allows -l option to see more information.
-
-
   setup  : |
    Download default repository from www into $RTM_HOME/repositories.
-
-
   install : |
    Download specific repository from url.
    ex.,  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
-
-
   update : |
    Update repositories.
-
-
   create : |
    Create your own repository. You will need to input your information. This will be interactive sequence.
    To use this command, just type, $ wasanbon-admin.py repository create 
-
-
   commit : |
    If you add/del your RTC repository information in your own repository, 
    you can commit the changes into your git repository by using this command.
    ex., wasanbon-admin.py repository commit "YOUR_COMMENT"
-
   push : |
    If your repositoy has additional commit, you can push the commits to upstream server.
    ex., wasanbon-admin.py repository push
-
   edit : |
    You can manually change your own repository files by this command.
    ex., wasanbon-admin.py repository edit.
