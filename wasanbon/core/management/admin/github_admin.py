@@ -1,3 +1,13 @@
+"""
+en_US : 
+ brief : |
+  This command will setup github authentication to register ssh key to github.com.
+ description : |
+  If you are core github.com user (like ysuga), You can use this command to upload ssh key to github.com
+ subcommands : 
+  init : Upload ssh key to github.com
+  set_user : this will initiate git config --global user.name|user.email
+"""
 import os, sys, yaml, shutil, getpass, subprocess
 
 import wasanbon

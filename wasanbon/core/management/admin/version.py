@@ -1,3 +1,13 @@
+"""
+en_US :
+ brief : |
+  This command simply show the version of wasanbon
+ description : |
+  This command simply show the version of wasanbon
+ subcommands: []
+"""
+
+
 import sys
 import wasanbon
 
