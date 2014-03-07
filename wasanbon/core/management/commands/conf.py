@@ -36,6 +36,9 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             lang = argv[3]
             key = argv[4]
             value = argv[5]
+            print value
+            value = value.replace('\\', '')
+            print value
             if lang == 'all':
                 rtcconf_cpp[key] = value
                 rtcconf_py[key] = value

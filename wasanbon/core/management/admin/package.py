@@ -2,8 +2,6 @@
 en_US:
  brief : |
   Package administration command.
-
-
  description : |
   This command will do package  administration.
   You can find your package by list subcommand.
@@ -14,41 +12,27 @@ en_US:
   Your package will be automatically registered into your system setting,
   if yours is not, do register.
   If you purge the registration, do unregister.
-
-
  subcommands :
   list : |
    Show the packages in your platform.
-
-
   create : |
-     Create New Package. ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
-
-
+   Create New Package. ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
   register : |
-     Register the package to the pacakge database.
-     ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
-
-
+   Register the package to the pacakge database.
+   ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
   unregister : |
-     Unregister the package from the package database
-     ex.,  $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
-
-
+   Unregister the package from the package database
+   ex.,  $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
   repository : |
-     Show the package list in the repository
-
-
+   Show the package list in the repository
   clone      : |
-     Clone the package from internet. 
-     This create directory in your current directory.
-     ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
-
-
+   Clone the package from internet. 
+   This create directory in your current directory.
+   ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
   fork      : |
-     Fork the package from internet. 
-     This create directory in your current directory.
-     ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+   Fork the package from internet. 
+   This create directory in your current directory.
+   ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
 """
 
 import os, sys, optparse, getpass
@@ -59,17 +43,21 @@ from wasanbon.core import repositories
 
 
 def alternative(argv=None):
-    all_cmd = ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
+
     return_repo_cmd = ['clone', 'fork']
+    files_cmd = ['register', 'unregister']
+    all_cmd = ['create', 'list', 'directory', 'repository', 'diff'] + files_cmd + return_repo_cmd
     if not argv:
         return all_cmd
-    if len(argv) < 2:
-        return all_cmd
+    if len(argv) < 3:
+        return all_cmd 
 
     if argv[2] in return_repo_cmd:
         repos = pack.get_repositories()
         return [repo.name for repo in repos]
-
+    elif argv[2] in files_cmd:
+        return os.listdir(os.getcwd())
+    return ['a', 'b']
     
 def execute_with_argv(args, verbose):
     wasanbon.arg_check(args, 3)
@@ -146,8 +134,15 @@ def _create(args, verbose, force, clean):
 
 
 def _register(args, verbose):
+    if len(args) < 4:
+        args.append(os.getcwd())
+    else:
+        os.chdir(args[3])
+        args.remove(args[3])
+        args.append(os.getcwd())
     wasanbon.arg_check(args, 4)
-    _package = pack.get_package(args[3], verbose=verbose)
+    #_package = pack.get_package(args[3], verbose=verbose)
+    _package = pack.Package(args[3])
     sys.stdout.write(' @ Initializing Package in %s\n' % _package.name)
     _package.register(verbose=verbose)
     

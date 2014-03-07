@@ -39,9 +39,16 @@ def build_rtc_cpp(rtcp, verbose=False):
             cmd = [wasanbon.setting()['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
             #stdout = None if verbose else subprocess.PIPE
             stdout = None # In windows msbuild always must be launched in verbose mode.
+            stderr = None
             sys.stdout.write(' - msbuild %s %s %s\n' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32'))
-            subprocess.call(cmd, stdout=stdout)
-            return
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            p.wait()
+            if not verbose:
+                errmsg = p.stderr.read()
+            else:
+                errmsg = ""
+            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+
     elif sys.platform == 'darwin':
         if 'Makefile' in os.listdir(os.getcwd()):
             if verbose:
@@ -49,6 +56,7 @@ def build_rtc_cpp(rtcp, verbose=False):
             cmd = ['make']
             stdout = None if verbose else subprocess.PIPE
             stderr = None if verbose else subprocess.PIPE
+
             if verbose:
                 sys.stdout.write(' - make\n')
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
@@ -58,6 +66,7 @@ def build_rtc_cpp(rtcp, verbose=False):
             else:
                 errmsg = ""
             return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):
             if verbose:
