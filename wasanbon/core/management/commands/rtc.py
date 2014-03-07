@@ -48,7 +48,7 @@ en_US:
    This function is very useful.
 """
 
-import os, sys, optparse, yaml, types
+import os, sys, optparse, yaml, types, traceback
 import wasanbon
 from wasanbon.core import package as pack
 from wasanbon.core import rtc, tools, repositories
@@ -78,7 +78,7 @@ def get_rtc_rtno( _package, name, verbose=False):
     except wasanbon.RTCNotFoundException, e:
         return tools.get_rtno_package(_package, name, verbose=verbose)
 
-def is_url(arg):
+def is_url(argv):
     return argv[3].startswith('git@') or argv[3].startswith('http')
 
 def _clone_from_url(_package, url, verbose=False):
@@ -171,7 +171,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                             pack.install_rtc(_package, rtc, verbose=verbose)
                             sys.stdout.write('  - Success.\n')
                         except Exception ,ex:
-                            sys.stdout.write('  @ Installing RTC %s failed.\n' % name)
+                            sys.stdout.write('  @ Installing RTC %s failed.\n' % rtc.name)
                             if verbose:
                                 traceback.print_exc()
                 else:

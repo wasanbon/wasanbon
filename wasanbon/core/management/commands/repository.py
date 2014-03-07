@@ -138,6 +138,25 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
 
             _package.update_rtc_repository(rtc_.repository, verbose=verbose)
+    elif argv[2] == 'commit':
+        wasanbon.arg_check(argv, 5)
+        sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
+        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        rtc_.commit(comment=argv[4], verbose=True)
+        _package.update_rtc_repository(rtc_.repository, verbose=verbose)
+
+    elif argv[2] == 'push':
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
+        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        rtc_.push(verbose=True) # when pushing always must be verbose 
+
+    elif argv[2] == 'pull':
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
+        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        rtc_.pull(verbose=verbose)
+        _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
     elif argv[2] == 'checkout':
         wasanbon.arg_check(argv, 4)
