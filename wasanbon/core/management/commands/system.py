@@ -219,27 +219,30 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         pass
 
     elif argv[2] == 'configure':
-        sysobj = _package.system
-        def select_rtc(ans):
-            confs = sysobj.active_conf_data(sysobj.rtcs[ans])
-            conf_names = [conf.name +':' + conf.data for conf in confs]
-
-            def select_conf(ans2):
-                key = confs[ans2].name
-                sys.stdout.write(' INPUT (%s):' % key)
-                val = raw_input()
-                if util.yes_no('%s = %s. Okay?' % (key, val)) == 'yes':
-                    sysobj.set_active_conf_data(sysobj.rtcs[ans], key, val)
-                    return True
-                return False
-            util.choice(conf_names, select_conf, msg='Select Configuration')
-            return False
-
-        util.choice(sysobj.rtcs, select_rtc, msg='Select RTC')
-        sysobj.update()
+        interactive_configure(_package, argv, verbose=verbose)
     else:
         raise wasanbon.InvalidUsageException
 
+
+def interactive_configure(_package, argv, verbose):
+    sysobj = _package.system
+    def select_rtc(ans):
+        confs = sysobj.active_conf_data(sysobj.rtcs[ans])
+        conf_names = [conf.name +':' + conf.data for conf in confs]
+        
+        def select_conf(ans2):
+            key = confs[ans2].name
+            sys.stdout.write(' INPUT (%s):' % key)
+            val = raw_input()
+            if util.yes_no('%s = %s. Okay?' % (key, val)) == 'yes':
+                sysobj.set_active_conf_data(sysobj.rtcs[ans], key, val)
+                return True
+            return False
+        util.choice(conf_names, select_conf, msg='Select Configuration')
+        return False
+
+    util.choice(sysobj.rtcs, select_rtc, msg='Select RTC')
+    sysobj.update()
 
 def signal_action(num, frame):
     print ' - SIGINT captured'
