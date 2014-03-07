@@ -1,7 +1,9 @@
 """
-brief : |
+en_US :
+ brief : |
   Initialization of wasanbon's environment.
-description : |
+
+ description : |
   This command must be called first. This will do ...
   1. Install Pip, PyYAML, PyGithub, psutil, and python-bitbucket module if not installed.
   2. Create RTM_HOME directory, where:
@@ -10,7 +12,8 @@ description : |
     2.3 Copy 'setting.yaml' file in your $HOME/rtm. This is basic setting file of wasanbon.
   If you need to start wasanbon, you also have to download repository files from internet.
   Check wasanbon-admin.py repository command.
-subcommands: []
+
+ subcommands: []
 """
 import sys, traceback
 import wasanbon

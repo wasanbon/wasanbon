@@ -1,3 +1,18 @@
+"""
+en_US:
+ brief: |
+  Build your package from anywhere in your system.
+ description : |
+  Build your package from anywhere in your system.
+  If you are in the specific RTC's directory, just type 'wasanbon-admin.py make' to build the RTC only.
+  If you are in the specific package (and not in the specific RTC's direcotry),
+  just type: 'wasanbon-admin.py make' to build the package's all RTCs.
+  This command also allows to input package name to be built. Use:
+  'wasanbon-admin.py make YOUR_PACKAGE_NAME'
+  To cleanup the build intermediate files, add -c option.
+ subcommands : []
+"""
+
 #!/usr/bin/env python
 import os, sys, optparse, traceback
 import wasanbon
@@ -10,10 +25,10 @@ def alternative(argv=None):
 
 def execute_with_argv(argv, verbose):
 
-    usage = "wasanbon-admin.py repository [subcommand] ...\n"
+    usage = "wasanbon-admin.py make YOUR_PACKAGE_NAME \n"
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     #parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
-    parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+    #parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
     parser.add_option('-c', '--clean', help='Clean up binaries',  action='store_true', default=False, dest='clean_flag')
 
     try:

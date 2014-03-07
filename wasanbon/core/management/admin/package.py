@@ -1,23 +1,54 @@
 """
- Package Administration.
- - following subcommands are available:
+en_US:
+ brief : |
+  Package administration command.
 
- - create     : Create New Package. 
-   ex.,
-     $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
 
- - list       : Show the packages in your platform.
+ description : |
+  This command will do package  administration.
+  You can find your package by list subcommand.
+  You can create your package by create subcommand, 
+  and you can clone your package from repository.
+  Fork command will create your own repository in your own upstream repository,
+  this will be useful if you want to modify the package for your own purpose.
+  Your package will be automatically registered into your system setting,
+  if yours is not, do register.
+  If you purge the registration, do unregister.
 
- - repository : Show the package repository
 
- - clone      : Clone the package from internet. 
-                This create directory in your current directory.
-   ex.,
-     $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+ subcommands :
+  list : |
+   Show the packages in your platform.
 
- - unregister : Unregister the package from the package database
-   ex.,
-     $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
+
+  create : |
+     Create New Package. ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
+
+
+  register : |
+     Register the package to the pacakge database.
+     ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
+
+
+  unregister : |
+     Unregister the package from the package database
+     ex.,  $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
+
+
+  repository : |
+     Show the package list in the repository
+
+
+  clone      : |
+     Clone the package from internet. 
+     This create directory in your current directory.
+     ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+
+
+  fork      : |
+     Fork the package from internet. 
+     This create directory in your current directory.
+     ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
 """
 
 import os, sys, optparse, getpass
@@ -29,7 +60,7 @@ from wasanbon.core import repositories
 
 def alternative(argv=None):
     all_cmd = ['create', 'unregister', 'list', 'directory', 'repository', 'clone', 'fork', 'diff']
-    return_repo_cmd = ['clone']
+    return_repo_cmd = ['clone', 'fork']
     if not argv:
         return all_cmd
     if len(argv) < 2:
@@ -54,7 +85,10 @@ def execute_with_argv(args, verbose):
 
     if args[2] == 'create':
         _create(args, verbose, force ,clean)
-        
+
+    elif args[2] == 'register':
+        _register(args, verbose)
+
     elif args[2] == 'unregister':
         _unregister(args, verbose, force, clean)
         
@@ -69,27 +103,11 @@ def execute_with_argv(args, verbose):
             print '.'
 
     elif args[2] == 'repository':
-        if len(args) == 3: # list
-            args.append('list')
-            pass
-
-        if args[3] == 'list':
-            sys.stdout.write(' @ Listing Package Repositories\n')
+        sys.stdout.write(' @ Listing Package Repositories\n')
             #rtcs, packs = repositories.load_repositories(verbose=verbose)
-            repos = pack.get_repositories(verbose=verbose)
-            for repo in repos:
-                print_repository(repo, long=long_option)
-
-        elif args[3] == 'create':
-            (username, passwd) = wasanbon.user_pass()
-            sys.stdout.write('  - Input repository name :')
-            repo_name = raw_input()
-            repositories.create_local_repository(username, passwd, repo_name, verbose=verbose)
-            pass
-
-        elif args[3] == 'update':
-            sys.stdout.write(' @ Updating Package Repositories\n')
-            pack.update_repositories(verbose=verbose)
+        repos = pack.get_repositories(verbose=verbose)
+        for repo in repos:
+            print_repository(repo, long=long_option)
 
     elif args[2] == 'clone':
         wasanbon.arg_check(args,4)
@@ -126,6 +144,13 @@ def _create(args, verbose, force, clean):
     sys.stdout.write(' @ Creating package %s\n' % args[3])
     _package = pack.create_package(args[3], verbose=verbose)
 
+
+def _register(args, verbose):
+    wasanbon.arg_check(args, 4)
+    _package = pack.get_package(args[3], verbose=verbose)
+    sys.stdout.write(' @ Initializing Package in %s\n' % _package.name)
+    _package.register(verbose=verbose)
+    
 def _unregister(args, verbose, force, clean):
     wasanbon.arg_check(args, 4)
     sys.stdout.write(' @ Removing workspace %s\n' % args[3])

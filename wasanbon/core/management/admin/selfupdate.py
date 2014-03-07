@@ -1,7 +1,42 @@
+"""
+en_US :
+ brief : |
+  This command will update wasanbon automatically.
+ description : |
+  This command will update wasanbon automatically.
+ subcommands: []
+"""
+
+
+
 #!/usr/bin/env python
 import os, sys, subprocess, shutil
 import wasanbon
 from wasanbon import util
+
+def execute_with_argv(argv, verbose=False, force=False, clean=False):
+    if True:
+        cwd = os.getcwd()
+
+        if verbose:
+            sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp())
+            pass
+
+        if len(argv) >= 3:
+            branch = argv[2]
+        else:
+            branch = 'master'
+
+        os.chdir(wasanbon.rtm_temp())
+        if not os.path.isdir('wasanbon'):
+            if not clean:
+                clone_and_update(verbose=verbose, force=force, branch=branch)
+        else:
+            #cleanup(verbose=verbose)
+            pull_and_update(verbose=verbose, force=force, branch=branch)
+
+        os.chdir(cwd)
+
 
 def pull_and_update(verbose, force, branch):
     cwd = os.getcwd()
@@ -77,25 +112,3 @@ def install(verbose, force):
     return True
 
 
-def execute_with_argv(argv, verbose=False, force=False, clean=False):
-    if True:
-        cwd = os.getcwd()
-
-        if verbose:
-            sys.stdout.write(' - Changing directory to %s\n' % wasanbon.rtm_temp())
-            pass
-
-        if len(argv) >= 3:
-            branch = argv[2]
-        else:
-            branch = 'master'
-
-        os.chdir(wasanbon.rtm_temp())
-        if not os.path.isdir('wasanbon'):
-            if not clean:
-                clone_and_update(verbose=verbose, force=force, branch=branch)
-        else:
-            #cleanup(verbose=verbose)
-            pull_and_update(verbose=verbose, force=force, branch=branch)
-
-        os.chdir(cwd)

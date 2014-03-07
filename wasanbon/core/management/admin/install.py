@@ -1,14 +1,18 @@
 """
-Install the modules that are required with wasanbon.
+en_US:
+ brief: |
+  Install the modules that are required with wasanbon.
 
- To install the modules, use :
-  $ wasanbon-admin.py install [modules]
 
- If you want to get alternatives of modules, use:
-  $ wasanbon-admin.py install -a
+ description : |
+  Install the modules which are required with wasanbon.
+  This command will install RT-middleware.
+  To install the modules, use : $ wasanbon-admin.py install [modules]
+  If you want to get alternatives of modules, use: $ wasanbon-admin.py install -a
+  If you want to check if it's installed or not, use: $ wasanbon-admin.py status
 
- If you want to check if it's installed or not, use:
-  $ wasanbon-admin.py status
+
+ subcommands : []
 """
 
 import sys, os,yaml
