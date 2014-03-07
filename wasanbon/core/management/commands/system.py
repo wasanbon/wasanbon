@@ -51,6 +51,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 #_package.install(_package.rtc(name), verbose=verbose)
                 rtc = _package.rtc(name)
                 package.install_rtc(_package, rtc, verbose=verbose, overwrite_conf=force)
+                
             except Exception, ex:
                 sys.stdout.write(' - Installing RTC %s failed.\n' % name)
                 print ex
