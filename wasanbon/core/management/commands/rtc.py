@@ -53,6 +53,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         usage = "mgr.py rtc [subcommand] ...\n"
         parser = optparse.OptionParser(usage=usage, add_help_option=False)
         parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
+        parser.add_option('-n', '--noinstall', help='Build without installing the RTC', action='store_true', default=False, dest='noinstall_flag')
         try:
             options, argv = parser.parse_args(args[:])
         except:
@@ -116,20 +117,28 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             
             for rtc in _package.rtcs:
                 if build_all or rtc.name in argv:
-                    sys.stdout.write(' @ Building RTC %s\n' % rtc.name)
+                    sys.stdout.write(' - Building RTC %s\n' % rtc.name)
                     ret = rtc.build(verbose=verbose)
                     if ret[0]:
-                        sys.stdout.write(' - Success\n')
+                        sys.stdout.write('  - Success\n')
+                        if not options.noinstall_flag: # Installing RTC 
+                            sys.stdout.write(' - Installing RTC (%s)\n' % rtc.name)
+                            try:
+                                pack.install_rtc(_package, rtc, verbose=verbose)
+                                sys.stdout.write('  - Success.\n')
+                            except Exception ,ex:
+                                sys.stdout.write('  @ Installing RTC %s failed.\n' % name)
+                                if verbose:
+                                    traceback.print_exc()
                     else:
-                        sys.stdout.write(' - Failed\n')
-                        if util.yes_no(' - Do you want to watch error message?') == 'yes':
+                        sys.stdout.write('  @ Failed\n')
+                        if util.yes_no('  @ Do you want to watch error message?') == 'yes':
                             print ret[1]
                     found_flag = True
                     pass
                 pass
-    
             if not found_flag:
-                sys.stdout.write(' - Can not find RTC.\n')
+                raise wasanbon.RTCNotFounException()
 
 
         elif argv[2] == 'edit':
