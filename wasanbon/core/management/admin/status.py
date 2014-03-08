@@ -1,5 +1,10 @@
 """
-Check you wasanbon platform status.
+en_US :
+ brief : |
+  Check you wasanbon platform status.
+ description : |
+  This command will show the setup status of wasanbon.
+ subcommands : []
 """
 
 import sys, os

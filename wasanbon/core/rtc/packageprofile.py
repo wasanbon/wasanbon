@@ -7,6 +7,7 @@ class PackageProfile(object):
     """
     """
     def __init__(self, rtcp):
+        self.rtcprofile = rtcp
         [self.path, dummy] = os.path.split(rtcp.filename)
         self.bin = find_rtc_bin(rtcp)
         self.conf = find_rtc_conf(rtcp)
@@ -20,8 +21,11 @@ class PackageProfile(object):
     def getPackagePath(self):
         return self.path
 
-    def getRTCFilePath(self):
+    def getRTCFilePath(self, verbose=False):
         return self.bin
+
+    def get_rtc_bin_filename(self):
+        return get_rtc_bin_filename(self.rtcprofile)
 
     def getConfFilePath(self):
         return self.conf
@@ -31,6 +35,29 @@ class PackageProfile(object):
 
     def getRTCExecutableFilePath(self):
         return self.executable
+
+
+def get_rtc_bin_filename(rtcp):
+    if rtcp.language.kind == 'C++':
+        if sys.platform == 'win32':
+            bin_ext = 'dll'
+        elif sys.platform == 'linux2':
+            bin_ext = 'so'
+        elif sys.platform == 'darwin':
+            bin_ext = 'dylib'
+        else:
+            sys.stdout.write('Unsupported platform %s' % sys.platform)
+            return
+        rtc_file_name_list = rtcp.basicInfo.name + '.' + bin_ext
+    elif rtcp.language.kind == 'Python':
+        rtc_file_name_list = rtcp.basicInfo.name + '.py'
+    elif rtcp.language.kind == 'Java':
+        rtc_file_name_list = rtcp.basicInfo.name + '.jar'
+    else:
+        raise InvalidRTCProfileError(self.filename, 'Unsupported Language(%s)' % rtcp.language.kind)
+
+    return rtc_file_name_list
+
 
 def find_rtc_srcs(rtcp):
     [path, file] = os.path.split(rtcp.filename)
@@ -58,24 +85,10 @@ def find_rtc_exec(rtcp):
     elif rtcp.language.kind == 'Java':
         return find_rtc_bin(rtcp)
         
+
+
 def find_rtc_bin(rtcp):
-    if rtcp.language.kind == 'C++':
-        if sys.platform == 'win32':
-            bin_ext = 'dll'
-        elif sys.platform == 'linux2':
-            bin_ext = 'so'
-        elif sys.platform == 'darwin':
-            bin_ext = 'dylib'
-        else:
-            sys.stdout.write('Unsupported platform %s' % sys.platform)
-            return
-        rtc_file_name_list = rtcp.basicInfo.name + '.' + bin_ext
-    elif rtcp.language.kind == 'Python':
-        rtc_file_name_list = rtcp.basicInfo.name + '.py'
-    elif rtcp.language.kind == 'Java':
-        rtc_file_name_list = rtcp.basicInfo.name + '.jar'
-    else:
-        raise InvalidRTCProfileError(filename, 'Unsupported Language(%s)' % rtcp.language.kind)
+    rtc_file_name_list = get_rtc_bin_filename(rtcp)
 
     [path, file] = os.path.split(rtcp.filename)
 
