@@ -1,5 +1,6 @@
 import os, sys, urllib, subprocess
 
+# This data can not be exported to yaml file because this setup can be launched without yaml library.
 _urls = {
     'yaml': {'win32' : 'pip install pyyaml',
              'darwin' : 'pip install pyyaml',

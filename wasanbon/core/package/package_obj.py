@@ -101,7 +101,7 @@ class Package():
 
     @property
     def rtcs(self):
-        if True:
+        if not self._rtcs:
             for dir in os.listdir(os.path.join(self.path, self.setting['RTC_DIR'])):
                 if dir.startswith('.') or dir == 'repository.yaml':
                     pass
@@ -177,11 +177,15 @@ class Package():
         rtcconf.remove('manager.modules.preload', filename)
         rtcconf.sync()
 
+
     def copy_binary_from_rtc(self, rtc_, verbose=False):
-        filepath = rtc_.packageprofile.getRTCFilePath()
+        filepath = rtc_.packageprofile.getRTCFilePath(verbose=verbose)
+        if verbose:
+            sys.stdout.write(' - Copying RTC Binary File from %s to %s\n' % (filepath, 'bin'))
+
         if len(filepath) == 0:
             sys.stdout.write(" - Can not find RTC file in RTC's directory\n")
-            return False
+            return ""
         
         if verbose:
             sys.stdout.write(' - Detect RTC binary %s\n' % filepath)
@@ -218,7 +222,7 @@ class Package():
         
         return targetfile
 
-    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename=""):
+    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True):
 
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
@@ -230,6 +234,9 @@ class Package():
             rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
 
         targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose)
+        if len(targetfile) == 0:
+            targetfile = os.path.join(self.setting['BIN_DIR'], rtc_.packageprofile.get_rtc_bin_filename())
+            pass
 
         rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
         if preload:

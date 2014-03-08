@@ -1,16 +1,19 @@
 """
-# wasanbon-admin.py init
+en_US :
+ brief : |
+  Initialization of wasanbon's environment.
 
-Initialization of wasanbon's environment.
-This command must be called first. This will do ...
- 1. Install PyYAML and PyGithub if not.
- 2. Create RTM_HOME directory, where:
-  2.1 Create 'rtm' directory in your $HOME.
-  2.2 Create 'temp' directory in your $HOME/rtm
-  2.3 Copy 'setting.yaml' file in your $HOME/rtm. This is basic setting file of wasanbon.
+ description : |
+  This command must be called first. This will do ...
+  1. Install Pip, PyYAML, PyGithub, psutil, and python-bitbucket module if not installed.
+  2. Create RTM_HOME directory, where:
+    2.1 Create 'rtm' directory in your $HOME.
+    2.2 Create 'temp' directory in your $HOME/rtm
+    2.3 Copy 'setting.yaml' file in your $HOME/rtm. This is basic setting file of wasanbon.
+  If you need to start wasanbon, you also have to download repository files from internet.
+  Check wasanbon-admin.py repository command.
 
-If you need to start wasanbon, you also have to download repository files from internet.
-Check wasanbon-admin.py repository command.
+ subcommands: []
 """
 import sys, traceback
 import wasanbon
@@ -31,7 +34,7 @@ def execute_with_argv(args, verbose=False):
     psutil = try_import_and_install('psutil', verbose=verbose, force=force)
     bitbucket = try_import_and_install('bitbucket', verbose=verbose, force=force)
 
-    if not all([yaml, github]):
+    if not all([pip, yaml, github, psutil, bitbucket]):
         sys.stdout.write(' @ Try wasanbon-admin.py init again.\n')
         return False
 
@@ -39,6 +42,9 @@ def execute_with_argv(args, verbose=False):
     platform = sys.modules['wasanbon.core.platform']        
     platform.init_rtm_home(verbose=verbose)
 
+    __import__('wasanbon.core.platform.path')
+    path = sys.modules['wasanbon.core.platform.path']
+    path.init_tools_path(verbose=verbose)
     
 def try_import_and_install(pack, verbose=False, force=False):
     if verbose:
@@ -57,5 +63,6 @@ def try_import_and_install(pack, verbose=False, force=False):
             setup = sys.modules['wasanbon.setup']
             if not setup.download_and_install(pack, force=force, verbose=verbose):
                 sys.stdout.write(' @ Error. There may be "download" directory in the current path.\n')
-    return False
+                return False
+    return True
     
