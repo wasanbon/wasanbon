@@ -21,16 +21,61 @@ _invalid_help_message = {'brief' : 'Can not load help message. Your system do no
                          'detail' : ['Can not load help message.', ' Your system do not have yaml package'],
                          'subcommand' : {}}
 
-def get_help_text(path, cmd):
+def get_help_dic(path, cmd):
     module_name = 'wasanbon.core.management.' + path + '.' + cmd
     __import__(module_name)
     doc = sys.modules[module_name].__doc__
     loc = locale.getdefaultlocale()[0]
-    return doc
+    yaml = __import__('yaml')
+    dic = yaml.load(doc)
+    if loc in dic.keys():
+        return dic[loc]
+    return dic['en_US']
+
+def get_help_text(path, cmd, long=False):
+    dic = get_help_dic(path, cmd)
+    command_str = "wasanbon-admin.py" if path=='admin' else "mgr.py"
+
+    str = """
+[brief]
+%s""" % dic['brief']
+
+    if not long:
+        str = str + """(add -l for more information)
+
+"""
+    if long:
+        str = str + """
+[detail]
+%s
+""" % (dic['description'])
+
+    if len(dic['subcommands']) == 0:
+        str = """
+[Usage]
+$ %s %s
+""" % (command_str, cmd)+ str
+        #str = str + '\n No subcommands are available.\n'
+        return str
+    str = """
+[Usage]
+$ %s %s [subcommand]
+""" % (command_str, cmd) + str + "[subcommand]"
+
+    if not long:
+        str = str + """  (add -l for more information)"""
+    for key, doc in dic['subcommands'].items():
+        if long:
+            str = str + """
+(%s)
+ %s""" % (key, doc)
+        else:
+            str = str + """ 
+ - %s""" % key
+ 
+
+    return str
     try:
-        yaml = __import__('yaml')
-        helpdir = get_help_dir()
-        filename = os.path.join(helpdir, path, cmd +'.yaml')
         if os.path.isfile(filename):
             return yaml.load(open(filename, 'r'))
         else:

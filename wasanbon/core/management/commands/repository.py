@@ -3,7 +3,12 @@ en_US:
  brief : |
   RTC's repository control
  description : |
-
+  With this command, you can ...
+  Show all RTCs in upstream repositories (list)
+  Initialize your RTC source code directory for a version controling like git (init)
+  
+  Register your RTC into your own upstream repository (remote_add)
+  
  subcommands:
   list   : List RTC repositories.
   init   : |
@@ -14,30 +19,19 @@ en_US:
    Remove local repository of your RTC
    ex., $ mgr.py repository fini YOUR_RTC_NAME
    This command just remove .git directory in rtc/YOUR_RTC_DIR/
-  remote_add : |
-   Add remote repository as upstream repository
-   ex., $ mgr.py repository remote_add YOUR_RTC_NAME UPSTREAM_URL
-  remote_del : |
-   Delete remote repository link
-   ex., $ mgr.py repository remote_del YOUR_RTC_NAME
   remote_create : |
    Create remote repository in your remote service (currently, github only)
    ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
-  owner_add : |
-   Add repository information to your local repository file.
-   This command will edit your own local repository file maybe stored in ~/rtm/repositories/*_owner/
-   ex., $ mgr.py repository owner_add YOUR_RTC_NAME
+   This automatically tries to add your repository url into your local repository file.
   commit : Commit change to local repository.
   push   : Push local commits to upstream repository.
   pull   : Pull from upstream repository to local repository.
 """
-
 import os, sys, optparse
 import wasanbon
 
 from wasanbon import util
 from wasanbon.core import rtc, package
-
 
 
 def alternative(argv=None):
@@ -102,8 +96,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         owner_add(_package, argv[3])
         
 
-    elif argv[2] == 'owner_add':
-        owner_add(_package, argv[3])
+    #elif argv[2] == 'owner_add':
+    #    owner_add(_package, argv[3])
 
     elif argv[2] == 'github_pullrequest':
         wasanbon.arg_check(argv, 6)
@@ -112,32 +106,6 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         rtc_ = _package.rtc(argv[3])
         rtc_.github_pullrequest(user, passwd, argv[4], argv[5], verbose=verbose)
             
-    elif argv[2] == 'clone':
-        wasanbon.arg_check(argv, 4)
-        # if argument is url, then, clone by git command
-        if argv[3].startswith('git@') or argv[3].startswith('http'):
-            url = argv[3]
-            name = os.path.basename(url)
-            if name.endswith('.git'):
-                name = name[:-4]
-            sys.stdout.write(' @ Cloning RTC %s\n' % argv[3])
-            try:
-                rtc_ = wasanbon.core.rtc.RtcRepository(name=name, url=url, desc="").clone(verbose=verbose, path=_package.rtc_path)
-            except wasanbon.RTCProfileNotFoundException, e:
-                rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
-                    
-            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
-            return
-                
-        #for i in range(3, len(argv)):
-        for name in argv[3:]:
-            sys.stdout.write(' @ Cloning RTC %s\n' % name)
-            try:
-                rtc_ = wasanbon.core.rtc.get_repository(name).clone(verbose=verbose, path=_package.rtc_path)
-            except wasanbon.RTCProfileNotFoundException, e:
-                rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
-
-            _package.update_rtc_repository(rtc_.repository, verbose=verbose)
     elif argv[2] == 'commit':
         wasanbon.arg_check(argv, 5)
         sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
