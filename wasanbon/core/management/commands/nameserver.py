@@ -1,35 +1,51 @@
+"""
+en_US:
+ brief : |
+  Name Service Administration
+ description : | 
+  Change setting of Name Service for current package.
+  Add/Del nameservice for this package.
+
+ subcommands : 
+  list : |
+   Show all nameservice of current package
+  add : |
+   Add nameserver address 
+   ex., $ mgr.py nameserver add 192.168.1.1:2809
+  del : |
+   Delete nameserver address
+   ex., $ mgr.py nameserver del 192.168.1.1:2809
+"""
 import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system, package
 from wasanbon.core.system import run
 
-
-
-class Command(object):
-    def __init__(self):
-        pass
-
-    def execute_with_argv(self, argv, verbose, force, clean):
-        wasanbon.arg_check(argv, 3)
-        _package = package.Package(os.getcwd())
-
-        if argv[2] == 'dir':
-            nss = _package.get_nameservers()
-            for ns in nss:
-                print ns.dataports(port_type='DataOutPort')
-
-        elif argv[2] == 'list':
-            show_nameserver_list(verbose)
-            return
-
-        elif argv[2] == 'add':
-            add_nameserver(argv, verbose=verbose)
-            return
-
+def alternative(argv=None):
+    if len(argv) == 3:
         if argv[2] == 'del':
-            remove_nameserver(argv, verbose=verbose)
-            return
+            y = yaml.load(open('setting.yaml', 'r'))
+            if 'nameservers' in y['application'].keys():
+                return ['\\"'+n+'\\"' for n in  y['application']['nameservers']]
+        
+    return ['list', 'add', 'del']
+
+def execute_with_argv(argv, verbose):
+    wasanbon.arg_check(argv, 3)
+    _package = package.Package(os.getcwd())
+
+    if argv[2] == 'list':
+        show_nameserver_list(verbose)
+        return
+
+    elif argv[2] == 'add':
+        add_nameserver(argv, verbose=verbose)
+        return
+
+    if argv[2] == 'del':
+        remove_nameserver(argv, verbose=verbose)
+        return
 
 def remove_nameserver(argv, verbose):
     sys.stdout.write('Name Server Remove:\n')
