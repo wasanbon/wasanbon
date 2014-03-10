@@ -1,17 +1,17 @@
 """
 en_US:
  brief : |
-Launch Tools
+  Launch Tools
  description : |
-Launch Tools for RTC development.
-You can launc "RTC Builder", "RT System Editor", and "Arduino"
+  Launch Tools for RTC development.
+  You can launc "RTC Builder", "RT System Editor", and "Arduino"
  subcommands : 
   rtcb : |
-Launch RTC Builder
+   Launch RTC Builder
   rtse : |
-Launch RT System Editor
+   Launch RT System Editor
   arduino : |
-Launch Arduino 
+   Launch Arduino 
 """
 
 import sys, os, time
