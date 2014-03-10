@@ -1,3 +1,24 @@
+"""
+en_US:
+ brief : |
+  Local Package administration
+ description : |
+  Package Administration mainly for version controlling like git.
+
+ subcommands : 
+  git_init : |
+Initialize git repository for your package
+  remote_create : |
+Create remote repository in your remote service (github|bitbucket).
+eg., $ mgr.py admin remote_create -s [github|bitbucket]
+  commit : |
+Commit changes in your package into the local version control
+  push : |
+Push your commits to your remote repository
+    
+"""
+
+
 import sys, os
 import wasanbon
 from wasanbon.core import repositories
@@ -5,7 +26,8 @@ from wasanbon.core import package as pack
 
 
 def alternative(argv=None):
-    return ['register', 'git_init', 'github_init', 'commit', 'push', 'setting']
+    
+    return ['git_init', 'remote_create', 'commit', 'push']
 
 
 def execute_with_argv(argv, force, verbose=False, clean=False):
@@ -23,11 +45,7 @@ def execute_with_argv(argv, force, verbose=False, clean=False):
     wasanbon.arg_check(argv,3)
     _package = pack.Package(os.getcwd())
     
-    if argv[2] == 'register':
-        sys.stdout.write(' @ Initializing Package in %s\n' % _package.name)
-        _package.register(verbose=verbose)
-        
-    elif argv[2] == 'git_init':
+    if argv[2] == 'git_init':
         sys.stdout.write(' @ Initializing GIT repository in %s\n' % _package.name)
         _package.git_init(verbose=verbose)
         

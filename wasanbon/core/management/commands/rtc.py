@@ -229,7 +229,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Deleting RTC %s\n' % argv[3])
         for rtcname in argv[3:]:
-            _package.delete_rtc(_package.rtc(rtcname), verbose=verbose)
+            _rtc = _package.rtc(rtcname)
+            _package.delete_rtc(_rtc, verbose=verbose)
 
             
     elif argv[2] == 'edit':

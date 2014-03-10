@@ -125,6 +125,7 @@ class Package():
         raise wasanbon.RTCNotFoundException()
 
     def delete_rtc(self, rtc_, verbose=False):
+        self.uninstall(rtc_, verbose=verbose)
         if verbose:
             sys.stdout.write(' - Deleting RTC directory %s\n' % rtc_.name)
         shutil.rmtree(rtc_.path, ignore_errors=True)

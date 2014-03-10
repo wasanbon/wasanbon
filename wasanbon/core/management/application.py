@@ -16,8 +16,8 @@ def get_subcommand_list(package):
     ret.append('help')
     return ret
 
-def show_help_description(package, subcommand):
-    print help.get_help_text(package, subcommand)
+def show_help_description(package, subcommand, long=False):
+    print help.get_help_text(package, subcommand, long)
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
@@ -47,8 +47,8 @@ def execute(argv=None):
 
     opts = get_subcommand_list(package)
     try:
-        usage  = command + ' [subcommand] (for help, use -h option with subcommand.)\n'
-        usage = usage + 'subcommand-set :\n'
+        usage  = '[Usage]\n$ ' + command + ' [subcommand] (for help, use -h option with subcommand.)\n\n'
+        usage = usage + '[subcommands]\n'
         for opt in opts:
             usage = usage + ' - ' + opt + '\n'
     except Exception, e:
@@ -58,6 +58,7 @@ def execute(argv=None):
     
     parser = ArgumentParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=usage, action='store_true', default=False, dest='help_flag')
+    parser.add_option('-l', '--longmessage', help='Show long help message', action='store_true', default=False, dest='longhelp_flag')
     parser.add_option('-v', '--verbose', help='You will get more messgaes', action='store_true', default=False, dest='verbose_flag')
     parser.add_option('-a', '--alternative', help="Get subcommand list.", action='store_true', default=False, dest='alter_flag')
     options, args = parser.parse_args(argv[:])
@@ -78,8 +79,12 @@ def execute(argv=None):
         return
 
     if options.help_flag == True:
-        show_help_description(package, subcommand)
+        show_help_description(package, subcommand, options.longhelp_flag)
         return
+
+    # If not help but option is add
+    if options.longhelp_flag:
+        args = args + ['-l']
 
     module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
     __import__(module_name)
