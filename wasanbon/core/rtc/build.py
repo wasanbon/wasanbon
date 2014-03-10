@@ -96,7 +96,7 @@ def build_rtc_python(rtcp, verbose=False):
             cmd = ['idlcompile.bat']
             subprocess.call(cmd)
 
-    pass
+    return (True, "")
 
 def build_rtc_java(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name
