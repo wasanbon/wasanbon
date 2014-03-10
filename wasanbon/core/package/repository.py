@@ -3,7 +3,7 @@ import wasanbon
 import wasanbon.core
 from wasanbon.core.package import *
 from wasanbon.util import git
-
+import package_obj
 
 class PackageRepository():
 
@@ -45,7 +45,7 @@ class PackageRepository():
             #sys.stdout.write(' - Building RTC %s\n' % repo.name)
             #rtc.build(verbose=verbose)
             #_package.install(rtc, precreate=False, preload=True, verbose=verbose)
-        return Package(appdir)
+        return package_obj.Package(appdir)
 
 
     def fork(self, user, passwd, verbose=False):
@@ -87,6 +87,10 @@ class PackageRepository():
     @property
     def user(self):
         return os.path.split('/')[-2]
+
+    @property
+    def protocol(self):
+        return 'git'
 
     @property
     def repo_name(self):

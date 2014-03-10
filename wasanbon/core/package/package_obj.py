@@ -7,7 +7,7 @@ from wasanbon.util import git
 #from wasanbon.util import github_ref
 from wasanbon.core import nameserver
 from wasanbon.core.package import run
-from wasanbon.core.package import workspace
+from wasanbon.core.package import workspace, repository
 
 
 
@@ -39,6 +39,11 @@ class Package():
     @property
     def conf_path(self):
         return os.path.join(self.path, self.setting['CONF_DIR'])
+
+    @property
+    def repository(self):
+        git_obj = wasanbon.util.git.GitRepository(self.path)
+        return repository.PackageRepository(self.name, url=git_obj.url, desc="")
 
     @property
     def system_path(self):

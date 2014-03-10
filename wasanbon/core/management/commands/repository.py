@@ -68,7 +68,9 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
     if argv[2] == 'list':
         sys.stdout.write(' @ Listing RTC Repository\n')
-        for repo in wasanbon.core.rtc.get_repositories(verbose):
+        repos_raw = wasanbon.core.rtc.get_repositories(verbose)
+        repos = sorted(repos_raw, key=lambda x:x.name)
+        for repo in repos:
             print_repository(repo, long=options.long_flag)
 
     elif argv[2] == 'init':
@@ -79,7 +81,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         
     elif argv[2] == 'remote_create':
         wasanbon.arg_check(argv, 4)
-        sys.stdout.write(' @ Initializing github.com repository in %s\n' % argv[3])
+        sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
         user, passwd = wasanbon.user_pass()
 
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)

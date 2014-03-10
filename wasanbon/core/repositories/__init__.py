@@ -76,10 +76,11 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
         return False
 
     y = yaml.load(open(target_path, 'r'))
-    if rtc_obj.name in y.keys():
-        if verbose:
-            sys.stdout.write(' @ Your own repository already have repository %s\n' % rtc_obj.name)
-        return False
+    if type(y) == types.DictType:
+        if rtc_obj.name in y.keys():
+            if verbose:
+                sys.stdout.write(' @ Your own repository already have repository %s\n' % rtc_obj.name)
+            return False
     shutil.copyfile(target_path, target_path + '.bak')
     fin = open(target_path+'.bak', 'r')
     fout = open(target_path, 'w')
@@ -89,7 +90,7 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
     repo = rtc_obj.repository
     name = rtc_obj.name
     description = rtc_obj.description
-    type = repo.protocol
+    _type = repo.protocol
     url = rtc_obj.repository.url
     platform = wasanbon.platform()
     import datetime
@@ -99,7 +100,7 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
                    (now.year, now.month, now.day, now.hour, now.minute, now.second))
     fout.write(name + ' : \n')
     fout.write('  description : \'' + description + '\'\n')
-    fout.write('  type : ' + type + '\n')
+    fout.write('  type : ' + _type + '\n')
     fout.write('  url : \'' + url + '\'\n')
     fout.write('  platform : ' + platform + '\n')
     
@@ -275,4 +276,48 @@ def upload_repositories(comment, verbose=False):
                 sys.stdout.write(' - ERROR: Can not find Repository PATH.\n')
     pass
 
+
+def append_package_repo_to_owner(user, filename,  package_obj, repo_name='wasanbon_repositories', verbose=False):
+    if verbose:
+        sys.stdout.write(' - Append Package repository to owner repository\n')
+    if not is_local_owner_repository(user):
+        if verbose:
+            sys.stdout.write(' @ Not found owner repository\n')
+        return False
+    target_path = os.path.join(owner_repository_path(user, repo_name), 'packages', filename)
+    if not os.path.isfile(target_path):
+        if verbose:
+            sys.stdout.write(' @ Not found target repository file: %s\n' % target_path)
+        return False
+
+    y = yaml.load(open(target_path, 'r'))
+    if type(y) is types.DictType:
+        if package_obj.name in y.keys():
+            if verbose:
+                sys.stdout.write(' @ Your own repository already have repository %s\n' % package_obj.name)
+            return False
+    shutil.copyfile(target_path, target_path + '.bak')
+    fin = open(target_path+'.bak', 'r')
+    fout = open(target_path, 'w')
+    for line in fin:
+        fout.write(line)
+    
+    repo = package_obj.repository
+    name = package_obj.name
+    description = repo.description
+    _type = repo.protocol
+    url = package_obj.repository.url
+    platform = wasanbon.platform()
+    import datetime
+    now = datetime.datetime.now()
+    
+    fout.write('\n# Added in %s/%s/%s/%s:%s:%s\n' % \
+                   (now.year, now.month, now.day, now.hour, now.minute, now.second))
+    fout.write(name + ' : \n')
+    fout.write('  description : \'' + description + '\'\n')
+    fout.write('  type : ' + _type + '\n')
+    fout.write('  url : \'' + url + '\'\n')
+    fout.write('  platform : ' + platform + '\n')
+    
+    return True
 

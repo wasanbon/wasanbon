@@ -28,8 +28,10 @@ def launch_eclipse(workbench = ".", argv=None, nonblock=True, verbose=False):
     else:
         eclipse_cmd = './eclipse'
 
+    # Set Environmental Variable
     env = os.environ
     env['RTM_ROOT'] = rtm.get_rtm_root()
+
 
     if not os.path.isdir(workbench) or workbench == '.':
         if verbose:
