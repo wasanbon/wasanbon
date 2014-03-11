@@ -13,6 +13,8 @@ wasanbon-cd() {
 
 
 export PYTHONPATH=/Users/ysuga/Development/rtm/wasanbon/wasanbon/
+
+
 _wsb_svc_cmpl() {
     local cur prev pprev target subtarget subcmds subsubcmds
     COMPREPLY=()
@@ -29,7 +31,7 @@ _wsb_svc_cmpl() {
     for val in ${subcmds[@]}; do
 	if [[ ${val} == ${prev} ]]
 	then
-	    subsubcmds=`wasanbon-admin.py ${prev} -a`
+	    subsubcmds=`wasanbon-admin.py ${prev} ${pprev} -a`
 	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
 	    COMPREPLY=(${subtarget[@]})
             return 0
@@ -78,7 +80,11 @@ _wcd_svc_cmpl() {
     return 0
 }
 
+
+
+
 complete -o nospace -F _wsb_svc_cmpl wasanbon-admin.py
 complete -o nospace -F _mgr_svc_cmpl ./mgr.py
 complete -o nospace -F _wcd_svc_cmpl wasanbon-cd
+
 

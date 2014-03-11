@@ -31,7 +31,7 @@ _wsb_svc_cmpl() {
     for val in ${subcmds[@]}; do
 	if [[ ${val} == ${prev} ]]
 	then
-	    subsubcmds=`wasanbon-admin.py ${prev} -a`
+	    subsubcmds=`wasanbon-admin.py ${prev} ${pprev} -a`
 	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
 	    COMPREPLY=(${subtarget[@]})
             return 0

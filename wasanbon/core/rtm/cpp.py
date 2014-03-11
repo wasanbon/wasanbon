@@ -101,7 +101,9 @@ def install_cpprtm_osx(force=False, verbose=False):
 
     sys.stdout.write(' - Please check license agreement of Xcode.\n')
     cmd = ['xcodebuild', '-license']
-    subprocess.call(cmd)
+    ret = subprocess.call(cmd)
+    if ret < 0:
+        return False
 
     sys.stdout.write(' - Copying omniORBpy modules\n');
     for file in os.listdir(srcdir):
