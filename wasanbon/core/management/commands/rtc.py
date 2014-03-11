@@ -188,7 +188,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 pass
             pass
         if not found_flag:
-            raise wasanbon.RTCNotFounException()
+            raise wasanbon.RTCNotFoundException()
 
     elif argv[2] == 'clean':
         build_all = True if 'all' in argv else False
@@ -204,7 +204,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 pass
             pass
         if not found_flag:
-            raise wasanbon.RTCNotFounException()
+            raise wasanbon.RTCNotFoundException()
 
     elif argv[2] == 'run':
         sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
