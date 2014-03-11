@@ -28,12 +28,13 @@ _urls = {
     'requests' : {'darwin' : 'pip install requests',
                   'linux2' : 'pip install requests',
                   'win32' : 'pip install requests'},
-    'requests-oauth' : {'darwin' : 'pip install requests-oauth',
-                  'linux2' : 'pip install requests-oauth',
-                  'win32' : 'pip install requests-oauth'},
+    'requests_oauthlib' : {'darwin' : 'pip install requests-oauthlib',
+                  'linux2' : 'pip install requests-oauthlib',
+                  'win32' : 'pip install requests-oauthlib'},
     'bitbucket' : {'darwin' : 'pip install bitbucket-api',
                    'linux2' : 'pip install bitbucket-api',
-                   'win32' : 'https://pypi.python.org/packages/source/b/bitbucket-api/bitbucket-api-0.5.0.tar.gz'},
+                   #'win32' : 'https://pypi.python.org/packages/source/b/bitbucket-api/bitbucket-api-0.5.0.tar.gz'},
+                   'win32' : 'http://sugarsweetrobotics.com/pub/Win32/pybitbucket/bitbucket-api-0.5.0.win32.exe'},
     }
 
 def _get_url(tag):

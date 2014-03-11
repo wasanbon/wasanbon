@@ -33,7 +33,7 @@ def execute_with_argv(args, verbose=False):
     github = try_import_and_install('github', verbose=verbose, force=force)
     psutil = try_import_and_install('psutil', verbose=verbose, force=force)
     requests = try_import_and_install('requests', verbose=verbose, force=force)
-    requests_oauth = try_import_and_install('requests-oauth', verbose=verbose, force=force)
+    requests_oauth = try_import_and_install('requests_oauthlib', verbose=verbose, force=force)
 
     bitbucket = try_import_and_install('bitbucket', verbose=verbose, force=force)
 
