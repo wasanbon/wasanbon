@@ -66,8 +66,8 @@ def install(force=False, verbose=False):
 
 
 def install_cpprtm_win(force, verbose=False):
-    if wasanbon.platform().startswith("windows8"):
-        sys.stdout.write(' - Windows8 Detected.\n')
+    if wasanbon.platform().startswith("windows"):
+        sys.stdout.write(' - Windows Detected.\n')
         util.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages']['vcpvcr71'], wasanbon.rtm_temp())
         src_dir = os.path.join(wasanbon.rtm_temp(), 'vcpvcr71', 'dll')
         files = ['msvcp71.dll', 'msvcr71.dll']
