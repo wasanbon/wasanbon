@@ -29,6 +29,14 @@ def main():
     
     build_html(help_dic, command='wasanbon-admin.py', link_prex='admin_')
 
+    
+    for cmd in get_subcommands():
+        if cmd == 'help':
+            continue
+        help_dic[cmd] = yaml.load(check(['python', 'mgr.py', cmd, '-h'])[0])
+    
+    build_html(help_dic, command='mgr.py', link_prex='command_')
+
 
 
 def tag(tag, val):
