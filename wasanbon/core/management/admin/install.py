@@ -47,6 +47,8 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             pass
         if arg in y.keys():
             install.check_command(arg, y[arg], verbose=True, install=True, force=force)
+            path.init_tools_path(verbose=verbose)
+            reload(wasanbon)
         elif arg == 'rtm_c++':
             cpp.install(force=force, verbose=True)
         elif arg == 'rtm_python':
