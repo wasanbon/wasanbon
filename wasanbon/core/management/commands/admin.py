@@ -40,7 +40,7 @@ def execute_with_argv(argv, verbose):
     try:
         options, argv = parser.parse_args(argv[:])
     except:
-        return
+        raise wasanbon.InvalidUsageException()
 
     service_name = options.service
 

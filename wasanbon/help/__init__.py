@@ -25,15 +25,21 @@ def get_help_dic(path, cmd):
     module_name = 'wasanbon.core.management.' + path + '.' + cmd
     __import__(module_name)
     doc = sys.modules[module_name].__doc__
-    loc = locale.getdefaultlocale()[0]
+
     yaml = __import__('yaml')
     dic = yaml.load(doc)
-    if loc in dic.keys():
-        return dic[loc]
-    return dic['en_US']
+    return dic
+
 
 def get_help_text(path, cmd, long=False):
-    dic = get_help_dic(path, cmd)
+    help_dic = get_help_dic(path, cmd)
+    loc = locale.getdefaultlocale()[0]
+    if loc in help_dic.keys():
+        dic = help_dic[loc]
+    else:
+        dic = help_dic['en_US']
+
+
     command_str = "wasanbon-admin.py" if path=='admin' else "mgr.py"
 
     str = """
