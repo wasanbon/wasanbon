@@ -34,9 +34,9 @@ def execute_with_argv(args, verbose=False):
     psutil = try_import_and_install('psutil', verbose=verbose, force=force)
     bitbucket = try_import_and_install('bitbucket', verbose=verbose, force=force)
 
-    if not all([pip, yaml, github, psutil, bitbucket]):
-        sys.stdout.write(' @ Try wasanbon-admin.py init again.\n')
-        return False
+    #if not all([pip, yaml, github, psutil, bitbucket]):
+    #    sys.stdout.write(' @ Try wasanbon-admin.py init again.\n')
+    #    return False
 
     __import__('wasanbon.core.platform')
     platform = sys.modules['wasanbon.core.platform']        
