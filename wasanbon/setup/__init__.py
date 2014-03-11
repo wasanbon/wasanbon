@@ -14,15 +14,26 @@ _urls = {
     'setuptools': {'darwin' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
                    'win32' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
                    'linux2' : 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'},
-    'psutil' : {'darwin' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
-                'linux2' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
-                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
+    #'psutil' : {'darwin' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
+    #            'linux2' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz',
+    #            'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
+
+    'psutil' : {'darwin' : 'pip install psutil',
+                'linux2' : 'pip install psutil',
+                'win32' : 'https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz'},
+
     'pip' : {'darwin' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
              'linux2' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
              'win32' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py'},
+    'requests' : {'darwin' : 'pip install requests',
+                  'linux2' : 'pip install requests',
+                  'win32' : 'pip install requests'},
+    'requests-oauth' : {'darwin' : 'pip install requests-oauth',
+                  'linux2' : 'pip install requests-oauth',
+                  'win32' : 'pip install requests-oauth'},
     'bitbucket' : {'darwin' : 'pip install bitbucket-api',
                    'linux2' : 'pip install bitbucket-api',
-                   'win32' : 'pip install bitbucket-api'}
+                   'win32' : 'https://pypi.python.org/packages/source/b/bitbucket-api/bitbucket-api-0.5.0.tar.gz'},
     }
 
 def _get_url(tag):
