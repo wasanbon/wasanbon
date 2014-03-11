@@ -115,7 +115,13 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             print_rtc(rtc, long=options.long_flag)
         for rtno in tools.get_rtno_packages(_package, verbose=verbose):
             print_rtno(rtno, long=options.long_flag)
-
+    elif argv[2] == 'create':
+        wasanbon.arg_check(argv, 4)
+        if not options.back_end == 'rtno':
+            raise wasanbon.InvalidUsageException()
+        rtc_name = argv[3]
+        tools.generate_rtno_temprate(_package, rtc_name, verbose=True)
+        
     elif argv[2] == 'clone':
         wasanbon.arg_check(argv, 4)
         # if argument is url, then, clone by git command
