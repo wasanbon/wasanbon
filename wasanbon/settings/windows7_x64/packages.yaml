@@ -11,3 +11,4 @@ setuptools : 'https://pypi.python.org/packages/2.6/s/setuptools/setuptools-0.6c1
 svn : 'http://www.sliksvn.com/pub/Slik-Subversion-1.7.9-x64.msi'
 hg : 'http://mercurial.selenic.com/release/windows/mercurial-2.6.2-x64.msi'
 arduino : 'http://arduino.googlecode.com/files/arduino-1.0.5-windows.zip'
+vcpvcr71 : 'http://sugarsweetrobotics.com/pub/Win32/vcpvcr71/vcpvcr71.zip'
