@@ -22,6 +22,7 @@ class Package():
         self._process = {}
         self._languages = ['C++', 'Python', 'Java']
         self._setting = []
+        self._nameservers = []
         pass
 
     @property
@@ -338,9 +339,11 @@ class Package():
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         self.push(verbose=verbose)
 
-    def get_nameservers(self, verbose=False):
-        nss = []
+    def get_nameservers(self, verbose=False, force=False):
+        if not force and self._nameservers:
+            return self._nameservers
 
+        nss = []
         for lang in self._languages:
             ns = self.rtcconf(lang)['corba.nameservers']
             if not ':' in ns:
@@ -349,7 +352,8 @@ class Package():
                 sys.stdout.write(' - Nameserver for rtcd_%s is %s\n' % (lang, ns))
             if not ns in nss:
                 nss.append(ns)
-        return [nameserver.NameService(ns) for ns in nss]
+        self._nameservers =  [nameserver.NameService(ns) for ns in nss]
+        return self._nameservers
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):

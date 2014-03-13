@@ -110,78 +110,26 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 
     elif(argv[2] == 'build'):
         print ' @ Building RTC System in Wasanbon'
-        nss = _package.get_nameservers(verbose=verbose)
-        ns_process = None
-        for ns in nss:
-            if not ns.check_and_launch(verbose=verbose, force=force):
-                sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
-                return
 
-        _package.launch_all_rtcd(verbose=verbose)
+        package.run_nameservers(_package, verbose=verbose, force=force)
+        package.run_system(_package, verbose=verbose)
 
         for i in range(0, 5):
             sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
             sys.stdout.flush()
             time.sleep(1)
 
-        for ns in nss:
-            ns.refresh(verbose=verbose, force=True)
+        interactive_connection(_package, verbose=verbose)
+        interactive_configuration(_package, verbose=verbose)
 
-        pairs = _package.available_connection_pairs(nameservers=nss, verbose=verbose)
-        for outport, inport in pairs:
-            msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
-            if util.no_yes(msg) == 'yes':
-                sys.stdout.write(' @ Connecting...')
-                try:
-                    inport.connect([outport])
-                    sys.stdout.write(' OK.\n')
-                except Exception, ex:
-                    sys.stdout.write(' Failed.\n')
+        for i in range(0, 5):
+            sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
+            sys.stdout.flush()
+            time.sleep(1)
 
-        rtcs = []
-        for ns in nss:
-            rtcs = rtcs + ns.rtcs
-        rtc_choices = [comp_full_path(rtc) for rtc in rtcs]
-                
-        def on_rtc_selected(rtc_num):
-            rtcs = []
-            for ns in nss:
-                ns.refresh()
-                rtcs = rtcs + ns.rtcs
-                
-            sys.stdout.write(' @ RTC(%s) is chosen.\n' % rtc_choices[rtc_num])
-            set_name = rtcs[rtc_num].active_conf_set_name
-            if len(set_name) == 0:
-                sys.stdout.write(' @ There is NO ACTIVE CONFIGURATION SET.\n')
-                sys.stdout.write(' @ Quit.\n')
-                return False
-            sys.stdout.write(' @ Active Configuration Set = %s\n' % set_name)
-            conf_choices = [key + ':' + value for key, value in rtcs[rtc_num].active_conf_set.data.items()]
-
-            def on_conf_selected(conf_num):
-                sys.stdout.write(conf_choices[conf_num] +' is chosen.\n')
-                key = conf_choices[conf_num].split(':')[0].strip()
-                old_val = rtcs[rtc_num].active_conf_set.data[key]
-                sys.stdout.write(' %s :' % key)
-                val = raw_input()
-                if util.yes_no(' - %s:%s : %s ==> %s' % (set_name, key, old_val, val)) == 'yes':
-                        #rtcs[rtc_num].active_conf_set.set_param(key, val)
-                    rtcs[rtc_num].set_conf_set_value(set_name, key, val)
-                    rtcs[rtc_num].activate_conf_set(set_name)
-                    sys.stdout.write(' @ Updated.\n')
-                    return True
-                return False
-            util.choice(conf_choices, callback=on_conf_selected, msg=' @ Select Configuration to modify.')
-            return False
-
-        util.choice(rtc_choices, callback=on_rtc_selected, msg=' @ Select RTC to configure')
-            
         save_all_system(['localhost'], verbose=verbose)
-        _package.terminate_all_rtcd(verbose=verbose)
-
-        for ns in nss:
-            ns.kill()
-
+        package.stop_system(_package, verbose=verbose)
+        package.kill_nameservers(_package, verbose=verbose)
 
 
     elif(argv[2] == 'run'):
@@ -219,12 +167,74 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         pass
 
     elif argv[2] == 'configure':
-        interactive_configure(_package, argv, verbose=verbose)
+        interactive_systemfile_configure(_package, argv, verbose=verbose)
     else:
         raise wasanbon.InvalidUsageException
 
+def interactive_configuration(_package, verbose):
+    nss = _package.get_nameservers(verbose=verbose)
+    rtcs = []
+    for ns in nss:
+        rtcs = rtcs + ns.rtcs
+        
+    rtc_choices = [comp_full_path(rtc) for rtc in rtcs]
 
-def interactive_configure(_package, argv, verbose):
+    def on_rtc_selected(rtc_num):
+        rtcs = []
+        for ns in nss:
+            ns.refresh()
+            rtcs = rtcs + ns.rtcs
+                
+        sys.stdout.write(' @ RTC(%s) is chosen.\n' % rtc_choices[rtc_num])
+        set_name = rtcs[rtc_num].active_conf_set_name
+        if len(set_name) == 0:
+            sys.stdout.write(' @ There is NO ACTIVE CONFIGURATION SET.\n')
+            sys.stdout.write(' @ Quit.\n')
+            return False
+        sys.stdout.write(' @ Active Configuration Set = %s\n' % set_name)
+        conf_choices = [key + ':' + value for key, value in rtcs[rtc_num].active_conf_set.data.items()]
+
+        def on_conf_selected(conf_num):
+            sys.stdout.write(conf_choices[conf_num] +' is chosen.\n')
+            key = conf_choices[conf_num].split(':')[0].strip()
+            old_val = rtcs[rtc_num].active_conf_set.data[key]
+            sys.stdout.write(' %s :' % key)
+            val = raw_input()
+            if util.yes_no(' - %s:%s : %s ==> %s' % (set_name, key, old_val, val)) == 'yes':
+                #rtcs[rtc_num].active_conf_set.set_param(key, val)
+                rtcs[rtc_num].set_conf_set_value(set_name, key, val)
+                rtcs[rtc_num].activate_conf_set(set_name)
+                sys.stdout.write(' @ Updated.\n')
+                return True
+            return False
+        util.choice(conf_choices, callback=on_conf_selected, msg=' @ Select Configuration to modify.')
+        return False
+
+    util.choice(rtc_choices, callback=on_rtc_selected, msg=' @ Select RTC to configure')
+
+    pass
+
+def interactive_connection(_package, verbose):
+    nss = _package.get_nameservers(verbose=verbose)
+    for ns in nss:
+        ns.refresh(verbose=verbose, force=True)
+
+    pairs = _package.available_connection_pairs(nameservers=nss, verbose=verbose)
+    for outport, inport in pairs:
+        msg = ' @ Connect? %s -> %s' % (port_full_path(outport), port_full_path(inport))
+        if util.no_yes(msg) == 'yes':
+            sys.stdout.write(' @ Connecting...')
+            try:
+                inport.connect([outport])
+                sys.stdout.write(' OK.\n')
+            except Exception, ex:
+                sys.stdout.write(' Failed.\n')
+
+    return True
+
+
+
+def interactive_systemfile_configure(_package, argv, verbose):
     sysobj = _package.system
     def select_rtc(ans):
         confs = sysobj.active_conf_data(sysobj.rtcs[ans])
@@ -286,30 +296,29 @@ def _run(_package, verbose=False, force=False, interactive=False):
         pass
     sys.stdout.write(' @ Starting RTC-daemons...\n')
 
-    nss = _package.get_nameservers(verbose=verbose)
-    ns_process = None
-    for ns in nss:
-        if not ns.check_and_launch(verbose=verbose, force=force):
-            sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
-            return
-    if interactive:
-        sys.stdout.write(' - Nameserver Checked. Press Enter.\n')
-        raw_input()
 
+    #ns_process = None
     try:
-        _package.launch_all_rtcd(verbose=verbose)
-        if interactive:
-            sys.stdout.write(' - rtcd launched. Press Enter.\n')
-            raw_input()
-            pass
-
-        _package.connect_and_configure(verbose=verbose)
+        if not package.run_nameservers(_package, verbose=verbose, force=force):
+            raise wasanbon.BuildSystemException()
 
         if interactive:
-            sys.stdout.write(' - connection okay. Press Enter.\n')
-            raw_input()
+            raw_input(' - Nameserver Checked. Press Enter.\n')
 
-        _package.activate(verbose=verbose)
+        if not package.run_system(_package, verbose=verbose):
+            raise wasanbon.BuildSystemException()
+
+        if interactive:
+            raw_input(' - rtcd launched. Press Enter.\n')
+
+        if not package.build_system(_package, verbose=verbose):
+            raise wasanbon.BuildSystemException()
+            
+        if interactive:
+            raw_input(' - connection okay. Press Enter.\n')
+
+        if not package.activate_system(_package, verbose=verbose):
+            raise wasanbon.BuildSystemException()
 
         global endflag
         while not endflag:
@@ -317,16 +326,11 @@ def _run(_package, verbose=False, force=False, interactive=False):
                 time.sleep(0.1)
             except IOError, e:
                 pass
-            
             pass
     except wasanbon.BuildSystemException, ex:
-        sys.stdout.write(' @ Exception: Build System Exception\n')
         traceback.print_exc()
-                
-    _package.deactivate(verbose=verbose)
-    _package.terminate_all_rtcd(verbose=verbose)
-    
-    for ns in nss:
-        ns.kill()
         pass
+
+    package.stop_system(_package, verbose=verbose)
+    package.kill_nameservers(_package, verbose=verbose)
 

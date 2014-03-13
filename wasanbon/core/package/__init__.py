@@ -14,6 +14,46 @@ from diff import *
 from wasanbon.core import repositories
 
 
+def run_nameservers(obj, verbose=False, force=False):
+    nss = obj.get_nameservers(verbose=verbose)
+    for ns in nss:
+        if not ns.check_and_launch(verbose=verbose, force=force):
+            if verbose:
+                sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
+            return False
+
+    return True
+
+
+def kill_nameservers(obj, verbose=False):
+    nss = obj.get_nameservers(verbose=verbose)
+    for ns in nss:
+        ns.kill()
+    return True
+
+"""
+"""
+def run_system(obj, verbose=False):
+    obj.launch_all_rtcd(verbose=verbose)
+    return True
+
+
+def build_system(obj, verbose=False):
+    obj.connect_and_configure(verbose=verbose)
+    return True
+
+
+def activate_system(obj, verbose=False):
+    obj.activate(verbose=verbose)
+    return True
+
+"""
+"""
+def stop_system(obj, verbose=False):
+    obj.deactivate(verbose=verbose)
+    obj.terminate_all_rtcd(verbose=verbose)
+
+
 """
 package : wasanbon.core.package.Package class object
 rtc : string - name of rtc / wasanbon.core.rtc.Rtc class object
