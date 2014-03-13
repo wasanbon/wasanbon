@@ -588,6 +588,12 @@ class Package():
 
         return rtcs_[language]
 
+    def installed_standalone_rtcs(self, verbose=False):
+        rtcs_ = []
+        sys.stdout.write(' - package_obj.installed_standalone_rtcs not implemented.\n')
+        return rtcs_
+        
+
     def available_connection_pairs(self, verbose=False, nameservers=None):
         pairs = []
         if not nameservers:

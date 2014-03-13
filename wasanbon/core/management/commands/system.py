@@ -105,10 +105,14 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     elif(argv[2] == 'list'):
         sys.stdout.write(' @ Listing installed RTCs.\n')
         rtcs_map = _package.installed_rtcs()
+        rtcs_stand = _package.installed_standalone_rtcs()
         for lang, rtcs in rtcs_map.items():
             sys.stdout.write(' @ %s:\n' % lang)
             for rtc_ in rtcs:
                 sys.stdout.write('    @ %s\n' % rtc_.name) 
+        sys.stdout.write(' @ Standalone\n')
+        for rtc in rtcs_stand:
+            sys.stdout.write(' @ %s\n' % rtc.name)
                 
     elif(argv[2] == 'build'):
         print ' @ Building RTC System in Wasanbon'
