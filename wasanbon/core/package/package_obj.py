@@ -31,15 +31,15 @@ class Package():
 
     @property
     def bin_path(self):
-        return os.path.join(self.path, self.setting['BIN_DIR'])
+        return os.path.join(self.path, self.bin_rel_path)
+
+    @property
+    def bin_rel_path(self):
+        return self.setting['BIN_DIR']
     
     @property
     def rtc_path(self):
         return os.path.join(self.path, self.setting['RTC_DIR'])
-
-    @property
-    def conf_path(self):
-        return os.path.join(self.path, self.setting['CONF_DIR'])
 
     @property
     def system_path(self):
@@ -175,6 +175,8 @@ class Package():
         return bind_languages
 
     def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
+        if verbose:
+            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
@@ -186,11 +188,27 @@ class Package():
             rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
         
         name = rtc_.rtcprofile.basicInfo.name 
+        targetfile = os.path.join(self.bin_rel_path, os.path.basename(rtc_.packageprofile.getRTCExecutableFilePath()))
         filename = name + wasanbon.get_bin_file_ext()
         rtcconf.remove('manager.components.precreate', name)
         rtcconf.remove('manager.modules.preload', filename)
         rtcconf.sync()
 
+        setting_filename = os.path.join(self.path, 'setting.yaml')
+        shutil.copy(setting_filename, setting_filename + '.bak')
+
+        dic = yaml.load(open(setting_filename + '.bak', 'r'))
+        all_cmd_list = dic.get('standalone', [])
+        cmd_list = [cmd for cmd in all_cmd_list if cmd.startswith(targetfile)]
+        if len(cmd_list) > 0:
+            for cmd in cmd_list:
+                all_cmd_list.remove(cmd)
+            dic['standalone'] = all_cmd_list
+        open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
+        pass
+
+
+        
 
     def copy_binary_from_rtc(self, rtc_, verbose=False, standalone=False):
         if standalone:
@@ -254,6 +272,7 @@ class Package():
         
         if standalone:
             targetconf = os.path.join(self.conf_path, 'rtc_' + rtc_.name + '.conf')
+            #print self.rtcconf(rtc_.rtcprofile.language.kind).filename, targetconf
             shutil.copy(self.rtcconf(rtc_.rtcprofile.language.kind).filename, targetconf)
             rtcconf = wasanbon.core.rtc.RTCConf(targetconf)
             rtcconf['manager.modules.load_path'] = ''
@@ -262,9 +281,8 @@ class Package():
             rtcconf['manager.is_master'] = 'NO'
             for key in rtcconf.keys():
                 if key.find('config_file') > 0:
-                    print 'Find:', key
                     rtcconf.pop(key)
-
+            targetconf = os.path.join(self.conf_rel_path, 'rtc_' + rtc_.name + '.conf')
         else:
             if len(rtcconf_filename) == 0:
                 rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
@@ -277,7 +295,18 @@ class Package():
             targetfile = os.path.join(self.setting['BIN_DIR'], rtc_.packageprofile.get_rtc_bin_filename())
             pass
 
-        if not standalone:
+        if standalone:
+            setting_filename = os.path.join(self.path, 'setting.yaml')
+            shutil.copy(setting_filename, setting_filename + '.bak')
+            dic = yaml.load(open(setting_filename + '.bak', 'r'))
+
+            cmd_list = [cmd for cmd in dic.get('standalone', []) if cmd.startswith(targetfile)]
+            if len(cmd_list) == 0:
+                dic['standalone'] = dic.get('standalone', []) + [targetfile + ' -f ' + targetconf]
+            open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
+            pass
+
+        else:
             rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
             if preload:
                 rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
@@ -291,7 +320,6 @@ class Package():
                 sys.stdout.write(' - Configuring System. Set (%s) to %s\n' % (key, confpath))
             rtcconf.append(key, confpath)
 
-        print rtcconf
         rtcconf.sync()
 
         return True
@@ -586,9 +614,16 @@ class Package():
             rtcc.sync()
 
         pass
+
     @property
     def conf_path(self):
-        return os.path.join(self.path, 'conf')
+        return os.path.join(self.path, self.conf_rel_path)
+
+    @property
+    def conf_rel_path(self):
+        stg = self.setting
+        return stg.get('CONF_DIR', 'conf')
+
         
 def remShut(*args):
     func, path, _ = args 

@@ -91,12 +91,14 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Uninstalling RTC.\n')
         if 'all' in argv[3:]:
-            _package.uninstall(_package.rtcs)
+            _package.uninstall(_package.rtcs, verbose=verbose)
             pass
         for name in argv[3:]:
             try:
-                _package.uninstall(_package.rtc(name))
+                _package.uninstall(_package.rtc(name), verbose=verbose)
             except:
+                if verbose:
+                    traceback.print_exc()
                 sys.stdout.write(' - Unnstalling RTC %s failed.\n' % name)
 
 
