@@ -28,6 +28,8 @@ en_US:
    After build, this function will install the binary and config files into your bin direcotry.
    The place of the bin directory is defined by YOUR_PACKAGE_PATH/setting.yaml.
    The files to be copied will be compiled binary *.dll|*.dylib|*.so, and YOUR_RTC_NAME.conf file.
+   If you add -s (--standalone) option, you will include the RTC into system with Stand Alone Version.
+   Stand Alone Version will be launched as a standalone process.
    This subcommand recognises -n (--noinstall) option which will change the post-build behavior.
    WITH -n option, build process does not copy the binary file to your bin directory, 
    so you are not able to use the newly built binary for system administration.
@@ -100,6 +102,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-n', '--noinstall', help='Build without installing the RTC', action='store_true', default=False, dest='noinstall_flag')
+    parser.add_option('-s', '--standalone', help='Installing RTC with standalone version (mostly YOUR_RTC_NAMEComp.exe', action='store_true', default=False, dest='standalone_flag')
     try:
         options, argv = parser.parse_args(args[:])
     except:
@@ -174,7 +177,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                     if not options.noinstall_flag: # Installing RTC 
                         sys.stdout.write(' - Installing RTC (%s)\n' % rtc.name)
                         try:
-                            pack.install_rtc(_package, rtc, verbose=verbose)
+                            pack.install_rtc(_package, rtc, standalone=options.standalone_flag, verbose=verbose)
                             sys.stdout.write('  - Success.\n')
                         except Exception ,ex:
                             sys.stdout.write('  @ Installing RTC %s failed.\n' % rtc.name)

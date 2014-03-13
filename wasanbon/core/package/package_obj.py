@@ -22,6 +22,7 @@ class Package():
         self._process = {}
         self._languages = ['C++', 'Python', 'Java']
         self._setting = []
+        self._nameservers = []
         pass
 
     @property
@@ -30,13 +31,18 @@ class Package():
 
     @property
     def bin_path(self):
-        return os.path.join(self.path, self.setting['BIN_DIR'])
+        return os.path.join(self.path, self.bin_rel_path)
+
+    @property
+    def bin_rel_path(self):
+        return self.setting['BIN_DIR']
     
     @property
     def rtc_path(self):
         return os.path.join(self.path, self.setting['RTC_DIR'])
 
     @property
+<<<<<<< HEAD
     def conf_path(self):
         return os.path.join(self.path, self.setting['CONF_DIR'])
 
@@ -46,12 +52,21 @@ class Package():
         return repository.PackageRepository(self.name, url=git_obj.url, desc="")
 
     @property
+=======
+>>>>>>> 207a55a9b2f4b86ea28597044be695dd7fb36ef9
     def system_path(self):
         return os.path.join(self.path, self.setting['RTS_DIR'])
 
     @property
     def system_file(self):
         return os.path.join(self.path, self.setting['system'])
+
+    def get_build_delay(self):
+        stg = self.setting
+        if 'build_delay' in stg.keys():
+            return int(stg['build_delay'])
+        else:
+            return 5
 
     @property
     def rtc_repositories(self):
@@ -150,7 +165,13 @@ class Package():
         if not self._setting:
             self._setting = yaml.load(open(os.path.join(self.path, 'setting.yaml'), 'r'))['application']
         return self._setting
-    
+
+    @property
+    def standalone_rtcs_commands(self):
+        stg = self.setting
+        if 'standalone' in stg.keys():
+            return stg['standalone']
+        return []
 
     def rtcconf(self, language, verbose=False):
         return wasanbon.core.rtc.RTCConf(os.path.join(self.path, self.setting['conf.' + language]), verbose=verbose)
@@ -167,6 +188,8 @@ class Package():
         return bind_languages
 
     def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
+        if verbose:
+            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
@@ -178,14 +201,34 @@ class Package():
             rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
         
         name = rtc_.rtcprofile.basicInfo.name 
+        targetfile = os.path.join(self.bin_rel_path, os.path.basename(rtc_.packageprofile.getRTCExecutableFilePath()))
         filename = name + wasanbon.get_bin_file_ext()
         rtcconf.remove('manager.components.precreate', name)
         rtcconf.remove('manager.modules.preload', filename)
         rtcconf.sync()
 
+        setting_filename = os.path.join(self.path, 'setting.yaml')
+        shutil.copy(setting_filename, setting_filename + '.bak')
 
-    def copy_binary_from_rtc(self, rtc_, verbose=False):
-        filepath = rtc_.packageprofile.getRTCFilePath(verbose=verbose)
+        dic = yaml.load(open(setting_filename + '.bak', 'r'))
+        all_cmd_list = dic.get('standalone', [])
+        cmd_list = [cmd for cmd in all_cmd_list if cmd.startswith(targetfile)]
+        if len(cmd_list) > 0:
+            for cmd in cmd_list:
+                all_cmd_list.remove(cmd)
+            dic['standalone'] = all_cmd_list
+        open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
+        pass
+
+
+        
+
+    def copy_binary_from_rtc(self, rtc_, verbose=False, standalone=False):
+        if standalone:
+            filepath = rtc_.packageprofile.getRTCExecutableFilePath()
+        else:
+            filepath = rtc_.packageprofile.getRTCFilePath(verbose=verbose)
+
         if verbose:
             sys.stdout.write(' - Copying RTC Binary File from %s to %s\n' % (filepath, 'bin'))
 
@@ -207,70 +250,115 @@ class Package():
                 os.mkdir(bin_dir)
                 pass
 
-            if sys.platform == 'darwin':
-                ext = 'dylib'
-            elif sys.platform == 'win32':
-                ext = 'dll'
-            elif sys.platform == 'linux2':
-                ext = 'so'
-                
-            files = [filepath]
-            # dlls in the same directry must be copied with rtc's binary.
-            for file in os.listdir(os.path.dirname(filepath)):
-                if file.endswith(ext):
-                    files.append(os.path.join(os.path.dirname(filepath), file))
-
-            for file in files:
-                target = os.path.join(bin_dir, os.path.basename(file))
+            if standalone:
+                target = os.path.join(bin_dir, os.path.basename(filepath))
                 shutil.copy(filepath, target)
+                pass
+            else:
+
+                if sys.platform == 'darwin':
+                    ext = 'dylib'
+                elif sys.platform == 'win32':
+                    ext = 'dll'
+                elif sys.platform == 'linux2':
+                    ext = 'so'
+                
+                files = [filepath]
+                # dlls in the same directry must be copied with rtc's binary.
+                for file in os.listdir(os.path.dirname(filepath)):
+                    if file.endswith(ext):
+                        files.append(os.path.join(os.path.dirname(filepath), file))
+
+                for file in files:
+                    target = os.path.join(bin_dir, os.path.basename(file))
+                    shutil.copy(filepath, target)
 
             targetfile = os.path.join(bin_dir_rel, os.path.basename(filepath))
         
         return targetfile
 
-    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True):
+    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False):
 
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
             pass
         
-        if len(rtcconf_filename) == 0:
-            rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
+        if standalone:
+            targetconf = os.path.join(self.conf_path, 'rtc_' + rtc_.name + '.conf')
+            #print self.rtcconf(rtc_.rtcprofile.language.kind).filename, targetconf
+            shutil.copy(self.rtcconf(rtc_.rtcprofile.language.kind).filename, targetconf)
+            rtcconf = wasanbon.core.rtc.RTCConf(targetconf)
+            rtcconf['manager.modules.load_path'] = ''
+            rtcconf['manager.modules.preload'] = ''
+            rtcconf['manager.components.precreate'] = ''
+            rtcconf['manager.is_master'] = 'NO'
+            for key in rtcconf.keys():
+                if key.find('config_file') > 0:
+                    rtcconf.pop(key)
+            targetconf = os.path.join(self.conf_rel_path, 'rtc_' + rtc_.name + '.conf')
         else:
-            rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
+            if len(rtcconf_filename) == 0:
+                rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
+            else:
+                rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
+            
 
-        targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose)
+        targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose, standalone=standalone)
         if len(targetfile) == 0:
             targetfile = os.path.join(self.setting['BIN_DIR'], rtc_.packageprofile.get_rtc_bin_filename())
             pass
 
-        rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
-        if preload:
-            rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
-        if precreate:
-            rtcconf.append('manager.components.precreate', rtc_.rtcprofile.basicInfo.name)
-        if copy_conf:
-            confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose)
-            if confpath:
-                key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
-                if verbose:
-                    sys.stdout.write(' - Configuring System. Set (%s) to %s\n' % (key, confpath))
-                rtcconf.append(key, confpath)
+        if standalone:
+            setting_filename = os.path.join(self.path, 'setting.yaml')
+            shutil.copy(setting_filename, setting_filename + '.bak')
+            dic = yaml.load(open(setting_filename + '.bak', 'r'))
+
+            cmd_list = [cmd for cmd in dic.get('standalone', []) if cmd.startswith(targetfile)]
+            if len(cmd_list) == 0:
+                dic['standalone'] = dic.get('standalone', []) + [targetfile + ' -f ' + targetconf]
+            open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
+            pass
+
+        else:
+            rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
+            if preload:
+                rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
+            if precreate:
+                rtcconf.append('manager.components.precreate', rtc_.rtcprofile.basicInfo.name)
+
+        confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose, force=copy_conf)
+        if confpath:
+            key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
+            if verbose:
+                sys.stdout.write(' - Configuring System. Set (%s) to %s\n' % (key, confpath))
+            rtcconf.append(key, confpath)
+
         rtcconf.sync()
 
         return True
 
 
-    def copy_conf_from_rtc(self, rtc_, verbose=False):
+    def copy_conf_from_rtc(self, rtc_, verbose=False, force=False):
         conffile = rtc_.packageprofile.getConfFilePath()
         if len(conffile) == 0:
             sys.stdout.write(' - No configuration file for RTC (%s) is found.\n' % rtc_.rtcprofile.basicInfo.name)
             return []
         targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
         targetconf = targetconf[:-5] + '0' + '.conf'
-        if verbose:
-            sys.stdout.write(' - Copying Config (%s -> %s)\n' % (conffile, targetconf))
-        shutil.copy(conffile, targetconf)
+        if os.path.isfile(targetconf):
+            if verbose:
+                sys.stdout.write(' - Found %s.\n' % targetconf)
+            if force:
+                if verbose:
+                    sys.stdout.write(' - Force Copying Config (%s -> %s)\n' % (conffile, targetconf))
+                shutil.copy(conffile, targetconf)
+            else:
+                if verbose:
+                    sys.stdout.write(' - Do not copy.\n')
+        else:
+            if verbose:
+                sys.stdout.write(' - Copying Config (%s -> %s)\n' % (conffile, targetconf))
+            shutil.copy(conffile, targetconf)
         confpath = 'conf' + '/' + os.path.basename(targetconf)
         if sys.platform == 'win32':
             confpath.replace('\\', '\\\\')
@@ -344,9 +432,11 @@ class Package():
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         self.push(verbose=verbose)
 
-    def get_nameservers(self, verbose=False):
-        nss = []
+    def get_nameservers(self, verbose=False, force=False):
+        if not force and self._nameservers:
+            return self._nameservers
 
+        nss = []
         for lang in self._languages:
             ns = self.rtcconf(lang)['corba.nameservers']
             if not ':' in ns:
@@ -355,7 +445,20 @@ class Package():
                 sys.stdout.write(' - Nameserver for rtcd_%s is %s\n' % (lang, ns))
             if not ns in nss:
                 nss.append(ns)
-        return [nameserver.NameService(ns) for ns in nss]
+        self._nameservers =  [nameserver.NameService(ns) for ns in nss]
+        return self._nameservers
+
+    def launch_standalone_rtcs(self, verbose=False):
+        if verbose:
+            sys.stdout.write(' - launching standalone rtcs\n')
+        cmds = self.standalone_rtcs_commands
+        processes = []
+        for cmd in cmds:
+            if verbose:
+                sys.stdout.write(' - Launching command: %s' % cmd.split())
+            out = None if verbose else subprocess.PIPE
+            processes.append(subprocess.Popen(cmd.split(), stdout=out, stderr=out))
+        return processes
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
@@ -498,6 +601,12 @@ class Package():
 
         return rtcs_[language]
 
+    def installed_standalone_rtcs(self, verbose=False):
+        rtcs_ = []
+        sys.stdout.write(' - package_obj.installed_standalone_rtcs not implemented.\n')
+        return rtcs_
+        
+
     def available_connection_pairs(self, verbose=False, nameservers=None):
         pairs = []
         if not nameservers:
@@ -524,9 +633,16 @@ class Package():
             rtcc.sync()
 
         pass
+
     @property
     def conf_path(self):
-        return os.path.join(self.path, 'conf')
+        return os.path.join(self.path, self.conf_rel_path)
+
+    @property
+    def conf_rel_path(self):
+        stg = self.setting
+        return stg.get('CONF_DIR', 'conf')
+
         
 def remShut(*args):
     func, path, _ = args 

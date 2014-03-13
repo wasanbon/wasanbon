@@ -14,6 +14,47 @@ from diff import *
 from wasanbon.core import repositories
 
 
+def run_nameservers(obj, verbose=False, force=False):
+    nss = obj.get_nameservers(verbose=verbose)
+    for ns in nss:
+        if not ns.check_and_launch(verbose=verbose, force=force):
+            if verbose:
+                sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
+            return False
+
+    return True
+
+
+def kill_nameservers(obj, verbose=False):
+    nss = obj.get_nameservers(verbose=verbose)
+    for ns in nss:
+        ns.kill()
+    return True
+
+"""
+"""
+def run_system(obj, verbose=False):
+    obj.launch_all_rtcd(verbose=verbose)
+    obj.launch_standalone_rtcs(verbose=verbose)
+    return True
+
+
+def build_system(obj, verbose=False):
+    obj.connect_and_configure(verbose=verbose)
+    return True
+
+
+def activate_system(obj, verbose=False):
+    obj.activate(verbose=verbose)
+    return True
+
+"""
+"""
+def stop_system(obj, verbose=False):
+    obj.deactivate(verbose=verbose)
+    obj.terminate_all_rtcd(verbose=verbose)
+
+
 """
 package : wasanbon.core.package.Package class object
 rtc : string - name of rtc / wasanbon.core.rtc.Rtc class object
@@ -22,13 +63,13 @@ option
 verbose : message on/off
 overwrite_conf : overwrite configuration file on/off
 """
-def install_rtc(package, rtc, verbose=False, overwrite_conf=False):
+def install_rtc(package, rtc, verbose=False, overwrite_conf=False, standalone=False):
     if type(rtc) == types.ListType:
-        return [install_rtc(package, r, verbose=verbose, overwrite_conf=overwrite_conf) for r in rtc]
+        return [install_rtc(package, r, verbose=verbose, overwrite_conf=overwrite_conf, standalone=standalone) for r in rtc]
     else:
         if type(rtc) == types.StringType:
             rtc = package.rtc(rtc)
-        return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf)
+        return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf, standalone=standalone)
 
 def git_push(package, verbose=False):
     git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=package.path)
