@@ -35,6 +35,7 @@ def kill_nameservers(obj, verbose=False):
 """
 def run_system(obj, verbose=False):
     obj.launch_all_rtcd(verbose=verbose)
+    obj.launch_standalone_rtcs(verbose=verbose)
     return True
 
 
@@ -62,13 +63,13 @@ option
 verbose : message on/off
 overwrite_conf : overwrite configuration file on/off
 """
-def install_rtc(package, rtc, verbose=False, overwrite_conf=False):
+def install_rtc(package, rtc, verbose=False, overwrite_conf=False, standalone=False):
     if type(rtc) == types.ListType:
-        return [install_rtc(package, r, verbose=verbose, overwrite_conf=overwrite_conf) for r in rtc]
+        return [install_rtc(package, r, verbose=verbose, overwrite_conf=overwrite_conf, standalone=standalone) for r in rtc]
     else:
         if type(rtc) == types.StringType:
             rtc = package.rtc(rtc)
-        return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf)
+        return package.install(rtc, verbose=verbose, copy_conf=overwrite_conf, standalone=standalone)
 
 def git_push(package, verbose=False):
     git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=package.path)

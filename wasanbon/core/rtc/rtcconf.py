@@ -60,6 +60,10 @@ class RTCConf(object):
 
     def __setitem__(self, key, value):
         self.dic[key] = value
+    
+    def pop(self, key):
+        self.dic.pop(key)
+        pass
         
     def append(self, key, value):
         if not key in self.dic.keys():
@@ -106,20 +110,20 @@ class RTCConf(object):
         while True:
             line = fin.readline()
 
-            if not line:
+            if not line: # File End
                 break;
-            if line.strip().startswith('#'):
+            if line.strip().startswith('#'): # Comment Line
                 fout.write(line)
                 continue
 
-            while line.strip().endswith('\\'):
+            while line.strip().endswith('\\'): # Line is not end
                 line_new =  fin.readline()
                 if not line_new:
                     return
                 line = line.strip().split('\\')[0] + line_new
                 line_num = line_num+1
 
-            if not len(line.strip()) > 0:
+            if not len(line.strip()) > 0: # Line is empty
                 fout.write(line)
                 continue
 
@@ -128,7 +132,7 @@ class RTCConf(object):
                 print 'Invalid Configuration in line %d' % line_num
                 print '>>> ' + line
                 return
-            if len(nv) > 2:
+            if len(nv) > 2: # If configuration value includes ':' like localhost:2809, connect.
                 for v in nv[2:]:
                     nv[1] =  nv[1] + ':' + v
 
@@ -136,7 +140,9 @@ class RTCConf(object):
                 fout.write(nv[0] + ':' + self.dic[nv[0]] + '\n')
                 keys.remove(nv[0])
             else:
-                fout.write(line)
+                # fout.write(line) # Do not sync
+                pass
+
 
         for key in keys:
             fout.write(key + ':' + self.dic[key] + '\n')
