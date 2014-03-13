@@ -114,18 +114,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         package.run_nameservers(_package, verbose=verbose, force=force)
         package.run_system(_package, verbose=verbose)
 
-        for i in range(0, 5):
-            sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
-            sys.stdout.flush()
-            time.sleep(1)
+        print_delay(_package.get_build_delay())
 
         interactive_connection(_package, verbose=verbose)
         interactive_configuration(_package, verbose=verbose)
-
-        for i in range(0, 5):
-            sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
-            sys.stdout.flush()
-            time.sleep(1)
 
         save_all_system(['localhost'], verbose=verbose)
         package.stop_system(_package, verbose=verbose)
@@ -261,6 +253,18 @@ def signal_action(num, frame):
     endflag = True
     pass
 
+def print_delay(dt):
+    times = dt * 10
+    sys.stdout.write(' - Waiting approx. %s seconds\n' % dt)
+    for t in range(times):
+        percent = float(t) / times
+        width = 30
+        progress = (int(width*percent)+1)
+        sys.stdout.write('\r  [' + '#'*progress + ' '*(width-progress-1) + ']')
+        sys.stdout.flush()
+        time.sleep(0.1)
+
+    sys.stdout.write('\n')
 
 def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=False):
     if verbose:
@@ -310,6 +314,8 @@ def _run(_package, verbose=False, force=False, interactive=False):
 
         if interactive:
             raw_input(' - rtcd launched. Press Enter.\n')
+        else:
+            print_delay(_package.get_build_delay())
 
         if not package.build_system(_package, verbose=verbose):
             raise wasanbon.BuildSystemException()

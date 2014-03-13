@@ -49,6 +49,13 @@ class Package():
     def system_file(self):
         return os.path.join(self.path, self.setting['system'])
 
+    def get_build_delay(self):
+        stg = self.setting
+        if 'build_delay' in stg.keys():
+            return int(stg['build_delay'])
+        else:
+            return 5
+
     @property
     def rtc_repositories(self):
         repos = []
