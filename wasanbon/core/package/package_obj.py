@@ -278,6 +278,7 @@ class Package():
             rtcconf['manager.modules.preload'] = ''
             rtcconf['manager.components.precreate'] = ''
             rtcconf['manager.is_master'] = 'NO'
+            rtcconf['logger.file_name'] = './log/standalonertc_%s' % rtc_.name
             for key in rtcconf.keys():
                 if key.find('config_file') > 0:
                     rtcconf.pop(key)
@@ -572,7 +573,7 @@ class Package():
         for p in self._process['standalone']:
             if p.poll() == None:
                 if verbose:
-                    sys.stdout.write(' - Terminating rtcd(%s)\n' % key)
+                    sys.stdout.write(' - Terminating standalone RTC ()\n')
                 try:
                     p.kill()
                 except OSError, e:

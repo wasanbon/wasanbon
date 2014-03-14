@@ -13,13 +13,14 @@ def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=Fa
         sys.stdout.write(" - Saving System on %s to %s\n" % (str(nameservers), filepath))
     for i in range(0, 5):
         try:
+            sys.stdout.write('\n - Trying to save by rtcryo .....')
             argv = ['--verbose', '-n', 'DefaultSystem01', '-v', '1.0', '-e', 'Sugar Sweet Robotics',  '-o', filepath]
             argv = argv + nameservers
             rtcryo.main(argv=argv)
-            sys.stdout.write(' - Saved.\n')
+            sys.stdout.write(' Saved.\n')
             return
         except omniORB.CORBA.UNKNOWN, e:
-            traceback.print_exc()
+            #traceback.print_exc()
             pass
         except Exception, e:
             pass
