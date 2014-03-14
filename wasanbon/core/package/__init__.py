@@ -48,10 +48,13 @@ def activate_system(obj, verbose=False):
     obj.activate(verbose=verbose)
     return True
 
+def deactivate_system(obj, verbose=False):
+    obj.deactivate(verbose=verbose)
 """
 """
 def stop_system(obj, verbose=False):
     obj.deactivate(verbose=verbose)
+    obj.terminate_standalone_rtcs(verbose=verbose)
     obj.terminate_all_rtcd(verbose=verbose)
 
 

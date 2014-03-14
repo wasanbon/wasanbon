@@ -56,15 +56,18 @@ def alternative(argv=None):
     return all_commands
 
 def execute_with_argv(args, verbose, force=False, clean=False):
+
     usage = 'mgr.py system [subcommand]'
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='long format information', action='store_true', default=False, dest='long_flag')
     parser.add_option('-i', '--interactive', help='interactive launch', action='store_true', default=False, dest='interactive_flag')
     parser.add_option('-f', '--force', help='Force relaunch nameserver', action='store_true', default=False, dest='force_flag')
+    parser.add_option('-s', '--standalone', help='Install RTC with standalone version', action='store_true', default=False, dest='standalone_flag')
     try:
         options, argv = parser.parse_args(args[:])
     except:
         return
+    wasanbon.arg_check(argv, 3)
 
     force = options.force_flag
     interactive = options.interactive_flag
@@ -81,7 +84,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             try:
                 #_package.install(_package.rtc(name), verbose=verbose)
                 rtc = _package.rtc(name)
-                package.install_rtc(_package, rtc, verbose=verbose, overwrite_conf=force)
+                package.install_rtc(_package, rtc, verbose=verbose, overwrite_conf=force, standalone=options.standalone_flag)
                 
             except Exception, ex:
                 sys.stdout.write(' - Installing RTC %s failed.\n' % name)

@@ -1,4 +1,4 @@
-import sys, os, time
+import sys, os, time, traceback
 
 import wasanbon
 from wasanbon.core import tools 
@@ -19,7 +19,7 @@ def save_all_system(nameservers, filepath='system/DefaultSystem.xml', verbose=Fa
             sys.stdout.write(' - Saved.\n')
             return
         except omniORB.CORBA.UNKNOWN, e:
-            #traceback.print_exc()
+            traceback.print_exc()
             pass
         except Exception, e:
             pass
@@ -58,43 +58,32 @@ def execute_with_argv(argv, verbose, clean=False, force=False):
 
         elif(argv[2] == 'rtse'):
             sys.stdout.write(' @ Launching Eclipse\n')
-            nss = _package.get_nameservers(verbose=verbose)
-            for ns in nss:
-                if not ns.check_and_launch(verbose=verbose, force=force):
-                    sys.stdout.write(' @ NameService %s is not running\n' % ns.path)
-                    return False
+            pack.run_nameservers(_package, verbose=verbose, force=force)
+            pack.run_system(_package, verbose=verbose)
 
-            for i in range(0, 5):
-                sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
-                sys.stdout.flush()
-                time.sleep(1)
+            print_delay(_package.get_build_delay())
 
-            
-            _package.launch_all_rtcd(verbose=verbose)
             #tools.launch_eclipse(_package.system_path, nonblock=False, verbose=verbose)
             tools.launch_eclipse(workbench='.', nonblock=False, verbose=verbose, argv=['--clean'])
 
-            for i in range(0, 5):
-                sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
-                sys.stdout.flush()
-                time.sleep(1)
+            print_delay(_package.get_build_delay())
 
-            for ns in nss:
-                ns.refresh(verbose=verbose, force=True)
-                
-            #pairs = _package.available_connection_pairs(nameservers=nss, verbose=verbose)
-            
-            ns_addrs = [ns.path for ns in nss]
-            save_all_system(['localhost'])
+            save_all_system(['localhost'], verbose=verbose)
 
-            for i in range(0, 5):
-                sys.stdout.write('\r - Waiting (%s/%s)\n' % (i+1, 5))
-                sys.stdout.flush()
-                time.sleep(1)
+            pack.stop_system(_package, verbose=verbose)
+            pack.kill_nameservers(_package, verbose=verbose)
 
-            _package.terminate_all_rtcd(verbose=verbose)
-            
-            for ns in nss:
-                ns.kill()
         else:
             raise wasanbon.InvalidUsageException()
+def print_delay(dt):
+    times = dt * 10
+    sys.stdout.write(' - Waiting approx. %s seconds\n' % dt)
+    for t in range(times):
+        percent = float(t) / times
+        width = 30
+        progress = (int(width*percent)+1)
+        sys.stdout.write('\r  [' + '#'*progress + ' '*(width-progress-1) + ']')
+        sys.stdout.flush()
+        time.sleep(0.1)
+
+    sys.stdout.write('\n')

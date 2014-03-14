@@ -175,12 +175,12 @@ class Package():
         return bind_languages
 
     def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
-        if verbose:
-            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
             return
+        if verbose:
+            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         
         if len(rtcconf_filename) == 0:
             rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
@@ -435,17 +435,35 @@ class Package():
         return self._nameservers
 
     def launch_standalone_rtcs(self, verbose=False):
+
+        if not os.path.isdir('pid'):
+            os.mkdir('pid')
+
+        if os.path.isdir('pid'):
+            for file in os.listdir('pid'):
+                if file.startswith('standalonertc_'):
+                    pid = file[len('standalonertc_'):]
+                else:
+                    continue
+                for proc in psutil.process_iter():
+                    if str(proc.pid) == pid:
+                        proc.kill()
+                os.remove(os.path.join('pid', file))
+
         if verbose:
             sys.stdout.write(' - Launching standalone rtcs\n')
+
         cmds = self.standalone_rtcs_commands
-        print cmds
-        processes = []
+        self._process['standalone'] = []
         for cmd in cmds:
             if verbose:
                 sys.stdout.write(' - Launching command: %s' % cmd.split())
             out = None if verbose else subprocess.PIPE
-            processes.append(subprocess.Popen(cmd.split(), stdout=out, stderr=out))
-        return processes
+            process = subprocess.Popen(cmd.split(), stdout=out, stderr=out)
+            open(os.path.join('pid', 'standalonertc_' + str(process.pid)), 'w').close()
+            self._process['standalone'].append(process)
+
+        return True
 
     def launch_all_rtcd(self, verbose=False):
         if not os.path.isdir('log'):
@@ -550,9 +568,33 @@ class Package():
         else:
             return False
 
+    def terminate_standalone_rtcs(self, verbose=False):
+        for p in self._process['standalone']:
+            if p.poll() == None:
+                if verbose:
+                    sys.stdout.write(' - Terminating rtcd(%s)\n' % key)
+                try:
+                    p.kill()
+                except OSError, e:
+                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
+
+            if os.path.isdir('pid'):
+                sys.stdout.write(' - checking pid directory\n')
+                for file in os.listdir('pid'):
+                    if file.startswith('standalonertc_'):
+                        _process = file[len('standalonertc_'):]
+                    else:
+                        continue
+                    if _process == str(p.pid):
+                        sys.stdout.write(' - removing file %s\n' % file)
+                        os.remove(os.path.join('pid', file))
+        pass
+
     def terminate_all_rtcd(self, verbose=False):
         for key, value in self._process.items():
-
+            # ignore standalone rtcs
+            if key == 'standalone':
+                continue
 
             if value.poll() == None:
                 if verbose:
