@@ -208,7 +208,6 @@ class Package():
         pass
 
 
-        
 
     def copy_binary_from_rtc(self, rtc_, verbose=False, standalone=False):
         if standalone:
@@ -300,9 +299,9 @@ class Package():
             shutil.copy(setting_filename, setting_filename + '.bak')
             dic = yaml.load(open(setting_filename + '.bak', 'r'))
 
-            cmd_list = [cmd for cmd in dic.get('standalone', []) if cmd.startswith(targetfile)]
+            cmd_list = [cmd for cmd in dic['application'].get('standalone', []) if cmd.startswith(targetfile)]
             if len(cmd_list) == 0:
-                dic['standalone'] = dic.get('standalone', []) + [targetfile + ' -f ' + targetconf]
+                dic['application']['standalone'] = dic['application'].get('standalone', []) + [targetfile + ' -f ' + targetconf]
             open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
             pass
 
@@ -437,8 +436,9 @@ class Package():
 
     def launch_standalone_rtcs(self, verbose=False):
         if verbose:
-            sys.stdout.write(' - launching standalone rtcs\n')
+            sys.stdout.write(' - Launching standalone rtcs\n')
         cmds = self.standalone_rtcs_commands
+        print cmds
         processes = []
         for cmd in cmds:
             if verbose:

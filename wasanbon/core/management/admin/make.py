@@ -47,9 +47,7 @@ def execute_with_argv(argv, verbose):
 
     if len(argv) == 2: # wasanbon-admin.py make. This can be called if current directory is in the package
         for _package in _packages:
-            normpath = os.path.normcase(os.path.normpath(_package.path))
-            prefix = os.path.commonprefix([os.getcwd(), normpath])
-            if os.path.isdir(prefix) and os.stat(prefix) == os.stat(normpath):
+            if isparent(_package.path):
                 if verbose:
                     sys.stdout.write(' - Found Package (%s)\n' % _package.name)
                     pass
@@ -94,4 +92,20 @@ def execute_with_argv(argv, verbose):
         else:
             _rtc.build(verbose=verbose)
 
+def isparent(path):
+    def checkparent(p, q):
+        print 'check', p, q
+        if q == '/':
+            return False
+        if os.stat(p) == os.stat(q):
+            return True
+        return checkparent(p, os.path.dirname(q))
+    return checkparent(path, os.getcwd())
+"""
+    normpath = os.path.normcase(os.path.normpath(path))
+            print 'nor', normpath
+            prefix = os.path.commonprefix([os.getcwd(), normpath])
+            print 'pre', prefix
+            if os.path.isdir(prefix) and os.stat(prefix) == os.stat(normpath):
             
+"""

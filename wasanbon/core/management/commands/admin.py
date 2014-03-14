@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, optparse, traceback
 import wasanbon
 from wasanbon.core import repositories
 from wasanbon.core import package as pack
@@ -8,14 +8,15 @@ def alternative(argv=None):
     return ['register', 'git_init', 'github_init', 'commit', 'push', 'setting']
 
 
-def execute_with_argv(argv, force, verbose=False, clean=False):
+def execute_with_argv(argv, verbose=False, clean=False):
     usage = "mgr.py admin [subcommand] ...\n"
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
     try:
-        options, argv = parser.parse_args(args[:])
+        options, argv = parser.parse_args(argv[:])
     except:
+        traceback.print_exc()
         return
 
     service_name = options.service
