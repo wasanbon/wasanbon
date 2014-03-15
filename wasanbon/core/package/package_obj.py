@@ -490,14 +490,14 @@ class Package():
         if verbose:
             sys.stdout.write(' - Launching All RTCDaemon\n')
 
-        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, verbose=True)
-        if verbose:
-            sys.stdout.write(' - PID = %s\n' % self._process['C++'].pid)
-
+        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, 
+                                                     'C++' in self.console_bind)
         open(os.path.join('pid', 'rtcd_cpp_' + str(self._process['C++'].pid)), 'w').close()
+
         self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
                                                         'Python' in self.console_bind)
         open(os.path.join('pid', 'rtcd_py_' + str(self._process['Python'].pid)), 'w').close()
+
         self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
                                                       'Java' in self.console_bind)
         open(os.path.join('pid', 'rtcd_java_' + str(self._process['Java'].pid)), 'w').close()
