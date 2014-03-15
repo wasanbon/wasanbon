@@ -29,6 +29,16 @@ def disable_sig():
     SIG_BLOCK = 0
     libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
+def start_rtcd(language, filepath, verbose=False):
+    if language == 'C++':
+        return start_cpp_rtcd(filepath, verbose=verbose)
+    elif language == 'Java':
+        return start_java_rtcd(filepath, verbose=verbose)
+    elif language == 'Python':
+        return start_python_rtcd(filepath, verbose=verbose)
+    else:
+        raise wasanbon.UnsupportedPlatformException()
+
 def start_cpp_rtcd(filepath, verbose=True):
     if verbose:
         sys.stdout.write(' - Starting C++ rtcd.\n')

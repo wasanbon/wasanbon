@@ -2,7 +2,7 @@ import os, sys, yaml, subprocess, shutil, types, time, stat, psutil
 import wasanbon
 #from wasanbon.core import rtc
 import wasanbon.core.rtc
-from wasanbon.core import system
+
 from wasanbon.util import git
 #from wasanbon.util import github_ref
 from wasanbon.core import nameserver
@@ -140,10 +140,6 @@ class Package():
         pass
 
     @property
-    def system(self):
-        return system.SystemObject(self.system_file)
-
-    @property
     def path(self):
         return self._path
 
@@ -206,7 +202,6 @@ class Package():
             dic['standalone'] = all_cmd_list
         open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
         pass
-
 
 
     def copy_binary_from_rtc(self, rtc_, verbose=False, standalone=False):
@@ -466,43 +461,39 @@ class Package():
 
         return True
 
+    def launch_rtcd(self, language, verbose=False):
+        if verbose:
+            sys.stdout.write(' Starting RTC-Daemon %s version.\n' % language)
+        piddir = 'pid'
+        logdir = 'log'
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+
+        for file in os.listdir(piddir):
+            if file.startswith('rtcd_'+language+'_'):
+                pid = int(file[len('rtcd_'+language+'_'):])
+            else:
+                continue
+            for proc in psutil.process_iter():
+                if proc.pid == pid:
+                    proc.kill()
+            os.remove(os.path.join(piddir, file))
+
+        
+        self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
+                                                    language in self.console_bind)
+        open(os.path.join(piddir, 'rtcd_'+language+'_' + str(self._process[language].pid)), 'w').close()
+        return True
+
     def launch_all_rtcd(self, verbose=False):
-        if not os.path.isdir('log'):
-            os.mkdir('log')
-        if not os.path.isdir('pid'):
-            os.mkdir('pid')
-
-        if os.path.isdir('pid'):
-            for file in os.listdir('pid'):
-                if file.startswith('rtcd_cpp_'):
-                    pid = file[len('rtcd_cpp_'):]
-                elif file.startswith('rtcd_py_'):
-                    pid = file[len('rtcd_py_'):]
-                elif file.startswith('rtcd_java_'):
-                    pid = file[len('rtcd_java_'):]
-                else:
-                    continue
-                for proc in psutil.process_iter():
-                    if str(proc.pid) == pid:
-                        proc.kill()
-                os.remove(os.path.join('pid', file))
-
         if verbose:
             sys.stdout.write(' - Launching All RTCDaemon\n')
 
-        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, 
-                                                     'C++' in self.console_bind)
-        open(os.path.join('pid', 'rtcd_cpp_' + str(self._process['C++'].pid)), 'w').close()
-
-        self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
-                                                        'Python' in self.console_bind)
-        open(os.path.join('pid', 'rtcd_py_' + str(self._process['Python'].pid)), 'w').close()
-
-        self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
-                                                      'Java' in self.console_bind)
-        open(os.path.join('pid', 'rtcd_java_' + str(self._process['Java'].pid)), 'w').close()
-
-        
+        self.launch_rtcd('C++', verbose=verbose)
+        self.launch_rtcd('Python', verbose=verbose)
+        self.launch_rtcd('Java', verbose=verbose)
         pass
 
     def getpid(self, language):
