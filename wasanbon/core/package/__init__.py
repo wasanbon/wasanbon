@@ -4,7 +4,7 @@
 @copyright SugarSweetRobotics Co. LTD. 2014
 """
 
-import os, sys, yaml, subprocess, shutil, types
+import os, sys, yaml, subprocess, shutil, types, threading
 import wasanbon
 from wasanbon.util import git
 from connection import *
@@ -16,6 +16,10 @@ from wasanbon.core import repositories
 
 def run_nameservers(obj, verbose=False, force=False):
     nss = obj.get_nameservers(verbose=verbose)
+    interval = 1.0
+    def callback():
+        
+    wdt = threading.Timer(interval, callback)
     for ns in nss:
         if not ns.check_and_launch(verbose=verbose, force=force):
             if verbose:

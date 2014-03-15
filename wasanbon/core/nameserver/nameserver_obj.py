@@ -1,4 +1,4 @@
-import os, sys, subprocess, time, signal, psutil
+import os, sys, subprocess, time, signal, psutil,threading
 from wasanbon.core.nameserver.rtc_ref import *
 from ctypes import *
 import rtctree
@@ -73,11 +73,39 @@ class NameService(object):
                 if verbose:
                     sys.stdout.write(' - Checking Nameservice(%s) is running\n' % self.path)
                 if not self.tree:
-                    sys.stdout.write(' - initializing tree...\n')
+                    if verbose:
+                        sys.stdout.write('   - Parsing path....\n')
                     self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
-                    self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    if verbose:
+                        sys.stdout.write('   - Initializing rtctree...\n')
+                    # Here is blocking point ....
+                    class Task(threading.Thread):
+                        def __init__(self, ns, path):
+                            threading.Thread.__init__(self)
+                            self.ns = ns
+                            self.__path = path
+                        def run(self):
+                            self.ns.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                        def quit(self):
+                            self._Thread__stop()
+                    
+                    self.tree = False
+                    t = Task(self, self.__path)
+                    t.start()
+                    def killtask():
+                        t.quit()
+                    wdt = threading.Timer(3.0, killtask)
+                    wdt.start()
+                    t.join()
+                    if not self.tree:
+                        sys.stdout.write('   - Failed.\n')
+                        continue
+                    #self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    if verbose:
+                        sys.stdout.write('   - Getting Node...\n')
                     self.dir_node = self.tree.get_node(self.__path)
-                    sys.stdout.write(' - success.\n')
+                    if verbose:
+                        sys.stdout.write('   - success.\n')
                 if verbose:
                     sys.stdout.write(' - Nameservice(%s) is found.\n' % self.path)
                 return True
