@@ -481,10 +481,10 @@ class Package():
                     proc.kill()
             os.remove(os.path.join(piddir, file))
 
-        
-        self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
-                                                    language in self.console_bind)
-        open(os.path.join(piddir, 'rtcd_'+language+'_' + str(self._process[language].pid)), 'w').close()
+        if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
+            self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
+                                                        language in self.console_bind)
+            open(os.path.join(piddir, 'rtcd_'+language+'_' + str(self._process[language].pid)), 'w').close()
         return True
 
     def launch_all_rtcd(self, verbose=False):
