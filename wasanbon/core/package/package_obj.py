@@ -471,15 +471,7 @@ class Package():
         if not os.path.isdir(piddir):
             os.mkdir(piddir)
 
-        for file in os.listdir(piddir):
-            if file.startswith('rtcd_'+language+'_'):
-                pid = int(file[len('rtcd_'+language+'_'):])
-            else:
-                continue
-            for proc in psutil.process_iter():
-                if proc.pid == pid:
-                    proc.kill()
-            os.remove(os.path.join(piddir, file))
+        self.terminate_rtcd(language, verbose=verbose)
 
         if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
             self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
@@ -525,7 +517,29 @@ class Package():
                 return True
             time.sleep(1)
         raise wasanbon.BuildSystemException()
+    
+    def terminate_rtcd(self, language, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Checking RTCDaemon process is alive.\n')
+        piddir = 'pid'
+        if language in self._process.keys():
+            if self._process[language].poll() == None:
+                if verbose:
+                    sys.stdout.write(' - Terminating rtcd (%s) ...' % language)
+                try:
+                    self._process[language].kill()
+                except OSError, e:
+                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
 
+        for file in os.listdir(piddir):
+            if file.startswith('rtcd_'+language+'_'):
+                pid = int(file[len('rtcd_'+language+'_'):])
+                for proc in psutil.process_iter():
+                    if proc.pid == pid:
+                        proc.kill()
+                    os.remove(os.path.join(piddir, file))
+                    
+    """
     def is_process_terminated(self, verbose=False):
         if verbose:
             sys.stdout.write(' - Checking RTCDaemon process is dead.\n')
@@ -559,7 +573,7 @@ class Package():
             return all(flags)
         else:
             return False
-
+    """
     def terminate_standalone_rtcs(self, verbose=False):
         for p in self._process['standalone']:
             if p.poll() == None:
@@ -578,11 +592,19 @@ class Package():
                     else:
                         continue
                     if _process == str(p.pid):
-                        sys.stdout.write(' - removing file %s\n' % file)
+                        if verbose:
+                            sys.stdout.write(' - removing file %s\n' % file)
                         os.remove(os.path.join('pid', file))
         pass
 
     def terminate_all_rtcd(self, verbose=False):
+        self.terminate_rtcd('C++', verbose=verbose)
+        self.terminate_rtcd('Python', verbose=verbose)
+        self.terminate_rtcd('Java', verbose=verbose)
+
+        return True
+
+    """
         for key, value in self._process.items():
             # ignore standalone rtcs
             if key == 'standalone':
@@ -611,7 +633,7 @@ class Package():
                         sys.stdout.write(' - removing file %s\n' % file)
                         os.remove(os.path.join('pid', file))
 
-
+    """
     def installed_rtcs(self, language='all', verbose=False):
         rtcs_ = {}
         for lang in self._languages:
