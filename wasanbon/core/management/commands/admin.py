@@ -17,9 +17,8 @@ en_US:
    Push your commits to your remote repository
     
 """
+import sys, os, optparse, traceback
 
-
-import sys, os, optparse
 import wasanbon
 from wasanbon import util
 from wasanbon.core import repositories
@@ -31,8 +30,7 @@ def alternative(argv=None):
     return ['git_init', 'remote_create', 'commit', 'push']
 
 
-def execute_with_argv(argv, verbose):
-
+def execute_with_argv(argv, verbose=False, clean=False):
     usage = "mgr.py admin [subcommand] ...\n"
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')

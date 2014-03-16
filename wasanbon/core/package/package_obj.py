@@ -2,7 +2,7 @@ import os, sys, yaml, subprocess, shutil, types, time, stat, psutil
 import wasanbon
 #from wasanbon.core import rtc
 import wasanbon.core.rtc
-from wasanbon.core import system
+
 from wasanbon.util import git
 #from wasanbon.util import github_ref
 from wasanbon.core import nameserver
@@ -153,10 +153,6 @@ class Package():
         pass
 
     @property
-    def system(self):
-        return system.SystemObject(self.system_file)
-
-    @property
     def path(self):
         return self._path
 
@@ -188,12 +184,12 @@ class Package():
         return bind_languages
 
     def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
-        if verbose:
-            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
                 self.uninstall(rtc__, verbose=verbose)
             return
+        if verbose:
+            sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
         
         if len(rtcconf_filename) == 0:
             rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
@@ -220,8 +216,6 @@ class Package():
         open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
         pass
 
-
-        
 
     def copy_binary_from_rtc(self, rtc_, verbose=False, standalone=False):
         if standalone:
@@ -292,6 +286,7 @@ class Package():
             rtcconf['manager.modules.preload'] = ''
             rtcconf['manager.components.precreate'] = ''
             rtcconf['manager.is_master'] = 'NO'
+            rtcconf['logger.file_name'] = './log/standalonertc_%s' % rtc_.name
             for key in rtcconf.keys():
                 if key.find('config_file') > 0:
                     rtcconf.pop(key)
@@ -313,9 +308,9 @@ class Package():
             shutil.copy(setting_filename, setting_filename + '.bak')
             dic = yaml.load(open(setting_filename + '.bak', 'r'))
 
-            cmd_list = [cmd for cmd in dic.get('standalone', []) if cmd.startswith(targetfile)]
+            cmd_list = [cmd for cmd in dic['application'].get('standalone', []) if cmd.startswith(targetfile)]
             if len(cmd_list) == 0:
-                dic['standalone'] = dic.get('standalone', []) + [targetfile + ' -f ' + targetconf]
+                dic['application']['standalone'] = dic['application'].get('standalone', []) + [targetfile + ' -f ' + targetconf]
             open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
             pass
 
@@ -449,31 +444,14 @@ class Package():
         return self._nameservers
 
     def launch_standalone_rtcs(self, verbose=False):
-        if verbose:
-            sys.stdout.write(' - launching standalone rtcs\n')
-        cmds = self.standalone_rtcs_commands
-        processes = []
-        for cmd in cmds:
-            if verbose:
-                sys.stdout.write(' - Launching command: %s' % cmd.split())
-            out = None if verbose else subprocess.PIPE
-            processes.append(subprocess.Popen(cmd.split(), stdout=out, stderr=out))
-        return processes
 
-    def launch_all_rtcd(self, verbose=False):
-        if not os.path.isdir('log'):
-            os.mkdir('log')
         if not os.path.isdir('pid'):
             os.mkdir('pid')
 
         if os.path.isdir('pid'):
             for file in os.listdir('pid'):
-                if file.startswith('rtcd_cpp_'):
-                    pid = file[len('rtcd_cpp_'):]
-                elif file.startswith('rtcd_py_'):
-                    pid = file[len('rtcd_py_'):]
-                elif file.startswith('rtcd_java_'):
-                    pid = file[len('rtcd_java_'):]
+                if file.startswith('standalonertc_'):
+                    pid = file[len('standalonertc_'):]
                 else:
                     continue
                 for proc in psutil.process_iter():
@@ -482,21 +460,45 @@ class Package():
                 os.remove(os.path.join('pid', file))
 
         if verbose:
+            sys.stdout.write(' - Launching standalone rtcs\n')
+
+        cmds = self.standalone_rtcs_commands
+        self._process['standalone'] = []
+        for cmd in cmds:
+            if verbose:
+                sys.stdout.write(' - Launching command: %s' % cmd.split())
+            out = None if verbose else subprocess.PIPE
+            process = subprocess.Popen(cmd.split(), stdout=out, stderr=out)
+            open(os.path.join('pid', 'standalonertc_' + str(process.pid)), 'w').close()
+            self._process['standalone'].append(process)
+
+        return True
+
+    def launch_rtcd(self, language, verbose=False):
+        if verbose:
+            sys.stdout.write(' Starting RTC-Daemon %s version.\n' % language)
+        piddir = 'pid'
+        logdir = 'log'
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+
+        self.terminate_rtcd(language, verbose=verbose)
+
+        if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
+            self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
+                                                        language in self.console_bind)
+            open(os.path.join(piddir, 'rtcd_'+language+'_' + str(self._process[language].pid)), 'w').close()
+        return True
+
+    def launch_all_rtcd(self, verbose=False):
+        if verbose:
             sys.stdout.write(' - Launching All RTCDaemon\n')
 
-        self._process['C++']    = run.start_cpp_rtcd(self.rtcconf('C++').filename, verbose=True)
-        if verbose:
-            sys.stdout.write(' - PID = %s\n' % self._process['C++'].pid)
-
-        open(os.path.join('pid', 'rtcd_cpp_' + str(self._process['C++'].pid)), 'w').close()
-        self._process['Python'] = run.start_python_rtcd(self.rtcconf('Python').filename,
-                                                        'Python' in self.console_bind)
-        open(os.path.join('pid', 'rtcd_py_' + str(self._process['Python'].pid)), 'w').close()
-        self._process['Java']   = run.start_java_rtcd(self.rtcconf('Java').filename,
-                                                      'Java' in self.console_bind)
-        open(os.path.join('pid', 'rtcd_java_' + str(self._process['Java'].pid)), 'w').close()
-
-        
+        self.launch_rtcd('C++', verbose=verbose)
+        self.launch_rtcd('Python', verbose=verbose)
+        self.launch_rtcd('Java', verbose=verbose)
         pass
 
     def getpid(self, language):
@@ -528,7 +530,29 @@ class Package():
                 return True
             time.sleep(1)
         raise wasanbon.BuildSystemException()
+    
+    def terminate_rtcd(self, language, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Checking RTCDaemon process is alive.\n')
+        piddir = 'pid'
+        if language in self._process.keys():
+            if self._process[language].poll() == None:
+                if verbose:
+                    sys.stdout.write(' - Terminating rtcd (%s) ...' % language)
+                try:
+                    self._process[language].kill()
+                except OSError, e:
+                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
 
+        for file in os.listdir(piddir):
+            if file.startswith('rtcd_'+language+'_'):
+                pid = int(file[len('rtcd_'+language+'_'):])
+                for proc in psutil.process_iter():
+                    if proc.pid == pid:
+                        proc.kill()
+                    os.remove(os.path.join(piddir, file))
+                    
+    """
     def is_process_terminated(self, verbose=False):
         if verbose:
             sys.stdout.write(' - Checking RTCDaemon process is dead.\n')
@@ -562,10 +586,42 @@ class Package():
             return all(flags)
         else:
             return False
+    """
+    def terminate_standalone_rtcs(self, verbose=False):
+        for p in self._process['standalone']:
+            if p.poll() == None:
+                if verbose:
+                    sys.stdout.write(' - Terminating standalone RTC ()\n')
+                try:
+                    p.kill()
+                except OSError, e:
+                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
+
+            if os.path.isdir('pid'):
+                sys.stdout.write(' - checking pid directory\n')
+                for file in os.listdir('pid'):
+                    if file.startswith('standalonertc_'):
+                        _process = file[len('standalonertc_'):]
+                    else:
+                        continue
+                    if _process == str(p.pid):
+                        if verbose:
+                            sys.stdout.write(' - removing file %s\n' % file)
+                        os.remove(os.path.join('pid', file))
+        pass
 
     def terminate_all_rtcd(self, verbose=False):
-        for key, value in self._process.items():
+        self.terminate_rtcd('C++', verbose=verbose)
+        self.terminate_rtcd('Python', verbose=verbose)
+        self.terminate_rtcd('Java', verbose=verbose)
 
+        return True
+
+    """
+        for key, value in self._process.items():
+            # ignore standalone rtcs
+            if key == 'standalone':
+                continue
 
             if value.poll() == None:
                 if verbose:
@@ -590,7 +646,7 @@ class Package():
                         sys.stdout.write(' - removing file %s\n' % file)
                         os.remove(os.path.join('pid', file))
 
-
+    """
     def installed_rtcs(self, language='all', verbose=False):
         rtcs_ = {}
         for lang in self._languages:
