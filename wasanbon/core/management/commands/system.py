@@ -112,10 +112,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         for lang, rtcs in rtcs_map.items():
             sys.stdout.write(' @ %s:\n' % lang)
             for rtc_ in rtcs:
-                sys.stdout.write('    @ %s\n' % rtc_.name) 
+                sys.stdout.write('    - %s\n' % rtc_.name) 
         sys.stdout.write(' @ Standalone\n')
         for rtc in rtcs_stand:
-            sys.stdout.write(' @ %s\n' % rtc.name)
+            sys.stdout.write('    - %s\n' % rtc.name)
                 
     elif(argv[2] == 'build'):
         print ' @ Building RTC System in Wasanbon'

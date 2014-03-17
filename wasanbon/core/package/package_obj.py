@@ -664,7 +664,23 @@ class Package():
 
     def installed_standalone_rtcs(self, verbose=False):
         rtcs_ = []
-        sys.stdout.write(' - package_obj.installed_standalone_rtcs not implemented.\n')
+        stg = self.setting
+        cmds = stg.get('standalone', [])
+        for cmd in cmds:
+            rtc_launch_cmd = cmd.split()[0]
+            post_fix = 'Comp'
+            if sys.platform == 'win32':
+                post_fix = 'Comp.exe'
+            if rtc_launch_cmd.startswith(self.bin_rel_path) and rtc_launch_cmd.endswith(post_fix):
+                rtc_name = rtc_launch_cmd[len(self.bin_rel_path)+1:-(len(post_fix))]
+                try:
+                    rtc_ = self.rtc(rtc_name)
+                    rtcs_.append(rtc_)
+                except wasanbon.RTCNotFoundExpcetion, e:
+                    if verbose:
+                        sys.stdout.write(' - Searching %s RTC in package but not found.\n')
+                    
+            #sys.stdout.write(' - package_obj.installed_standalone_rtcs not implemented.\n')
         return rtcs_
         
 
