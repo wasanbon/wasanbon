@@ -226,14 +226,14 @@ class Package():
             filepath = rtc_.packageprofile.getRTCFilePath(verbose=verbose)
 
         if verbose:
-            sys.stdout.write(' - Copying RTC Binary File from %s to %s\n' % (filepath, 'bin'))
+            sys.stdout.write('    - Copying RTC Binary File from %s to %s\n' % (filepath, 'bin'))
 
         if len(filepath) == 0:
-            sys.stdout.write(" - Can not find RTC file in RTC's directory\n")
+            sys.stdout.write("    - Can not find RTC file in RTC's directory\n")
             return ""
         
         if verbose:
-            sys.stdout.write(' - Detect RTC binary %s\n' % filepath)
+            sys.stdout.write('    - Detect RTC binary %s\n' % filepath)
         if rtc_.language == 'Python':
             norm_path = os.path.normcase(os.path.normpath(os.path.split(filepath)[0]))
             prefix = os.path.commonprefix([self.path, norm_path])
@@ -273,11 +273,24 @@ class Package():
         
         return targetfile
 
+    def is_installed(self, rtc_, verbose=False, standalone=False):
+        rtcs = self.installed_standalone_rtcs()
+        for r in rtcs:
+            if r.name == rtc_.name:
+                return True
+        return False
+
     def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False):
 
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
             pass
+
+        if not standalone and  self.is_installed(rtc_, standalone=True, verbose=verbose):
+            if verbose:
+                sys.stdout.write('    - RTC (%s) is already installed as standalone.\n' % rtc_.name)
+                sys.stdout.write('    - Install standalone again.\n')
+            standalone = True
         
         if standalone:
             targetconf = os.path.join(self.conf_path, 'rtc_' + rtc_.name + '.conf')
@@ -327,7 +340,7 @@ class Package():
         if confpath:
             key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
             if verbose:
-                sys.stdout.write(' - Configuring System. Set (%s) to %s\n' % (key, confpath))
+                sys.stdout.write('    - Configuring System. Set (%s) to %s\n' % (key, confpath))
             rtcconf.append(key, confpath)
 
         rtcconf.sync()
@@ -338,20 +351,20 @@ class Package():
     def copy_conf_from_rtc(self, rtc_, verbose=False, force=False):
         conffile = rtc_.packageprofile.getConfFilePath()
         if len(conffile) == 0:
-            sys.stdout.write(' - No configuration file for RTC (%s) is found.\n' % rtc_.rtcprofile.basicInfo.name)
+            sys.stdout.write('    - No configuration file for RTC (%s) is found.\n' % rtc_.rtcprofile.basicInfo.name)
             return []
         targetconf = os.path.join(self.path, 'conf', os.path.basename(conffile))
         targetconf = targetconf[:-5] + '0' + '.conf'
         if os.path.isfile(targetconf):
             if verbose:
-                sys.stdout.write(' - Found %s.\n' % targetconf)
+                sys.stdout.write('    - Found %s.\n' % targetconf)
             if force:
                 if verbose:
-                    sys.stdout.write(' - Force Copying Config (%s -> %s)\n' % (conffile, targetconf))
+                    sys.stdout.write('    - Force Copying Config (%s -> %s)\n' % (conffile, targetconf))
                 shutil.copy(conffile, targetconf)
             else:
                 if verbose:
-                    sys.stdout.write(' - Do not copy.\n')
+                    sys.stdout.write('    - Do not copy.\n')
         else:
             if verbose:
                 sys.stdout.write(' - Copying Config (%s -> %s)\n' % (conffile, targetconf))
