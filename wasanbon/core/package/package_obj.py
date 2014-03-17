@@ -42,9 +42,13 @@ class Package():
         return os.path.join(self.path, self.setting['RTC_DIR'])
 
     @property
-<<<<<<< HEAD
     def conf_path(self):
-        return os.path.join(self.path, self.setting['CONF_DIR'])
+        return os.path.join(self.path, self.conf_rel_path)
+
+    @property
+    def conf_rel_path(self):
+        stg = self.setting
+        return stg.get('CONF_DIR', 'conf')
 
     @property
     def repository(self):
@@ -52,8 +56,6 @@ class Package():
         return repository.PackageRepository(self.name, url=git_obj.url, desc="")
 
     @property
-=======
->>>>>>> 207a55a9b2f4b86ea28597044be695dd7fb36ef9
     def system_path(self):
         return os.path.join(self.path, self.setting['RTS_DIR'])
 
@@ -475,8 +477,6 @@ class Package():
         return True
 
     def launch_rtcd(self, language, verbose=False):
-        if verbose:
-            sys.stdout.write(' Starting RTC-Daemon %s version.\n' % language)
         piddir = 'pid'
         logdir = 'log'
         if not os.path.isdir(logdir):
@@ -487,8 +487,12 @@ class Package():
         self.terminate_rtcd(language, verbose=verbose)
 
         if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
+            if verbose:
+                sys.stdout.write(' -Starting RTC-Daemon %s version.\n' % language)
             self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
                                                         language in self.console_bind)
+            if verbose:
+                sys.stdout.write('    - Save rtcd_'+language+'_' + str(self._process[language].pid) + '\n')
             open(os.path.join(piddir, 'rtcd_'+language+'_' + str(self._process[language].pid)), 'w').close()
         return True
 
@@ -532,8 +536,6 @@ class Package():
         raise wasanbon.BuildSystemException()
     
     def terminate_rtcd(self, language, verbose=False):
-        if verbose:
-            sys.stdout.write(' - Checking RTCDaemon process is alive.\n')
         piddir = 'pid'
         if language in self._process.keys():
             if self._process[language].poll() == None:
@@ -542,7 +544,7 @@ class Package():
                 try:
                     self._process[language].kill()
                 except OSError, e:
-                    sys.stdout.write(' - OSError: process seems to be killed already.\n')
+                    sys.stdout.write('    @ OSError: process seems to be killed already.\n')
 
         for file in os.listdir(piddir):
             if file.startswith('rtcd_'+language+'_'):
@@ -550,7 +552,10 @@ class Package():
                 for proc in psutil.process_iter():
                     if proc.pid == pid:
                         proc.kill()
-                    os.remove(os.path.join(piddir, file))
+                    if os.path.isfile(os.path.join(piddir, file)):
+                        if verbose:
+                            sys.stdout.write('     - Removing File(%s)\n' % os.path.join(piddir, file))
+                        os.remove(os.path.join(piddir, file))
                     
     """
     def is_process_terminated(self, verbose=False):
@@ -690,14 +695,6 @@ class Package():
 
         pass
 
-    @property
-    def conf_path(self):
-        return os.path.join(self.path, self.conf_rel_path)
-
-    @property
-    def conf_rel_path(self):
-        stg = self.setting
-        return stg.get('CONF_DIR', 'conf')
 
         
 def remShut(*args):
