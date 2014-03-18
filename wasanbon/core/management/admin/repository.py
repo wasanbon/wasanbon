@@ -68,6 +68,8 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             sys.stdout.write(' - Downloading Failed.\n')
 
     elif argv[2] == 'update':
+        __import__('wasanbon.core.package')
+        pack = sys.modules['wasanbon.core.package']
         pack.update_repositories(verbose=verbose)
 
     elif argv[2] == 'create':

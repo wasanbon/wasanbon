@@ -254,7 +254,6 @@ def download_repositories(verbose=False, force=False, url=None):
             if verbose:
                 sys.stdout.write('    - Repository : %s\n' % name)
             download_repository(value['url'], verbose=verbose, force=force)
-
     return True
                 
 def upload_repositories(comment, verbose=False):
