@@ -20,11 +20,11 @@ def install(force=False, verbose=False):
         sys.stdout.write(' - Your system can not import OpenRTM_aist package.\n')
         
     if sys.platform == 'darwin':
-        install_pyrtm_osx(force)
+        install_pyrtm_osx(force, verbose=verbose)
     elif sys.platform == 'win32':
-        install_pyrtm_win(force)
+        install_pyrtm_win(force, verbose=verbose)
     elif sys.platform == 'linux2':
-        install_pyrtm_linux(force)
+        install_pyrtm_linux(force, verbose=verbose)
 
     if not is_installed():
         if verbose:
@@ -40,6 +40,7 @@ def install_pyrtm_win(force, verbose=True):
 
 def install_pyrtm_linux(force, verbose=True):
     util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['python'], force=force)
+    raw_input()
     install_pyrtm_osx(force, verbose=verbose) # install from source.
 
 def install_pyrtm_osx(force, verbose=True):
