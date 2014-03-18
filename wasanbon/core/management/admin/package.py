@@ -170,7 +170,7 @@ def _list(args, verbose, force ,clean, long=False):
     _packages = pack.get_packages(verbose=verbose)
     if not long:
         for p in _packages:
-            sys.stdout.write(p.name + ' ')
+            sys.stdout.write(p.name + ' \n')
         return
     for _package in _packages:
         sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
