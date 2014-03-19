@@ -3,6 +3,39 @@ import os, sys, subprocess
 import shutil
 from wasanbon import util
 
+def __apt_preparation():
+    srcsfile = '/etc/apt/sources.list.d/openrtm-aist.list'
+    key1 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ raring main\n'
+    #key2 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ precise-unstable main'
+    if os.path.isfile(srcsfile):
+        flag1 = False
+            #flag2 = False
+        file = open(srcsfile, 'r+w')
+        for line in file:
+            if line.strip() == key1:
+                flag1 = True
+                #if line.strip() == key2:
+                #    flag2 = True
+
+        if not flag1:
+            file.write(key1)
+        #if not flag2:
+        #    file.write(key2)
+        file.close()
+    else:
+        file = open(srcsfile, 'w')
+        file.write(key1)
+        #file.write(key2)
+        file.close()
+
+    subprocess.call(['apt-get', 'update'])
+
+def __ppa_preparation():
+    subprocess.call(['add-apt-repository', '-y', 'ppa:openrtm/stable'])
+    subprocess.call(['add-apt-repository', '-y', 'ppa:openrtm/unstable'])
+    subprocess.call(['apt-get', 'update'])
+
+
 def is_installed():
     if sys.platform == 'darwin':
         file = 'version.txt'
@@ -91,6 +124,8 @@ def install_cpprtm_win(force, verbose=False):
 
 def install_cpprtm_linux(force, verbose=False):
     #util.download_and_install(wasanbon.setting[wasanbon.platform]['packages']['c++_ppa'], force=force)
+    #__ppa_preparation()
+    __apt_preparation()
     util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages']['c++'], force=force, verbose=verbose)
 
 def install_cpprtm_osx(force=False, verbose=False):

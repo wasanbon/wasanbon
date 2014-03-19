@@ -297,8 +297,8 @@ def platform():
         if distri[0] == 'Ubuntu':
             _platform = 'ubuntu'
             
-        if distri[1] == '12.04':
-            _platform = _platform + '1204'
+        #if distri[1] == '12.04':
+        #    _platform = _platform + '1204'
             
         if plt.architecture()[0] == '32bit':
             _platform = _platform + '_x86'
