@@ -35,6 +35,9 @@ _urls = {
                    'linux2' : 'pip install bitbucket-api',
                    #'win32' : 'https://pypi.python.org/packages/source/b/bitbucket-api/bitbucket-api-0.5.0.tar.gz'},
                    'win32' : 'http://sugarsweetrobotics.com/pub/Win32/pybitbucket/bitbucket-api-0.5.0.win32.exe'},
+
+    'freetype' : {'darwin' : 'http://download.savannah.gnu.org/releases/freetype/freetype-2.4.10.tar.gz'
+                  },
     }
 
 def _get_url(tag):
@@ -98,7 +101,10 @@ def _install_py(file, verbose=False, path='downloads'):
 def _install_pip(cmd, verbose=False):
     cmds = cmd.split()
     out = None if verbose else subprocess.PIPE
-    p = subprocess.Popen(cmds, stdout=out, stdin=out)
+    env = os.environ
+    if sys.platform == 'darwin':
+        env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+    p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
     ret = p.wait()
     return ret
 
@@ -124,7 +130,9 @@ def _extract_tar(filename, verbose=False):
 def _extract_tar_and_install(filename, verbose=False):
     ret, dirname = _extract_tar(filename, verbose=verbose)
     if ret == 0:
-        _setup_py(dirname, verbose=verbose)
+        if os.path.isfile(os.path.join(dirname, 'setup.py')):
+            _setup_py(dirname, verbose=verbose)
+            
         return True
 
 def _setup_py(dirname, args=[['install']], verbose=False):
@@ -138,7 +146,11 @@ def _setup_py(dirname, args=[['install']], verbose=False):
             cmd = ['python', 'setup.py'] + arg
             if sys.platform == 'linux' or sys.platform == 'darwin':
                 cmd = ['sudo'] + cmd
-            ret = subprocess.call(cmd, stdout=out, stdin=out)
+            env = os.environ
+            if sys.platform == 'darwin':
+
+                env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+            ret = subprocess.call(cmd, stdout=out, stdin=out, env=env)
     os.chdir(cwd)
     return ret
 

@@ -82,7 +82,7 @@ def github_init(package, user, passwd, verbose=False):
     from wasanbon.core.repositories import github_api
     github_obj = github_api.GithubReference(user, passwd)
     repo = github_obj.create_repo(package.name)
-    git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
+    git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
     git_push(package, verbose=verbose)
 
 def bitbucket_init(package, user, passwd, verbose=False):

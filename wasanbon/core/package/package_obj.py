@@ -459,7 +459,7 @@ class Package():
         return self._nameservers
 
     def launch_standalone_rtcs(self, verbose=False):
-
+        console_bind = self.console_bind
         if not os.path.isdir('pid'):
             os.mkdir('pid')
 
@@ -482,7 +482,8 @@ class Package():
         for cmd in cmds:
             if verbose:
                 sys.stdout.write(' - Launching command: %s' % cmd.split())
-            out = None if verbose else subprocess.PIPE
+            rtc_name = self.__get_rtc_name_from_standalone_command(cmd)
+            out = None if rtc_name in console_bind else subprocess.PIPE
             process = subprocess.Popen(cmd.split(), stdout=out, stderr=out)
             open(os.path.join('pid', 'standalonertc_' + str(process.pid)), 'w').close()
             self._process['standalone'].append(process)
@@ -675,17 +676,21 @@ class Package():
 
         return rtcs_[language]
 
+    def __get_rtc_name_from_standalone_command(self, cmd):
+        rtc_launch_cmd = cmd.split()[0]
+        post_fix = 'Comp'
+        if sys.platform == 'win32':
+            post_fix = 'Comp.exe'
+        if rtc_launch_cmd.startswith(self.bin_rel_path) and rtc_launch_cmd.endswith(post_fix):
+            return rtc_launch_cmd[len(self.bin_rel_path)+1:-(len(post_fix))]
+        else:
+            return ""
     def installed_standalone_rtcs(self, verbose=False):
         rtcs_ = []
         stg = self.setting
         cmds = stg.get('standalone', [])
         for cmd in cmds:
-            rtc_launch_cmd = cmd.split()[0]
-            post_fix = 'Comp'
-            if sys.platform == 'win32':
-                post_fix = 'Comp.exe'
-            if rtc_launch_cmd.startswith(self.bin_rel_path) and rtc_launch_cmd.endswith(post_fix):
-                rtc_name = rtc_launch_cmd[len(self.bin_rel_path)+1:-(len(post_fix))]
+                rtc_name = self.__get_rtc_name_from_standalone_command(cmd)
                 try:
                     rtc_ = self.rtc(rtc_name)
                     rtcs_.append(rtc_)

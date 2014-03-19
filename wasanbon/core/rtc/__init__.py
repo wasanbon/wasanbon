@@ -30,7 +30,7 @@ def github_init(user, passwd, rtc_, verbose=False):
     from wasanbon.core.repositories import github_api
     github_obj = github_api.GithubReference(user, passwd)
     repo = github_obj.create_repo(rtc_.name)
-    git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
+    git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
     git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
     return rtc_
 
