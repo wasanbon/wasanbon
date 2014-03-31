@@ -162,10 +162,19 @@ class NameService(object):
             self._process.stdin.write('y\n')
             pass
 
+        print ' ----- waiting 3 sec. -----'
+        time.sleep(3);
+        
+        process_pid = self._process.pid
+        for p in psutil.process_iter():
+            print p
+            print p.name()
+            if p.name() == 'omniNames':
+                process_pid = p.pid
         if verbose:
-            sys.stdout.write(' - Creating PID file (%s)\n' % self._process.pid)
-            sys.stdout.write('  - Filename :%s\n' % os.path.join(os.getcwd(), 'pid', 'nameserver_' + str(self._process.pid)))
-        open(os.path.join('pid', 'nameserver_' +  str(self._process.pid)), 'w').close()
+            sys.stdout.write(' - Creating PID file (%s)\n' % process_pid)
+            sys.stdout.write('  - Filename :%s\n' % os.path.join(os.getcwd(), 'pid', 'nameserver_' + str(process_pid)))
+        open(os.path.join('pid', 'nameserver_' +  str(process_pid)), 'w').close()
         if verbose:
             sys.stdout.write(' - OK.\n')
         return 
