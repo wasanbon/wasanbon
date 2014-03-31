@@ -170,7 +170,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             
         for rtc in _package.rtcs:
             if build_all or rtc.name in argv:
-                sys.stdout.write(' - Building RTC %s\n' % rtc.name)
+                sys.stdout.write(' - Building RTC (%s)\n' % rtc.name)
                 ret = rtc.build(verbose=verbose)
                 if ret[0]:
                     sys.stdout.write('  - Success\n')

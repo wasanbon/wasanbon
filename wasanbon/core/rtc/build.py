@@ -30,7 +30,13 @@ def build_rtc_cpp(rtcp, verbose=False):
     stderr = None if verbose else subprocess.PIPE
     if verbose:
         sys.stdout.write(' - Cross Platform Make (CMAKE)\n');
-    subprocess.call(cmd, env=os.environ, stdout=stdout, stderr=stderr)
+    p = subprocess.Popen(cmd, env=os.environ, stdout=stdout, stderr=stderr)
+    ret = p.wait()
+    if ret != 0:
+        sys.stdout.write(' - Failed.\n')
+        if verbose:
+            return (False, None)
+        return (False, p.stderr.read())
 
     if sys.platform == 'win32':
         sln = '%s.sln' % rtcp.basicInfo.name
@@ -50,6 +56,8 @@ def build_rtc_cpp(rtcp, verbose=False):
             return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
 
     elif sys.platform == 'darwin':
+        if verbose:
+            sys.stdout.write(' - Building with Darwin\n')
         if 'Makefile' in os.listdir(os.getcwd()):
             if verbose:
                 sys.stdout.write(' - Makefile is successfully generated.\n')
