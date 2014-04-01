@@ -704,8 +704,10 @@ class Package():
 
     def available_connection_pairs(self, verbose=False, nameservers=None):
         pairs = []
+
         if not nameservers:
             nameservers = self.get_nameservers(verbose=verbose)
+        # For DataPorts
         outports = []
         for ns in nameservers:
             outports = outports + ns.dataports(port_type='DataOutPort')
@@ -715,6 +717,20 @@ class Package():
                 inports = inports + ns.dataports(port_type='DataInPort', data_type=outport.properties['dataport.data_type'])
             for inport in inports:
                 pairs.append([outport, inport])
+
+        # For ServicePorts
+        provports = []
+        for ns in nameservers:
+            provports = provports + ns.svcports(polarity='Provided')
+        for provport in provports:
+            reqports = []
+            for interface in provport.interfaces:
+                if interface.polarity_as_string(False) == 'Provided':
+                    interface_type = interface.type_name
+                    for ns in nameservers:
+                        reqports = reqports + ns.svcports(polarity='Required', interface_type=interface_type)
+                    for reqport in reqports:
+                        pairs.append([provport, reqport])
         return pairs
 
     def validate(self, verbose=False, autofix=False, interactive=False, ext_only=False):

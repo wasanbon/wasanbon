@@ -6,6 +6,7 @@
 
 import os, sys, yaml, subprocess, shutil, types, threading
 import wasanbon
+from wasanbon import util
 from wasanbon.util import git
 from connection import *
 from package_obj import *
@@ -81,7 +82,15 @@ def git_push(package, verbose=False):
 def github_init(package, user, passwd, verbose=False):
     from wasanbon.core.repositories import github_api
     github_obj = github_api.GithubReference(user, passwd)
-    repo = github_obj.create_repo(package.name)
+    try:
+        repo = github_obj.create_repo(package.name)
+    except wasanbon.RepositoryAlreadyExistsException, e:
+        sys.stdout.write(' @ Error. Repository Already Exists.\n')
+        if util.yes_no(' - Do you want to add current package to the existing repository?') == 'yes':
+            git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
+            git_push(package, verbose=verbose)
+        return 
+          
     git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + package.name + '.git'], verbose=verbose, path=package.path)
     git_push(package, verbose=verbose)
 
@@ -109,7 +118,12 @@ def get_repository(name, verbose=False):
             return repo
     raise wasanbon.RepositoryNotFoundException()
 
+def download_repositories(url, verbose=False):
+    repositories.download_repositories(url=url, verbose=verbose)
+
 def update_repositories(verbose=False, force=False, url=None):
+    if verbose:
+        sys.stdout.write(' @ updating repositories : %s\n' % url)
     repo_path = os.path.join(wasanbon.rtm_home(), 'repositories')
     for dir in os.listdir(repo_path):
         if dir.startswith('.'):

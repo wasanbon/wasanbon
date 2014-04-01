@@ -134,7 +134,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             __import__('wasanbon.core.package')
             pack = sys.modules['wasanbon.core.package']
             sys.stdout.write(' @ Cloning Package Repositories\n')
-            pack.update_repositories(verbose=verbose, url=argv[3])
+            pack.download_repositories(verbose=verbose, url=argv[3])
 
 
     elif argv[2] == 'commit':

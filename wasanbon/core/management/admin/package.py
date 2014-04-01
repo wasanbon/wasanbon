@@ -99,12 +99,21 @@ def execute_with_argv(args, verbose):
 
     elif args[2] == 'clone':
         wasanbon.arg_check(args,4)
-        sys.stdout.write(' @ Cloning Package Repositories\n')
         repo = pack.get_repository(args[3], verbose=verbose)
+        sys.stdout.write(' @ Cloning Package (%s)\n' % args[3])
         _package = repo.clone(verbose=verbose)
+        for rtc_repo in _package.rtc_repositories:
+            sys.stdout.write('    @ Cloning RTC (%s)\n' % rtc_repo.name)
+            rtc_ = rtc_repo.clone(path=_package.rtc_path, verbose=verbose)
         
     elif args[2] == 'fork':
-        _fork(args, verbose, force, clean)
+        repo = _fork(args, verbose, force, clean)
+        sys.stdout.write(' @ Cloning Package (%s)\n' % args[3])
+        _package = repo.clone(verbose=verbose)
+        for rtc_repo in _package.rtc_repositories:
+            sys.stdout.write('    @ Cloning RTC (%s)\n' % rtc_repo.name)
+            rtc_ = rtc_repo.clone(path=_package.rtc_path, verbose=verbose)
+
         
     elif args[2] == 'diff':
         wasanbon.arg_check(args, 5)

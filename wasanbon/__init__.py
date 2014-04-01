@@ -19,7 +19,7 @@ class WasanbonException(Exception):
     def msg(self):
         return 'Wasanbon Exception'
 
-class RemoteLogingException(WasanbonException):
+class RemoteLoginException(WasanbonException):
     def msg(self):
         return 'LogIn Failed.'
 

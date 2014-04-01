@@ -162,13 +162,11 @@ class NameService(object):
             self._process.stdin.write('y\n')
             pass
 
-        print ' ----- waiting 3 sec. -----'
+        # print ' ----- waiting 3 sec. -----'
         time.sleep(3);
         
         process_pid = self._process.pid
         for p in psutil.process_iter():
-            print p
-            print p.name()
             if p.name() == 'omniNames':
                 process_pid = p.pid
         if verbose:
@@ -249,8 +247,8 @@ class NameService(object):
                 print 'omniORB3'
                 print e
                 pass
-    #@property
-    def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5):
+
+    def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5, polarity="any"):
         for i in range(0, try_count):
             try:
                 if not self.tree:
@@ -270,7 +268,6 @@ class NameService(object):
                 ports__ = ports__ + node.inports
             if 'DataOutPort' in port_type:
                 ports__ = ports__ + node.outports
-
             if data_type == 'any':
                 for port in ports__:
                     ports.append(port)
@@ -281,6 +278,42 @@ class NameService(object):
                 #for port in [port for port in ports__ if port.properties['dataport.data_type'] == data_type]:
                 #    ports.append(port)
             
+        def filter_func(node):
+            if node.is_component and not node.parent.is_manager:
+                return True
+            return False
+
+        self.dir_node.iterate(func, ports, [filter_func])
+        return ports
+        
+
+
+    def svcports(self, interface_type="any", try_count=5, polarity="any"):
+        for i in range(0, try_count):
+            try:
+                if not self.tree:
+                    self.__path, self.__port = rtctree.path.parse_path('/' + self.path)
+                    self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+                break
+            except Exception, e:
+                pass
+        if not self.tree:
+            return None
+
+        ports = []
+        def func(node, ports, interface_type=interface_type, polarity=polarity):
+            for port in node.svcports:
+                for intf in port.interfaces:
+                    if interface_type != 'any':
+                        if not intf.type_name == interface_type:
+                            continue
+                        pass
+                    if polarity != 'any':
+                        if not intf.polarity_as_string(False) == polarity:
+                            continue
+                    ports.append(port)
+
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
                 return True
