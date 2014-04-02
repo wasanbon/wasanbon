@@ -18,6 +18,8 @@ en_US:
    Show the packages in your platform.
   create : |
    Create New Package. ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
+  delete : |
+   Delete Package. ex., $ wasanbon-admin.py package delete YOUR_PACKAGE_NAME
   register : |
    Register the package to the pacakge database.
    ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
@@ -51,6 +53,9 @@ ja_JP:
   create : |
    パッケージの作成をします． 
    ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
+  delete : |
+   パッケージを削除します．
+   ex., $ wasanbon-admin.py package delete YOUR_PACKAGE_NAME
   register : |
    パッケージをデータベースに登録します．
    ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
@@ -79,8 +84,8 @@ from wasanbon.core import repositories
 def alternative(argv=None):
 
     return_repo_cmd = ['clone', 'fork']
-    files_cmd = ['register', 'unregister']
-    all_cmd = ['create', 'list', 'directory', 'repository', 'diff'] + files_cmd + return_repo_cmd
+    pack_cmd = ['register', 'unregister', 'delete']
+    all_cmd = ['create', 'list', 'directory', 'repository', 'diff'] + pack_cmd + return_repo_cmd
     if not argv:
         return all_cmd
     if len(argv) < 3:
@@ -89,9 +94,10 @@ def alternative(argv=None):
     if argv[2] in return_repo_cmd:
         repos = pack.get_repositories()
         return [repo.name for repo in repos]
-    elif argv[2] in files_cmd:
-        return os.listdir(os.getcwd())
-    return ['a', 'b']
+    elif argv[2] in pack_cmd:
+        return [p.name for p in pack.get_packages()]
+        #return os.listdir(os.getcwd())
+    return os.listdir(os.getcwd())
     
 def execute_with_argv(args, verbose):
     wasanbon.arg_check(args, 3)
@@ -107,6 +113,9 @@ def execute_with_argv(args, verbose):
 
     if args[2] == 'create':
         _create(args, verbose, force ,clean)
+
+    elif args[2] == 'delete':
+        _delete(args, verbose)
 
     elif args[2] == 'register':
         _register(args, verbose)
@@ -199,6 +208,25 @@ def _unregister(args, verbose, force, clean):
     try:
         _package = pack.get_package(args[3], verbose=verbose)
         _package.unregister(verbose=verbose, clean=clean)
+    except wasanbon.PackageNotFoundException, ex:
+        sys.stdout.write(' - Package Not Found (%s).\n' % args[3])
+        from wasanbon import util
+        if util.yes_no('Do you want to remove the record?') == 'yes':
+            dic = workspace.load_workspace()
+            dic.pop(args[3])
+            workspace.save_workspace(dic)
+            sys.stdout.write(' - Removed.\n')
+
+def _delete(args, verbose):
+    wasanbon.arg_check(args, 4)
+    sys.stdout.write(' @ Removing workspace %s\n' % args[3])
+    dic = workspace.load_workspace()
+    if not args[3] in dic.keys():
+        sys.stdout.write(' - Can not find package %s\n' % args[3])
+        return
+    try:
+        _package = pack.get_package(args[3], verbose=verbose)
+        _package.unregister(verbose=verbose, clean=True)
     except wasanbon.PackageNotFoundException, ex:
         sys.stdout.write(' - Package Not Found (%s).\n' % args[3])
         from wasanbon import util

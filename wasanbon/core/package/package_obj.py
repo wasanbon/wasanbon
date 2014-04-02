@@ -416,7 +416,8 @@ class Package():
         workspace.save_workspace(dic)
 
     def git_init(self, verbose=False):
-        git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose)
+        git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose,
+                                                  ignore=['system/.metadata/*', 'rtc/*', 'mgr.py'])
         files = ['.gitignore', 'setting.yaml', 'conf/*.conf', 'rtc/repository.yaml', 'system/*.xml', 'README.txt']
         self.add(files, verbose=verbose)
         self.commit('Append Initial Files.\n', verbose=verbose)
