@@ -39,12 +39,11 @@ def get_help_text(path, cmd, long=False):
     else:
         dic = help_dic['en_US']
 
-
     command_str = "wasanbon-admin.py" if path=='admin' else "mgr.py"
 
     str = """
 [brief]
-%s""" % dic['brief']
+%s""" % dic['brief'].encode('utf-8')
 
     if not long:
         str = str + """(add -l for more information)
@@ -54,7 +53,7 @@ def get_help_text(path, cmd, long=False):
         str = str + """
 [detail]
 %s
-""" % (dic['description'])
+""" % (dic['description'].encode('utf-8'))
 
     if len(dic['subcommands']) == 0:
         str = """
@@ -73,11 +72,11 @@ $ %s %s [subcommand]
     for key, doc in dic['subcommands'].items():
         if long:
             str = str + """
-(%s)
- %s""" % (key, doc)
+ - %s
+ %s""" % (key, doc.encode('utf-8'))
         else:
             str = str + """ 
- - %s""" % key
+ - %s """ % (key) + ' '*(15-len(key)) + doc[:doc.find('\n')].encode('utf-8')
  
 
     return str

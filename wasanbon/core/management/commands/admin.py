@@ -1,5 +1,23 @@
+# coding: utf-8
 """
 en_US:
+ brief : |
+  Local Package administration
+ description : |
+  Package Administration mainly for version controlling like git.
+
+ subcommands : 
+  git_init : |
+   Initialize git repository for your package
+  remote_create : |
+   Create remote repository in your remote service (github|bitbucket).
+   eg., $ mgr.py admin remote_create -s [github|bitbucket]
+  commit : |
+   Commit changes in your package into the local version control
+  push : |
+   Push your commits to your remote repository
+
+ja_JP:
  brief : |
   Local Package administration
  description : |

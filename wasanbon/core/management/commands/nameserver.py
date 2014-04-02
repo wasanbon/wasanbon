@@ -15,12 +15,29 @@ en_US:
   del : |
    Delete nameserver address
    ex., $ mgr.py nameserver del 192.168.1.1:2809
+
+ja_JP:
+ brief : |
+  Name Service Administration
+ description : | 
+  Change setting of Name Service for current package.
+  Add/Del nameservice for this package.
+
+ subcommands : 
+  list : |
+   Show all nameservice of current package
+  add : |
+   Add nameserver address 
+   ex., $ mgr.py nameserver add 192.168.1.1:2809
+  del : |
+   Delete nameserver address
+   ex., $ mgr.py nameserver del 192.168.1.1:2809
 """
+
 import os, sys, time, subprocess, signal, yaml
 import wasanbon
 from wasanbon.core import rtc
 from wasanbon.core import system, package
-from wasanbon.core.system import run
 
 def alternative(argv=None):
     if len(argv) == 3:

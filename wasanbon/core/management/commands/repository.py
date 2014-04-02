@@ -26,6 +26,34 @@ en_US:
   commit : Commit change to local repository.
   push   : Push local commits to upstream repository.
   pull   : Pull from upstream repository to local repository.
+
+ja_JP:
+ brief : |
+  RTC's repository control
+ description : |
+  With this command, you can ...
+  Show all RTCs in upstream repositories (list)
+  Initialize your RTC source code directory for a version controling like git (init)
+  
+  Register your RTC into your own upstream repository (remote_add)
+  
+ subcommands:
+  list   : List RTC repositories.
+  init   : |
+   Create local repository in your RTC code directory (current git only)
+   ex., $ mgr.py repository init YOUR_RTC_NAME
+   This command create .git directory in rtc/YOUR_RTC_DIR/
+  fini   : |
+   Remove local repository of your RTC
+   ex., $ mgr.py repository fini YOUR_RTC_NAME
+   This command just remove .git directory in rtc/YOUR_RTC_DIR/
+  remote_create : |
+   Create remote repository in your remote service (currently, github only)
+   ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
+   This automatically tries to add your repository url into your local repository file.
+  commit : Commit change to local repository.
+  push   : Push local commits to upstream repository.
+  pull   : Pull from upstream repository to local repository.
 """
 import os, sys, optparse
 import wasanbon

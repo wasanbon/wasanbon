@@ -20,7 +20,8 @@ _urls = {
 
     'psutil' : {'darwin' : 'pip install psutil',
                 'linux2' : 'pip install psutil',
-                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
+                #'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
+                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-2.0.0.win32-py2.6.exe'},
 
     'pip' : {'darwin' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
              'linux2' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',

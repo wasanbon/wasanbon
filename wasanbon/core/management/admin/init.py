@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US :
  brief : |
@@ -10,9 +11,22 @@ en_US :
     2.1 Create 'rtm' directory in your $HOME.
     2.2 Create 'temp' directory in your $HOME/rtm
     2.3 Copy 'setting.yaml' file in your $HOME/rtm. This is basic setting file of wasanbon.
-  If you need to start wasanbon, you also have to download repository files from internet.
-  Check wasanbon-admin.py repository command.
+  If you need to start wasanbon, you also have to check the dependencies.
+  Check wasanbon-admin.py status.
+ subcommands: []
 
+ja_JP :
+ brief : |
+  wasanbonの環境初期化
+
+ description : |
+  このコマンドは最初に呼ばれるべきコマンドです．最初に以下の動作をします．
+  1. Pip, PyYAML, PyGithub, psutil, and python-bitbucketのPythonモジュールをインストールします
+  2. RTM_HOMEディレクトリを作成します．すなわち・・・
+    2.1 'rtm'ディレクトリを$HOMEに作成.
+    2.2 'temp'ディレクトリを$HOME/rtmに作成
+    2.3 'setting.yaml'ファイルを$HOME/rtmに作成．これはwasanbonの基本環境情報です．
+  このコマンドで環境が整えられた後は，wasanbon-admin.py statusコマンドで依存ライブラリの状態を確認します
  subcommands: []
 """
 import sys, traceback

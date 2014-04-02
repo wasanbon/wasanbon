@@ -1,5 +1,20 @@
+#coding : utf-8
 """
 en_US:
+ brief : |
+  Launch Tools
+ description : |
+  Launch Tools for RTC development.
+  You can launc "RTC Builder", "RT System Editor", and "Arduino"
+ subcommands : 
+  rtcb : |
+   Launch RTC Builder
+  rtse : |
+   Launch RT System Editor
+  arduino : |
+   Launch Arduino 
+
+ja_JP:
  brief : |
   Launch Tools
  description : |

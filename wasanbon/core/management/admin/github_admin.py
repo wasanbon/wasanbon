@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US : 
  brief : |
@@ -7,6 +8,16 @@ en_US :
  subcommands : 
   init : Upload ssh key to github.com
   set_user : this will initiate git config --global user.name|user.email
+
+ja_JP :
+ brief : |
+  github.comの認証に関する設定
+ description : |
+  github.comのユーザと，現在のマシンのrsaキーの登録を行います．
+ subcommands : 
+  init : SSH公開鍵のアップロード
+  set_user : 以下のコマンドを実行して，gitコマンドを使う準備をします． git config --global user.name|user.email
+
 """
 import os, sys, yaml, shutil, getpass, subprocess
 

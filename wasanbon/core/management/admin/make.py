@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US:
  brief: |
@@ -10,6 +11,18 @@ en_US:
   This command also allows to input package name to be built. Use:
   'wasanbon-admin.py make YOUR_PACKAGE_NAME'
   To cleanup the build intermediate files, add -c option.
+ subcommands : []
+
+ja_JP:
+ brief: |
+  システム上のパッケージをビルドします．
+ description : |
+  システム上のパッケージをビルドします．
+  システム上のどこからでもビルドすることができます．
+  もしパッケージ内のRTC内のディレクトリにある場合は，wasanbon-admin.py makeコマンドでRTCのみをビルドできます．
+  もしパッケージ内でwasanbon-makeコマンドを行うと，パッケージのすべてのRTCをビルドできます．
+  また，パッケージの外からでもwasanbon-admin.py make YOUR_PACKAGE_NAME という書式でビルドができます．
+  クリーンアップする場合は，wasanbon-admin.py make -cとします．
  subcommands : []
 """
 

@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US :
  brief : |
@@ -5,6 +6,18 @@ en_US :
 
  description : |
   This command simply set the proxy setting for git command
+
+ subcommands: []
+
+ja_JP :
+ brief : |
+  gitコマンドのプロキシサーバ設定
+
+ description : |
+  gitコマンドのプロキシサーバ設定をします．
+  wasanbon-admin.py proxy YOUR_PROXY_SERVER
+  設定を削除する場合は，
+  wasanbon-admin.py proxy
 
  subcommands: []
 """

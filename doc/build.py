@@ -19,6 +19,8 @@ def get_subcommands():
 
 
 def main():
+    loc = 'ja_JP'
+    #loc = 'en_US'
     help_dic = {}
     cmd_help_dic = {}
     admin_subcommands = application.get_subcommand_list('admin')
@@ -28,7 +30,7 @@ def main():
         help_dic[cmd] = help.get_help_dic('admin', cmd)
     
     admin_index = open('admin_index.html', 'w')
-    build_html(help_dic, command='wasanbon-admin.py', link_prex='admin_', stdout=admin_index)
+    build_html(help_dic, command='wasanbon-admin.py', loc=loc, link_prex='admin_', stdout=admin_index)
 
     _subcommands = application.get_subcommand_list('commands')
     for cmd in _subcommands:
@@ -38,7 +40,7 @@ def main():
         cmd_help_dic[cmd] = help.get_help_dic('commands', cmd)
     
     admin_index = open('command_index.html', 'w')
-    build_html(cmd_help_dic, command='mgr.py', link_prex='command_', stdout=admin_index)
+    build_html(cmd_help_dic, command='mgr.py', link_prex='command_', loc=loc, stdout=admin_index)
 
 
 
@@ -56,7 +58,7 @@ def link_to_label(link, val):
 
 def build_html(dic, command, link_prex, stdout=sys.stdout, loc='en_US', indent=1):
     def stdout_write(val):
-        stdout.write(val + '\n')
+        stdout.write(val.encode('utf-8') + '\n')
 
     stdout_write(label(link_prex + 'command_index'))
     stdout_write(h(indent, 'Command Index'))

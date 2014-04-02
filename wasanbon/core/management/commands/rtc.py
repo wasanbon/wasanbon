@@ -48,6 +48,56 @@ en_US:
    This configuration will be updated if the RT System Profile has the default configuration values.
    However, if your RTC needs to have default configuration such as log_level, endpoints, naming_formats, and so on, 
    This function is very useful.
+
+ja_JP:
+ brief : |
+  RTC administration
+ description : |
+  This command provides RTC administration functions.
+  You can get installed RTC list.
+  You can clone/fork RTC from internet.
+  You can build/clean RTC source code.  
+ subcommands:
+  list : |
+   Display RTCs list which are placed in the current packages rtc directory.
+  clone  : |
+   Clone RTC source code from RTC repository.
+   ex., $ mgr.py rtc clone YOUR_RTC_REPOSITORY
+   This command allows to clone from specific url as well.
+   ex., $ mgr.py rtc clone YOUR_RTC_URL
+  fork   : |
+   Fork RTC source code from RTC repository to your remote repository.
+   ex., $ mgr.py rtc fork YOUR_RTC_REPOSITORY
+   You will asked your remote repository address (Currently github only).
+  build : |
+   Build RTC from Source code.
+   This command will create rtc/YOUR_RTC/build-YOUR_SYSTEM directory and then, build binary.
+   If RTC is written in C++, cmake and build (make or msbuild) will be called.
+   If Python, idl compile is done.
+   If Java, javac will compile .java codes and then, jar command will create archive file.
+   After build, this function will install the binary and config files into your bin direcotry.
+   The place of the bin directory is defined by YOUR_PACKAGE_PATH/setting.yaml.
+   The files to be copied will be compiled binary *.dll|*.dylib|*.so, and YOUR_RTC_NAME.conf file.
+   If you add -s (--standalone) option, you will include the RTC into system with Stand Alone Version.
+   Stand Alone Version will be launched as a standalone process.
+   This subcommand recognises -n (--noinstall) option which will change the post-build behavior.
+   WITH -n option, build process does not copy the binary file to your bin directory, 
+   so you are not able to use the newly built binary for system administration.
+  clean : |
+   Cleanup build directory.
+  run : |
+   This command will run the specified RTC only.
+   ex., $ mgr.py rtc run YOUR_RTC_NAME
+  edit : |
+   This command will launch editor (emacs) to edit RTC source code.
+   In default, open RTC source code.
+  delete : |
+   This command delete RTC directory
+  configure : |
+   This command will configure YOUR_RTC_NAME.conf file in conf directory.
+   This configuration will be updated if the RT System Profile has the default configuration values.
+   However, if your RTC needs to have default configuration such as log_level, endpoints, naming_formats, and so on, 
+   This function is very useful.
 """
 
 import os, sys, optparse, yaml, types, traceback

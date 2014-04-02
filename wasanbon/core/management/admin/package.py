@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US:
  brief : |
@@ -32,6 +33,39 @@ en_US:
   fork      : |
    Fork the package from internet. 
    This create directory in your current directory.
+   ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+
+ja_JP:
+ brief : |
+  パッケージ管理コマンド
+ description : |
+  パッケージ管理を行います．
+  wasanbon-admin.py package listコマンドではシステム内のパッケージを表示できます．
+  パッケージを作成する場合はpackage createコマンドを使います．
+  また，レポジトリからパッケージをクローンする場合は，package cloneコマンドを使います．
+  またレポジトリのパッケージを，自身のレポジトリにforkすることもできます．
+  作成したパッケージをレポジトリにアップロードするには，repositoryコマンドを使います．
+ subcommands :
+  list : |
+   プラットフォーム上のパッケージをリスト表示します
+  create : |
+   パッケージの作成をします． 
+   ex., $ wasanbon-admin.py package create YOUR_PACKAGE_NAME
+  register : |
+   パッケージをデータベースに登録します．
+   ex.,  $ wasanbon-admin.py package register YOUR_PACKAGE_NAME
+  unregister : |
+   パッケージをデーターベスから削除します．
+   ex.,  $ wasanbon-admin.py package unregister YOUR_PACKAGE_NAME
+  repository : |
+   レポジトリのパッケージをリスト表示します
+  clone      : |
+   レポジトリ上のパッケージをクローンします．
+   このコマンドはカレントディレクトリにパッケージを作成します．
+   ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+  fork      : |
+   レポジトリ上のパッケージをForkします
+   このコマンドはカレントディレクトリにパッケージを作成します．
    ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
 """
 

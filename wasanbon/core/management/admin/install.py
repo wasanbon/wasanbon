@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US:
  brief: |
@@ -10,6 +11,19 @@ en_US:
   To install the modules, use : $ wasanbon-admin.py install [modules]
   If you want to get alternatives of modules, use: $ wasanbon-admin.py install -a
   If you want to check if it's installed or not, use: $ wasanbon-admin.py status
+
+
+ subcommands : []
+
+ja_JP:
+ brief: |
+  wasanbonに必要なモジュールのインストールを行います．
+ description : |
+  wasanbonに必要なモジュールのインストールを行います．
+  このコマンドはRTミドルウエアのインストールも行います．
+  モジュールをインストールする場合は， $ wasanbon-admin.py install [modules] と打ちます．
+  もしインストール可能なモジュールのリストを得る場合は， $ wasanbon-admin.py install -a とします．
+  インストールの有無のみを確認する場合は，status コマンドを使います． $ wasanbon-admin.py status
 
 
  subcommands : []

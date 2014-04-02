@@ -1,9 +1,18 @@
+# coding: utf-8
 """
 en_US :
  brief : |
   Check you wasanbon platform status.
  description : |
   This command will show the setup status of wasanbon.
+ subcommands : []
+
+ja_JP :
+ brief : |
+  wasanbonのプラットフォームの状態を表示します．
+ description : |
+  wasanbonのプラットフォームの状態を表示します．
+  依存するモジュールの状態を表示します．
  subcommands : []
 """
 

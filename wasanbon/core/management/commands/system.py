@@ -1,5 +1,39 @@
+# coding: utf-8
 """
 en_US:
+ brief : |
+  RT-System administration
+ description : |
+
+ subcommands : 
+  list : |
+   List all RTCs which are installed into the System.
+  install : |
+   Install RTC binary into bin directory.
+   This command will update conf/rtc_{your_language}.conf file.
+   By this modification, RTC will be automatically launched by RTC-daemon
+  uninstall : |
+   Uninstall RTC binary from bin directory.
+   This command also remove the preload and precreate setting.
+  build : |
+   Build RT-system.
+   This command will launch RTC-daemon, and list the available connections.
+   You will be asked if the ports must be connected or not.
+   After the listing connections, you will get the RTCs list for the configuration. 
+   You can change the default configuration in the step.
+   Finally, you will get the DefaultSystem.xml (RT-System-profile) in your system directory.
+  configure : |
+   This command modifies the RT-system profile interactively.
+  run : |
+   Launch RT-system.
+   This will launch RTC-daemon of C++, Python, and Java.
+   All load rtc.conf in conf directory, and precreate RTCs if necessary.
+   Then, process load RT-System profile (in default, system/DefaultSystem.xml), and
+   build / activate RT-system.
+   Before launching RTC-daemon, the naming service will be initiated if necessary.
+   To stop the system, press Ctrl+C
+
+ja_JP :
  brief : |
   RT-System administration
  description : |

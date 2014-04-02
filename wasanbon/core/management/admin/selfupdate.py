@@ -1,9 +1,17 @@
+# coding: utf-8
 """
 en_US :
  brief : |
   This command will update wasanbon automatically.
  description : |
   This command will update wasanbon automatically.
+ subcommands: []
+
+ja_JP :
+ brief : |
+  wasanbonをアップデートします．
+ description : |
+  wasanbonをアップデートします．
  subcommands: []
 """
 

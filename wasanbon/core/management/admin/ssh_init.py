@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 en_US :
  brief : |
@@ -6,6 +7,16 @@ en_US :
 
  description : |
   This command will launch ssh-keygen command in any platform
+
+ subcommands: []
+
+ja_JP :
+ brief : |
+  SSHのキーペアを作成します．
+
+ description : |
+  SSHのキーペアを作成します．
+  Windowsにおいても同様の操作でキーペアを作成できるのが便利です．
 
  subcommands: []
 

@@ -20,6 +20,28 @@ en_US :
   status : |
    view all configuration value
    ex., $ mgr.py rtcconf status
+
+ja_JP : 
+ brief : |
+  Configure rtc.conf files for RTC-daemon. Use like...
+ description : |
+  Set/Get rtc.conf files setting.
+  
+ subcommands:
+  set : |
+   set configuration value
+   $ mgr.py rtcconf set KEY VALUE
+   ex., $ mgr.py rtcconf set corba.endpoint 127.0.0.1:2809
+   You can specify the laungage of RTC daemon with -b option
+   ex., $ mgr.py rtcconf set -b [cxx|python|java] logger.enable TRUE
+  get : |
+   get configuration value
+   $ mgr.py rtcconf get KEY
+   You can specify the laungage of RTC daemon with -b option
+   ex., $ mgr.py rtcconf get -b [cxx|python|java] logger.enable 
+  status : |
+   view all configuration value
+   ex., $ mgr.py rtcconf status
 """
 import sys, os, yaml, optparse
 import wasanbon

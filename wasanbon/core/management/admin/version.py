@@ -1,9 +1,17 @@
+# coding: utf-8
 """
 en_US :
  brief : |
   This command simply show the version of wasanbon
  description : |
   This command simply show the version of wasanbon
+ subcommands: []
+
+ja_JP :
+ brief : |
+  wasanbonのバージョンを表示します．
+ description : |
+  wasanbonのバージョンを表示します．
  subcommands: []
 """
 

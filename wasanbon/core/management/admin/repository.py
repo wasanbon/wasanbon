@@ -1,3 +1,4 @@
+#coding: utf-8
 """
 en_US:
  brief : |
@@ -31,6 +32,42 @@ en_US:
    ex., wasanbon-admin.py repository push
   edit : |
    You can manually change your own repository files by this command.
+   ex., wasanbon-admin.py repository edit.
+
+ja_JP:
+ brief : |
+  リポジトリの設定を行います．
+
+ description : |
+  このコマンドは，リポジトリの設定，アップデート，編集やインポートを行います．
+  repository setupコマンドでは，デフォルトリポジトリのダウンロードとセットアップを行います．
+  これにより， $HOME/rtm/repositories/sugarsweetrobotics/wasanbon_repositories.gitにリポジトリが保存されます．
+  リポジトリ内には，rtcsとpackagesというディレクトリが作成され，その中のyamlファイルにリポジトリ情報が記入されています．
+  repository create独自のリポジトリを作成します．
+  repository installでは，リポジトリのインポートを行います．
+  repository statusでは，リポジトリの状態を表示できます．
+  repository updateでは，リポジトリを最新の状態に更新します．
+ subcommands :
+  status : |
+   リポジトリの状態を表示します．より詳しい情報を得るためには-lオプションを付けます．
+  setup  : |
+   デフォルトのリポジトリを$HOME/rtm/repositoriesにダウンロードします．
+  install : |
+   外部のリポジトリをダウンロードします．
+   ex.,  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
+  update : |
+   リポジトリを更新します．
+  create : |
+   独自のリポジトリを作成します．
+   ex., $ wasanbon-admin.py repository create 
+  commit : |
+   RTCのリポジトリの編集情報をコミットします．
+   ex., wasanbon-admin.py repository commit "YOUR_COMMENT"
+  push : |
+   独自のリポジトリの更新情報をサーバーにアップロードします．
+   ex., wasanbon-admin.py repository push
+  edit : |
+   独自のリポジトリを編集します．
    ex., wasanbon-admin.py repository edit.
 """
 
