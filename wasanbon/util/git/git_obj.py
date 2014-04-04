@@ -20,7 +20,7 @@ class GitRepository():
         curdir = os.getcwd()
         os.chdir(self.path)
         wasanbon.util.git.git_command(['init'], verbose=verbose, path=self.path)
-        gitignore_files = ['*~', '.pyc', '*.log', '*.bak']
+        gitignore_files = ['*~', '*.pyc', '*.log', '*.bak']
         fout = open('.gitignore', 'w')
         for filename in gitignore_files:
             fout.write(filename + '\n')

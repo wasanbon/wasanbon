@@ -50,7 +50,7 @@ class PackageAlreadyExistsException(WasanbonException):
 
 class RepositoryNotFoundException(WasanbonException):
     def msg(self):
-        return 'Repository Not Found'
+        return 'Local Repository Not Found'
 
 class RepositoryAlreadyExistsException(WasanbonException):
     def msg(self):

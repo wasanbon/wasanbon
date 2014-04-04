@@ -98,13 +98,16 @@ def execute(argv=None):
 
     except wasanbon.InvalidUsageException, ex:
         show_help_description(package, subcommand)
+        return -1
     except wasanbon.WasanbonException, ex:
         if options.verbose_flag:
             traceback.print_exc()
         sys.stdout.write(' # Error. %s\n' % ex.msg())
+        return -1
     except Exception, ex:
         traceback.print_exc()
-    pass
+        return -1
+    return 0
 
 def print_alternative(alternative, argv=None):
     for i, cmd in enumerate(alternative):

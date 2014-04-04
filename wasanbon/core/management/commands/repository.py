@@ -59,7 +59,7 @@ import os, sys, optparse
 import wasanbon
 
 from wasanbon import util
-from wasanbon.core import rtc, package
+from wasanbon.core import rtc, package, tools
 
 
 def alternative(argv=None):
@@ -109,10 +109,15 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         
     elif argv[2] == 'remote_create':
         wasanbon.arg_check(argv, 4)
-        sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
-        user, passwd = wasanbon.user_pass()
 
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
+
+        from wasanbon.util.git import git_obj
+        repo = git_obj.GitRepository(rtc_.path)
+
+        user, passwd = wasanbon.user_pass()
+
         #rtc_.github_init(user, passwd, verbose=verbose)
         if options.service == 'github':
             rtc.github_init(user, passwd, rtc_, verbose=verbose)

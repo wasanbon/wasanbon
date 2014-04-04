@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#coding: utf-8
 import os, sys
 import subprocess
 
@@ -56,12 +57,41 @@ def label(val):
 def link_to_label(link, val):
     return '<a href="' + link + '" >' + val + '</a>'
 
+
+msg = {
+    'cmd_index' : {
+        'en_US' : 'Command Index',
+        'ja_JP' : u'コマンド一覧',
+        },
+    'detail' : {
+        'en_US' : 'Detail Information',
+        'ja_JP' : u'詳細',
+        },
+    'usage' : {
+        'en_US' : 'Usage',
+        'ja_JP' : u'使用例' ,
+        },
+    'description' : {
+        'en_US' : 'Description',
+        'ja_JP' : u'解説',
+        },
+    'subcmd' : {
+        'en_US' : 'Sub Command',
+        'ja_JP' : u'サブコマンド',
+        },
+    'nosub' : {
+        'en_US' : 'No subcommand is available',
+        'ja_JP' : u'サブコマンドはありません',
+        },
+}
+    
 def build_html(dic, command, link_prex, stdout=sys.stdout, loc='en_US', indent=1):
     def stdout_write(val):
         stdout.write(val.encode('utf-8') + '\n')
 
     stdout_write(label(link_prex + 'command_index'))
-    stdout_write(h(indent, 'Command Index'))
+    #stdout_write(h(indent, 'Command Index'))
+    stdout_write(h(indent, msg['cmd_index'][loc]))
 
     cmds = dic.keys()
     cmds = sorted(cmds)
@@ -70,7 +100,8 @@ def build_html(dic, command, link_prex, stdout=sys.stdout, loc='en_US', indent=1
         stdout_write(tag('li', link_to_label('#'+ link_prex + cmd, cmd)))
     stdout_write('</ul>')
         
-    stdout_write(h(indent, 'Detail Information'))
+    #stdout_write(h(indent, 'Detail Information'))
+    stdout_write(h(indent, msg['detail'][loc]))
     for i, cmd in enumerate(cmds):
         help = dic[cmd]
         if not i == 0:
@@ -82,22 +113,26 @@ def build_html(dic, command, link_prex, stdout=sys.stdout, loc='en_US', indent=1
         stdout_write('<div class="description">')
         stdout_write(help[loc]['brief'])
         stdout_write('</div>')
-        stdout_write(h(indent+2, 'Usage'))
+        #stdout_write(h(indent+2, 'Usage'))
+        stdout_write(h(indent+2, msg['usage'][loc]))
         stdout_write('<pre class="input">')
         if len(help[loc]['subcommands']) == 0:
             stdout_write(' $ ' + command + ' ' + cmd)
         else:
-            stdout_write(' $ ' + command + ' ' + cmd + ' [SUBCOMMAND]')
+            stdout_write(' $ ' + command + ' ' + cmd + ' ['+msg['subcmd'][loc]+']')
         stdout_write('</pre>')
-        stdout_write(h(indent+2, 'Description'))
+        #stdout_write(h(indent+2, 'Description'))
+        stdout_write(h(indent+2, msg['description'][loc]))
         stdout_write('<div class="description">')
         stdout_write(help[loc]['description'])
         stdout_write('</div>')
-        stdout_write(h(indent+2, 'Sub Commands'))
+        #stdout_write(h(indent+2, 'Sub Commands'))
+        stdout_write(h(indent+2, msg['subcmd'][loc]))
 
         if len(help[loc]['subcommands']) == 0:
             stdout_write('<div class="description">')
-            stdout_write('No subcommands are available')
+            #stdout_write('No subcommands are available')
+            stdout_write(msg['nosub'][loc])
             stdout_write('</div>')
         else:
             for subcmd, help in help[loc]['subcommands'].items():
