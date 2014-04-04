@@ -270,7 +270,9 @@ def interactive_connection(_package, verbose):
 
 
 def interactive_systemfile_configure(_package, argv, verbose):
-    sysobj = _package.system
+    __import__('wasanbon.core.system.system_obj')
+    system_obj = sys.modules['wasanbon.core.system.system_obj'] 
+    sysobj = system_obj.SystemObject(_package.system_file)
     def select_rtc(ans):
         confs = sysobj.active_conf_data(sysobj.rtcs[ans])
         conf_names = [conf.name +':' + conf.data for conf in confs]
