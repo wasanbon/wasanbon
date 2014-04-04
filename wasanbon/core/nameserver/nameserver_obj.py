@@ -85,7 +85,10 @@ class NameService(object):
                             self.ns = ns
                             self.__path = path
                         def run(self):
-                            self.ns.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                            try:
+                                self.ns.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
+                            except:
+                                pass
                         def quit(self):
                             self._Thread__stop()
                     

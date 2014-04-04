@@ -75,7 +75,9 @@ class RTCConf(object):
             if not value in values:
                 self.dic[key] = self.dic[key] + ',' + value
 
-    def remove(self, key, value):
+    def remove(self, key, value, verbose=False):
+        if verbose:
+            sys.stdout.write(' - Removing %s from key (%s) in rtcconf (%s)\n' % (value, key, os.path.basename(self.filename)))
         if not key in self.dic.keys():
             return
         elif len(self.dic[key].strip()) == 0:

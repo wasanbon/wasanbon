@@ -188,7 +188,7 @@ class Package():
     def uninstall(self, rtc_, verbose=False, rtcconf_filename=""):
         if type(rtc_) == types.ListType:
             for rtc__ in rtc_:
-                self.uninstall(rtc__, verbose=verbose)
+                self.uninstall(rtc__, verbose=verbose, rtcconf_filename=rtcconf_filename)
             return
         if verbose:
             sys.stdout.write(' - Uninstaliling RTC (%s)\n' % rtc_.name)
@@ -196,13 +196,23 @@ class Package():
         if len(rtcconf_filename) == 0:
             rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind)
         else:
+            if verbose:
+                sys.stdout.write('    - Opening rtc.conf (%s)\n' % rtcconf_filename)
             rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
         
         name = rtc_.rtcprofile.basicInfo.name 
         targetfile = os.path.join(self.bin_rel_path, os.path.basename(rtc_.packageprofile.getRTCExecutableFilePath()))
-        filename = name + wasanbon.get_bin_file_ext()
-        rtcconf.remove('manager.components.precreate', name)
-        rtcconf.remove('manager.modules.preload', filename)
+        if rtc_.language == 'C++':
+            filename = name + wasanbon.get_bin_file_ext()
+        elif rtc_.language == 'Java':
+            filename = name + '.jar'
+        elif rtc_.language == 'Python':
+            filename = name + '.py'
+        else:
+            raise wasanbon.UnsupportedSystemException()
+
+        rtcconf.remove('manager.components.precreate', name, verbose=verbose)
+        rtcconf.remove('manager.modules.preload', filename, verbose=verbose)
         rtcconf.sync()
 
         setting_filename = os.path.join(self.path, 'setting.yaml')
@@ -491,7 +501,7 @@ class Package():
 
         return True
 
-    def launch_rtcd(self, language, verbose=False):
+    def launch_rtcd(self, language, rtcconf="", verbose=False):
         piddir = 'pid'
         logdir = 'log'
         if not os.path.isdir(logdir):
@@ -499,12 +509,15 @@ class Package():
         if not os.path.isdir(piddir):
             os.mkdir(piddir)
 
+        if len(rtcconf) == 0:
+            rtcconf = self.rtcconf(language).filename
+
         self.terminate_rtcd(language, verbose=verbose)
 
         if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
             if verbose:
                 sys.stdout.write(' -Starting RTC-Daemon %s version.\n' % language)
-            self._process[language]    = run.start_rtcd(language, self.rtcconf(language).filename, 
+            self._process[language]    = run.start_rtcd(language, rtcconf, 
                                                         language in self.console_bind)
             if verbose:
                 sys.stdout.write('    - Save rtcd_'+language+'_' + str(self._process[language].pid) + '\n')
