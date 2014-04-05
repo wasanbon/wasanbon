@@ -94,7 +94,13 @@ class Node(object):
     #        print 'Unknown URI: ', tokens[0]
     #    self.node.attrib['{%s}%s' % (uri, tokens[1])] = value
 
-
+class ServicePort(Node):
+    def __init__(self, node):
+        Node.__init__(self, node)
+        [uri, tag] = normalize(node.tag)
+        self.serviceInterfaces = []
+        for si in node.findall('{%s}ServiceInterface' % uri):
+            self.serviceInterfaces.append(Node(si))
 
 def save_rtcprofile(rtcp, filename):
     def save_sub(parent, node):
@@ -158,6 +164,14 @@ class RTCProfile(Node):
                 #self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], 
                 #                               dport.attrib['{%s}type' % uri],
                 #                               dport.attrib['{%s}portType' % uri]))
+
+            self.serviceports = []
+            for sport in root.findall('{%s}ServicePorts' % uri):
+                self.serviceports.append(ServicePort(sport))
+
+            self.configurationSets = []
+            for cset in root.findall('{%s}ConfigurationSets' % uri):
+                self.configurationSets.append(Node(cset))
 
         except Exception, e:
             traceback.print_exc()

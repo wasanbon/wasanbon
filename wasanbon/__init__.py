@@ -106,10 +106,12 @@ def get_bin_file_ext():
         print '---Unsupported System (%s)' % sys.platform
         raise UnsupportedPlatformException()
     
-def user_pass():
-    sys.stdout.write('username:')
-    user = raw_input()
-    passwd = getpass.getpass()
+def user_pass(user=None, passwd=None):
+    if not user:
+        sys.stdout.write('username:')
+        user = raw_input()
+    if not passwd:
+        passwd = getpass.getpass()
     return (user, passwd)
 
 

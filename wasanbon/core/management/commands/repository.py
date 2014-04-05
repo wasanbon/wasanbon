@@ -86,6 +86,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+    parser.add_option('-u', '--username', help='set username of service',  default=None, metavar='USER', dest='username')
+    parser.add_option('-p', '--password', help='set password of service',  default=None, metavar='PASSWORD', dest='password')
     try:
         options, argv = parser.parse_args(args[:])
     except:
@@ -169,23 +171,33 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     elif argv[2] == 'review':
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Review RTC.xml of %s\n' % argv[3])
-        user, passwd = wasanbon.user_pass()
+        user, passwd = wasanbon.user_pass(options.username, options.password)
         rtcp = wasanbon.core.rtc.get_repository(argv[3]).get_rtcprofile(user, passwd, verbose=verbose, service=options.service)
         print_rtc_profile(rtcp, long=True)
         
 def print_rtc_profile(rtcp, long=False):
-    str = ' - ' + rtcp.basicInfo.name
+    str = ' - ' + rtcp.basicInfo.name + '\n'
 
     if long:
-        str = str + ':\n'
         str = str + '    - name       : ' + rtcp.basicInfo.name + '\n'
         str = str + '    - language   : ' + rtcp.getLanguage() + '\n'
         str = str + '    - category   : ' + rtcp.getCategory() + '\n'
         filename = rtcp.getRTCProfileFileName()
         if filename.startswith(os.getcwd()):
             filename = filename[len(os.getcwd()) + 1:]
-        str = str + '    - RTC.xml    : ' + filename 
-    str = str + '\n'
+        str = str + '    - RTC.xml    : ' + filename + '\n'
+        for dp in rtcp.dataports:
+            str = str + '    - DataPort   : name :' +dp.name + '\n'
+            str = str + '                   type :' +dp.type + '\n'
+            str = str + '                   portType :' +dp.portType + '\n'
+        for sp in rtcp.serviceports:
+            str = str + '    - ServicePort: name :' +sp.name + '\n'
+            for si in sp.serviceInterfaces:
+                str = str + '    -              Interface : name      :' +si.name + '\n'
+                str = str + '    -                          type      :' +si.type + '\n'
+                str = str + '    -                          direction :' +si.direction + '\n'
+
+    #str = str + '\n'
     sys.stdout.write(str)
 
 
