@@ -54,6 +54,10 @@ ja_JP:
   commit : Commit change to local repository.
   push   : Push local commits to upstream repository.
   pull   : Pull from upstream repository to local repository.
+  review : |
+   You can check the RTC.xml without downloading whole codes from github
+   ex., $ mgr.py repository review YOUR_RTC_REPOSITORY_NAME
+  
 """
 import os, sys, optparse
 import wasanbon
