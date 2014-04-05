@@ -135,9 +135,9 @@ class RTCProfile(Node):
             self.filename = filename
             if len(filename) > 0:
                 et = xml.etree.ElementTree.parse(self.filename)
+                root = et.getroot()
             elif len(str) > 0:
-                et = xml.etree.ElementTree.fromstring(str)
-            root = et.getroot()
+                root = xml.etree.ElementTree.fromstring(str)
             self.node = root
             self.attrib = root.attrib
             self.children = {}

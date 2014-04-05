@@ -64,7 +64,7 @@ from wasanbon.core import rtc, package, tools
 
 def alternative(argv=None):
     return_rtc_cmds = ['init', 'fini', 'remote_add', 'remote_del', 'remote_create', 'commit', 'pull', 'push']
-    return_repo_cmds = ['clone', 'fork']
+    return_repo_cmds = ['review']
     all_cmds = ['list'] + return_rtc_cmds + return_repo_cmds
     if argv and len(argv) >= 3:
 
@@ -165,6 +165,28 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Checkout and overwrite  RTC %s\n' % argv[3])
         get_rtc_rtno(_package, argv[3], verbose=verbose).checkout(verbose=verbose)
+        
+    elif argv[2] == 'review':
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' @ Review RTC.xml of %s\n' % argv[3])
+        user, passwd = wasanbon.user_pass()
+        rtcp = wasanbon.core.rtc.get_repository(argv[3]).get_rtcprofile(user, passwd, verbose=verbose, service=options.service)
+        print_rtc_profile(rtcp, long=True)
+        
+def print_rtc_profile(rtcp, long=False):
+    str = ' - ' + rtcp.basicInfo.name
+
+    if long:
+        str = str + ':\n'
+        str = str + '    - name       : ' + rtcp.basicInfo.name + '\n'
+        str = str + '    - language   : ' + rtcp.getLanguage() + '\n'
+        str = str + '    - category   : ' + rtcp.getCategory() + '\n'
+        filename = rtcp.getRTCProfileFileName()
+        if filename.startswith(os.getcwd()):
+            filename = filename[len(os.getcwd()) + 1:]
+        str = str + '    - RTC.xml    : ' + filename 
+    str = str + '\n'
+    sys.stdout.write(str)
 
 
 

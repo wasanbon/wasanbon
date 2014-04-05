@@ -104,7 +104,7 @@ class RtcRepository():
         from wasanbon.core.repositories import github_api
         if service == 'github':
             github_obj = github_api.GithubReference(user,passwd)
-            prof_text = github_obj.get_file_contents(name, 'RTC.xml')
+            prof_text = github_obj.get_file_contents(self.name, 'RTC.xml')
             from wasanbon.core.rtc import rtcprofile
             return rtcprofile.RTCProfile(str=prof_text)
         return None
