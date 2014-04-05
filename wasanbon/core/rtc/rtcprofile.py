@@ -41,8 +41,8 @@ def get_rtc_java_name_list(rtc_name):
 
 #################
 class InvalidRTCProfileError(Exception):
-    def __init__(self, filename_='', msg_=''):
-        self.filename = filename_
+    def __init__(self, filename='', msg_=''):
+        self.filename = filename
         self.msg = msg_
         pass
 
@@ -129,10 +129,14 @@ class RTCProfile(Node):
 
     """
     """
-    def __init__(self, filename_):
+    def __init__(self, filename="", str=""):
         try:
-            self.filename = filename_
-            et = xml.etree.ElementTree.parse(self.filename)
+
+            self.filename = filename
+            if len(filename) > 0:
+                et = xml.etree.ElementTree.parse(self.filename)
+            elif len(str) > 0:
+                et = xml.etree.ElementTree.fromstring(str)
             root = et.getroot()
             self.node = root
             self.attrib = root.attrib
@@ -157,7 +161,7 @@ class RTCProfile(Node):
 
         except Exception, e:
             traceback.print_exc()
-            raise InvalidRTCProfileError(filename_, 'Parsing Error')
+            raise InvalidRTCProfileError(filename, 'Parsing Error')
 
         pass
 

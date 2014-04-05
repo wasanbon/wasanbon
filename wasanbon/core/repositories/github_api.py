@@ -97,3 +97,6 @@ class GithubReference ():
         owner_url = repo.parent.url
         owner_user, owner_repo = owner_url.split('/')[-2:]
         self._github.get_user(owner_user).get_repo(owner_repo).create_pull(title=title, body=body, head=self.user+':master', base='master')
+
+    def get_file_contents(self, repo_name, file):
+        return self._github.get_user().get_repo(repo_name).get_file_contents(file).decoded_content
