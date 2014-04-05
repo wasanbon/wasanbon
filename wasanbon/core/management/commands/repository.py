@@ -1,3 +1,4 @@
+#coding: utf-8
 """
 en_US:
  brief : |
@@ -26,36 +27,43 @@ en_US:
   commit : Commit change to local repository.
   push   : Push local commits to upstream repository.
   pull   : Pull from upstream repository to local repository.
+  review : |
+   You can check the RTC.xml without downloading whole codes from github
+   ex., $ mgr.py repository review YOUR_RTC_REPOSITORY_NAME
 
 ja_JP:
  brief : |
-  RTC's repository control
+  RTCのレポジトリ制御
  description : |
-  With this command, you can ...
-  Show all RTCs in upstream repositories (list)
-  Initialize your RTC source code directory for a version controling like git (init)
-  
-  Register your RTC into your own upstream repository (remote_add)
-  
+  このコマンドにより，
+  ・レポジトリ上のRTCをリスト表示できます(list)
+  ・gitリポジトリを作成して初期化します(init)
+  ・上位のサービス (github/bitbucket) にRTCのリポジトリを登録します．
  subcommands:
-  list   : List RTC repositories.
+  list   : RTCのリポジトリをリスト表示します．
   init   : |
-   Create local repository in your RTC code directory (current git only)
+   ユーザのRTCのローカルなリポジトリを作成します．
    ex., $ mgr.py repository init YOUR_RTC_NAME
-   This command create .git directory in rtc/YOUR_RTC_DIR/
+   このコマンドは，.gitディレクトリをrtc/YOUR_RTC_DIR/に作成します．
   fini   : |
-   Remove local repository of your RTC
+   ローカルなRTCのリポジトリを削除します．
    ex., $ mgr.py repository fini YOUR_RTC_NAME
-   This command just remove .git directory in rtc/YOUR_RTC_DIR/
+   すなわち，このコマンドはrtc/YOUR_RTC_DIR/以下の.gitディレクトリを削除します．
   remote_create : |
-   Create remote repository in your remote service (currently, github only)
-   ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
-   This automatically tries to add your repository url into your local repository file.
-  commit : Commit change to local repository.
-  push   : Push local commits to upstream repository.
-  pull   : Pull from upstream repository to local repository.
+   リモートのリポジトリを作成します．
+   ex., $ mgr.py repository remote_create YOUR_RTC_NAME -s [ github | bitbucket ]
+   このコマンドは，ローカルマシン上のリポジトリ情報ファイル (~/repositories/*_owner/wasanbon_repositories/内のファイル)
+   に情報を登録します．
+  commit : |
+   ローカルの変更をコミットします．
+   ex., $ mgr.py repository commit YOUR_RTC_NAME YOUR_COMMENT
+  push   : |
+   ローカルのコミットをリモートにプッシュします．
+   ex., $ mgr.py repository push YOUR_RTC_NAME
+  pull   : |
+   リモートのコミットをローカルにプルして，最新の状態に書き換えます．
   review : |
-   You can check the RTC.xml without downloading whole codes from github
+   リモート上のリポジトリのコード全体をダウンロードせずに，RTC.xmlの情報のみを取得して表示します．
    ex., $ mgr.py repository review YOUR_RTC_REPOSITORY_NAME
   
 """
