@@ -111,9 +111,15 @@ def install(verbose, force):
         sys.stdout.write(' - Removing Build Directory:%s\n' % os.path.join(dirname, 'build'))
 
     if os.path.isdir(os.path.join(dirname, 'build')) :
-        if verbose:
-            sys.stdout.write(' -- removed\n')
         shutil.rmtree(os.path.join(dirname, 'build'))
+
+        if not os.path.isdir(os.path.join(dirname, 'build')):
+            if verbose:
+                sys.stdout.write(' -- Removed\n')
+        else:
+            sys.stdout.write(' -- Failed.')
+            return False
+
 
     if verbose:
         sys.stdout.write(' - Installing wasanbon.\n')
