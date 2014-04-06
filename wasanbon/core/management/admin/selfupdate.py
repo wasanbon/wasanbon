@@ -108,12 +108,15 @@ def install(verbose, force):
 
     os.chdir(dirname)
     if verbose:
-        sys.stdout.write(' - Removing Build Directory:' + os.path.join(dirname, 'build'))
+        sys.stdout.write(' - Removing Build Directory:%s\n' % os.path.join(dirname, 'build'))
 
     if os.path.isdir(os.path.join(dirname, 'build')) :
         if verbose:
             sys.stdout.write(' -- removed\n')
         shutil.rmtree(os.path.join(dirname, 'build'))
+
+    if verbose:
+        sys.stdout.write(' - Installing wasanbon.\n')
     cmd = ['python', 'setup.py', 'install']
     subprocess.call(cmd)
     os.chdir(cwd)
