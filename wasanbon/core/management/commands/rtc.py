@@ -1,3 +1,4 @@
+#coding: utf-8
 """
 en_US:
  brief : |
@@ -51,32 +52,34 @@ en_US:
 
 ja_JP:
  brief : |
-  RTC administration
+  RTCの管理を行うコマンド
  description : |
-  This command provides RTC administration functions.
-  You can get installed RTC list.
-  You can clone/fork RTC from internet.
-  You can build/clean RTC source code.  
+  このコマンドはカレントパッケージのRTCを管理します．
+  カレントパッケージのRTCのリスト取得 (list), インターネット上のリポジトリからのクローン (clone) や，自分のサービスへのfork．
+  またRTCのソースコードの編集 (edit)，ビルド (build) やクリーン (clean) ，実行 (run)，初期コンフィグレーションの編集 (configure) が可能です．
  subcommands:
   list : |
-   Display RTCs list which are placed in the current packages rtc directory.
+   カレントパッケージのRTCのリストを表示します．
+
   clone  : |
-   Clone RTC source code from RTC repository.
+   ネット上のリポジトリからクローンします．
    ex., $ mgr.py rtc clone YOUR_RTC_REPOSITORY
-   This command allows to clone from specific url as well.
+   このコマンドは，特定のURLからクローンする場合も有効です．
    ex., $ mgr.py rtc clone YOUR_RTC_URL
+   クローンと同時にパッケージ内のrtc/repositories.yamlファイルに，リポジトリ情報をストアします．
   fork   : |
-   Fork RTC source code from RTC repository to your remote repository.
+   ネット上のリポジトリを自身のサービス上のリポジトリにフォークします．
    ex., $ mgr.py rtc fork YOUR_RTC_REPOSITORY
-   You will asked your remote repository address (Currently github only).
   build : |
-   Build RTC from Source code.
-   This command will create rtc/YOUR_RTC/build-YOUR_SYSTEM directory and then, build binary.
-   If RTC is written in C++, cmake and build (make or msbuild) will be called.
-   If Python, idl compile is done.
-   If Java, javac will compile .java codes and then, jar command will create archive file.
-   After build, this function will install the binary and config files into your bin direcotry.
-   The place of the bin directory is defined by YOUR_PACKAGE_PATH/setting.yaml.
+   RTCをビルドします．
+   このコマンドは，rtc/YOUR_RTC/build-YOUR_SYSTEMというディレクトリを作成します．
+   C++で書かれたRTCに関しては，cmakeを行ってから，build (windowsならばmsbuild, unixならばg++とmake) を行います．
+   Pythonであれば，idlのコンパイルを行います．
+   Javaであれば，idljコマンドとjavacでのコンパイルを行います．最後にjarコマンドでアーカイブを作成します．
+   ビルド後には，バイナリデータとコンフィグレーションファイルをパッケージに取り込みます．
+   つまり，バイナリをbinフォルダに，コンフィグをconfフォルダにコピーし，該当する言語のrtcdのrtc.confを変更して，
+   RTCをデフォルトでマネージャに読み込んで実行します．
+
    The files to be copied will be compiled binary *.dll|*.dylib|*.so, and YOUR_RTC_NAME.conf file.
    If you add -s (--standalone) option, you will include the RTC into system with Stand Alone Version.
    Stand Alone Version will be launched as a standalone process.

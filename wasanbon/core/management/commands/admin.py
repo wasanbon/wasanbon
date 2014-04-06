@@ -19,20 +19,23 @@ en_US:
 
 ja_JP:
  brief : |
-  Local Package administration
+  ローカルのパッケージに対する管理
+
  description : |
-  Package Administration mainly for version controlling like git.
+  パッケージの管理用コマンドです．おもにソースコードのバージョンコントロールに使います．
 
  subcommands : 
   git_init : |
-   Initialize git repository for your package
+   gitリポジトリを作成します．
+
   remote_create : |
-   Create remote repository in your remote service (github|bitbucket).
+   リモートのサービス (github or bitbucket) にリポジトリを作成して，ローカルのパッケージをプッシュします．
    eg., $ mgr.py admin remote_create -s [github|bitbucket]
   commit : |
-   Commit changes in your package into the local version control
+   ローカルの変更をコミットします．
   push : |
-   Push your commits to your remote repository
+   ローカルの変更をプッシュします．
+
     
 """
 import sys, os, optparse, traceback

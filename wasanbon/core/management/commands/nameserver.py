@@ -1,3 +1,4 @@
+#coding: utf-8
 """
 en_US:
  brief : |
@@ -18,19 +19,19 @@ en_US:
 
 ja_JP:
  brief : |
-  Name Service Administration
+  ネームサービスの管理
  description : | 
-  Change setting of Name Service for current package.
-  Add/Del nameservice for this package.
+  カレントパッケージの使うネームサービスのアドレスを，追加・削除します．
 
  subcommands : 
   list : |
-   Show all nameservice of current package
+   カレントパッケージの利用するネームサービスのアドレスをリストします．
+
   add : |
-   Add nameserver address 
+   ネームサービスのアドレスを追加します．
    ex., $ mgr.py nameserver add 192.168.1.1:2809
   del : |
-   Delete nameserver address
+   ネームサービスのアドレスを削除します．
    ex., $ mgr.py nameserver del 192.168.1.1:2809
 """
 
