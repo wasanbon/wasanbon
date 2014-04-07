@@ -41,7 +41,7 @@ def execute_with_argv(argv, verbose):
     usage = "wasanbon-admin.py make YOUR_PACKAGE_NAME \n"
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     #parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
-    #parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+    parser.add_option('-s', '--standalone', help='Installing RTC with standalone version (mostly YOUR_RTC_NAMEComp.exe', action='store_true', default=False, dest='standalone_flag')
     parser.add_option('-c', '--clean', help='Clean up binaries',  action='store_true', default=False, dest='clean_flag')
 
     try:
@@ -104,6 +104,7 @@ def execute_with_argv(argv, verbose):
             _rtc.clean(verbose=verbose)
         else:
             _rtc.build(verbose=verbose)
+            pack.install_rtc(_package, _rtc, verbose=verbose, standalone=options.standalone_flag)
 
 def isparent(path):
     def checkparent(p, q):

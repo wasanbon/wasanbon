@@ -60,6 +60,13 @@ class GitRepository():
         os.chdir(curdir)
         pass
 
+    def status(self, verbose=True):
+        curdir = os.getcwd()
+        os.chdir(self.path)
+        wasanbon.util.git.git_command(['status'], verbose=verbose)
+        os.chdir(curdir)
+        pass
+        
     def commit(self, comment,  verbose=False):
         curdir = os.getcwd()
         os.chdir(self.path)

@@ -135,3 +135,6 @@ class RtcObject():
     def push(self, verbose=False):
         self.git.push(verbose=verbose)
         return self
+
+    def status(self, verbose=True):
+        self.git.status(verbose=verbose)

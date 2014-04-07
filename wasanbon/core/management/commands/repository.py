@@ -24,6 +24,7 @@ en_US:
    Create remote repository in your remote service (currently, github only)
    ex., $ mgr.py repository remote_create YOUR_RTC_NAME [ github | bitbucket ]
    This automatically tries to add your repository url into your local repository file.
+  status : Show status of local repository.
   commit : Commit change to local repository.
   push   : Push local commits to upstream repository.
   pull   : Pull from upstream repository to local repository.
@@ -57,6 +58,9 @@ ja_JP:
   commit : |
    ローカルの変更をコミットします．
    ex., $ mgr.py repository commit YOUR_RTC_NAME YOUR_COMMENT
+  status : |
+   ローカルレポジトリのステータスを得ます．git statusです．
+   ex., $ mgr.py repository status YOUR_RTC_NAME
   push   : |
    ローカルのコミットをリモートにプッシュします．
    ex., $ mgr.py repository push YOUR_RTC_NAME
@@ -75,7 +79,7 @@ from wasanbon.core import rtc, package, tools
 
 
 def alternative(argv=None):
-    return_rtc_cmds = ['init', 'fini', 'remote_add', 'remote_del', 'remote_create', 'commit', 'pull', 'push']
+    return_rtc_cmds = ['init', 'fini', 'remote_add', 'remote_del', 'remote_create', 'commit', 'pull', 'push', 'status']
     return_repo_cmds = ['review']
     all_cmds = ['list'] + return_rtc_cmds + return_repo_cmds
     if argv and len(argv) >= 3:
@@ -155,6 +159,12 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         rtc_ = _package.rtc(argv[3])
         rtc_.github_pullrequest(user, passwd, argv[4], argv[5], verbose=verbose)
             
+    elif argv[2] == 'status':
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' @ Show Changes of RTC %s\n' % argv[3])
+        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        rtc_.status(verbose=True)
+
     elif argv[2] == 'commit':
         wasanbon.arg_check(argv, 5)
         sys.stdout.write(' @ Commiting Changes of RTC %s\n' % argv[3])
