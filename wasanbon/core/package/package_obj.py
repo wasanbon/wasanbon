@@ -439,6 +439,8 @@ class Package():
 
     def commit(self, comment, verbose=False):
         git_obj = wasanbon.util.git.GitRepository(self.path, verbose=verbose)
+        files = ['.gitignore', 'setting.yaml', 'conf/*.conf', 'rtc/repository.yaml', 'system/*.xml', 'README.txt']
+        self.add(files, verbose=verbose)
         git_obj.commit(comment, verbose=verbose)
         pass
                
