@@ -104,12 +104,17 @@ def execute_with_argv(args, verbose):
 
     force = False
     clean = False
-    
     if '-l' in args:
         long_option = True
     else:
         long_option = False
+    if '-x' in args:
+        longlong_option = True
+    else:
+        longlong_option = False
+
     args = [arg for arg in args if not arg is '-l']
+    args = [arg for arg in args if not arg is '-ll']
 
     if args[2] == 'create':
         _create(args, verbose, force ,clean)
@@ -124,7 +129,7 @@ def execute_with_argv(args, verbose):
         _unregister(args, verbose, force, clean)
         
     elif args[2] == 'list':
-        _list(args, verbose, force, clean, long=long_option)
+        _list(args, verbose, force, clean, long=long_option, longlong=longlong_option)
 
     elif args[2] == 'directory':
         try:
@@ -236,15 +241,25 @@ def _delete(args, verbose):
             workspace.save_workspace(dic)
             sys.stdout.write(' - Removed.\n')
 
-def _list(args, verbose, force ,clean, long=False):
+def _list(args, verbose, force ,clean, long=False, longlong=False):
     #sys.stdout.write(' @ Listing packages.\n')
     _packages = pack.get_packages(verbose=verbose)
-    if not long:
+    if not long and not longlong:
         for p in _packages:
             sys.stdout.write(p.name + ' \n')
         return
-    for _package in _packages:
-        sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
+    if not longlong:
+        for _package in _packages:
+            sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
+    else:
+        for p in _packages:
+            sys.stdout.write(p.name + ' :\n')
+            sys.stdout.write('  path : %s\n' % p.path)
+            sys.stdout.write('  rtcs : \n')
+            for r in p.rtcs:
+                sys.stdout.write('    %s : \n' % r.name)
+                sys.stdout.write('      description : "%s"\n' % r.description)
+                sys.stdout.write('      language    : %s\n' % r.language)
 
 def _fork(args, verbose, force ,clean):
     wasanbon.arg_check(args, 4)

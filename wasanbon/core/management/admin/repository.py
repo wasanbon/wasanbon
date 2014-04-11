@@ -81,7 +81,14 @@ def get_repo_name(path):
     return os.path.basename(os.path.split(path)[0])
 
 def alternative(argv=None):
-    return ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push']
+    repolist_cmd = ['inspect']
+    all_cmd =  ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push'] + repolist_cmd
+    if len(argv) >= 3:
+        if argv[2] in repolist_cmd:
+            from wasanbon.core import package as pack
+            repos = pack.get_repositories()
+            return [repo.name for repo in repos]
+    return all_cmd
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
     wasanbon.arg_check(argv, 3)
@@ -116,7 +123,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
         repositories.create_local_repository(user, passwd, verbose=verbose, service=service_name)
 
     elif argv[2] == 'status':
-        sys.stdout.write(' - Checking Repositories.\n')
+        #sys.stdout.write(' - Checking Repositories.\n')
         paths = repositories.parse_rtc_repo_dir()
 
         if len(paths) == 0:
@@ -130,40 +137,51 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             if owner_name.endswith(repositories.owner_sign):
                 owner_name = owner_name[:-len(repositories.owner_sign)]
                 owner = True
-                mark = '*'
-            sys.stdout.write('  %s Repository : %s/%s\n' 
-                             % (mark, owner_name, os.path.basename(path)))
-            sys.stdout.write('   %s Owner: %s\n' % (mark, owner))
+            sys.stdout.write('  %s/%s :\n' 
+                             % (owner_name, os.path.basename(path)))
+            sys.stdout.write('    owner: %s\n' % (owner))
             rtcs_dir = os.path.join(path, 'rtcs')
             if os.path.isdir(rtcs_dir):
-                sys.stdout.write('   %s rtcs : \n'% mark)
+                sys.stdout.write('    rtcs : \n')
                 for file in os.listdir(rtcs_dir):
                     if file.endswith('.yaml'):
-                        sys.stdout.write('     %s %s:\n' % (mark, file))
-                        if longformat:
+                        if not longformat:
+                            sys.stdout.write('      - %s\n' % (file))
+                        else:
+                            #sys.stdout.write('      %s :\n' % (file))
                             y = yaml.load(open(os.path.join(rtcs_dir, file), 'r'))
                             if type(y) == types.DictType:
                                 keys = y.keys()
                                 keys.sort()
                                 for key in keys:
-                                    sys.stdout.write('      @ ' + key 
-                                                     + ' '*(15-len(key))
-                                                     + ': ' + y[key]['description'] + '\n')
+                                    sys.stdout.write('        ' + key + ':\n')
+                                    sys.stdout.write('          ' + 'description : "' + y[key]['description'] + '"\n')
             packs_dir = os.path.join(path, 'packages')
             if os.path.isdir(packs_dir):
-                sys.stdout.write('   %s packages : \n' % mark)
+                sys.stdout.write('    packages : \n')
                 for file in os.listdir(packs_dir):
                     if file.endswith('.yaml'):
-                        sys.stdout.write('     %s %s:\n' % (mark, file))
-                        if longformat:
+                        if not longformat:
+                            sys.stdout.write('      - %s\n' % (file))
+                        else:
+                            #sys.stdout.write('      %s :\n' % (file))
                             y = yaml.load(open(os.path.join(packs_dir, file), 'r'))
                             if type(y) == types.DictType:
                                 keys = y.keys()
                                 keys.sort()
                                 for key in keys:
-                                    sys.stdout.write('      @ ' + key 
-                                                     + ' '*(15-len(key))
-                                                     + ': ' + y[key]['description'] + '\n')
+                                    sys.stdout.write('        ' + key + ':\n')
+                                    sys.stdout.write('          ' + 'description : "' + y[key]['description'] + '"\n')
+
+    elif argv[2] == 'inspect':
+        wasanbon.arg_check(argv, 4)
+        from wasanbon.core import package
+        repo = package.get_repository(argv[3])
+        sys.stdout.write('Repository:\n')
+        sys.stdout.write('  name : %s\n' % repo.name)
+        sys.stdout.write('  description  : %s\n' % repo.description)
+        sys.stdout.write('  url  : %s\n' % repo.url)
+        
     elif argv[2] == 'install':
         if len(argv) == 3:
             sys.stdout.write(' @ Need more argument. See help.\n')
@@ -190,7 +208,6 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             if owner_name.endswith(repositories.owner_sign):
                 git.git_command(['push'], path=path, verbose=verbose)
                 return
-        
 
     elif argv[2] == 'edit':
         paths = repositories.parse_rtc_repo_dir()
@@ -199,3 +216,5 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             if owner_name.endswith(repositories.owner_sign):
                 editor.edit_dirs([os.path.join(path, 'rtcs'), os.path.join(path, 'packages')])
                 return
+
+            

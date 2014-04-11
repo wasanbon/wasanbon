@@ -193,8 +193,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     elif argv[2] == 'review':
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Review RTC.xml of %s\n' % argv[3])
-        user, passwd = wasanbon.user_pass(options.username, options.password)
-        rtcp = wasanbon.core.rtc.get_repository(argv[3]).get_rtcprofile(user, passwd, verbose=verbose, service=options.service)
+        #user, passwd = wasanbon.user_pass(options.username, options.password)
+        rtcp = wasanbon.core.rtc.get_repository(argv[3]).get_rtcprofile(verbose=verbose, service=options.service)
         print_rtc_profile(rtcp, long=True)
         
 def print_rtc_profile(rtcp, long=False):

@@ -70,7 +70,19 @@ class PackageRepository():
         
         url = 'https://github.com/%s/%s.git' % (user, self.repo_name)
         return PackageRepository(user=user, name=self.name, url=url, desc=self.description)
-        
+
+    def get_repository_yaml(self, user, passwd, verbose=False, service='github'):
+        pass
+    """
+    def get_rtcprofile(self, user, passwd, verbose=False, service='github'):
+        from wasanbon.core.repositories import github_api
+        if service == 'github':
+            github_obj = github_api.GithubReference(user, passwd)
+            prof_text = github_obj.get_file_contents(self.user, self.repo_name, 'RTC.xml', verbose=verbose)
+            from wasanbon.core.rtc import rtcprofile
+            return rtcprofile.RTCProfile(str=prof_text)
+        return None
+    """ 
 
     @property
     def name(self):

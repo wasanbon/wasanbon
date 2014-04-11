@@ -26,7 +26,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     wasanbon.arg_check(argv, 2)
     #platform.init_rtm_home(force=False, verbose=verbose, update=False)
     sys.stdout.write(' - Checking Platform Status.\n')
-    sys.stdout.write('    - wasanbon.platform: %s\n' % wasanbon.platform() )
+    sys.stdout.write('    - wasanbon.platform : %s\n' % wasanbon.platform() )
     
     try:
         __import__('yaml')
@@ -47,7 +47,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             if len(stat.strip()) == 0:
                 stat = 'Not Installed'
                 pass
-            sys.stdout.write('    - ' + cmd + ' ' * (10-len(cmd)) + ':' + stat + '\n')
+            sys.stdout.write('    - ' + cmd + ' ' * (12-len(cmd)) + ': ' + stat + '\n')
             pass
     except ImportError, e:
         sys.stdout.write(' - Your System does not have PyYAML package.\n')

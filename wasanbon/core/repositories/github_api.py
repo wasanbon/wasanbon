@@ -23,11 +23,11 @@ class GithubRepository():
         pass
 
 class GithubReference ():
-    def __init__(self, user, passwd):
+    def __init__(self, user=None, passwd=None):
         self._github = github.Github(user, passwd)
         self._user = user
 
-        if len(passwd) > 0:
+        if passwd:
             try:
                 git_user = self._github.get_user()
                 git_user.login
@@ -103,4 +103,18 @@ class GithubReference ():
     def get_file_contents(self, repo_owner, repo_name, file, verbose=False):
         if verbose:
             sys.stdout.write(' - loading %s/%s/%s' % (repo_owner, repo_name, file))
-        return self._github.get_user(repo_owner).get_repo(repo_name).get_file_contents(file).decoded_content
+
+        import httplib
+        host = "raw.githubusercontent.com"
+        url = "/"+repo_owner+"/"+repo_name+"/master/"+file
+        webservice = httplib.HTTPS(host)
+        webservice.putrequest("GET", url)
+        webservice.putheader("Host", host)
+        webservice.putheader("Content-type", "text/html; charset=\"UTF-8\"")
+        webservice.putheader("Content-length", "%d" % 0)
+        webservice.endheaders()
+        sc, sm, h = webservice.getreply()
+        st= webservice.getfile().read()
+
+        return st
+
