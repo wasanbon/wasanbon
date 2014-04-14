@@ -32,39 +32,49 @@ en_US:
    build / activate RT-system.
    Before launching RTC-daemon, the naming service will be initiated if necessary.
    To stop the system, press Ctrl+C
+  terminate : |
+   Terminate RT-system.
 
 ja_JP :
  brief : |
-  RT-System administration
+  RTシステムの管理
  description : |
-
+  RTシステムの管理を行います．
+  パッケージはRTCの集まりですが，複数の言語で作られたRTCを個別に実行するのでは，分散システム化した結果，開発効率が悪くなります．
+  wasanbonでは，RTCを一度に複数起動することが可能です．
+  また，standalone版のRTCを実行することもできるので，柔軟なシステム設計が可能です．
+  
  subcommands : 
   list : |
-   List all RTCs which are installed into the System.
+   RTシステムにインストールされているRTCをリスト表示します．
   install : |
-   Install RTC binary into bin directory.
-   This command will update conf/rtc_{your_language}.conf file.
-   By this modification, RTC will be automatically launched by RTC-daemon
+   RTCのバイナリをインストールします．
+   この時，conf/rtc_{開発言語}.confファイルを編集します．C++版ならrtc_cpp.confです．
+   これにより，runコマンド時には，RTC-DaemonからRTCが読み込まれ，自動的にRTCが起動します．
   uninstall : |
-   Uninstall RTC binary from bin directory.
-   This command also remove the preload and precreate setting.
+   RTCのバイナリをシステムからアンインストールします．
   build : |
-   Build RT-system.
-   This command will launch RTC-daemon, and list the available connections.
-   You will be asked if the ports must be connected or not.
-   After the listing connections, you will get the RTCs list for the configuration. 
-   You can change the default configuration in the step.
+   RTシステムをビルドします．
+   このコマンドでは，runと同様にRTC-daemonを起動します．
+   そして，ネームサーバー上の可能なコネクションを表示しますので，接続するときにはyを押します．
+   また，コンフィグレーションについても変更を行います．
+   最後に，システム構築の結果をsystem/DefaultSystem.xmlファイルに保存します．
    Finally, you will get the DefaultSystem.xml (RT-System-profile) in your system directory.
   configure : |
-   This command modifies the RT-system profile interactively.
+   RT System Profile (デフォルトではsystem/DefaultSystem.xml) を編集して，RTCのコンフィグレーションを変更できます．
+   このコマンドは，パッケージを展開したマシンによって，シリアルポートなどが変更になった場合に，簡易的に編集する場合に使います．
   run : |
-   Launch RT-system.
-   This will launch RTC-daemon of C++, Python, and Java.
-   All load rtc.conf in conf directory, and precreate RTCs if necessary.
-   Then, process load RT-System profile (in default, system/DefaultSystem.xml), and
-   build / activate RT-system.
-   Before launching RTC-daemon, the naming service will be initiated if necessary.
-   To stop the system, press Ctrl+C
+   RTシステムを起動します．
+   このコマンドはC++, Python, JavaのRTC-daemonを同時に起動します．
+   この時，confディレクトリのrtc_cpp.conf, rtc_py.conf, rtc_java.confを読み込みます．
+   また，RT System Profile (デフォルトでは，system/DefaultSystem.xml) を読み込んで，
+   RTシステムの構築とアクティブ化を行います．
+   また，setting.yamlに書かれているスクリプトを読み込んで，standalone版のRTCを起動します．
+   standalone版のRTCとは，独自にスレーブマネージャを起動するRTCで，通常は**Comp.exeなどの実行形式で与えられます．
+   終了するためには，Ctrl+Cを押してください．
+  terminate : |
+   RTシステムを終了します．
+   パッケージ内のRTシステムが起動中であれば終了を試みます．pidファイル内にあるプロセスIDを読み込んでkillを送ります．
 """
 import os, sys, time, subprocess, signal, yaml, getpass, threading, traceback, optparse
 import wasanbon
@@ -83,7 +93,7 @@ endflag = False
 def alternative(argv=None):
     rtc_names = [rtc.name for rtc in package.Package(os.getcwd()).rtcs]
     rtcname_return_commands = ['install', 'uninstall']
-    all_commands = rtcname_return_commands + ['build', 'run', 'datalist', 'configure', 'list', 'nameserver']
+    all_commands = rtcname_return_commands + ['build', 'run', 'datalist', 'configure', 'list', 'nameserver', 'terminate']
     if len(argv) >= 3:
         if argv[2] in rtcname_return_commands:
             return rtc_names
@@ -140,16 +150,16 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
 
     elif(argv[2] == 'list'):
-        sys.stdout.write(' @ Listing installed RTCs.\n')
+        # sys.stdout.write(' @ Listing installed RTCs.\n')
         rtcs_map = _package.installed_rtcs()
         rtcs_stand = _package.installed_standalone_rtcs()
         for lang, rtcs in rtcs_map.items():
-            sys.stdout.write(' @ %s:\n' % lang)
+            sys.stdout.write('  %s :\n' % lang)
             for rtc_ in rtcs:
-                sys.stdout.write('    - %s\n' % rtc_.name) 
-        sys.stdout.write(' @ Standalone\n')
+                sys.stdout.write('   - %s\n' % rtc_.name) 
+        sys.stdout.write('  Standalone :\n')
         for rtc in rtcs_stand:
-            sys.stdout.write('    - %s\n' % rtc.name)
+            sys.stdout.write('   - %s\n' % rtc.name)
                 
     elif(argv[2] == 'build'):
         print ' @ Building RTC System in Wasanbon'
@@ -169,6 +179,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
     elif(argv[2] == 'run'):
         _run(_package, verbose=verbose, force=force, interactive=interactive)
+
+
+    elif(argv[2] == 'terminate'):
+        _terminate(_package, verbose=verbose)
         
     elif(argv[2] == 'datalist'):
         package.list_rtcs_by_dataport()
@@ -336,6 +350,12 @@ def comp_full_path(comp):
 
 def port_full_path(port):
     return comp_full_path(port.owner) + ':' + port.name
+
+
+def _terminate(_package, verbose=False):
+    package.stop_system(_package, verbose=verbose)
+    package.kill_nameservers(_package, verbose=verbose)
+
 
 def _run(_package, verbose=False, force=False, interactive=False):
     signal.signal(signal.SIGINT, signal_action)

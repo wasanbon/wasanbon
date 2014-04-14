@@ -111,4 +111,23 @@ class PackageRepository():
             repo_name = repo_name[:-4]
         return repo_name
         
+    @property
+    def user(self):
+        return self.url.split('/')[-2]
 
+    def get_rtcrepositories(self, verbose=False, service='github'):
+        from wasanbon.core.repositories import github_api
+        if service == 'github':
+            github_obj = github_api.GithubReference() # user, passwd)
+            prof_text = github_obj.get_file_contents(self.user, self.repo_name, 'rtc/repository.yaml', verbose=verbose)
+            dic = yaml.load(prof_text)
+            rtcs_ = {}
+            from wasanbon.core import rtc
+            for rtc_name in dic.keys():
+                repo = rtc.get_repository(rtc_name)
+                if repo:
+                    rtcs_[rtc_name] = repo
+                else:
+                    rtcs_[rtc_name] = rtc.RtcRepository(rtc_name, url=dic[rtc_name]['git'], desc=dic[rtc_name]['description'])
+            return rtcs_
+        return None

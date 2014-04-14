@@ -81,7 +81,7 @@ def get_repo_name(path):
     return os.path.basename(os.path.split(path)[0])
 
 def alternative(argv=None):
-    repolist_cmd = ['inspect']
+    repolist_cmd = ['package']
     all_cmd =  ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push'] + repolist_cmd
     if len(argv) >= 3:
         if argv[2] in repolist_cmd:
@@ -173,7 +173,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                                     sys.stdout.write('        ' + key + ':\n')
                                     sys.stdout.write('          ' + 'description : "' + y[key]['description'] + '"\n')
 
-    elif argv[2] == 'inspect':
+    elif argv[2] == 'package':
         wasanbon.arg_check(argv, 4)
         from wasanbon.core import package
         repo = package.get_repository(argv[3])
@@ -181,7 +181,26 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
         sys.stdout.write('  name : %s\n' % repo.name)
         sys.stdout.write('  description  : %s\n' % repo.description)
         sys.stdout.write('  url  : %s\n' % repo.url)
-        
+        sys.stdout.write('  rtc  :\n')
+        for name, repo in repo.get_rtcrepositories().items():
+            sys.stdout.write('    %s :\n' % name)
+            sys.stdout.write('      url         : %s\n' % repo.url) 
+            sys.stdout.write('      description : %s\n' % repo.description) 
+
+    elif argv[2] == 'rtc':
+        wasanbon.arg_check(argv, 4)
+        from wasanbon.core import rtc
+        if argv[3].startswith('http'):
+            repos = rtc.get_repositories()
+            for r in repos:
+                if r.url == argv[3]:
+                    repo = r
+                    break
+        else:
+            repo = rtc.get_repository(argv[3])
+        prof = repo.get_rtcprofile()
+        print_rtc_profile(prof)
+
     elif argv[2] == 'install':
         if len(argv) == 3:
             sys.stdout.write(' @ Need more argument. See help.\n')
@@ -218,3 +237,27 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 return
 
             
+def print_rtc_profile(rtcp, long=False):
+    sys.stdout.write('name       : ' + rtcp.basicInfo.name + '\n')
+    sys.stdout.write('language   : ' + rtcp.getLanguage() + '\n')
+    sys.stdout.write('category   : ' + rtcp.getCategory() + '\n')
+    filename = rtcp.getRTCProfileFileName()
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    #sys.stdout.write('RTC.xml    : ' + filename + '\n')
+    if len(rtcp.dataports) > 0:
+        sys.stdout.write('DataPort:\n')
+        for dp in rtcp.dataports:
+            sys.stdout.write('  ' +dp.name + ':\n')
+            sys.stdout.write('    type     : "' +dp.type + '"\n')
+            sys.stdout.write('    portType : "' +dp.portType + '"\n')
+    if len(rtcp.serviceports) > 0:
+        sys.stdout.write('ServicePort:\n')
+        for sp in rtcp.serviceports:
+            sys.stdout.write('  ' +sp.name + ':\n')
+            sys.stdout.write('    Interface :\n')
+            for si in sp.serviceInterfaces:
+                sys.stdout.write('      ' +si.name + ':\n')
+                sys.stdout.write('        type      : "' +si.type + '"\n')
+                sys.stdout.write('        direction : ' +si.direction + '\n')
+

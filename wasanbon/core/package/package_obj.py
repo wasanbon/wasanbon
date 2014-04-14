@@ -19,7 +19,7 @@ class Package():
             raise wasanbon.InvalidPackagePathError()
         self._rtcs = []
         self._name = os.path.basename(path)
-        self._process = {}
+        self._process = {'standalone':[]}
         self._languages = ['C++', 'Python', 'Java']
         self._setting = []
         self._nameservers = []

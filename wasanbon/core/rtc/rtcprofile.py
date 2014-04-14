@@ -137,7 +137,7 @@ class RTCProfile(Node):
     """
     def __init__(self, filename="", str=""):
         try:
-
+            #print str
             self.filename = filename
             if len(filename) > 0:
                 et = xml.etree.ElementTree.parse(self.filename)
