@@ -45,6 +45,8 @@ def build_system(obj, verbose=False):
     obj.connect_and_configure(verbose=verbose)
     return True
 
+def is_shutdown(obj, verbose=False):
+    return not obj.is_running()
 
 def activate_system(obj, verbose=False):
     obj.activate(verbose=verbose)
@@ -55,7 +57,7 @@ def deactivate_system(obj, verbose=False):
 """
 """
 def stop_system(obj, verbose=False):
-    obj.deactivate(verbose=verbose)
+    #obj.deactivate(verbose=verbose)
     obj.terminate_standalone_rtcs(verbose=verbose)
     obj.terminate_all_rtcd(verbose=verbose)
 

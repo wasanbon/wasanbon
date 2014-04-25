@@ -47,6 +47,8 @@ class GithubReference ():
         except:
             return False
 
+    
+
     def get_repo(self, name, user=None, verbose=False):
         try :
             if user:
@@ -68,6 +70,11 @@ class GithubReference ():
             raise wasanbon.RepositoryAlreadyExistsException()
         repo = self._github.get_user().create_repo(name)
         return repo
+
+    def delete_repo(self, name):
+        if not self.exists_repo(name):
+            raise wasanbon.RepositoryAlreadyExistsException()
+        self._github.get_user().get_repo(name).delete()
 
     def fork_repo(self, user, name, newname, verbose=False):
         if verbose:

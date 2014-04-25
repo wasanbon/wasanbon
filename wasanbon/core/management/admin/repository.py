@@ -23,6 +23,8 @@ en_US:
   create : |
    Create your own repository. You will need to input your information. This will be interactive sequence.
    To use this command, just type, $ wasanbon-admin.py repository create 
+  destroy : |
+   Destroy your own repository.
   commit : |
    If you add/del your RTC repository information in your own repository, 
    you can commit the changes into your git repository by using this command.
@@ -60,6 +62,8 @@ ja_JP:
   create : |
    独自のリポジトリを作成します．
    ex., $ wasanbon-admin.py repository create 
+  destroy : |
+   独自リポジトリを削除します．
   commit : |
    RTCのリポジトリの編集情報をコミットします．
    ex., wasanbon-admin.py repository commit "YOUR_COMMENT"
@@ -96,6 +100,9 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     parser = optparse.OptionParser(usage=usage, add_help_option=False)
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+    parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
+    parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
+    parser.add_option('-f', '--force', help='force destroy',  action='store_true', default=False, dest='force_flag')
 
     try:
         options, argv = parser.parse_args(argv[:])
@@ -117,10 +124,19 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
         pack.update_repositories(verbose=verbose)
 
     elif argv[2] == 'create':
-        sys.stdout.write(' - Input %s User Name:' % options.service)
-        user, passwd = wasanbon.user_pass()
-        sys.stdout.write(' - Creating wasanbon_repositories in your %s\n' % service_name)
+        user, passwd = wasanbon.user_pass(user=options.user, passwd=options.password)
+        sys.stdout.write('# Creating wasanbon_repositories in your %s\n' % service_name)
         repositories.create_local_repository(user, passwd, verbose=verbose, service=service_name)
+
+    elif argv[2] == 'destroy':
+        user, passwd = wasanbon.user_pass(user=options.user, passwd=options.password)
+        sys.stdout.write('# Deleting wasanbon_repositories in your %s\n' % service_name)
+        if not options.force_flag:
+            if wasanbon.yes_no(' - Force Delete?') == 'no':
+                sys.stdout.write(' Aborted.')
+                return
+        repositories.destroy_local_repository(user, passwd, verbose=verbose, service=service_name)
+        
 
     elif argv[2] == 'status':
         #sys.stdout.write(' - Checking Repositories.\n')

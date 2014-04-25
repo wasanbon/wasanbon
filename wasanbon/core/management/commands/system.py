@@ -356,7 +356,6 @@ def _terminate(_package, verbose=False):
     package.stop_system(_package, verbose=verbose)
     package.kill_nameservers(_package, verbose=verbose)
 
-
 def _run(_package, verbose=False, force=False, interactive=False):
     signal.signal(signal.SIGINT, signal_action)
     if sys.platform == 'win32':
@@ -395,13 +394,15 @@ def _run(_package, verbose=False, force=False, interactive=False):
         while not endflag:
             try:
                 time.sleep(0.1)
+                if package.is_shutdown(_package):
+                    break
             except IOError, e:
                 pass
             pass
     except wasanbon.BuildSystemException, ex:
         traceback.print_exc()
         pass
-
+    package.deactivate_system(_package)
     package.stop_system(_package, verbose=verbose)
     package.kill_nameservers(_package, verbose=verbose)
 

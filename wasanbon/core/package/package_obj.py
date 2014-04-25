@@ -30,6 +30,14 @@ class Package():
         return self._name
 
     @property
+    def pid_path(self):
+        return os.path.join(self.path, self.pid_rel_path)
+
+    @property
+    def pid_rel_path(self):
+        return 'pid'
+
+    @property
     def bin_path(self):
         return os.path.join(self.path, self.bin_rel_path)
 
@@ -762,6 +770,17 @@ class Package():
         pass
 
 
+    def is_running(self):
+        if not os.path.isdir(self.pid_path):
+            return False
+        for p_file in os.listdir(self.pid_path):
+            if p_file.startswith("nameserver"):
+                continue
+            pid = int(p_file.split('_')[-1])
+            for p in psutil.process_iter():
+                if p.pid == pid:
+                    return True
+        return False
         
 def remShut(*args):
     func, path, _ = args 

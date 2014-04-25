@@ -36,7 +36,7 @@ en_US:
    Fork the package from internet. 
    This create directory in your current directory.
    ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
-
+  
 ja_JP:
  brief : |
   パッケージ管理コマンド
@@ -99,22 +99,22 @@ def alternative(argv=None):
         #return os.listdir(os.getcwd())
     return os.listdir(os.getcwd())
     
-def execute_with_argv(args, verbose):
-    wasanbon.arg_check(args, 3)
+def execute_with_argv(argv, verbose):
+    wasanbon.arg_check(argv, 3)
+    usage=""
+    parser = optparse.OptionParser(usage=usage, add_help_option=False)
+    parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
+    parser.add_option('-x', '--longlong', help='show status in longlong format', action='store_true', default=False, dest='longlong_flag')
+    parser.add_option('-r', '--running', help='use with list command to show package only running', action='store_true', default=False, dest='running_flag')
+    try:
+        options, args = parser.parse_args(argv[:])
+    except:
+        return
 
+    long_option = options.long_flag
+    longlong_option = options.longlong_flag
     force = False
     clean = False
-    if '-l' in args:
-        long_option = True
-    else:
-        long_option = False
-    if '-x' in args:
-        longlong_option = True
-    else:
-        longlong_option = False
-
-    args = [arg for arg in args if not arg is '-l']
-    args = [arg for arg in args if not arg is '-ll']
 
     if args[2] == 'create':
         _create(args, verbose, force ,clean)
@@ -129,7 +129,7 @@ def execute_with_argv(args, verbose):
         _unregister(args, verbose, force, clean)
         
     elif args[2] == 'list':
-        _list(args, verbose, force, clean, long=long_option, longlong=longlong_option)
+        _list(args, verbose, force, clean, long=long_option, longlong=longlong_option, running=options.running_flag)
 
     elif args[2] == 'directory':
         try:
@@ -241,25 +241,29 @@ def _delete(args, verbose):
             workspace.save_workspace(dic)
             sys.stdout.write(' - Removed.\n')
 
-def _list(args, verbose, force ,clean, long=False, longlong=False):
+def _list(args, verbose, force ,clean, long=False, longlong=False, running=False):
     #sys.stdout.write(' @ Listing packages.\n')
     _packages = pack.get_packages(verbose=verbose)
     if not long and not longlong:
         for p in _packages:
-            sys.stdout.write(p.name + ' \n')
+            if not (running and not p.is_running()): 
+                sys.stdout.write(" - " + p.name + ' \n')
         return
     if not longlong:
         for _package in _packages:
-            sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
+            if not (running and not _package.is_running()): 
+                sys.stdout.write(' ' + _package.name + ' '*(10-len(_package.name)) + ':' + _package.path + '\n')
     else:
         for p in _packages:
-            sys.stdout.write(p.name + ' :\n')
-            sys.stdout.write('  path : %s\n' % p.path)
-            sys.stdout.write('  rtcs : \n')
-            for r in p.rtcs:
-                sys.stdout.write('    %s : \n' % r.name)
-                sys.stdout.write('      description : "%s"\n' % r.description)
-                sys.stdout.write('      language    : %s\n' % r.language)
+            if not (running and not p.is_running()): 
+                sys.stdout.write(p.name + ' :\n')
+                sys.stdout.write('  path : %s\n' % p.path)
+                sys.stdout.write('  rtcs : \n')
+                for r in p.rtcs:
+                    sys.stdout.write('    %s : \n' % r.name)
+                    sys.stdout.write('      description : "%s"\n' % r.description)
+                    sys.stdout.write('      language    : %s\n' % r.language)
+    sys.stdout.write('\n');
 
 def _fork(args, verbose, force ,clean):
     wasanbon.arg_check(args, 4)

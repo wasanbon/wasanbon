@@ -45,6 +45,28 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
     download_repository(url=url, target_path=target_path, verbose=verbose)
     return True
 
+
+def destroy_local_repository(user, passwd, repo_name='wasanbon_repositories', verbose=False, service='github', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories')):
+    if service=='github':
+        import github_api
+
+        url = 'https://github.com/' + user + '/' + repo_name + '.git'
+        #Check if repository exists...
+        github_obj = github_api.GithubReference(user, passwd)
+        if github_obj.exists_repo(repo_name):
+            github_obj.delete_repo(repo_name)
+        #else:
+        #    return False
+
+    target_path = os.path.join(repo_dir, user + owner_sign)
+    sys.stdout.write(' -remove %s\n' % target_path)
+    if not os.path.isdir(target_path):
+        sys.stdout.write(' No local repository in %s\n' % target_path)
+        return False
+    
+    shutil.rmtree(target_path)
+    return True
+
 def owner_repository_path(user, repo_name='wasanbon_repositories'):
     _repository_path = repository_path()
     target_path = os.path.join(_repository_path, user + owner_sign, repo_name + '.git')
@@ -239,6 +261,9 @@ def download_repository(url, target_path='',verbose=False, force=False):
                 for repo in child_repos:
                     download_repository(repo, verbose=verbose, force=force)
     pass
+
+
+
 
 def download_repositories(verbose=False, force=False, url=None):
     file_path = os.path.join(wasanbon.__path__[0], 'settings', 'repository.yaml')

@@ -44,6 +44,9 @@ en_US:
    In default, open RTC source code.
   delete : |
    This command delete RTC directory
+  profile : |
+   Show RTC Profile
+   ex., $ mgr.py rtc profile YOUR_RTC_NAME
   configure : |
    This command will configure YOUR_RTC_NAME.conf file in conf directory.
    This configuration will be updated if the RT System Profile has the default configuration values.
@@ -87,15 +90,16 @@ ja_JP:
    WITH -n option, build process does not copy the binary file to your bin directory, 
    so you are not able to use the newly built binary for system administration.
   clean : |
-   Cleanup build directory.
+   buildディレクトリを削除します．
   run : |
-   This command will run the specified RTC only.
+   RTCを実行します．
    ex., $ mgr.py rtc run YOUR_RTC_NAME
   edit : |
-   This command will launch editor (emacs) to edit RTC source code.
-   In default, open RTC source code.
+   RTCのソースコードを編集するためにエディタ (emacs) を起動します．
   delete : |
-   This command delete RTC directory
+   RTCのディレクトリを削除します．
+  profile : |
+   RTCProfileを表示します．
   configure : |
    This command will configure YOUR_RTC_NAME.conf file in conf directory.
    This configuration will be updated if the RT System Profile has the default configuration values.
@@ -113,7 +117,7 @@ from wasanbon import util
 ev = threading.Event()
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure']
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile']
     return_rtc_repos = ['clone']
     all_rtcs = ['list'] + return_rtcs + return_rtc_repos
     if argv:
@@ -167,7 +171,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     _package = pack.Package(os.getcwd())
 
     if argv[2] == 'list':
-        sys.stdout.write(' @ Listing RTCs in current package\n')
+        sys.stdout.write('# Listing RTCs in current package\n')
         for rtc in _package.rtcs:
             print_rtc(rtc, long=options.long_flag)
         for rtno in tools.get_rtno_packages(_package, verbose=verbose):
@@ -340,6 +344,12 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             for rtno in rtnos:
                 if rtno.name == argv[3]:
                     tools.launch_arduino(rtno.file, verbose=verbose)
+    elif argv[2] == 'profile':
+        wasanbon.arg_check(argv, 4)
+        rtc_ = _package.rtc(argv[3])
+        print_rtc_profile_long(rtc_.rtcprofile)
+        pass
+
     elif argv[2] == 'configure':
         wasanbon.arg_check(argv, 4)
         rtc_name = argv[3]
@@ -445,30 +455,32 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             raise wasanbon.InvalidUsageException()
 
 def print_rtno(rtno, long=False):
-    str = ' - ' + rtno.name
+    str = ' ' + rtno.name
     if long:
         str = str + ':\n'
-        str = str + '    - name       : ' + rtno.name + '\n'
-        str = str + '    - language   : ' + 'arduino' + '\n'
+        str = str + '     name       : ' + rtno.name + '\n'
+        str = str + '     language   : ' + 'arduino' + '\n'
         filename = rtno.file
         if filename.startswith(os.getcwd()):
             filename = filename[len(os.getcwd()) + 1:]
-            str = str + '    - file       : ' + filename
+            str = str + '     file       : ' + filename
     str = str + '\n'
     sys.stdout.write(str)
 
 def print_rtc_profile(rtcp, long=False):
-    str = ' - ' + rtcp.basicInfo.name
 
+    if not long:
+        str = ' - ' + rtcp.basicInfo.name
     if long:
+        str = ' ' + rtcp.basicInfo.name
         str = str + ':\n'
-        str = str + '    - name       : ' + rtcp.basicInfo.name + '\n'
-        str = str + '    - language   : ' + rtcp.getLanguage() + '\n'
-        str = str + '    - category   : ' + rtcp.getCategory() + '\n'
+        str = str + '     name       : ' + rtcp.basicInfo.name + '\n'
+        str = str + '     language   : ' + rtcp.getLanguage() + '\n'
+        str = str + '     category   : ' + rtcp.getCategory() + '\n'
         filename = rtcp.getRTCProfileFileName()
         if filename.startswith(os.getcwd()):
             filename = filename[len(os.getcwd()) + 1:]
-        str = str + '    - RTC.xml    : ' + filename 
+        str = str + '     RTC.xml    : ' + filename 
     str = str + '\n'
     sys.stdout.write(str)
 
@@ -478,19 +490,19 @@ def print_package_profile(pp, long=False):
     filename = pp.getConfFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    - config     : ' + filename + '\n'
+    str = '     config     : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    - binary     : ' + filename + '\n'
+    str = '     binary     : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCExecutableFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '    - executable : ' + filename + '\n'
+    str = '     executable : ' + filename + '\n'
     sys.stdout.write(str)
 
 
@@ -500,4 +512,28 @@ def print_rtc(rtc, long=False):
     pass
 
 
+
+def print_rtc_profile_long(rtcp, long=False):
+    sys.stdout.write('name       : ' + rtcp.basicInfo.name + '\n')
+    sys.stdout.write('language   : ' + rtcp.getLanguage() + '\n')
+    sys.stdout.write('category   : ' + rtcp.getCategory() + '\n')
+    filename = rtcp.getRTCProfileFileName()
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    #sys.stdout.write('RTC.xml    : ' + filename + '\n')
+    if len(rtcp.dataports) > 0:
+        sys.stdout.write('DataPort:\n')
+        for dp in rtcp.dataports:
+            sys.stdout.write('  ' +dp.name + ':\n')
+            sys.stdout.write('    type     : "' +dp.type + '"\n')
+            sys.stdout.write('    portType : "' +dp.portType + '"\n')
+    if len(rtcp.serviceports) > 0:
+        sys.stdout.write('ServicePort:\n')
+        for sp in rtcp.serviceports:
+            sys.stdout.write('  ' +sp.name + ':\n')
+            sys.stdout.write('    Interface :\n')
+            for si in sp.serviceInterfaces:
+                sys.stdout.write('      ' +si.name + ':\n')
+                sys.stdout.write('        type      : "' +si.type + '"\n')
+                sys.stdout.write('        direction : ' +si.direction + '\n')
 

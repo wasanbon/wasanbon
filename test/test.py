@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-import os, sys, subprocess, time
+import os, sys, subprocess, time, yaml
 
 import wasanbon
-from wasanbon.core import package
+from wasanbon.core import package, repositories
+
 import unittest
 
 test_dir = os.getcwd()
+
+setting = yaml.load(open('setting.yaml', 'r'))
+user_name = setting['user_name']
+password = setting['password']
 
 class WSBTest(unittest.TestCase):
 
@@ -14,6 +19,10 @@ class WSBTest(unittest.TestCase):
         os.chdir(test_dir)
         pass
 
+    def test_repository_create_delete(self):
+        self.assertEqual(subprocess.call(['wasanbon-admin.py', 'repository', 'create', '-f', '-u', user_name, '-p', password]), 0)
+        self.assertTrue(repositories.is_local_owner_repository(user_name))
+        self.assertEqual(subprocess.call(['wasanbon-admin.py', 'repository', 'destroy', '-f', '-u', user_name, '-p', password]), 0)
 
     def test_package_create_delete(self):
         pack_name = 'wasanbon_test_package'
