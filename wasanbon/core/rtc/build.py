@@ -1,4 +1,4 @@
-import sys, os, shutil, subprocess
+import sys, os, shutil, subprocess, platform
 import xml.etree.ElementTree as et
 
 import wasanbon
@@ -84,8 +84,13 @@ def build_rtc_cpp(rtcp, verbose=False):
             stderr = None if verbose else subprocess.PIPE
             if verbose:
                 sys.stdout.write(' - make\n')
-            subprocess.call(cmd, stdout=stdout, stderr=stderr)
-            return
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            p.wait()
+            if not verbose:
+                errmsg = p.stderr.read()
+            else:
+                errmsg = ""
+            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
 
 def build_rtc_python(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name

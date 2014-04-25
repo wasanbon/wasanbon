@@ -12,9 +12,6 @@ wasanbon-cd() {
 };
 
 
-export PYTHONPATH=/Users/ysuga/Development/rtm/wasanbon/wasanbon/
-
-
 _wsb_svc_cmpl() {
     local cur prev pprev target subtarget subcmds subsubcmds
     COMPREPLY=()
