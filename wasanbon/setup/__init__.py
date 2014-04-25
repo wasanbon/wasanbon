@@ -19,7 +19,8 @@ _urls = {
     #            'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
 
     'psutil' : {'darwin' : 'pip install psutil',
-                'linux2' : 'pip install psutil',
+                #'linux2' : 'pip install psutil',
+                'linux2' : 'apt-get install python-psutil',
                 #'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-1.2.1.win32-py2.6.exe'},
                 'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-2.0.0.win32-py2.6.exe'},
 
@@ -109,6 +110,14 @@ def _install_pip(cmd, verbose=False):
     ret = p.wait()
     return ret
 
+def _install_apt(cmd, verbose=False):
+    cmds = cmd.split()
+    out = None if verbose else subprocess.PIPE
+    env = os.environ
+    p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
+    ret = p.wait()
+    return ret
+
 def _extract_tar(filename, verbose=False):
     if verbose:
         sys.stdout.write(' - Extracting %s\n' % filename)
@@ -162,6 +171,9 @@ def download_and_install(tag, verbose=False, force=False):
     
     if url.startswith('pip'):
         return _install_pip(url, verbose=verbose)
+
+    if url.startswith('apt-get'):
+        return _install_apt(url, verbose=verbose)
     
     filename = _download_url(url, verbose=verbose, force=force)
     if not filename:
