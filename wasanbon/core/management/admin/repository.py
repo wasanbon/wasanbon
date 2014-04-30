@@ -86,11 +86,16 @@ def get_repo_name(path):
 
 def alternative(argv=None):
     repolist_cmd = ['package']
+    rtc_repolist_cmd = ['rtc']
     all_cmd =  ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push'] + repolist_cmd
     if len(argv) >= 3:
         if argv[2] in repolist_cmd:
             from wasanbon.core import package as pack
             repos = pack.get_repositories()
+            return [repo.name for repo in repos]
+        elif argv[2] in rtc_repolist_cmd:
+            from wasanbon.core import rtc 
+            repos = rtc.get_repositories()
             return [repo.name for repo in repos]
     return all_cmd
 
