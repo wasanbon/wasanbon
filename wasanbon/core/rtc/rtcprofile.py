@@ -62,11 +62,14 @@ class DataPort(object):
 class Node(object):
     def __init__(self, node):
         self.__dict__['node']  = node
+        self.__dict__['attrib'] = node.attrib
+        self.__dict__['children'] = []
 
     def setNode(self, node):
         pass
 
     def __getitem__(self, key):
+        # print '::', self.node, ' for ', key
         tokens = key.split(':')
         uri = get_long_ns(tokens[0])
         if not uri:
@@ -101,33 +104,69 @@ class ServicePort(Node):
         self.serviceInterfaces = []
         for si in node.findall('{%s}ServiceInterface' % uri):
             self.serviceInterfaces.append(Node(si))
+            self.children.append(Node(si))
+
+class ConfigurationSet(Node):
+    def __init__(self, node):
+        Node.__init__(self, node)
+        [uri, tag] = normalize(node.tag)
+        self.configurations = []
+        for c in node.findall('{%s}Configuration' % uri):
+            self.configurations.append(Node(c))
+            self.children.append(Node(c))
+
+class Actions(Node):
+    def __init__(self, node):
+        Node.__init__(self, node)
+        [uri, tag] = normalize(node.tag)
+        # print dir(node)
+        for child in node.getchildren():
+            [c_uri, c_tag] = normalize(child.tag)
+            self.__dict__[c_tag] = Node(child)
+            self.children.append(Node(child))
+            # print c_tag
+            
+        #self.actions = []
+        #for c in node.findall('{%s}Configuration' % uri):
+        #    self.actions.append(Node(c))
+        #    self.children.append(Node(c))
+
+
 
 def save_rtcprofile(rtcp, filename):
-    def save_sub(parent, node):
-        for key, value in node.attrib.items():
+    # print 'saving rtcprofile'
+    def save_sub(elem, node):
+        #print 'saving ', node, ' to ', elem
+        for key, value in node.attrib.items(): # set attribute
+            #print 'key:', key
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
-            parent.set(name, value)
-        for key, child in node.children.items():
+            elem.set(name, value)
+
+        for child in node.children:
+            key = child.node.tag
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
-            elem = xml.etree.ElementTree.SubElement(parent, name)
-            save_sub(elem, child)
+            subelem = xml.etree.ElementTree.SubElement(elem, name)
+            #elem.append(subelem)
+            save_sub(subelem, child)
+            
 
 
     root = xml.etree.ElementTree.Element('rtc:RtcProfile')
-    for key, value in rtcp.attrib.items():
-        name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
-        root.set(name, value)
+    #for key, value in rtcp.attrib.items():
+    #    name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
+    #    root.set(name, value)
 
     for key, value in known_namespaces.items():
         root.set('xmlns:%s' % key, value)
 
-
+    save_sub(root, rtcp)
     #root.set('xmlns:rtcExt', 'http://www.openrtp.org/namespaces/rtc_ext')
     #root.set('xmlns:rtcDoc', "http://www.openrtp.org/namespaces/rtc_doc")
     #root.set('xmlns:rtc', "http://www.openrtp.org/namespaces/rtc")
     #root.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
 
-    print xml.etree.ElementTree.tostring(root)
+    open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
+    # print xml.etree.ElementTree.tostring(root)
     pass
 
 
@@ -137,7 +176,7 @@ class RTCProfile(Node):
     """
     def __init__(self, filename="", str=""):
         try:
-            #print str
+            # print str
             self.filename = filename
             if len(filename) > 0:
                 et = xml.etree.ElementTree.parse(self.filename)
@@ -146,21 +185,27 @@ class RTCProfile(Node):
                 root = xml.etree.ElementTree.fromstring(str)
             self.node = root
             self.attrib = root.attrib
-            self.children = {}
+            self.children = []
 
             [uri, tag] = normalize(root.tag)
             for basicInfo in root.findall('{%s}BasicInfo' % uri):
                 self.name = basicInfo.attrib['{%s}name' % uri]
                 self.category = basicInfo.attrib['{%s}category' % uri]
                 self.basicInfo = Node(basicInfo)
+                self.children.append(self.basicInfo)
 
             for language in root.findall('{%s}Language' % uri):
                 self.language = Node(language) #language.attrib['{%s}kind' % uri]
-                self.children['{%s}Language'] = language
+                self.children.append(self.language)
+
+            for action in root.findall('{%s}Actions' % uri):
+                self.action = Actions(action)
+                self.children.append(self.action)
         
             self.dataports = []
             for dport in root.findall('{%s}DataPorts' % uri):
                 self.dataports.append(Node(dport))
+                self.children.append(Node(dport))
                 #self.dataports.append(DataPort(dport.attrib['{%s}name' % uri], 
                 #                               dport.attrib['{%s}type' % uri],
                 #                               dport.attrib['{%s}portType' % uri]))
@@ -168,10 +213,12 @@ class RTCProfile(Node):
             self.serviceports = []
             for sport in root.findall('{%s}ServicePorts' % uri):
                 self.serviceports.append(ServicePort(sport))
+                self.children.append(ServicePort(sport))
 
             self.configurationSets = []
-            for cset in root.findall('{%s}ConfigurationSets' % uri):
-                self.configurationSets.append(Node(cset))
+            for cset in root.findall('{%s}ConfigurationSet' % uri):
+                self.configurationSets.append(ConfigurationSet(cset))
+                self.children.append(ConfigurationSet(cset))
 
         except Exception, e:
             traceback.print_exc()

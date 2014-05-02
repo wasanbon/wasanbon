@@ -514,26 +514,5 @@ def print_rtc(rtc, long=False):
 
 
 def print_rtc_profile_long(rtcp, long=False):
-    sys.stdout.write('name       : ' + rtcp.basicInfo.name + '\n')
-    sys.stdout.write('language   : ' + rtcp.getLanguage() + '\n')
-    sys.stdout.write('category   : ' + rtcp.getCategory() + '\n')
-    filename = rtcp.getRTCProfileFileName()
-    if filename.startswith(os.getcwd()):
-        filename = filename[len(os.getcwd()) + 1:]
-    #sys.stdout.write('RTC.xml    : ' + filename + '\n')
-    if len(rtcp.dataports) > 0:
-        sys.stdout.write('DataPort:\n')
-        for dp in rtcp.dataports:
-            sys.stdout.write('  ' +dp.name + ':\n')
-            sys.stdout.write('    type     : "' +dp.type + '"\n')
-            sys.stdout.write('    portType : "' +dp.portType + '"\n')
-    if len(rtcp.serviceports) > 0:
-        sys.stdout.write('ServicePort:\n')
-        for sp in rtcp.serviceports:
-            sys.stdout.write('  ' +sp.name + ':\n')
-            sys.stdout.write('    Interface :\n')
-            for si in sp.serviceInterfaces:
-                sys.stdout.write('      ' +si.name + ':\n')
-                sys.stdout.write('        type      : "' +si.type + '"\n')
-                sys.stdout.write('        direction : ' +si.direction + '\n')
+    rtc.print_rtcprofile(rtcp)
 

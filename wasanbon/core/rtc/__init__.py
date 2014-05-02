@@ -43,3 +43,42 @@ def bitbucket_init(user, passwd, rtc_, verbose=False):
     git.git_command(['remote', 'add', 'origin', 'https://bitbucket.org/' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
     git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
     return rtc_
+
+def print_rtcprofile(rtcp):
+    sys.stdout.write('basicInfo : \n')
+    sys.stdout.write('  name        : ' + rtcp.basicInfo.name + '\n')
+    sys.stdout.write('  description : ' + rtcp.basicInfo.description + '\n')
+    sys.stdout.write('  category    : ' + rtcp.basicInfo.category + '\n')
+    sys.stdout.write('  version     : ' + rtcp.basicInfo.version + '\n')
+    sys.stdout.write('Language : \n')
+    sys.stdout.write('  kind : ' + rtcp.language.kind + '\n')
+    filename = rtcp.getRTCProfileFileName()
+    if filename.startswith(os.getcwd()):
+        filename = filename[len(os.getcwd()) + 1:]
+    #sys.stdout.write('RTC.xml    : ' + filename + '\n')
+    if len(rtcp.dataports) > 0:
+        sys.stdout.write('DataPort:\n')
+        for dp in rtcp.dataports:
+            sys.stdout.write('  ' +dp.name + ':\n')
+            sys.stdout.write('    type     : "' +dp.type + '"\n')
+            sys.stdout.write('    portType : "' +dp.portType + '"\n')
+    if len(rtcp.serviceports) > 0:
+        sys.stdout.write('ServicePort:\n')
+        for sp in rtcp.serviceports:
+            sys.stdout.write('  ' +sp.name + ':\n')
+            sys.stdout.write('    Interface :\n')
+            for si in sp.serviceInterfaces:
+                sys.stdout.write('      ' +si.name + ':\n')
+                sys.stdout.write('        type      : "' +si.type + '"\n')
+                sys.stdout.write('        direction : ' +si.direction + '\n')
+    if len(rtcp.configurationSets) > 0:
+        sys.stdout.write('ConfigurationSet:\n')
+        for cs in rtcp.configurationSets:
+            for c in cs.configurations:
+                sys.stdout.write('  ' + c.name + ':\n')
+                sys.stdout.write('    type         : ' + c.type + '\n')
+                sys.stdout.write('    defaultValue : ' + c.defaultValue + '\n')
+
+
+    from wasanbon.core.rtc import rtcprofile
+    rtcprofile.save_rtcprofile(rtcp, "test.xml")

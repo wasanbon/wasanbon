@@ -87,7 +87,7 @@ def get_repo_name(path):
 def alternative(argv=None):
     repolist_cmd = ['package']
     rtc_repolist_cmd = ['rtc']
-    all_cmd =  ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push'] + repolist_cmd
+    all_cmd =  ['setup', 'status', 'update', 'install', 'create', 'edit', 'commit', 'push'] + repolist_cmd + rtc_repolist_cmd
     if len(argv) >= 3:
         if argv[2] in repolist_cmd:
             from wasanbon.core import package as pack
@@ -259,26 +259,6 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
 
             
 def print_rtc_profile(rtcp, long=False):
-    sys.stdout.write('name       : ' + rtcp.basicInfo.name + '\n')
-    sys.stdout.write('language   : ' + rtcp.getLanguage() + '\n')
-    sys.stdout.write('category   : ' + rtcp.getCategory() + '\n')
-    filename = rtcp.getRTCProfileFileName()
-    if filename.startswith(os.getcwd()):
-        filename = filename[len(os.getcwd()) + 1:]
-    #sys.stdout.write('RTC.xml    : ' + filename + '\n')
-    if len(rtcp.dataports) > 0:
-        sys.stdout.write('DataPort:\n')
-        for dp in rtcp.dataports:
-            sys.stdout.write('  ' +dp.name + ':\n')
-            sys.stdout.write('    type     : "' +dp.type + '"\n')
-            sys.stdout.write('    portType : "' +dp.portType + '"\n')
-    if len(rtcp.serviceports) > 0:
-        sys.stdout.write('ServicePort:\n')
-        for sp in rtcp.serviceports:
-            sys.stdout.write('  ' +sp.name + ':\n')
-            sys.stdout.write('    Interface :\n')
-            for si in sp.serviceInterfaces:
-                sys.stdout.write('      ' +si.name + ':\n')
-                sys.stdout.write('        type      : "' +si.type + '"\n')
-                sys.stdout.write('        direction : ' +si.direction + '\n')
+    from wasanbon.core import rtc
+    rtc.print_rtcprofile(rtcp)
 
