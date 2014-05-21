@@ -101,7 +101,8 @@ class NameService(object):
                     wdt.start()
                     t.join()
                     if not self.tree:
-                        sys.stdout.write('   - Failed.\n')
+                        if verbose:
+                            sys.stdout.write('   - Failed.\n')
                         continue
                     #self.tree = rtctree.tree.RTCTree(paths=self.__path, filter=[self.__path])
                     if verbose:
@@ -180,7 +181,7 @@ class NameService(object):
             sys.stdout.write(' - OK.\n')
         return 
     
-    def kill(self):
+    def kill(self, verbose=False):
         if self._process:
             self._process.kill()
         if os.path.isdir('pid'):
@@ -189,7 +190,8 @@ class NameService(object):
                     pid = file[len('nameserver_'):]
                     for proc in psutil.process_iter():
                         if str(proc.pid) == pid:
-                            sys.stdout.write(' - Stopping NameService.....\n')
+                            if verbose:
+                                sys.stdout.write(' - Stopping NameService.....\n')
                             proc.kill()
                     os.remove(os.path.join('pid', file))
 

@@ -14,8 +14,9 @@ import repository
 
 class RtcObject():
 
-    def __init__(self, path, verbose=False):
+    def __init__(self, path, verbose=False, ns_addr='localhost:2809'):
         self._path = path
+        self.ns_addr = ns_addr
         self._rtc_xml = ""
         self._rtcprofile = None
         if os.path.isdir(os.path.join(path, '.git')):
@@ -138,3 +139,6 @@ class RtcObject():
 
     def status(self, verbose=True):
         self.git.status(verbose=verbose)
+
+    def get_full_path_in_ns(self):
+        return '/' + self.ns_addr + '/' + self.name + '0' + '.rtc'

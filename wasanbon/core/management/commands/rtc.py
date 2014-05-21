@@ -107,7 +107,7 @@ ja_JP:
    This function is very useful.
 """
 
-import os, sys, optparse, yaml, types, traceback, signal, threading
+import os, sys, optparse, yaml, types, traceback, signal, threading, time
 import wasanbon
 from wasanbon.core import package as pack
 from wasanbon.core import rtc, tools, repositories
@@ -268,58 +268,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             raise wasanbon.RTCNotFoundException()
 
     elif argv[2] == 'run':
-        endflag = False
-        def signal_action(num, frame):
-            print ' - SIGINT captured'
-            ev.set()
-            #global endflag
-            endflag = True
-            pass
-
-        signal.signal(signal.SIGINT, signal_action)
-
-        if sys.platform == 'win32':
-            sys.stdout.write(' - Escaping SIGBREAK...\n')
-            signal.signal(signal.SIGBREAK, signal_action)
-            pass
-
-        sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
-        rtc_ = _package.rtc(argv[3])
-        rtcconf = _package.rtcconf(rtc_.language)
-        rtc_temp = os.path.join("conf", "rtc_temp.conf")
-        if os.path.isfile(rtc_temp):
-            os.remove(rtc_temp)
-            pass
-        rtcconf.sync(verbose=True, outfilename=rtc_temp)
-        _package.uninstall(_package.rtcs, rtcconf_filename=rtc_temp, verbose=True)
-        _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False)
-        
-        if not pack.run_nameservers(_package, verbose=verbose, force=force):
-            raise wasanbon.BuildSystemException()
-
-        try:
-            from wasanbon.core.package import run
-            _package.launch_rtcd(rtc_.language, rtcconf=rtc_temp, verbose=True)
-            """
-            if rtc_.language == 'C++':
-                p = run.start_cpp_rtcd(rtc_temp, verbose=True)
-            elif rtc_.language == 'Python':
-                p = run.start_python_rtcd(rtc_temp, verbose=True)
-            elif rtc_.language == 'Java':
-                p = run.start_java_rtcd(rtc_temp, verbose=True)
-            """
-            while not endflag:
-                if _package._process[rtc_.language].poll() != None:
-                    sys.stdout.write(' - rtcd terminated.\n')
-                    break
-                pass
-
-            #_package._process[rtc_.language].wait()
-            #p.wait()
-        except KeyboardInterrupt, e:
-            sys.stdout.write(' -- Aborted.\n')
-        _package.terminate_rtcd(rtc_.language, verbose=True)
-        pack.kill_nameservers(_package, verbose=verbose)            
+        wasanbon.arg_check(argv, 4)
+        _run(_package, argv[3], verbose=verbose, force=force)
 
     elif argv[2] == 'delete':
         wasanbon.arg_check(argv, 4)
@@ -448,11 +398,102 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                     sys.stdout.write(' - If you want to confirm the update, use "wasanbon-admin.py repository status"\n')
                     return True
                 util.choice(file_list, function01, ' - Select RTC repository file')
-            
-            
+    elif argv[2] == 'verify':
+        sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
+        wasanbon.arg_check(argv, 4)
+        _verify(_package, argv[3], verbose=verbose, force=force)
+        pass
 
-        else:
-            raise wasanbon.InvalidUsageException()
+    else:
+        raise wasanbon.InvalidUsageException()
+
+
+def _verify(_package, rtcname, verbose=False, force=False):
+    # sys.stdout.write(' @ Executing RTC %s\n' % rtcname)
+    rtc_ = _package.rtc(rtcname)
+    rtcconf = _package.rtcconf(rtc_.language)
+    rtc_temp = os.path.join("conf", "rtc_temp.conf")
+    if os.path.isfile(rtc_temp):
+        os.remove(rtc_temp)
+        pass
+    rtcconf.sync(verbose=True, outfilename=rtc_temp)
+    _package.uninstall(_package.rtcs, rtcconf_filename=rtc_temp, verbose=verbose)
+    _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False, verbose=verbose)
+        
+    if not pack.run_nameservers(_package, verbose=verbose, force=force):
+        raise wasanbon.BuildSystemException()
+
+    try:
+        from wasanbon.core.package import run
+        _package.launch_rtcd(rtc_.language, rtcconf=rtc_temp, verbose=verbose)
+        
+        for i in range(0, 3):
+            time.sleep(1)
+            try:
+                rtc.verify_rtcprofile(rtc_, verbose=True)
+                break
+            except:
+                pass
+    except KeyboardInterrupt, e:
+        sys.stdout.write(' -- Aborted.\n')
+
+    _package.terminate_rtcd(rtc_.language, verbose=verbose)
+    pack.kill_nameservers(_package, verbose=verbose)            
+
+
+def _run(_package, rtcname, verbose=False, force=False):
+    endflag = False
+    def signal_action(num, frame):
+        print ' - SIGINT captured'
+        ev.set()
+        #global endflag
+        endflag = True
+        pass
+
+    signal.signal(signal.SIGINT, signal_action)
+
+    if sys.platform == 'win32':
+        sys.stdout.write(' - Escaping SIGBREAK...\n')
+        signal.signal(signal.SIGBREAK, signal_action)
+        pass
+
+    sys.stdout.write(' @ Executing RTC %s\n' % rtcname)
+    rtc_ = _package.rtc(rtcname)
+    rtcconf = _package.rtcconf(rtc_.language)
+    rtc_temp = os.path.join("conf", "rtc_temp.conf")
+    if os.path.isfile(rtc_temp):
+        os.remove(rtc_temp)
+        pass
+    rtcconf.sync(verbose=True, outfilename=rtc_temp)
+    _package.uninstall(_package.rtcs, rtcconf_filename=rtc_temp, verbose=True)
+    _package.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False)
+        
+    if not pack.run_nameservers(_package, verbose=verbose, force=force):
+        raise wasanbon.BuildSystemException()
+
+    try:
+        from wasanbon.core.package import run
+        _package.launch_rtcd(rtc_.language, rtcconf=rtc_temp, verbose=True)
+        """
+        if rtc_.language == 'C++':
+        p = run.start_cpp_rtcd(rtc_temp, verbose=True)
+        elif rtc_.language == 'Python':
+        p = run.start_python_rtcd(rtc_temp, verbose=True)
+        elif rtc_.language == 'Java':
+        p = run.start_java_rtcd(rtc_temp, verbose=True)
+        """
+        while not endflag:
+            if _package._process[rtc_.language].poll() != None:
+                sys.stdout.write(' - rtcd terminated.\n')
+                break
+            pass
+
+        #_package._process[rtc_.language].wait()
+        #p.wait()
+    except KeyboardInterrupt, e:
+        sys.stdout.write(' -- Aborted.\n')
+    _package.terminate_rtcd(rtc_.language, verbose=True)
+    pack.kill_nameservers(_package, verbose=verbose)            
 
 def print_rtno(rtno, long=False):
     str = ' ' + rtno.name
