@@ -33,8 +33,11 @@ class GitRepository():
         os.chdir(curdir)
         pass
 
-    def add(self, files, verbose=False):
-        wasanbon.util.git.git_command(['add'] + files, verbose=verbose, path=self.path)
+    def add(self, files, verbose=False, force=False):
+        cmd = ['add'] + files
+        if force:
+            cmd = cmd + ['-f']
+        wasanbon.util.git.git_command(cmd, verbose=verbose, path=self.path)
 
     @property
     def path(self):

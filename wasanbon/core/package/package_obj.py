@@ -437,12 +437,12 @@ class Package():
         git_obj = wasanbon.util.git.GitRepository(self.path, init=True, verbose=verbose,
                                                   ignore=['system/.metadata/*', 'rtc/*', 'mgr.py'])
         files = ['.gitignore', 'setting.yaml', 'conf/*.conf', 'rtc/repository.yaml', 'system/*.xml', 'README.txt']
-        self.add(files, verbose=verbose)
+        self.add(files, verbose=verbose, force=True)
         self.commit('Append Initial Files.\n', verbose=verbose)
 
-    def add(self, files, verbose=False):
+    def add(self, files, verbose=False, force=False):
         git_obj = wasanbon.util.git.GitRepository(self.path, verbose=verbose)
-        git_obj.add(files, verbose=verbose)
+        git_obj.add(files, verbose=verbose, force=force)
         pass
 
     def commit(self, comment, verbose=False):
