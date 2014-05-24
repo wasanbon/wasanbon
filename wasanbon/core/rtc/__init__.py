@@ -1,4 +1,4 @@
-import os, sys, shutil, time, subprocess
+import os, sys, shutil, time, subprocess, shutil
 import wasanbon
 from rtcconf import *
 from repository import *
@@ -157,3 +157,38 @@ def create_rtcprofile(rtc, verbose=False):
                                                          i.instance_name)
 
     return rtcb.buildRTCProfile()
+
+
+def create_python_rtc(_package, module_name, module_description="Module Description", vendor_name="Vendor Name", category="Category", verbose=False):
+    dist_dir = os.path.join(_package.rtc_path, module_name)
+    template_dir = os.path.join(wasanbon.__path__[0], 'core', 'rtc', 'template', 'python')
+    def copytree(src, dst, copyfunc):
+        if not os.path.isdir(dst): os.mkdir(dst)
+        for f in os.listdir(src):
+            srcfullpath = os.path.join(src, f)
+            dstfullpath = os.path.join(dst, f)
+            if os.path.isdir(srcfullpath):
+                if not os.path.isdir(dstfullpath): os.mkdir(dstfullpath)
+                copytree(srcfullpath, dstfullpath, copyfunc)
+            else:
+                copyfunc(srcfullpath, dstfullpath)
+
+    def copyfunc(src, dst):
+        dst = os.path.join(os.path.dirname(dst), os.path.basename(src).replace('ModuleName', module_name))
+        fin = open(src, 'r')
+        fout = open(dst, 'w')
+        for line in fin:
+            line = line.replace('$ModuleName', module_name)
+            line = line.replace('$ModuleDescription', module_description)
+            line = line.replace('$VendorName', vendor_name)
+            line = line.replace('$Category', category)
+            line = line.replace('$Date', '$Date')
+            fout.write(line)
+
+    copytree(template_dir, dist_dir, copyfunc)
+    for root, dirs, files in os.walk(dist_dir):
+        print 'root:%s' % root
+        print 'dirs:%s' % dirs
+        print 'files:%s' % files
+
+    pass

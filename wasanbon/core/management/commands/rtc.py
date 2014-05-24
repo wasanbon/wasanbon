@@ -161,6 +161,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-n', '--noinstall', help='Build without installing the RTC', action='store_true', default=False, dest='noinstall_flag')
     parser.add_option('-s', '--standalone', help='Installing RTC with standalone version (mostly YOUR_RTC_NAMEComp.exe', action='store_true', default=False, dest='standalone_flag')
+    parser.add_option('-b', '--backend', help='Back-end of RTC (for create command). Use [cxx,python,java,rtno]', default='python', dest='back_end')
+    parser.add_option('-v', '--vendor', help='VendorName of RTC (for create command).', default='Vendor', dest='vendor_name')
+    parser.add_option('-d', '--description', help='Description of RTC (for create command).', default='Default Description', dest='description')
+    parser.add_option('-c', '--category', help='Category of RTC (for create command).', default='Category', dest='category')
     try:
         options, argv = parser.parse_args(args[:])
     except:
@@ -179,7 +183,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     elif argv[2] == 'create':
         wasanbon.arg_check(argv, 4)
         if not options.back_end == 'rtno':
-            raise wasanbon.InvalidUsageException()
+            _create(_package, options.category, options.vendor_name, argv[3], options.description, options.back_end, verbose=verbose, force=force)
+            return 
         rtc_name = argv[3]
         tools.generate_rtno_temprate(_package, rtc_name, verbose=True)
         
@@ -399,14 +404,23 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                     return True
                 util.choice(file_list, function01, ' - Select RTC repository file')
     elif argv[2] == 'verify':
-        sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
         wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
+
         _verify(_package, argv[3], verbose=verbose, force=force)
         pass
 
     else:
         raise wasanbon.InvalidUsageException()
 
+
+def _create(_package, category, vendor_name, module_name, description, back_end, verbose=False, force=False):
+    from wasanbon.core import rtc
+    if back_end == 'python':
+        rtc.create_python_rtc(_package, module_name, category=category, vendor_name=vendor_name, module_description=description, verbose=verbose)
+    else:
+        sys.stdout.write(' - Currently backend %s is not available\n' % back_end)
+    pass
 
 def _verify(_package, rtcname, verbose=False, force=False):
     # sys.stdout.write(' @ Executing RTC %s\n' % rtcname)
@@ -511,17 +525,18 @@ def print_rtno(rtno, long=False):
 def print_rtc_profile(rtcp, long=False):
 
     if not long:
-        str = ' - ' + rtcp.basicInfo.name
+        str = ' - ' + rtcp.basicInfo.rtc_name
     if long:
-        str = ' ' + rtcp.basicInfo.name
+        str = ' ' + rtcp.basicInfo.rtc_name
         str = str + ':\n'
-        str = str + '     name       : ' + rtcp.basicInfo.name + '\n'
-        str = str + '     language   : ' + rtcp.getLanguage() + '\n'
-        str = str + '     category   : ' + rtcp.getCategory() + '\n'
+        str = str + '     name        : ' + rtcp.basicInfo.rtc_name + '\n'
+        str = str + '     description : ' + rtcp.basicInfo.rtc_description + '\n'
+        str = str + '     category    : ' + rtcp.basicInfo.rtc_category + '\n'
+        str = str + '     language    : ' + rtcp.language.rtc_kind + '\n'
         filename = rtcp.getRTCProfileFileName()
         if filename.startswith(os.getcwd()):
             filename = filename[len(os.getcwd()) + 1:]
-        str = str + '     RTC.xml    : ' + filename 
+        str = str + '     RTC.xml     : ' + filename 
     str = str + '\n'
     sys.stdout.write(str)
 
@@ -531,19 +546,19 @@ def print_package_profile(pp, long=False):
     filename = pp.getConfFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '     config     : ' + filename + '\n'
+    str = '     config      : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '     binary     : ' + filename + '\n'
+    str = '     binary      : ' + filename + '\n'
     sys.stdout.write(str)
 
     filename = pp.getRTCExecutableFilePath()
     if filename.startswith(os.getcwd()):
         filename = filename[len(os.getcwd()) + 1:]
-    str = '     executable : ' + filename + '\n'
+    str = '     executable  : ' + filename + '\n'
     sys.stdout.write(str)
 
 

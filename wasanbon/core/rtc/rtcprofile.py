@@ -69,7 +69,10 @@ class Node(object):
         return self.node.attrib['{%s}%s' % (uri, tokens[1])]
 
     def __setitem__(self, key, value):
-        tokens = key.split(':')
+        if key.find('_') > 0:
+            tokens = key.split('_')
+        else:
+            tokens = key.split(':')
         uri = get_long_ns(tokens[0])
         if not uri:
             print 'Unknown URI: ' , tokens[0]
@@ -80,6 +83,8 @@ class Node(object):
         return [get_short_ns(key.split('}')[0][1:]) + ':' + key.split('}')[1] for key in self.node.attrib.keys()]
 
     def __getattr__(self, key):
+        if key.find('_') > 0:
+            return self.__getitem__(key.replace('_', ':'))
         return self.__getitem__('rtc:'+key)
 
 
