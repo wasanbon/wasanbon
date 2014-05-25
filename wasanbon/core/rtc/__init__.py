@@ -186,9 +186,9 @@ def create_python_rtc(_package, module_name, module_description="Module Descript
             fout.write(line)
 
     copytree(template_dir, dist_dir, copyfunc)
-    for root, dirs, files in os.walk(dist_dir):
-        print 'root:%s' % root
-        print 'dirs:%s' % dirs
-        print 'files:%s' % files
+    #for root, dirs, files in os.walk(dist_dir):
+    #    print 'root:%s' % root
+    #    print 'dirs:%s' % dirs
+    #    print 'files:%s' % files
 
     pass

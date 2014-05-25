@@ -31,6 +31,10 @@ class InvalidUsageException(WasanbonException):
     def msg(self):
         return 'Invalid Usage'
 
+class UnsupportedLanguageException(WasanbonException):
+    def msg(self):
+        return 'Unsupported Language'
+
 class UnsupportedPlatformException(WasanbonException):
     def __init__(self):
         pass

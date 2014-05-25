@@ -19,6 +19,22 @@ class WSBTest(unittest.TestCase):
         os.chdir(test_dir)
         pass
 
+    def test_rtc_create_delete(self):
+        pack_name = 'wasanbon_test_package'
+        self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'create', pack_name]), 0)
+        self.assertTrue(pack_name in [p.name for p in package.get_packages()])
+
+        os.chdir(pack_name)
+        back_end = 'python'
+        comp_name = 'TestComponent'
+        self.assertEqual(subprocess.call(['./mgr.py', 'rtc', 'create', comp_name, '-b', back_end]), 0)
+        self.assertTrue(not package.get_package(pack_name).rtc(comp_name, suppress_exception=True) == None)
+        self.assertEqual(subprocess.call(['./mgr.py', 'rtc', 'delete', comp_name]), 0)
+        self.assertTrue(package.get_package(pack_name).rtc(comp_name, suppress_exception=True) == None)
+
+        self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'delete', pack_name]), 0)
+        self.assertFalse(pack_name in [p.name for p in package.get_packages()])
+
     def test_repository_create_delete(self):
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'repository', 'create', '-f', '-u', user_name, '-p', password]), 0)
         self.assertTrue(repositories.is_local_owner_repository(user_name))

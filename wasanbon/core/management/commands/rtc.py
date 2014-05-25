@@ -52,6 +52,10 @@ en_US:
    This configuration will be updated if the RT System Profile has the default configuration values.
    However, if your RTC needs to have default configuration such as log_level, endpoints, naming_formats, and so on, 
    This function is very useful.
+  create : |
+   Create RT Component Skeleton Code
+  verify : |
+   Verify RTC Profile and RT Component by launching RT Component.
 
 ja_JP:
  brief : |
@@ -105,6 +109,10 @@ ja_JP:
    This configuration will be updated if the RT System Profile has the default configuration values.
    However, if your RTC needs to have default configuration such as log_level, endpoints, naming_formats, and so on, 
    This function is very useful.
+  create : |
+   Create RT Component Skeleton Code
+  verify : |
+   Verify RTC Profile and RT Component by launching RT Component.
 """
 
 import os, sys, optparse, yaml, types, traceback, signal, threading, time
@@ -117,9 +125,9 @@ from wasanbon import util
 ev = threading.Event()
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile']
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify']
     return_rtc_repos = ['clone']
-    all_rtcs = ['list'] + return_rtcs + return_rtc_repos
+    all_rtcs = ['list', 'create'] + return_rtcs + return_rtc_repos
     if argv:
         if len(argv) <= 2:
             return all_rtcs
@@ -410,6 +418,13 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         _verify(_package, argv[3], verbose=verbose, force=force)
         pass
 
+    elif argv[2] == 'addInPort':
+        wasanbon.arg_check(argv, 4)
+        comp_name = argv[3]
+        type_name = argv[4]
+        port_name = argv[5]
+        sys.stdout.write(' @ Adding InPort(%s:%s) to %s\n' % (port_name, type_name, comp_name))
+        _package.rtc(comp_name).add_in_port(type_name, port_name)
     else:
         raise wasanbon.InvalidUsageException()
 

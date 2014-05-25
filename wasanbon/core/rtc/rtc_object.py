@@ -142,3 +142,161 @@ class RtcObject():
 
     def get_full_path_in_ns(self):
         return '/' + self.ns_addr + '/' + self.name + '0' + '.rtc'
+
+    def replace_code(self, parser, dic, port_type):
+        print parser.init_code
+        code = code_template[port_type]['TimedType']['init']
+        for key, value in dic.items():
+            code = code.replace(key, value)
+        parser.init_code = parser.init_code +  code
+
+        code = code_template[port_type]['TimedType']['on_initialize']
+        for key, value in dic.items():
+            code = code.replace(key, value)
+        parser.on_initialize = parser.on_initialize + code
+
+    def add_in_port(self, type_name, port_name):
+        if self.language == 'Python':
+            filepath = self.packageprofile.getSourceFiles()[0]
+            p = PythonCodeParser(filepath)
+
+            dic = {'$Initializer': "0",
+                   '$PortName': port_name,
+                   '$TimedType': type_name}
+
+            if type_name in type_list['TimedType']:
+                self.replace_code(p, dic, 'InPort')
+
+            if type_name in seq_type_list['TimedType']:
+                dic['$Initializer'] = '[]'
+                self.replace_code(p, dic, 'InPort')
+
+            p.save()
+            pass
+        else:
+            raise wasanbon.UnsupportedLanguageException()
+
+    def add_out_port(self, type_name, port_name):
+        if self.language == 'Python':
+            filepath = self.packageprofile.getSourceFiles()[0]
+            p = PythonCodeParser(filepath)
+
+            dic = {'$Initializer': "0",
+                   '$PortName': port_name,
+                   '$TimedType': type_name}
+
+            if type_name in type_list['TimedType']:
+                self.replace_code(p, dic, 'OutPort')
+
+            if type_name in seq_type_list['TimedType']:
+                dic['$Initializer'] = '[]'
+                self.replace_code(p, dic, 'OutPort')
+
+            p.save()
+            pass
+        else:
+            raise wasanbon.UnsupportedLanguageException()
+
+type_list = {
+    'TimedType' : ['RTC.TimedOctet', 'RTC.TimedBoolean', 'RTC.TimedChar', 'RTC.TimedShort', 'RTC.TimedLong', 'RTC.TimedDouble', 'RTC.TimedFloat']
+    }    
+seq_type_list = {
+    'TimedType' : [t + 'Seq' for t in type_list['TimedType']] }
+
+code_template = {
+    'InPort' : {
+        'TimedType' : {
+            'init' :  """
+                self._d_$PortName = $TimedType(RTC.Time(0,0), $Initializer)
+                \"""
+                \"""
+                self._$PortNameIn = OpenRTM_aist.InPort("$PortName", self._d_$PortName)
+""",
+            'on_initialize' : """
+                self.addInPort("$PortName", self._$PortNameIn)
+"""
+            }
+        },
+    'OutPort' : {
+        'TimedType' : {
+            'init' :  """
+                self._d_$PortName = $TimedType(RTC.Time(0,0), $Initializer)
+                \"""
+                \"""
+                self._$PortNameOut = OpenRTM_aist.OutPort("$PortName", self._d_$PortName)
+""",
+            'on_initialize' : """
+                self.addOutPort("$PortName", self._$PortNameOut)
+"""
+            }
+        }
+    }
+
+class PythonCodeParser:
+    __init_code_starter = '{%wsb:init'
+    __on_init_code_starter = '{%wsb:on_initialize'
+    __tag_ender = '%}'
+
+    def __init__(self, fullpath):
+        self.fullpath = fullpath
+        self.init_code = self.get_init_code()
+        self.on_initialize = self.get_on_initialize()
+
+    def get_init_code(self):
+        file = open(self.fullpath, 'r')
+        def return_init_code():
+            retval = ''
+            for line in file:
+                if line.find(self.__tag_ender) > 0:
+                    return retval
+                retval = retval + line
+            return None
+        for line in file:
+            if line.find(self.__on_init_code_starter) > 0:
+                return return_init_code()
+        return None
+
+    def get_on_initialize(self):
+        file = open(self.fullpath, 'r')
+        def return_init_code():
+            retval = ''
+            for line in file:
+                if line.find(self.__tag_ender) > 0:
+                    return retval
+                retval = retval + line
+            return None
+
+        for line in file:
+            if line.find(self.__on_init_code_starter) > 0:
+                return return_init_code()
+        return None
+
+    
+    def save(self):
+        os.rename(self.fullpath, self.fullpath + '.bak')
+        fin = open(self.fullpath + '.bak', 'r')
+        fout = open(self.fullpath, 'w')
+
+        mode = None
+        for line in fin:
+
+            if line.find(self.__init_code_starter) > 0:
+                mode = 'init'
+                fout.write(line)
+                fout.write(self.init_code)
+                pass
+            if line.find(self.__on_init_code_starter) > 0:
+                mode = 'on_initialize'
+                fout.write(line)
+                fout.write(self.on_initialize)
+                pass
+
+            elif line.find(self.__tag_ender) > 0:
+                mode = None
+                pass
+
+            if mode == None:
+                fout.write(line)
+
+        fout.close()
+        fin.close()

@@ -146,12 +146,13 @@ class Package():
                         pass
         return self._rtcs
 
-    def rtc(self, name, verbose=True):
+    def rtc(self, name, verbose=True, suppress_exception=False):
         for rtc_ in self.rtcs:
             if rtc_.name == name:
                 return rtc_
         if verbose:
             sys.stdout.write(' - Can not find RTC %s\n' % name)
+        if suppress_exception: return None
         raise wasanbon.RTCNotFoundException()
 
     def delete_rtc(self, rtc_, verbose=False):
