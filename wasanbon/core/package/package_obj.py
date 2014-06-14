@@ -146,7 +146,7 @@ class Package():
                         pass
         return self._rtcs
 
-    def rtc(self, name, verbose=True, suppress_exception=False):
+    def rtc(self, name, verbose=False, suppress_exception=False):
         for rtc_ in self.rtcs:
             if rtc_.name == name:
                 return rtc_

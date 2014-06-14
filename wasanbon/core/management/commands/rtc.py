@@ -113,6 +113,8 @@ ja_JP:
    Create RT Component Skeleton Code
   verify : |
    Verify RTC Profile and RT Component by launching RT Component.
+  addInPort : |
+   Add InPort to RTC
 """
 
 import os, sys, optparse, yaml, types, traceback, signal, threading, time
@@ -125,7 +127,7 @@ from wasanbon import util
 ev = threading.Event()
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify']
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify', 'addInPort', 'addOutPort']
     return_rtc_repos = ['clone']
     all_rtcs = ['list', 'create'] + return_rtcs + return_rtc_repos
     if argv:
@@ -190,6 +192,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             print_rtno(rtno, long=options.long_flag)
     elif argv[2] == 'create':
         wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' # Creating RTC %s\n' % argv[3])
         if not options.back_end == 'rtno':
             _create(_package, options.category, options.vendor_name, argv[3], options.description, options.back_end, verbose=verbose, force=force)
             return 
@@ -425,6 +428,14 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         port_name = argv[5]
         sys.stdout.write(' @ Adding InPort(%s:%s) to %s\n' % (port_name, type_name, comp_name))
         _package.rtc(comp_name).add_in_port(type_name, port_name)
+
+    elif argv[2] == 'addOutPort':
+        wasanbon.arg_check(argv, 4)
+        comp_name = argv[3]
+        type_name = argv[4]
+        port_name = argv[5]
+        sys.stdout.write(' @ Adding OutPort(%s:%s) to %s\n' % (port_name, type_name, comp_name))
+        _package.rtc(comp_name).add_out_port(type_name, port_name)
     else:
         raise wasanbon.InvalidUsageException()
 

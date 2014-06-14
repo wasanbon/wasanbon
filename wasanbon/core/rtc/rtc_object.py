@@ -155,59 +155,65 @@ class RtcObject():
             code = code.replace(key, value)
         parser.on_initialize = parser.on_initialize + code
 
+    def add_port_to_py(self, type_name, port_name, port_type):
+        filepath = self.packageprofile.getSourceFiles()[0]
+        p = PythonCodeParser(filepath)
+        
+        dic = {'$Initializer': "0",
+               '$PortName': port_name,
+               '$TimedType': type_name}
+        matched = False
+        for key, value in initializer_list.items():
+            if type_name in type_list[key]:
+                dic['$Initializer'] = value
+                matched = True
+
+        self.replace_code(p, dic, port_type)
+
+        p.save()
+        
     def add_in_port(self, type_name, port_name):
         if self.language == 'Python':
-            filepath = self.packageprofile.getSourceFiles()[0]
-            p = PythonCodeParser(filepath)
-
-            dic = {'$Initializer': "0",
-                   '$PortName': port_name,
-                   '$TimedType': type_name}
-
-            if type_name in type_list['TimedType']:
-                self.replace_code(p, dic, 'InPort')
-
-            if type_name in seq_type_list['TimedType']:
-                dic['$Initializer'] = '[]'
-                self.replace_code(p, dic, 'InPort')
-
-            p.save()
-            pass
+            self.add_port_to_py(type_name, port_name, 'InPort')
         else:
             raise wasanbon.UnsupportedLanguageException()
 
     def add_out_port(self, type_name, port_name):
         if self.language == 'Python':
-            filepath = self.packageprofile.getSourceFiles()[0]
-            p = PythonCodeParser(filepath)
-
-            dic = {'$Initializer': "0",
-                   '$PortName': port_name,
-                   '$TimedType': type_name}
-
-            if type_name in type_list['TimedType']:
-                self.replace_code(p, dic, 'OutPort')
-
-            if type_name in seq_type_list['TimedType']:
-                dic['$Initializer'] = '[]'
-                self.replace_code(p, dic, 'OutPort')
-
-            p.save()
-            pass
+            self.add_port_to_py(type_name, port_name, 'OutPort')
         else:
             raise wasanbon.UnsupportedLanguageException()
 
+
+def available_type_list():
+    l = type_list['TimedType'] + type_list['TimedSeqType']
+    return l
+
 type_list = {
-    'TimedType' : ['RTC.TimedOctet', 'RTC.TimedBoolean', 'RTC.TimedChar', 'RTC.TimedShort', 'RTC.TimedLong', 'RTC.TimedDouble', 'RTC.TimedFloat']
+    'TimedType' : ['RTC.TimedOctet', 'RTC.TimedBoolean', 'RTC.TimedChar', 'RTC.TimedShort', 'RTC.TimedLong', 'RTC.TimedDouble', 'RTC.TimedFloat', 'RTC.TimedChar'],
+    'TimedStr' : ['RTC.TimedString'],
+    'TimedPoint2D' : ['RTC.TimedPoint2D'],
+    'TimedVelocity2D' : ['RTC.TimedVelocity2D'],
+    'TimedPose2D' : ['RTC.TimedPose2D'],
     }    
-seq_type_list = {
-    'TimedType' : [t + 'Seq' for t in type_list['TimedType']] }
+
+type_list['TimedSeqType'] = [t + 'Seq' for t in type_list['TimedType']] + [t + 'Seq' for t in type_list['TimedStr']]
+
+
+initializer_list = {
+    'TimedType' : 'RTC.Time(0, 0), 0',
+    'TimedStr'  : 'RTC.Time(0, 0), ""',
+    'TimedSeqType' : 'RTC.Time(0, 0), []',
+    'TimedPoint2D' : 'RTC.Time(0, 0), 0, 0', 
+    'TimedVelocity2D' : 'RTC.Time(0, 0), RTC.Velocity2D(0, 0, 0)',
+    'TimedPose2D' : 'RTC.Time(0, 0), RTC.Pose2D(RTC.Point2D(0, 0), 0)',
+    }
 
 code_template = {
     'InPort' : {
         'TimedType' : {
             'init' :  """
-                self._d_$PortName = $TimedType(RTC.Time(0,0), $Initializer)
+                self._d_$PortName = $TimedType($Initializer)
                 \"""
                 \"""
                 self._$PortNameIn = OpenRTM_aist.InPort("$PortName", self._d_$PortName)
@@ -220,7 +226,7 @@ code_template = {
     'OutPort' : {
         'TimedType' : {
             'init' :  """
-                self._d_$PortName = $TimedType(RTC.Time(0,0), $Initializer)
+                self._d_$PortName = $TimedType($Initializer)
                 \"""
                 \"""
                 self._$PortNameOut = OpenRTM_aist.OutPort("$PortName", self._d_$PortName)
@@ -252,7 +258,7 @@ class PythonCodeParser:
                 retval = retval + line
             return None
         for line in file:
-            if line.find(self.__on_init_code_starter) > 0:
+            if line.find(self.__init_code_starter) > 0:
                 return return_init_code()
         return None
 
@@ -273,8 +279,11 @@ class PythonCodeParser:
 
     
     def save(self):
-        os.rename(self.fullpath, self.fullpath + '.bak')
-        fin = open(self.fullpath + '.bak', 'r')
+        import datetime
+        n = datetime.datetime.now()
+        ts = "%4d%02d%02d%02d%02d%02d" %  (n.year, n.month, n.day, n.hour, n.minute, n.second)
+        os.rename(self.fullpath, self.fullpath + ts)
+        fin = open(self.fullpath + ts, 'r')
         fout = open(self.fullpath, 'w')
 
         mode = None
