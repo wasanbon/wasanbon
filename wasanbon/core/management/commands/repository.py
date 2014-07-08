@@ -241,6 +241,7 @@ def owner_add(_package, rtc_name, verbose=False):
     rtc_path = os.path.join(owner_path, 'rtcs')
     files = [f for f in os.listdir(rtc_path) if f.endswith('.yaml')] + ['Create new file']
     def callback(n):
+        sys.stdout.write(' ----- choice = %s/%s\n' % (n, len(files)))
         file = files[n]
         if n == len(files)-1:
             # Create new file
@@ -251,6 +252,7 @@ def owner_add(_package, rtc_name, verbose=False):
                 except:
                     sys.stdout.write(' @ Create file failed.\n')
                     return False
+
         if not repositories.append_rtc_repo_to_owner(user, file, rtc_obj, verbose=verbose):
             sys.stdout.write(' @ Failed to save repository data to file.\n')
             sys.stdout.write(' @ If you need to add the RTC to your own repository, try ...\n$ mgr.py repository owner_add YOUR_RTC_NAME\n')

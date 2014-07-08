@@ -69,7 +69,15 @@ class Package():
 
     @property
     def system_file(self):
-        return os.path.join(self.path, self.setting['system'])
+        # if relative path
+        sf = os.path.join(self.path, self.setting['system'])
+        if os.path.isfile(sf):
+            sys.stdout.write(' - WARNING: setting.yaml contains old system configuration.\n')
+            sys.stdout.write(' -- You need to set both RTS_DIR and system configuration to find default RTS profile.\n')
+            sys.stdout.write(' -- Current setting, wasanbon ignores RTS_DIR to find system file.\n')
+            sys.stdout.write(' -- Because wasanbon can find %s file, which is pointed by the "system" value.\n' % sf)
+            return sf
+        return os.path.join(self.system_path, self.setting['system'])
 
     def get_build_delay(self):
         stg = self.setting
@@ -560,7 +568,8 @@ class Package():
         if verbose:
             sys.stdout.write(' - Activate all RTCs\n')
         for i in range(0, try_count):
-            if run.exe_rtstart():
+            file = self.system_file
+            if run.exe_rtstart(file):
                 return True
             time.sleep(1)
         raise wasanbon.BuildSystemException()
@@ -569,7 +578,8 @@ class Package():
         if verbose:
             sys.stdout.write(' - Deactivate all RTCs\n')
         for i in range(0, try_count):
-            if run.exe_rtstop():
+            file = self.system_file
+            if run.exe_rtstop(file):
                 return True
             time.sleep(1)
         raise wasanbon.BuildSystemException()

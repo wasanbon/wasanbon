@@ -106,8 +106,10 @@ def start_java_rtcd(filepath, verbose=False):
     return subprocess.Popen(cmd, **args)
 
 
-def exe_rtresurrect():
-    return rtresurrect.main([wasanbon.setting()['application']['system']]) == 0
+def exe_rtresurrect(file=None):
+    if not file:
+        file = wasanbon.setting()['application']['system']
+    return rtresurrect.main([file]) == 0
 
 def cmd_rtresurrect():
     if sys.platform == 'win32':
@@ -120,19 +122,24 @@ def cmd_rtresurrect():
             break;
         time.sleep(1)
 
-def exe_rtstart():
-    return rtstart.main([wasanbon.setting()['application']['system']]) == 0
+def exe_rtstart(file=None):
+    if not file:
+        file = wasanbon.setting()['application']['system']
+    return rtstart.main([file]) == 0
 
-def exe_rtstop():
-    return rtstop.main([wasanbon.setting()['application']['system']]) == 0
+def exe_rtstop(file=None):
+    if not file:
+        file = wasanbon.setting()['application']['system']
+    return rtstop.main([file]) == 0
 
-def cmd_rtstart():
-
+def cmd_rtstart(file=None):
+    if not file:
+        file = wasanbon.setting()['application']['system']
+    
     if sys.platform == 'win32':
-        cmd = ['rtstart.bat', wasanbon.setting()['application']['system']]
+        cmd = ['rtstart.bat', file]
     else:
-        cmd = ['rtstart', wasanbon.setting()['application']['system']]
-        
+        cmd = ['rtstart', file]
     while True:
         p = subprocess.Popen(cmd)
         if p.wait() == 0:

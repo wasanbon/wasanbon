@@ -91,12 +91,17 @@ endflag = False
 
 
 def alternative(argv=None):
-    rtc_names = [rtc.name for rtc in package.Package(os.getcwd()).rtcs]
+
     rtcname_return_commands = ['install', 'uninstall']
-    all_commands = rtcname_return_commands + ['build', 'run', 'datalist', 'configure', 'list', 'nameserver', 'terminate']
+    system_file_name_return_commands = ['configure']
+    all_commands = rtcname_return_commands + system_file_name_return_commands + ['build', 'run', 'datalist', 'list', 'nameserver', 'terminate']
     if len(argv) >= 3:
         if argv[2] in rtcname_return_commands:
-            return rtc_names
+            pack = package.Package(os.getcwd())
+            return [rtc.name for rtc in pack.rtcs]
+        elif argv[2] in system_file_name_return_commands:
+            pack = package.Package(os.getcwd())
+            return [f for f in os.listdir(pack.system_path) if f.endswith('.xml')]
     return all_commands
 
 def execute_with_argv(args, verbose, force=False, clean=False):
