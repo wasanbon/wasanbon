@@ -20,7 +20,7 @@ class PackageRepository():
             if verbose:
                 sys.stdout.write(' - There is %s package in workspace.yaml\n' % self.name)
                 sys.stdout.write(' - Please unregister the package\n')
-            raise PackageAlreadyExistsException()
+            raise wasanbon.PackageAlreadyExistsException()
         except wasanbon.PackageNotFoundException, ex:
             #traceback.print_exc()
             pass

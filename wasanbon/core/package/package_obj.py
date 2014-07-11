@@ -558,8 +558,9 @@ class Package():
     def connect_and_configure(self, try_count=5, verbose=False):
         if verbose:
             sys.stdout.write(' - Connect And Configure System\n')
+        file = self.system_file
         for i in range(0, try_count):
-            if run.exe_rtresurrect():
+            if run.exe_rtresurrect(file):
                 return True
             time.sleep(1)
         raise wasanbon.BuildSystemException()
@@ -577,8 +578,8 @@ class Package():
     def deactivate(self, try_count=5, verbose=False):
         if verbose:
             sys.stdout.write(' - Deactivate all RTCs\n')
+        file = self.system_file
         for i in range(0, try_count):
-            file = self.system_file
             if run.exe_rtstop(file):
                 return True
             time.sleep(1)

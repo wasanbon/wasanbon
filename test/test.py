@@ -50,7 +50,7 @@ class WSBTest(unittest.TestCase):
         self.assertFalse(pack_name in [p.name for p in package.get_packages()])
 
     def test_cxx_package_clone(self):
-        pack_name = 'tutorial01'
+        pack_name = 'test_project01'
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'clone', pack_name]), 0)
         self.assertTrue(pack_name in [p.name for p in package.get_packages()])
 
@@ -59,13 +59,34 @@ class WSBTest(unittest.TestCase):
         for r in package.get_package(pack_name).rtcs:
             self.assertTrue(len(r.packageprofile.getRTCFilePath())!=0 or len(r.packageprofile.getRTCExecutableFilePath())!=0)
 
+        p = subprocess.Popen(['./mgr.py', 'system', 'run', '-v'])
+        i = 0
+        while True:
+            i = i+1
+            if i > 450:
+                sys.stdout.write(' ----- Timeout!\n')
+                break
+
+            time.sleep(0.1)
+            if os.path.isfile(os.path.join(os.getcwd(), 'testout.txt')):
+                sys.stdout.write(' --- FOUND!\n')
+                f = open('testout.txt', 'r')
+                self.assertEqual(f.read()[0:1], '1')
+                break
+
+        print 'terminating'
+        subprocess.call(['./mgr.py', 'system', 'terminate'])
+        print 'waiting....'
+        p.wait()
         os.chdir('..')
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'delete', pack_name]), 0)
         self.assertFalse(pack_name in [p.name for p in package.get_packages()])
 
+        if i > 450:
+            self.assertEqual(1, 0)
 
     def test_python_package_clone(self):
-        pack_name = 'wsb_test_py_project'
+        pack_name = 'test_project02'
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'clone', pack_name]), 0)
         self.assertTrue(pack_name in [p.name for p in package.get_packages()])
 
@@ -74,13 +95,31 @@ class WSBTest(unittest.TestCase):
         for r in package.get_package(pack_name).rtcs:
             self.assertTrue(len(r.packageprofile.getRTCFilePath())!=0 or len(r.packageprofile.getRTCExecutableFilePath())!=0)
 
-        self.assertEqual(subprocess.call(['./mgr.py', 'system', 'run', '-f']), 0) 
-        time.sleep(5)
-        sel
+        p = subprocess.Popen(['./mgr.py', 'system', 'run', '-v'])
+        i = 0
+        while True:
+            i = i+1
+            if i > 450:
+                sys.stdout.write(' ----- Timeout!\n')
+                break
 
+            time.sleep(0.1)
+            if os.path.isfile(os.path.join(os.getcwd(), 'testout.txt')):
+                sys.stdout.write(' --- FOUND!\n')
+                f = open('testout.txt', 'r')
+                self.assertEqual(f.read()[0:1], '1')
+                break
+
+        print 'terminating'
+        subprocess.call(['./mgr.py', 'system', 'terminate'])
+        print 'waiting....'
+        p.wait()
         os.chdir('..')
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'delete', pack_name]), 0)
         self.assertFalse(pack_name in [p.name for p in package.get_packages()])
+
+        if i > 450:
+            self.assertEqual(1, 0)
 
 
     def test_java_package_clone(self):

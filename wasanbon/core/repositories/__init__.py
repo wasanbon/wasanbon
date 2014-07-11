@@ -5,7 +5,9 @@ from wasanbon.util import git
 
 owner_sign = '_owner'
 
-def create_local_repository(user, passwd, repo_name='wasanbon_repositories', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False, service='github'):
+default_repo_directory = os.path.join(wasanbon.rtm_home(), 'binder')
+
+def create_local_repository(user, passwd, repo_name='wasanbon_binder', repo_dir=default_repo_directory, verbose=False, service='github'):
     if verbose:
         sys.stdout.write(' - Initializing Your Repository\n')
         pass
@@ -22,7 +24,7 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
             download_repository(url=url, target_path=target_path, verbose=verbose)
             return True
         repo_obj = github_obj.fork_repo('sugarsweetrobotics', 
-                                        'wasanbon_repositories_template',
+                                        'wasanbon_binder_template',
                                         repo_name, verbose=verbose)
 
     elif service=='bitbucket':
@@ -36,7 +38,7 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
             download_repository(url=url, target_path=target_path, verbose=verbose)
             return True
         repo_obj = _obj.fork_repo('sugarsweetrobotics', 
-                                  'wasanbon_repositories_template',
+                                  'wasanbon_binder_template',
                                   repo_name, verbose=verbose)
     else:
         if verbose:
@@ -46,7 +48,7 @@ def create_local_repository(user, passwd, repo_name='wasanbon_repositories', rep
     return True
 
 
-def destroy_local_repository(user, passwd, repo_name='wasanbon_repositories', verbose=False, service='github', repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories')):
+def destroy_local_repository(user, passwd, repo_name='wasanbon_binder', verbose=False, service='github', repo_dir=default_repo_directory):
     if service=='github':
         import github_api
 
@@ -67,26 +69,26 @@ def destroy_local_repository(user, passwd, repo_name='wasanbon_repositories', ve
     shutil.rmtree(target_path)
     return True
 
-def owner_repository_path(user, repo_name='wasanbon_repositories'):
+def owner_repository_path(user, repo_name='wasanbon_binder'):
     _repository_path = repository_path()
     target_path = os.path.join(_repository_path, user + owner_sign, repo_name + '.git')
     return target_path
 
-def is_local_owner_repository(user, repo_name='wasanbon_repositories'):
+def is_local_owner_repository(user, repo_name='wasanbon_binder'):
     target_path = owner_repository_path(user, repo_name)
     return os.path.isdir(target_path)
 
 def get_owner_repository_username_list(verbose=False):
-    repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
+    repo_dir = default_repo_directory
     owner_name_list = []
     for user in os.listdir(repo_dir):
         if user.endswith(owner_sign):
             owner_name_list.append(user[:-len(owner_sign)])
     return owner_name_list
 
-def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repositories', verbose=False):
+def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_binder', verbose=False):
     if verbose:
-        sys.stdout.write(' - Append RTC repository to owner repository\n')
+        sys.stdout.write(' - Append RTC repository to owner repository to %s\n' % (filename))
     if not is_local_owner_repository(user):
         if verbose:
             sys.stdout.write(' @ Not found owner repository\n')
@@ -100,8 +102,7 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
     y = yaml.load(open(target_path, 'r'))
     if type(y) == types.DictType:
         if rtc_obj.name in y.keys():
-            if verbose:
-                sys.stdout.write(' @ Your own repository already have repository %s\n' % rtc_obj.name)
+            sys.stdout.write(' @ Your own repository already have repository %s\n' % rtc_obj.name)
             return False
     shutil.copyfile(target_path, target_path + '.bak')
     fin = open(target_path+'.bak', 'r')
@@ -132,7 +133,7 @@ def append_rtc_repo_to_owner(user, filename,  rtc_obj, repo_name='wasanbon_repos
 
 def parse_rtc_repo_dir(repo_dir="", verbose=False):
     if len(repo_dir) == 0:
-        repo_dir = os.path.join(wasanbon.rtm_home(), 'repositories')
+        repo_dir = default_repo_directory
         pass
     paths = []
     for root, dirs, files in os.walk(repo_dir):
@@ -145,7 +146,7 @@ def parse_rtc_repo_dir(repo_dir="", verbose=False):
             traceback.print_exc()
     return paths
 
-def load_repositories(repo_dir=os.path.join(wasanbon.rtm_home(), 'repositories'), verbose=False):
+def load_repositories(repo_dir=default_repo_directory, verbose=False):
     rtc_repos = {}
     package_repos = {}
 
@@ -224,7 +225,7 @@ def platform_check(args, verbose=False):
 
 
 def repository_path(url=None):
-    root = os.path.join(wasanbon.rtm_home(), 'repositories')
+    root = default_repo_directory
     if url:
         root = os.path.join(root, url.split('/')[-2])
     return root
@@ -251,13 +252,13 @@ def download_repository(url, target_path='',verbose=False, force=False):
         pass
 
     if verbose:
-        sys.stdout.write('    - Parsing child repositories\n')
+        sys.stdout.write('    - Parsing child Binder\n')
     setting_file_path = os.path.join(target_path, 'setting.yaml')
     if os.path.isfile(setting_file_path):
         with open(setting_file_path, 'r') as setting_file:
             setting = yaml.load(setting_file)
             if type(setting) is types.DictType:
-                child_repos = setting.get('child_repositories', [])
+                child_repos = setting.get('child_binder', [])
                 for repo in child_repos:
                     download_repository(repo, verbose=verbose, force=force)
     pass
@@ -301,7 +302,7 @@ def upload_repositories(comment, verbose=False):
     pass
 
 
-def append_package_repo_to_owner(user, filename,  package_obj, repo_name='wasanbon_repositories', verbose=False):
+def append_package_repo_to_owner(user, filename,  package_obj, repo_name='wasanbon_binder', verbose=False):
     if verbose:
         sys.stdout.write(' - Append Package repository to owner repository\n')
     if not is_local_owner_repository(user):
