@@ -134,7 +134,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         from wasanbon.util.git import git_obj
         repo = git_obj.GitRepository(rtc_.path)
 
-        user, passwd = wasanbon.user_pass()
+        user, passwd = wasanbon.user_pass(options.username, options.password)
 
         #rtc_.github_init(user, passwd, verbose=verbose)
         if options.service == 'github':

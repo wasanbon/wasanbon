@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os, sys, subprocess, time, yaml
 
 import wasanbon
@@ -20,6 +22,9 @@ class WSBTest(unittest.TestCase):
         pass
 
     def test_rtc_create_delete(self):
+        """
+        RTCの作成と削除のテスト
+        """
         pack_name = 'wasanbon_test_package'
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'create', pack_name]), 0)
         self.assertTrue(pack_name in [p.name for p in package.get_packages()])
@@ -36,12 +41,21 @@ class WSBTest(unittest.TestCase):
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'delete', pack_name]), 0)
         self.assertFalse(pack_name in [p.name for p in package.get_packages()])
 
+    def test_rtc_repository_create_delete(self):
+        pass
+
     def test_repository_create_delete(self):
+        """
+        github.comへのバインダーの作成と削除のテスト
+        """
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'repository', 'create', '-f', '-u', user_name, '-p', password]), 0)
         self.assertTrue(repositories.is_local_owner_repository(user_name))
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'repository', 'destroy', '-f', '-u', user_name, '-p', password]), 0)
 
     def test_package_create_delete(self):
+        """
+        パッケージの作成と削除テスト
+        """
         pack_name = 'wasanbon_test_package'
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'create', pack_name]), 0)
         self.assertTrue(pack_name in [p.name for p in package.get_packages()])
@@ -50,6 +64,9 @@ class WSBTest(unittest.TestCase):
         self.assertFalse(pack_name in [p.name for p in package.get_packages()])
 
     def test_cxx_package_clone(self):
+        """
+        C++版のRTシステムのクローンと動作確認
+        """
         pack_name = 'test_project01'
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'clone', pack_name]), 0)
         self.assertTrue(pack_name in [p.name for p in package.get_packages()])
