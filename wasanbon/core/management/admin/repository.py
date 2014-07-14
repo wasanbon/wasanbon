@@ -256,7 +256,8 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             if owner_name.endswith(repositories.owner_sign):
                 editor.edit_dirs([os.path.join(path, 'rtcs'), os.path.join(path, 'packages')])
                 return
-
+    else:
+        raise wasanbon.InvalidUsageException()
             
 def print_rtc_profile(rtcp, long=False):
     from wasanbon.core import rtc

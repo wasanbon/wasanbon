@@ -28,10 +28,28 @@ def github_init(user, passwd, rtc_, verbose=False):
     Add upsatream
     """
     from wasanbon.core.repositories import github_api
+    if verbose: sys.stdout.write(' - Initializing github.com repository.\n')
     github_obj = github_api.GithubReference(user, passwd)
     repo = github_obj.create_repo(rtc_.name)
     git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
-    git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
+    
+    #git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=rtc_.path, interactive=True)
+    rtc_.push(verbose=verbose, username=user, password=passwd)
+    return rtc_
+
+
+def github_delete(user, passwd, rtc_, verbose=False):
+    from wasanbon.core.repositories import github_api
+    if verbose: sys.stdout.write(' - Removing github.com repository.\n')
+    github_obj = github_api.GithubReference(user, passwd)
+    try:
+        repo = github_obj.delete_repo(rtc_.name)
+    except:
+        sys.stdout.write(' @ Failed to remove remote repository.\n')
+        sys.stdout.write(' @ Proceed to remove local config of origin.\n')
+        pass
+    git.git_command(['remote', 'del', 'origin', 'https://github.com/' + user + '/' + rtc_.name + '.git'], verbose=verbose, path=rtc_.path, interactive=True)
+    #rtc_.push(verbose=verbose, username=user, password=passwd)
     return rtc_
 
 def bitbucket_init(user, passwd, rtc_, verbose=False):

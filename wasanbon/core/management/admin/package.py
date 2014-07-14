@@ -153,6 +153,16 @@ def execute_with_argv(argv, verbose):
         for rtc_repo in _package.rtc_repositories:
             sys.stdout.write('    @ Cloning RTC (%s)\n' % rtc_repo.name)
             rtc_ = rtc_repo.clone(path=_package.rtc_path, verbose=verbose)
+        sys.stdout.write(' - Enjoy.\n')
+        sys.stdout.write(' - Next Step : $ wasanbon-cd %s\n' % args[3])
+        if sys.platform == 'win32':
+            cmd = 'mgr.py'
+
+        else:
+            cmd = './mgr.py'
+        sys.stdout.write(' -             $ %s rtc build all # Build all RTCs\n' % cmd)
+        sys.stdout.write(' -             $ %s system configure # Configure System Interactively\n' % cmd)
+        sys.stdout.write(' -             $ %s system run # Run System\n' % cmd)
         
     elif args[2] == 'fork':
         repo = _fork(args, verbose, force, clean)
@@ -224,7 +234,7 @@ def _unregister(args, verbose, force, clean):
 
 def _delete(args, verbose):
     wasanbon.arg_check(args, 4)
-    sys.stdout.write(' @ Removing workspace %s\n' % args[3])
+    sys.stdout.write(' @ Removing package %s\n' % args[3])
     dic = workspace.load_workspace()
     if not args[3] in dic.keys():
         sys.stdout.write(' - Can not find package %s\n' % args[3])

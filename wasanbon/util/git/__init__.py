@@ -69,7 +69,9 @@ def git_command(commands, path='.', verbose = False, pipe=False, interactive=Fal
         sys.stdout.write('\n')
 
     if not pipe:
-        p = subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+        #p = subprocess.call(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+        p = subprocess.Popen(cmd, env=gitenv, stdout=stdout, stderr=stderr)
+        p.wait()
     else:
         p = subprocess.Popen(cmd, env=gitenv, stdout=stdout, stderr=stderr)
     os.chdir(cur_dir)

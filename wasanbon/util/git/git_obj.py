@@ -1,5 +1,5 @@
 #from wasanbon.util import git
-import os
+import os, sys
 #import . as git
 import wasanbon
 import wasanbon.util.git 
@@ -13,10 +13,12 @@ class GitRepository():
         self._path = path
         if not os.path.isdir(os.path.join(path, '.git')):
             if not init:
+                if verbose: sys.stdout.write(' @ .git directory not found.\n')
                 raise wasanbon.RepositoryNotFoundException()
             self.init(verbose=verbose, ignore=ignore)
 
     def init(self, verbose=False, ignore=[]):
+        if verbose: sys.stdout.write(' - Initializing Git Repository.\n')
         curdir = os.getcwd()
         os.chdir(self.path)
         wasanbon.util.git.git_command(['init'], verbose=verbose, path=self.path)
@@ -56,10 +58,24 @@ class GitRepository():
         os.chdir(curdir)
         pass
 
-    def push(self, verbose=False):
+    def push(self, verbose=False, username=None, password=None):
         curdir = os.getcwd()
         os.chdir(self.path)
+        if username:
+            p = wasanbon.util.git.git_command(['config', '--get', 'remote.origin.url'], verbose=False)
+            origin = p.stdout.read().strip()
+            if verbose: sys.stdout.write(' - origin: %s\n' % origin)
+            if origin.find('@') < 0:
+                origin_new = 'https://' + username + ':' + password + '@' + origin.split('://')[1]
+                if verbose: sys.stdout.write(' - Update origin url to %s\n' % origin_new)
+                wasanbon.util.git.git_command(['remote', 'set-url', '--push', 'origin', origin_new], verbose=verbose)
+            else:
+
+                pass
         wasanbon.util.git.git_command(['push', 'origin', 'master'], verbose=verbose)
+        if username:
+            if verbose: sys.stdout.write(' - Update origin url to %s\n' % origin)
+            wasanbon.util.git.git_command(['remote', 'set-url', '--push', 'origin', origin], verbose=verbose)
         os.chdir(curdir)
         pass
 

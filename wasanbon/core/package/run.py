@@ -128,7 +128,6 @@ def exe_rtstart(file=None):
     return rtstart.main([file]) == 0
 
 def exe_rtstop(file=None):
-    print 'rtstop'
     if not file:
         file = wasanbon.setting()['application']['system']
     return rtstop.main([file]) == 0

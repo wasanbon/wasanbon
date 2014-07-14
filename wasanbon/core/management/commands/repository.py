@@ -79,7 +79,7 @@ from wasanbon.core import rtc, package, tools
 
 
 def alternative(argv=None):
-    return_rtc_cmds = ['init', 'fini', 'remote_add', 'remote_del', 'remote_create', 'commit', 'pull', 'push', 'status']
+    return_rtc_cmds = ['init', 'fini', 'remote_add', 'remote_delete', 'remote_create', 'commit', 'pull', 'push', 'status']
     return_repo_cmds = ['review']
     all_cmds = ['list'] + return_rtc_cmds + return_repo_cmds
     if argv and len(argv) >= 3:
@@ -104,10 +104,11 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
     parser.add_option('-u', '--username', help='set username of service',  default=None, metavar='USER', dest='username')
     parser.add_option('-p', '--password', help='set password of service',  default=None, metavar='PASSWORD', dest='password')
+    parser.add_option('-n', '--not_append', help='not append to local binder', action='store_true', default=False, dest='not_append_flag')
     try:
         options, argv = parser.parse_args(args[:])
     except:
-        return
+        raise wasanbon.InvalidUsageException()
 
     wasanbon.arg_check(argv, 3)
     _package = package.Package(os.getcwd())
@@ -124,15 +125,39 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
         rtc_.git_init(verbose=verbose)
-        
+
+    elif argv[2] == 'remote_delete':
+        wasanbon.arg_check(argv, 4)
+
+        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
+        if verbose: sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
+
+        from wasanbon.util.git import git_obj
+        repo = git_obj.GitRepository(rtc_.path, verbose=verbose)
+
+        user, passwd = wasanbon.user_pass(options.username, options.password)
+        if options.service == 'github':
+            rtc.github_delete(user, passwd, rtc_, verbose=verbose)
+        elif options.service == 'bitbucket':
+            sys.stdout.write(' - bitbucket service is selected.\n')
+            rtc.bitbucket_delete(user, passwd, rtc_, verbose=verbose)
+        else:
+            raise wasanbon.InvalidUsageException()
+        if verbose: sys.stdout.write(' @ Updating repository infomation\n')
+        _package.remove_rtc_repository(rtc_.repository)
+        if not options.not_append_flag:
+            owner_del(_package, argv[3], verbose=verbose)
+            pass
+        pass
+
     elif argv[2] == 'remote_create':
         wasanbon.arg_check(argv, 4)
 
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
+        if verbose: sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
 
         from wasanbon.util.git import git_obj
-        repo = git_obj.GitRepository(rtc_.path)
+        repo = git_obj.GitRepository(rtc_.path, verbose=verbose)
 
         user, passwd = wasanbon.user_pass(options.username, options.password)
 
@@ -144,9 +169,10 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             rtc.bitbucket_init(user, passwd, rtc_, verbose=verbose)
         else:
             raise wasanbon.InvalidUsageException()
-        sys.stdout.write(' @ Updating repository infomation\n')
+        if verbose: sys.stdout.write(' @ Updating repository infomation\n')
         _package.append_rtc_repository(rtc_.repository)
-        owner_add(_package, argv[3])
+        if not options.not_append_flag:
+            owner_add(_package, argv[3], verbose=verbose)
         
 
     #elif argv[2] == 'owner_add':
@@ -176,7 +202,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Pushing RTC repository  %s to upstream.\n' % argv[3])
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        rtc_.push(verbose=True) # when pushing always must be verbose 
+        rtc_.push(verbose=True, username=options.username, password=options.password) # when pushing always must be verbose 
 
     elif argv[2] == 'pull':
         wasanbon.arg_check(argv, 4)
@@ -196,6 +222,9 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         #user, passwd = wasanbon.user_pass(options.username, options.password)
         rtcp = wasanbon.core.rtc.get_repository(argv[3]).get_rtcprofile(verbose=verbose, service=options.service)
         print_rtc_profile(rtcp, long=True)
+    
+    else:
+        raise wasanbon.InvalidUsageException()
         
 def print_rtc_profile(rtcp, long=False):
     str = ' - ' + rtcp.basicInfo.name + '\n'

@@ -669,7 +669,6 @@ class Package():
         self.terminate_rtcd('C++', verbose=verbose)
         self.terminate_rtcd('Python', verbose=verbose)
         self.terminate_rtcd('Java', verbose=verbose)
-
         return True
 
     """

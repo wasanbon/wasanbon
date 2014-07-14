@@ -95,13 +95,21 @@ class RtcObject():
         git_obj.commit(first_comment, verbose=verbose)
         return self.git
 
+    """
     def github_init(self, user, passwd, verbose=False):
-        github_obj = github_api.GithubReference(user, passwd)
-        repo = github_obj.create_repo(self.name)
+        if verbose: sys.stdout.write(' - Initializing Github.com repository.\n')
+        try:
+            github_obj = github_api.GithubReference(user, passwd)
+            if verbose: sys.stdout.write(' - Creating repository in github.com\n')
+            repo = github_obj.create_repo(self.name)
+        except:
+            
+            return self
         git.git_command(['remote', 'add', 'origin', 'https://github.com/' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
-        git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)    
+        #git.git_command(['push', '-u', 'origin', 'master'], verbose=verbose, path=self.path)    
+        self.git.push(verbose=verbose, username=user, password=passwd)
         return self
-
+    """
     def github_pullrequest(self, user, passwd, title, body, verbose=False):
         github_obj = github_api.GithubReference(user, passwd)
         github_obj.pullrequest(self.repository.url, title, body, verbose=verbose)
@@ -133,8 +141,8 @@ class RtcObject():
         self.git.pull(verbose=verbose)
         return self
 
-    def push(self, verbose=False):
-        self.git.push(verbose=verbose)
+    def push(self, verbose=False, username=None, password=None):
+        self.git.push(verbose=verbose, username=username, password=password)
         return self
 
     def status(self, verbose=True):

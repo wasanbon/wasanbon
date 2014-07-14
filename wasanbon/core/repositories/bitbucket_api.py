@@ -71,7 +71,6 @@ class BitbucketReference():
                 sys.stdout.write(' Create Repository in bitbucket Failed.\n')
                 sys.stdout.write(' -- %s\n' % cmt)
             return None
-
         return True
         
     def fork_repo(self, user, name, newname, verbose=False):

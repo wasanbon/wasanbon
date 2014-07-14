@@ -407,7 +407,8 @@ def _run(_package, verbose=False, force=False, interactive=False):
     except wasanbon.BuildSystemException, ex:
         traceback.print_exc()
         pass
-    package.deactivate_system(_package)
-    package.stop_system(_package, verbose=verbose)
+    if not package.is_shutdown(_package):
+        package.deactivate_system(_package)
+        package.stop_system(_package, verbose=verbose)
     package.kill_nameservers(_package, verbose=verbose)
 
