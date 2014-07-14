@@ -257,7 +257,7 @@ class PythonPackageUseCase(unittest.TestCase):
 
 
 class JavaPackageUseCase(unittest.TestCase):
-    pack_name = 'simvehicle'
+    pack_name = 'test_project03'
     def setUp(self):
         sys.stdout.write('-------------- %s ---------------\n' % self.__class__.__name__)
         self.cwd = os.getcwd()
@@ -267,17 +267,46 @@ class JavaPackageUseCase(unittest.TestCase):
         os.chdir(self.cwd)
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'delete', self.pack_name]), 0)
         self.assertFalse(self.pack_name in [p.name for p in package.get_packages()])
+
         pass
+
 
     def runTest(self):
         self.assertEqual(subprocess.call(['wasanbon-admin.py', 'package', 'clone', self.pack_name]), 0)
         self.assertTrue(self.pack_name in [p.name for p in package.get_packages()])
+
         os.chdir(self.pack_name)
         self.assertEqual(subprocess.call(['./mgr.py', 'rtc', 'build', 'all']), 0)
         for r in package.get_package(self.pack_name).rtcs:
             self.assertTrue(len(r.packageprofile.getRTCFilePath())!=0 or len(r.packageprofile.getRTCExecutableFilePath())!=0)
-            pass
-        pass
+
+        p = subprocess.Popen(['./mgr.py', 'system', 'run', '-v'])
+        i = 0
+        while True:
+            i = i+1
+            if i > 450:
+                raise TimeoutException()
+
+            time.sleep(0.1)
+            if os.path.isfile(os.path.join(os.getcwd(), 'testout.txt')):
+                sys.stdout.write(' - testout.txt found. The value must be 1\n')
+                f = open('testout.txt', 'r')
+                self.assertEqual(f.read()[0:1], '1')
+                break
+
+        print ' - Terminating'
+        subprocess.call(['./mgr.py', 'system', 'terminate', '-v'])
+        print ' - Waiting....'
+        i = 0
+        while True:
+            i = i+1
+            if i > 300:
+                raise TimeoutException()
+            time.sleep(0.1)
+            p.poll()
+            if p.returncode != None:
+                break
+
 
 if __name__ == '__main__':
     unittest.main()
