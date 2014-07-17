@@ -203,7 +203,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
         # if argument is url, then, clone by git command
         if is_url(argv[3]):
-            _clone_from_url(_package, argv[3], verbose=verbose)
+            rtc_ = _clone_from_url(_package, argv[3], verbose=verbose)
 
         else:
             for name in argv[3:]:
@@ -213,6 +213,8 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                 except wasanbon.RTCProfileNotFoundException, e:
                     rtc_ = get_rtc_rtno(_package, name, verbose=verbose)
 
+        if rtc_ == None:
+            raise wasanbon.RepositoryNotFoundException()
         _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
     elif argv[2] == 'fork':

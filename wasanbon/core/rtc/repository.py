@@ -75,6 +75,9 @@ class RtcRepository():
                 return None
         
         git.git_command(['clone', self.url, distpath], verbose=verbose)
+        distpath_full = os.path.join(os.getcwd(), distpath)
+        if not os.path.isdir(distpath_full):
+            return None
         os.chdir(os.path.join(os.getcwd(), distpath))
 
         #if len(self.hash) != 0:
