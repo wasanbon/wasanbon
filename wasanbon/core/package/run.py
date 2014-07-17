@@ -29,11 +29,11 @@ def disable_sig():
     SIG_BLOCK = 0
     libc.sigprocmask(SIG_BLOCK, pointer(mask), 0)
 
-def start_rtcd(language, filepath, verbose=False):
+def start_rtcd(pkg, language, filepath, verbose=False):
     if language == 'C++':
         return start_cpp_rtcd(filepath, verbose=verbose)
     elif language == 'Java':
-        return start_java_rtcd(filepath, verbose=verbose)
+        return start_java_rtcd(pkg, filepath, verbose=verbose)
     elif language == 'Python':
         return start_python_rtcd(filepath, verbose=verbose)
     else:
@@ -76,7 +76,7 @@ def start_python_rtcd(filepath, verbose=False):
     #p.stdin.write('N\n')
     return p
  
-def start_java_rtcd(filepath, verbose=False):
+def start_java_rtcd(pkg, filepath, verbose=False):
     if verbose:
         sys.stdout.write(' - Starting Java rtcd.\n')
 
@@ -100,6 +100,11 @@ def start_java_rtcd(filepath, verbose=False):
     for jarfile in os.listdir(rtm_java_classpath):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
     #java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':bin/LeapTest.jar'
+
+    for r in pkg.rtcs:
+        for jarfile in [j for j in os.listdir(os.path.join(r.path, 'jar')) if j.endswith('.jar')]:
+            java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(r.path, 'jar', jarfile)
+
     args['env'] = java_env
     
     cmd = [wasanbon.setting()['local']['java'], 'rtcd.rtcd', '-f', filepath]

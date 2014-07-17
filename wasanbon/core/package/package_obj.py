@@ -536,7 +536,7 @@ class Package():
         if len(self.installed_rtcs(language=language, verbose=verbose)) > 0:
             if verbose:
                 sys.stdout.write(' -Starting RTC-Daemon %s version.\n' % language)
-            self._process[language]    = run.start_rtcd(language, rtcconf, 
+            self._process[language]    = run.start_rtcd(self, language, rtcconf, 
                                                         language in self.console_bind)
             if verbose:
                 sys.stdout.write('    - Save rtcd_'+language+'_' + str(self._process[language].pid) + '\n')
