@@ -108,7 +108,7 @@ def start_java_rtcd(pkg, filepath, verbose=False):
                 if not jarfile in rtm_jars:
                     java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(r.path, 'jar', jarfile)
 
-    print java_env
+    #print java_env
 
     args['env'] = java_env
     
