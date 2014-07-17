@@ -101,9 +101,14 @@ def start_java_rtcd(pkg, filepath, verbose=False):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
     #java_env["CLASSPATH"]=java_env["CLASSPATH"] + ':bin/LeapTest.jar'
 
+    rtm_jars = [j for j in os.listdir(rtm_java_classpath) if j.endswith('.jar')]
     for r in pkg.rtcs:
-        for jarfile in [j for j in os.listdir(os.path.join(r.path, 'jar')) if j.endswith('.jar')]:
-            java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(r.path, 'jar', jarfile)
+        if os.path.isdir(os.path.join(r.path, 'jar')):
+            for jarfile in [j for j in os.listdir(os.path.join(r.path, 'jar')) if j.endswith('.jar')]:
+                if not jarfile in rtm_jars:
+                    java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(r.path, 'jar', jarfile)
+
+    print java_env
 
     args['env'] = java_env
     
