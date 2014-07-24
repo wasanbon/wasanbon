@@ -42,12 +42,12 @@ def get_rtc_java_name_list(rtc_name):
 #################
 class InvalidRTCProfileError(Exception):
     def __init__(self, filename='', msg_=''):
-        self.filename = filename
+        self._filename = filename
         self.msg = msg_
         pass
 
     def __str__(self):
-        return 'InvalidRTCProfileError(%s):%s' % (self.filename, self.msg)
+        return 'InvalidRTCProfileError(%s):%s' % (self.path, self.msg)
 
 
 
@@ -225,9 +225,9 @@ class RTCProfile(Node):
     def __init__(self, filename="", str=""):
         try:
             # print str
-            self.filename = filename
+            self._filename = filename
             if len(filename) > 0:
-                et = xml.etree.ElementTree.parse(self.filename)
+                et = xml.etree.ElementTree.parse(self.path)
                 root = et.getroot()
             elif len(str) > 0:
                 root = xml.etree.ElementTree.fromstring(str)
@@ -288,8 +288,18 @@ class RTCProfile(Node):
         return self.getName() + " in " + self.getLanguage()
         pass
 
+
+    @property
+    def filename(self):
+        #return os.path.basename(self._filename)
+        return self._filename
+
+    @property
+    def path(self):
+        return self._filename
+
     def getRTCProfileFileName(self):
-        return self.filename
+        return self.path
 
     def getCategory(self):
         return self.basicInfo.category

@@ -117,7 +117,7 @@ ja_JP:
    Add InPort to RTC
 """
 
-import os, sys, optparse, yaml, types, traceback, signal, threading, time
+import os, sys, optparse, yaml, types, traceback, signal, threading, time, shutil, filecmp
 import wasanbon
 from wasanbon.core import package as pack
 from wasanbon.core import rtc, tools, repositories
@@ -127,7 +127,7 @@ from wasanbon import util
 ev = threading.Event()
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify', 'addInPort', 'addOutPort']
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify', 'addInPort', 'addOutPort', 'distribute', 'dist_clean', 'dist_bak_clean']
     return_rtc_repos = ['clone']
     all_rtcs = ['list', 'create'] + return_rtcs + return_rtc_repos
     if argv:
@@ -361,61 +361,24 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             util.choice(choice1, callback1, msg)
             rtcc.sync(verbose=verbose)
                 # del(rtcc)
-            print target
+            #print target
             rtcc = wasanbon.core.rtc.RTCConf(target)
             for key in rtcc.keys():
                 print ' -- %s:%s' % (key, rtcc[key])
 
-    elif argv[2] == 'release':
+    elif argv[2] == 'distribute':
         wasanbon.arg_check(argv,4)
-        rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        name = rtc_.name
-        url = rtc_.repository.url
-        repo_type = 'git'
-        description = raw_input(" - Input explanation of your RTC :")
-        sys.stdout.write(' - Your current platform is %s.\n' % wasanbon.platform)
-        platform_str = raw_input(" - Input your RTC's platform:")
-        platform = yaml.safe_load(platform_str)
-        if not type(platform) is types.ListType:
-            platform = [platform]
-            
-        sys.stdout.write(' - Checking out the RTC repository %s\n' % name)
+        _distribute(_package, argv[3], verbose=verbose)
 
-        paths = repositories.parse_rtc_repo_dir()
-        for path in paths:
-            owner_name = os.path.basename(os.path.dirname(path))
-            if owner_name.endswith(repositories.owner_sign):
-                file_list = [f for f in os.listdir(os.path.join(path, 'rtcs')) if f.endswith('.yaml')]
-                file_list.append('Create New Repository File:')
-                def function01(num):
-                    if num == len(file_list)-2:
-                        while True:
-                            sys.stdout.write(' @ Input Filename:')
-                            filename = raw_input()
-                            if not filename.endswith('.yaml'):
-                                sys.stdout.write(' @@ Filename must be ended with .yaml\n')
-                                continue
-                            break
-                        file = os.path.join(path, 'rtcs', filename)
-                        open(file, 'w').close()
-                        git.git_command(['add', filename], path=os.path.join(path, 'rtcs'), verbose=verbose)
-                    else:
-                        file = os.path.join(path, 'rtcs', file_list[num])
-                    y = yaml.safe_load(open(file, 'r'))
-                    if name in y.keys():
-                        sys.stdout.write(' @ Error. RTC(%s) is already released.\n' % name)
-                        return True
-                    f = open(file, 'a')
-                    f.write('\n%s :\n' % name)
-                    f.write('  type : %s\n' % repo_type)
-                    f.write('  url  : %s\n' % url)
-                    f.write('  description : %s\n' % description)
-                    f.write('  platform : %s\n' % platform)
-                    f.close()
-                    sys.stdout.write(' - Updated.\n')
-                    sys.stdout.write(' - If you want to confirm the update, use "wasanbon-admin.py repository status"\n')
-                    return True
-                util.choice(file_list, function01, ' - Select RTC repository file')
+    elif argv[2] == 'dist_clean':
+        wasanbon.arg_check(argv,4)
+        _distribute(_package, argv[3], verbose=verbose, clean=True)
+
+    elif argv[2] == 'dist_bak_clean':
+        wasanbon.arg_check(argv,4)
+        _distribute(_package, argv[3], verbose=verbose, bakclean=True)
+
+
     elif argv[2] == 'verify':
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' @ Executing RTC %s\n' % argv[3])
@@ -536,6 +499,67 @@ def _run(_package, rtcname, verbose=False, force=False):
         sys.stdout.write(' -- Aborted.\n')
     _package.terminate_rtcd(rtc_.language, verbose=True)
     pack.kill_nameservers(_package, verbose=verbose)            
+
+
+def _distribute(_pkg, _rtc_name, verbose=False, clean=False, bakclean=False):
+    sys.stdout.write(' - Prepare distributing RTC binaries.\n')
+    rtc_ = get_rtc_rtno(_pkg, _rtc_name, verbose=verbose)
+    if rtc_.language == 'Python':
+        raise wasanbon.UnsupportedLanguageException()
+
+    base_dir = rtc_.path
+    dist_dir = 'distribution'
+    target_dir = os.path.join(dist_dir, rtc_.name)
+
+    if clean:
+        if os.path.isdir(target_dir):
+            for f in os.listdir(target_dir):
+                os.remove(os.path.join(target_dir, f))
+        return
+
+    elif bakclean:
+        if os.path.isdir(target_dir):
+            for f in os.listdir(target_dir):
+                if f.endswith('.bak'):
+                    os.remove(os.path.join(target_dir, f))
+        return
+        
+
+    if not os.path.isdir(target_dir):
+        os.makedirs(target_dir)
+
+    rtcp = rtc_.rtcprofile
+    pack = rtc_.packageprofile
+    files = [
+        rtcp.path,
+        os.path.join(_pkg.bin_path, pack.bin_filename),
+        os.path.join(_pkg.conf_path, pack.conf_filename),
+        os.path.join(base_dir, 'COPYING'),
+        os.path.join(base_dir, 'COPYING.LESSER'),
+        
+        ]
+    
+    #print pack.conf_filename
+    for f in files:
+        tgt = os.path.join(target_dir, os.path.basename(f))
+        if os.path.isfile(f):
+            if os.path.isfile(tgt):
+                if filecmp.cmp(f, tgt):
+                    continue
+                os.rename(tgt, tgt + wasanbon.timestampstr() +'.bak')
+            if verbose: sys.stdout.write(' - Copying %s to %s.\n' % (f, tgt))
+            shutil.copy(f, tgt)
+
+    rtcconf = _pkg.rtcconf(rtc_.language)
+    rtc_temp = os.path.join(target_dir, "rtc.conf")
+    if os.path.isfile(rtc_temp):
+        os.rename(rtc_temp, rtc_temp + wasanbon.timestampstr() +'.bak')
+        pass
+    rtcconf.sync(verbose=True, outfilename=rtc_temp)
+    _pkg.uninstall(_pkg.rtcs, rtcconf_filename=rtc_temp, verbose=True)
+    _pkg.install(rtc_, rtcconf_filename=rtc_temp, copy_conf=False, copy_bin=False, conffile=pack.conf_filename, verbose=True)
+    pass
+
 
 def print_rtno(rtno, long=False):
     str = ' ' + rtno.name

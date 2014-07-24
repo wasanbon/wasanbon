@@ -4,6 +4,7 @@ import sys, os, locale, getpass #, yaml
 import platform as plt
 import types
 import codecs, subprocess
+import datetime
 #from help import *
 
 def get_version():
@@ -61,6 +62,11 @@ class RepositoryAlreadyExistsException(WasanbonException):
         return 'Repository Already Exists'
 
 class RTCNotFoundException(WasanbonException):
+    def msg(self):
+        return 'RTC Not Found'
+
+
+class NotFoundException(WasanbonException):
     def msg(self):
         return 'RTC Not Found'
 
@@ -135,6 +141,9 @@ tagdict = {'$HOME': get_home_path()}
 rtm_temp = ""
 rtm_home = ""
 
+
+def timestampstr():
+    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 def load_settings():
     global rtm_root, rtm_home

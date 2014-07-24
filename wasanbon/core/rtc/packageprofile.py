@@ -8,7 +8,7 @@ class PackageProfile(object):
     """
     def __init__(self, rtcp):
         self.rtcprofile = rtcp
-        [self.path, dummy] = os.path.split(rtcp.filename)
+        [self.path, dummy] = os.path.split(rtcp.path)
         self.bin = find_rtc_bin(rtcp)
         self.conf = find_rtc_conf(rtcp)
         self.sources = find_rtc_srcs(rtcp)
@@ -24,6 +24,14 @@ class PackageProfile(object):
     def getRTCFilePath(self, verbose=False):
         return self.bin
 
+    @property
+    def bin_filename(self):
+        return get_rtc_bin_filename(self.rtcprofile)
+
+    @property
+    def conf_filename(self):
+        return os.path.basename(self.conf)
+        
     def get_rtc_bin_filename(self):
         return get_rtc_bin_filename(self.rtcprofile)
 
@@ -92,7 +100,11 @@ def find_rtc_bin(rtcp):
 
     [path, file] = os.path.split(rtcp.filename)
 
-    rtcs_files = util.search_file(path, rtc_file_name_list)
+    try:
+        rtcs_files = util.search_file(path, rtc_file_name_list)
+    except OSError:
+        return ""
+
     rtcs_files_available = []
         
     for file in rtcs_files:
@@ -124,7 +136,11 @@ def on_multiple_rtcfile(files):
 def find_rtc_conf(rtcp):
     conf_file_name = rtcp.basicInfo.name + '.conf'
     [path, file] = os.path.split(rtcp.filename)
-    conf_files = util.search_file(path, conf_file_name)
+    try:
+        conf_files = util.search_file(path, conf_file_name)
+    except OSError:
+        return ""
+
     if len(conf_files) == 1:
         return conf_files[0]
     elif len(conf_files) == 0:

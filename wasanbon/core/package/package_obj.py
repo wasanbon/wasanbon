@@ -229,7 +229,23 @@ class Package():
             raise wasanbon.UnsupportedSystemException()
 
         rtcconf.remove('manager.components.precreate', name, verbose=verbose)
+        if len(rtcconf['manager.components.precreate'].strip()) == 0:
+            rtcconf.remove('manager.components.precreate')
+
         rtcconf.remove('manager.modules.preload', filename, verbose=verbose)
+        if len(rtcconf['manager.modules.preload'].strip()) == 0:
+            rtcconf.remove('manager.modules.preload')
+            rtcconf.remove('manager.modules.load_path')
+
+        keys = [rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '.config_file']
+        for i in range(0, 16):
+            keys.append(rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + str(i) + '.config_file')
+
+        for k in keys:
+            print ' - removing key :' , k
+            rtcconf.remove(k)
+
+
         rtcconf.sync()
 
         setting_filename = os.path.join(self.path, 'setting.yaml')
@@ -307,7 +323,7 @@ class Package():
                 return True
         return False
 
-    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False):
+    def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False, conffile=None):
 
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
@@ -363,7 +379,10 @@ class Package():
             if precreate:
                 rtcconf.append('manager.components.precreate', rtc_.rtcprofile.basicInfo.name)
 
-        confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose, force=copy_conf)
+        if conffile == None:
+            confpath = self.copy_conf_from_rtc(rtc_, verbose=verbose, force=copy_conf)
+        else:
+            confpath = conffile
         if confpath:
             key = rtc_.rtcprofile.basicInfo.category + '.' + rtc_.rtcprofile.basicInfo.name + '0.config_file'
             if verbose:
