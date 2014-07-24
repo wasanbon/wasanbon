@@ -13,6 +13,7 @@ def get_version():
     return "0.8.0"
 
 
+IDE = 'Visual Studio 10' if sys.platform == 'win32' else 'Makefile'
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 

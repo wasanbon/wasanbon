@@ -9,6 +9,7 @@ def build_rtc_cpp(rtcp, verbose=False):
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
 
+    arg = []
     if sys.platform == 'linux2' and platform.architecture()[0] == '64bit':
         if verbose:
             print ' - Detected 64bit linux2. modifying PKG_CONFIG_PATH environ.'
@@ -17,6 +18,8 @@ def build_rtc_cpp(rtcp, verbose=False):
         if verbose:
             print ' - Detected Darwin. modifying PKG_CONFIG_PATH environ.'
         os.environ['PKG_CONFIG_PATH'] = '/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/'
+    elif sys.platform == 'win32':
+        arg = ['-G', wasanbon.IDE]
 
     current_dir = os.getcwd()
     os.chdir(rtc_dir)
@@ -25,7 +28,7 @@ def build_rtc_cpp(rtcp, verbose=False):
             print ' - Creating build directory : %s' % build_dir
         os.makedirs(build_dir)
     os.chdir(build_dir)
-    cmd = [wasanbon.setting()['local']['cmake'], '..']
+    cmd = [wasanbon.setting()['local']['cmake'], '..'] + arg
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
     if verbose:
