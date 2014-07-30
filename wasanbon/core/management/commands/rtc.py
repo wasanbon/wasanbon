@@ -56,6 +56,16 @@ en_US:
    Create RT Component Skeleton Code
   verify : |
    Verify RTC Profile and RT Component by launching RT Component.
+   ex., $ mgr.py rtc verify YOUR_RTC_NAME
+  distribute : |
+   Create a directory which contains all binaries and setting files for the RTC distribution
+   ex., $ mgr.py rtc distribute YOUR_RTC_NAME
+  dist_cean : |
+   Remove the distribution directory
+   ex., $ mgr.py rtc dist_clean YOUR_RTC_NAME
+  dist_bak_clean : |
+   Remove backup files in distribution directory
+   ex., $ mgr.py rtc dist_bak_clean YOUR_RTC_NAME
 
 ja_JP:
  brief : |
@@ -115,6 +125,16 @@ ja_JP:
    Verify RTC Profile and RT Component by launching RT Component.
   addInPort : |
    Add InPort to RTC
+  distribute : |
+   Create a directory which contains all binaries and setting files for the RTC distribution
+   ex., $ mgr.py rtc distribute YOUR_RTC_NAME
+  dist_cean : |
+   Remove the distribution directory
+   ex., $ mgr.py rtc dist_clean YOUR_RTC_NAME
+  dist_bak_clean : |
+   Remove backup files in distribution directory
+   ex., $ mgr.py rtc dist_bak_clean YOUR_RTC_NAME
+
 """
 
 import os, sys, optparse, yaml, types, traceback, signal, threading, time, shutil, filecmp
@@ -127,7 +147,7 @@ from wasanbon import util
 ev = threading.Event()
 
 def alternative(argv=None):
-    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify', 'addInPort', 'addOutPort', 'distribute', 'dist_clean', 'dist_bak_clean']
+    return_rtcs = ['clean', 'build', 'delete', 'run', 'edit', 'configure', 'profile', 'verify', 'addInPort', 'addOutPort', 'distribute', 'dist_clean', 'dist_bak_clean', 'status']
     return_rtc_repos = ['clone']
     all_rtcs = ['list', 'create'] + return_rtcs + return_rtc_repos
     if argv:
@@ -190,6 +210,13 @@ def execute_with_argv(args, verbose, force=False, clean=False):
             print_rtc(rtc, long=options.long_flag)
         for rtno in tools.get_rtno_packages(_package, verbose=verbose):
             print_rtno(rtno, long=options.long_flag)
+
+    elif argv[2] == 'status':
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write(' # Status of RTC %s\n' % argv[3])
+        rtc_ = get_rtc_rtno(_package, argv[3])
+        print_rtc(rtc_, long=options.long_flag)
+        
     elif argv[2] == 'create':
         wasanbon.arg_check(argv, 4)
         sys.stdout.write(' # Creating RTC %s\n' % argv[3])
@@ -617,6 +644,13 @@ def print_package_profile(pp, long=False):
 def print_rtc(rtc, long=False):
     print_rtc_profile(rtc.rtcprofile, long=long)
     print_package_profile(rtc.packageprofile, long=long)
+    if long:
+        try:
+            repo = rtc.repository
+            sys.stdout.write('     repository  : %s\n' % repo.protocol)
+        except wasanbon.RepositoryNotFoundException, e:
+            sys.stdout.write('     repository  : None\n')
+            
     pass
 
 

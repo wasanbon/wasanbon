@@ -169,8 +169,10 @@ def build_rtc_java(rtcp, verbose=False):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
         if verbose:
             java_env['JAVA_TOOL_OPTIONS']='-Dfile.encoding=UTF-8'
-    for jarfile in os.listdir(os.path.join(rtc_dir, 'jar')):
-        java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtc_dir, 'jar', jarfile)        
+    if os.path.isdir( os.path.join(rtc_dir, 'jar') ):
+        
+        for jarfile in os.listdir(os.path.join(rtc_dir, 'jar')):
+            java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtc_dir, 'jar', jarfile)        
                                   
     java_env['LC_ALL'] = 'en'
 
