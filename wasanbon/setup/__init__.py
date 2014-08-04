@@ -2,9 +2,10 @@ import os, sys, urllib, subprocess
 
 # This data can not be exported to yaml file because this setup can be launched without yaml library.
 _urls = {
-    'yaml': {'win32' : 'pip install pyyaml',
-             'darwin' : 'pip install pyyaml',
-             'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
+    'yaml': { #'win32' : 'pip install pyyaml',
+        'win32' : 'https://pypi.python.org/packages/2.6/P/PyYAML/PyYAML-3.11.win32-py2.6.exe',
+        'darwin' : 'pip install pyyaml',
+        'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
     #'github' : {'darwin' : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
     #            'win32'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz',
     #            'linux2'  : 'https://pypi.python.org/packages/source/P/PyGithub/PyGithub-1.23.0.tar.gz'},
