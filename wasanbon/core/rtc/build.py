@@ -191,6 +191,8 @@ def build_rtc_java(rtcp, verbose=False):
 
 
     cmd = [wasanbon.setting()['local']['javac'], 
+           '-source', '1.6',
+           '-target', '1.6',
            '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:

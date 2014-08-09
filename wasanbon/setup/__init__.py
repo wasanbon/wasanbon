@@ -27,7 +27,9 @@ _urls = {
 
     'pip' : {'darwin' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
              'linux2' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
-             'win32' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py'},
+             #'win32' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py'
+             'win32' : 'easy_install pip'
+             },
     'requests' : {'darwin' : 'pip install requests',
                   'linux2' : 'pip install requests',
                   'win32' : 'pip install requests'},
@@ -101,6 +103,16 @@ def _install_py(file, verbose=False, path='downloads'):
     os.chdir(cur_dir)
     return ret
 
+def _install_easy_install(cmd, verbose=False):
+    cmds = cmd.split()
+    out = None if verbose else subprocess.PIPE
+    env = os.environ
+    if sys.platform == 'darwin':
+        env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+    p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
+    ret = p.wait()
+    return ret
+
 def _install_pip(cmd, verbose=False):
     cmds = cmd.split()
     out = None if verbose else subprocess.PIPE
@@ -165,11 +177,48 @@ def _setup_py(dirname, args=[['install']], verbose=False):
     os.chdir(cwd)
     return ret
 
+def try_import_and_install(pack, verbose=False, force=False):
+    if verbose:
+        sys.stdout.write('    - Trying to import %s module.\n' % pack)
+    if import_check(pack):
+        if verbose: sys.stdout.write(' - Package %s is successfully imported.\n')
+        return True
+
+    sys.stdout.write(' - Import Error. You need to install python-%s module.\n' % pack)
+    sys.stdout.write(' @ AUTOMATIC INSTALL\n')
+    sys.stdout.write(' @ You will may need to invoke the command with superuser privileges to install.\n')
+    ret = raw_input(' @ Do you want to install python-%s automatically?(Y/n):' % pack)
+    if ret == '' or ret.startswith('Y') or ret.startswith('y'):
+        if not download_and_install(pack, force=force, verbose=verbose):
+            sys.stdout.write(' @ Error. There may be "download" directory in the current path.\n')
+            return False
+    return True
+
+def import_check(pack):
+    try:
+        __import__(pack)
+        return True
+    except ImportError, ex:
+        return False
+
 def download_and_install(tag, verbose=False, force=False):
     if verbose:
         sys.stdout.write(' - Download and Intall [%s]\n' % tag)
     url = _get_url(tag)
+
+    if type(url) == types.ListType:
+        for u in url:
+            _download_and_install_url(u, verboes=verbose, force=force)
+            if import_check(tag):
+                return True
+
+    _download_and_install_url(url, verboes=verbose, force=force)
     
+
+def _download_and_install_url(url, verbose=False, force=False):    
+    if url.startswith('easy_install'):
+        return _install_easy_install(url, verbose=verbose)
+
     if url.startswith('pip'):
         return _install_pip(url, verbose=verbose)
 
