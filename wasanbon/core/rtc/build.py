@@ -148,11 +148,16 @@ def build_rtc_java(rtcp, verbose=False):
                 #arg = et.parse(build_script).findall('arg')
                 arg = target.getiterator('arg')[0].attrib['line'].split()[-1][1:-1]
     if need_idlcompile:
-        if verbose:
-            sys.stdout.write(' -- IDLCOMPILE\n')
         idlc = os.path.join(os.path.split(wasanbon.setting()['local']['javac'])[0], 'idlj')
-        cmd = [idlc, '-td', src_dir, '-fall', arg]
-        print cmd
+        if 'RTM_ROOT' in os.environ.keys():
+            rtm_idl_dir = os.path.join(os.environ['RTM_ROOT'], 'rtm', 'idl')
+        else:
+            rtm_idl_dir = '.'
+        cmd = [idlc, '-td', src_dir, '-I', rtm_idl_dir, '-fall', arg]
+
+        if verbose:
+            sys.stdout.write(' -- compiling idl with command(%s)\n' % cmd)
+
         myenv = os.environ
         myenv['LANG'] = 'C'
         subprocess.call(cmd, env=myenv)
@@ -167,13 +172,17 @@ def build_rtc_java(rtcp, verbose=False):
         sep = ':'
     for jarfile in os.listdir(rtm_java_classpath):
         java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtm_java_classpath, jarfile)
-        if verbose:
+        #if verbose:
+        if sys.platform == 'darwin':
             java_env['JAVA_TOOL_OPTIONS']='-Dfile.encoding=UTF-8'
+        elif sys.platform == 'win32':
+            java_env['JAVA_TOOL_OPTIONS']='-Dfile.encoding=Shift_JIS'
     if os.path.isdir( os.path.join(rtc_dir, 'jar') ):
         
         for jarfile in os.listdir(os.path.join(rtc_dir, 'jar')):
             java_env["CLASSPATH"]=java_env["CLASSPATH"] + sep + os.path.join(rtc_dir, 'jar', jarfile)        
-                                  
+
+    java_env['LANG'] = 'en'
     java_env['LC_ALL'] = 'en'
 
     javafiles = []
