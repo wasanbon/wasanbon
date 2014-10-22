@@ -277,7 +277,9 @@ def rtm_temp():
 def xcode_check():
     p = subprocess.Popen(['gcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     line = p.stdout.read()
-    if line.find('darwin13'):
+    if line.find('darwin14'):
+        return 'xcode6'
+    elif line.find('darwin13'):
         return 'xcode5'
     elif line.find('darwin12'):
         return 'xcode4'
@@ -289,7 +291,9 @@ def platform():
     if sys.platform == 'darwin':
         import platform as plt
         ver = plt.mac_ver()[0]
-        if ver.startswith('10.9'):
+        if ver.startswith('10.10'):
+            _platform = 'osx10.10_' + xcode_check()
+        elif ver.startswith('10.9'):
             _platform = 'osx10.9_' + xcode_check()
         elif ver.startswith('10.8'):
             _platform = 'osx10.8_' + xcode_check()
