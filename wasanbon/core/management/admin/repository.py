@@ -250,12 +250,16 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 return
 
     elif argv[2] == 'edit':
+        if verbose: sys.stdout.write(' @ Editing Repository Binder.\n')
         paths = repositories.parse_rtc_repo_dir()
+        if verbose: sys.stdout.write(' - Repository Directory: %s\n' % paths)
         for path in paths:
             owner_name = os.path.basename(os.path.dirname(path))
             if owner_name.endswith(repositories.owner_sign):
                 editor.edit_dirs([os.path.join(path, 'rtcs'), os.path.join(path, 'packages')])
                 return
+        sys.stdout.write(' - There is no owner binder.\n')
+        sys.stdout.write(' - Use : wasanbon-admin.py repository create\n')
     else:
         raise wasanbon.InvalidUsageException()
             
