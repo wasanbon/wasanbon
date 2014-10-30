@@ -65,7 +65,12 @@ class Package():
 
     @property
     def system_path(self):
-        return os.path.join(self.path, self.setting['RTS_DIR'])
+        return os.path.join(self.path, self.system_rel_path)
+
+    @property
+    def system_rel_path(self):
+        stg = self.setting
+        return stg.get('RTS_DIR', 'system')
 
     @property
     def system_file(self):
@@ -811,6 +816,32 @@ class Package():
                 if p.pid == pid:
                     return True
         return False
+
+    def export(self, outdir, verbose=False, withsrc=False):
+        if verbose: sys.stdout.write(' - Exporting package (%s)\n' % self.name)
+        fullpath_dir = os.path.join(outdir, self.name)
+        if os.path.isdir(fullpath_dir):
+            sys.stdout.write(' # Error. Output Directry (%s) exists.\n' % fullpath_dir)
+            return False
+        os.mkdir(fullpath_dir)
+        bin_path = os.path.join(fullpath_dir, self.bin_rel_path)
+        #os.mkdir(bin_path)
+        shutil.copytree(self.bin_path, bin_path)
+        conf_path = os.path.join(fullpath_dir, self.conf_rel_path)
+        #os.mkdir(conf_path)
+        shutil.copytree(self.conf_path, conf_path)
+        system_path = os.path.join(fullpath_dir, self.system_rel_path)
+        #os.mkdir(system_path)
+        shutil.copytree(self.system_path, system_path)
+        if sys.platform == 'win32':
+            script_file = 'run_system.bat'
+        else:
+            script_file = 'run_system.sh'
+        os.mkdir(os.path.join(fullpath_dir, 'log'))
+
+        dir = os.path.join(wasanbon.core.package.__path__[0], 'template')
+        shutil.copy(os.path.join(dir, script_file), os.path.join(fullpath_dir, script_file))
+        
         
 def remShut(*args):
     func, path, _ = args 

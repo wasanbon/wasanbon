@@ -72,6 +72,8 @@ ja_JP:
    レポジトリ上のパッケージをForkします
    このコマンドはカレントディレクトリにパッケージを作成します．
    ex., $ wasanbon-admin.py package clone YOUR_TARGET_REPOSITORY_NAME
+  export    : |
+   パッケージをエクスポートします．
 """
 
 import os, sys, optparse, getpass
@@ -84,7 +86,7 @@ from wasanbon.core import repositories
 def alternative(argv=None):
 
     return_repo_cmd = ['clone', 'fork']
-    pack_cmd = ['register', 'unregister', 'delete']
+    pack_cmd = ['register', 'unregister', 'delete', 'export']
     all_cmd = ['create', 'list', 'directory', 'repository', 'diff'] + pack_cmd + return_repo_cmd
     if not argv:
         return all_cmd
@@ -106,6 +108,7 @@ def execute_with_argv(argv, verbose):
     parser.add_option('-l', '--long', help='show status in long format', action='store_true', default=False, dest='long_flag')
     parser.add_option('-x', '--longlong', help='show status in longlong format', action='store_true', default=False, dest='longlong_flag')
     parser.add_option('-r', '--running', help='use with list command to show package only running', action='store_true', default=False, dest='running_flag')
+    parser.add_option('-s', '--source', help='export package with source files', action='store_true', default=False, dest='source_flag')
     try:
         options, args = parser.parse_args(argv[:])
     except:
@@ -180,6 +183,12 @@ def execute_with_argv(argv, verbose):
         repo2 = pack.get_package(args[4], verbose=verbose)
         diff = pack.diff(repo1, repo2)
         print_diff(diff)
+
+    elif args[2] == 'export':
+        wasanbon.arg_check(args, 4)
+        p = pack.get_package(args[3], verbose=verbose)
+        p.export(os.getcwd(), verbose=verbose, withsrc=options.source_flag)
+        
     else:
         raise wasanbon.InvalidUsageException()
 
