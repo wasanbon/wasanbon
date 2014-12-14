@@ -96,7 +96,7 @@ def alternative(argv=None):
         elif argv[2] in rtc_repolist_cmd:
             from wasanbon.core import rtc 
             repos = rtc.get_repositories()
-            return [repo.name for repo in repos]
+            return [repo.name for repo in repos] + ['list']
     return all_cmd
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
@@ -108,6 +108,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
     parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
     parser.add_option('-f', '--force', help='force destroy',  action='store_true', default=False, dest='force_flag')
+    parser.add_option('-a', '--all', help='all platform (no platform filter)', action='store_true', default=False, dest='all_flag')
 
     try:
         options, argv = parser.parse_args(argv[:])
@@ -217,9 +218,11 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 if r.url == argv[3]:
                     repo = r
                     break
+        elif argv[3] == 'list':
+            rtc_repos = rtc.get_repositories(verbose=verbose, all_platform=options.all_flag)
         else:
             repo = rtc.get_repository(argv[3])
-        prof = repo.get_rtcprofile()
+        prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
         print_rtc_profile(prof)
 
     elif argv[2] == 'install':

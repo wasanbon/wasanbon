@@ -109,7 +109,7 @@ class GithubReference ():
 
     def get_file_contents(self, repo_owner, repo_name, file, verbose=False):
         if verbose:
-            sys.stdout.write(' - loading %s/%s/%s' % (repo_owner, repo_name, file))
+            sys.stdout.write(' - loading %s/%s/%s\n' % (repo_owner, repo_name, file))
 
         import httplib
         host = "raw.githubusercontent.com"

@@ -103,11 +103,31 @@ class RtcRepository():
                     #    subprocess.call(cmd, env=gitenv)
                     #    #return
 
-    def get_rtcprofile(self, verbose=False, service='github'):
-        from wasanbon.core.repositories import github_api
-        if service == 'github':
-            github_obj = github_api.GithubReference() # user, passwd)
-            prof_text = github_obj.get_file_contents(self.user, self.repo_name, 'RTC.xml', verbose=verbose)
-            from wasanbon.core.rtc import rtcprofile
-            return rtcprofile.RTCProfile(str=prof_text)
-        return None
+    def get_rtcprofile(self, verbose=False, service='github', force_download=False):
+        prof_text = ''
+        prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile')
+        if not os.path.isdir(prof_dir):
+            os.mkdir(prof_dir)
+        fullpath = os.path.join(prof_dir, self.name + '.xml')
+        if os.path.isfile(fullpath):
+            if verbose and (not force_download): sys.stdout.write(' - Use Cached File.\n')
+            f = open(fullpath, 'r')
+            prof_text = f.read()
+            f.close()
+
+        if force_download or len(prof_text) == 0:
+            if verbose: sys.stdout.write(' - Downloading RTC Profile from web.\n')
+                
+            from wasanbon.core.repositories import github_api
+            if service == 'github':
+                github_obj = github_api.GithubReference() # user, passwd)
+                prof_text = github_obj.get_file_contents(self.user, self.repo_name, 'RTC.xml', verbose=verbose)
+                if os.path.isfile(fullpath):
+                    os.rename(fullpath, fullpath + wasanbon.timestampstr())
+
+                f = open(fullpath, 'w')
+                f.write(prof_text)
+                f.close()
+
+        from wasanbon.core.rtc import rtcprofile
+        return rtcprofile.RTCProfile(str=prof_text)
