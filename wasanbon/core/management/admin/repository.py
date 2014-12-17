@@ -108,7 +108,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
     parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
     parser.add_option('-f', '--force', help='force destroy',  action='store_true', default=False, dest='force_flag')
-    parser.add_option('-a', '--all', help='all platform (no platform filter)', action='store_true', default=False, dest='all_flag')
+    parser.add_option('-n', '--no_platform_filter', help='all platform (no platform filter)', action='store_true', default=False, dest='all_flag')
 
     try:
         options, argv = parser.parse_args(argv[:])
@@ -220,6 +220,16 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                     break
         elif argv[3] == 'list':
             rtc_repos = rtc.get_repositories(verbose=verbose, all_platform=options.all_flag)
+            for repo in rtc_repos:
+                prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
+                if prof:
+                    print_rtc_profile(prof)
+                else:
+                    sys.stdout.write(' - %s\n   - Not Found\n' % repo.name)
+            return
+        elif argv[3] == 'document':
+            output_document(verbose=verbose)
+            return 
         else:
             repo = rtc.get_repository(argv[3])
         prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
@@ -267,6 +277,39 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
         raise wasanbon.InvalidUsageException()
             
 def print_rtc_profile(rtcp, long=False):
-    from wasanbon.core import rtc
-    rtc.print_rtcprofile(rtcp)
+    if rtcp:
+        from wasanbon.core import rtc
+        rtc.print_rtcprofile(rtcp)
+    else:
+        sys.stdout.write('Not Found')
 
+document_template = """
+<h1>$rtc.name</h1>
+
+<h2>1. Description</h2>
+
+<h2>2. Module Infomation</h2>
+<h3>2.1 DataInPorts</h3>
+$for d in $rtc.dataInPorts:
+  
+  
+<h3>2.2 DataOutPorts</h3>
+
+<h3>2.3 ServicePorts</h3>
+
+<h2>3. URL</h2>
+
+<h2>4. How To Use</h2>
+
+
+
+
+"""
+
+def output_document(verbose=False):
+    cache_path = os.path.join(wasanbon.rtm_temp(), 'rtcprofile')
+    files = os.listdir(cache_path)
+    for file in [f for f in files if f.endswith('.xml')]:
+        print file
+        
+    print 'doc'

@@ -110,7 +110,7 @@ class RtcRepository():
             os.mkdir(prof_dir)
         fullpath = os.path.join(prof_dir, self.name + '.xml')
         if os.path.isfile(fullpath):
-            if verbose and (not force_download): sys.stdout.write(' - Use Cached File.\n')
+            if verbose and (not force_download): sys.stdout.write(' - Use Cached File (%s).\n' % fullpath)
             f = open(fullpath, 'r')
             prof_text = f.read()
             f.close()
@@ -129,5 +129,16 @@ class RtcRepository():
                 f.write(prof_text)
                 f.close()
 
+        setting_fullpath = os.path.join(prof_dir, self.name + '.yaml')
+        if not os.path.isfile(setting_fullpath) or force_download:
+            if os.path.isfile(setting_fullpath):
+                os.rename(setting_fullpath, setting_fullpath + wasanbon.timestampstr())
+            f = open(setting_fullpath, 'w')
+            f.write('name : %s\n' % self.name)
+            f.write('url : %s\n' % self.url)
+            f.close()
+            
+        if prof_text == 'Not Found':
+            return None
         from wasanbon.core.rtc import rtcprofile
         return rtcprofile.RTCProfile(str=prof_text)
