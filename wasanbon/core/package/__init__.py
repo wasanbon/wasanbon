@@ -19,7 +19,7 @@ def run_nameservers(obj, verbose=False, force=False):
     nss = obj.get_nameservers(verbose=verbose)
     interval = 1.0
     for ns in nss:
-        if not ns.check_and_launch(verbose=verbose, force=force):
+        if not ns.check_and_launch(verbose=verbose, force=force, try_count=5):
             if verbose:
                 sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
             return False

@@ -41,7 +41,7 @@ class SystemObject:
         
 
     def update(self):
-        bakfile = self._filename + '.bak'
+        bakfile = self._filename + wasanbon.timestampstr()
         if os.path.isfile(bakfile):
             os.remove(bakfile)
         os.rename(self._filename, bakfile)
