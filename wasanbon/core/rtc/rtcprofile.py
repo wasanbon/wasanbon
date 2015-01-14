@@ -288,6 +288,17 @@ class RTCProfile(Node):
         return self.getName() + " in " + self.getLanguage()
         pass
 
+    @property
+    def inports(self):
+        return [p for p in self.dataports if p.portType == 'DataInPort']
+
+    @property
+    def outports(self):
+        return [p for p in self.dataports if p.portType == 'DataOutPort']
+
+    #@property
+    #def serviceports(self):
+    #    return [p for p in self.dataports if p.portType == 'ServicePort']
 
     @property
     def filename(self):
