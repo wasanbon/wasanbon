@@ -56,18 +56,18 @@ class NameService(object):
     def port(self):
         return self._path.split(':')[1].strip()
 
-    def check_and_launch(self,verbose=False, force=False):
+    def check_and_launch(self,verbose=False, force=False, try_count=5, wait_interval=5.0):
         if self.address != 'localhost' or self.address != '127.0.0.1':
-            if force or not self.is_running(verbose=verbose):
+            if force or not self.is_running(verbose=verbose, try_count=try_count, interval=wait_interval):
                 self.launch(verbose=verbose, force=force)
 
-                for i in range(0, 5):
+                for i in range(0, try_count):
                     if verbose:
                         sys.stdout.write(' - Starting Nameserver %s. Please Wait %s seconds.\n' % (self.path, 4-i))
                     time.sleep(1)
         return self.is_running(verbose=verbose)
 
-    def is_running(self, verbose=False, try_count=3):
+    def is_running(self, verbose=False, try_count=3, interval=5.0):
         for i in range(0, try_count):
             try:
                 if verbose:
@@ -97,7 +97,7 @@ class NameService(object):
                     t.start()
                     def killtask():
                         t.quit()
-                    wdt = threading.Timer(3.0, killtask)
+                    wdt = threading.Timer(interval, killtask)
                     wdt.start()
                     t.join()
                     if not self.tree:

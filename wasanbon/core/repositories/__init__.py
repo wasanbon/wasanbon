@@ -146,7 +146,7 @@ def parse_rtc_repo_dir(repo_dir="", verbose=False):
             traceback.print_exc()
     return paths
 
-def load_repositories(repo_dir=default_repo_directory, verbose=False):
+def load_repositories(repo_dir=default_repo_directory, verbose=False, all_platform=False):
     rtc_repos = {}
     package_repos = {}
 
@@ -195,24 +195,24 @@ def load_repositories(repo_dir=default_repo_directory, verbose=False):
             traceback.print_exc()
             pass
 
-    for name, repo in rtc_repos.items():
-        #if not 'platform' in repo.keys():
-        #    filtered_rtc_repos[name] = repo
-        #elif platform_check(repo['platform'], verbose=verbose):
-        #    filtered_rtc_repos[name] = repo
-        if 'platform' in repo.keys():
-            if not platform_check(repo['platform'], verbose=verbose):
-                rtc_repos.pop(name, None)
+    if not all_platform:
+        for name, repo in rtc_repos.items():
+            #if not 'platform' in repo.keys():
+            #    filtered_rtc_repos[name] = repo
+            #elif platform_check(repo['platform'], verbose=verbose):
+            #    filtered_rtc_repos[name] = repo
+            if 'platform' in repo.keys():
+                if not platform_check(repo['platform'], verbose=verbose):
+                    rtc_repos.pop(name, None)
 
-    for name, repo in package_repos.items():
-
-        #if not 'platform' in repo.keys():
-        #    filtered_package_repos[name] = repo
-        #elif platform_check(repo['platform'], verbose=verbose):
-        #    filtered_package_repos[name] = repo
-        if 'platform' in repo.keys():
-            if not platform_check(repo['platform'], verbose=verbose):
-                package_repos.pop(name, None)
+        for name, repo in package_repos.items():
+            #if not 'platform' in repo.keys():
+            #    filtered_package_repos[name] = repo
+            #elif platform_check(repo['platform'], verbose=verbose):
+            #    filtered_package_repos[name] = repo
+            if 'platform' in repo.keys():
+                if not platform_check(repo['platform'], verbose=verbose):
+                    package_repos.pop(name, None)
 
     #return filtered_rtc_repos, filtered_package_repos
     return (rtc_repos, package_repos)

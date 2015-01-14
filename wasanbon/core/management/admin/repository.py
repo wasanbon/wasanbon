@@ -96,7 +96,7 @@ def alternative(argv=None):
         elif argv[2] in rtc_repolist_cmd:
             from wasanbon.core import rtc 
             repos = rtc.get_repositories()
-            return [repo.name for repo in repos]
+            return [repo.name for repo in repos] + ['list']
     return all_cmd
 
 def execute_with_argv(argv, force=False, verbose=False, clean=False):
@@ -108,6 +108,7 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
     parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
     parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
     parser.add_option('-f', '--force', help='force destroy',  action='store_true', default=False, dest='force_flag')
+    parser.add_option('-n', '--no_platform_filter', help='all platform (no platform filter)', action='store_true', default=False, dest='all_flag')
 
     try:
         options, argv = parser.parse_args(argv[:])
@@ -217,9 +218,20 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 if r.url == argv[3]:
                     repo = r
                     break
-        else:
-            repo = rtc.get_repository(argv[3])
-        prof = repo.get_rtcprofile()
+        elif argv[3] == 'list':
+            rtc_repos = rtc.get_repositories(verbose=verbose, all_platform=options.all_flag)
+            for repo in rtc_repos:
+                prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
+                readme = repo.get_readme(verbose=verbose, service='github', force_download=options.force_flag)
+                if prof:
+                    print_rtc_profile(prof)
+                else:
+                    sys.stdout.write(' - %s\n   - Not Found\n' % repo.name)
+            return
+
+        repo = rtc.get_repository(argv[3])
+        prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
+        readme = repo.get_readme(verbose=verbose, service='github', force_download=options.force_flag)
         print_rtc_profile(prof)
 
     elif argv[2] == 'install':
@@ -250,16 +262,53 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
                 return
 
     elif argv[2] == 'edit':
+        if verbose: sys.stdout.write(' @ Editing Repository Binder.\n')
         paths = repositories.parse_rtc_repo_dir()
+        if verbose: sys.stdout.write(' - Repository Directory: %s\n' % paths)
         for path in paths:
             owner_name = os.path.basename(os.path.dirname(path))
             if owner_name.endswith(repositories.owner_sign):
                 editor.edit_dirs([os.path.join(path, 'rtcs'), os.path.join(path, 'packages')])
                 return
+        sys.stdout.write(' - There is no owner binder.\n')
+        sys.stdout.write(' - Use : wasanbon-admin.py repository create\n')
     else:
         raise wasanbon.InvalidUsageException()
             
 def print_rtc_profile(rtcp, long=False):
-    from wasanbon.core import rtc
-    rtc.print_rtcprofile(rtcp)
+    if rtcp:
+        from wasanbon.core import rtc
+        rtc.print_rtcprofile(rtcp)
+    else:
+        sys.stdout.write('Not Found')
 
+document_template = """
+<h1>$rtc.name</h1>
+
+<h2>1. Description</h2>
+
+<h2>2. Module Infomation</h2>
+<h3>2.1 DataInPorts</h3>
+$for d in $rtc.dataInPorts:
+  
+  
+<h3>2.2 DataOutPorts</h3>
+
+<h3>2.3 ServicePorts</h3>
+
+<h2>3. URL</h2>
+
+<h2>4. How To Use</h2>
+
+
+
+
+"""
+
+def output_document(verbose=False):
+    cache_path = os.path.join(wasanbon.rtm_temp(), 'rtcprofile')
+    files = os.listdir(cache_path)
+    for file in [f for f in files if f.endswith('.xml')]:
+        print file
+        
+    print 'doc'

@@ -6,8 +6,8 @@ from rtc_object import *
 from wasanbon.core import repositories
 
 
-def get_repositories(verbose=False):
-    rtcs, packs = repositories.load_repositories(verbose=verbose)
+def get_repositories(verbose=False, all_platform=False):
+    rtcs, packs = repositories.load_repositories(verbose=verbose, all_platform=all_platform)
     repos = []
     for key, value in rtcs.items():
         try:
