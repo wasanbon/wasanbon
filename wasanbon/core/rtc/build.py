@@ -47,10 +47,15 @@ def build_rtc_cpp(rtcp, verbose=False):
             sys.stdout.write(' - Visual C++ Solution File is successfully generated.\n')
             cmd = [wasanbon.setting()['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
             #stdout = None if verbose else subprocess.PIPE
+            #stderr = None if verbose else subprocess.PIPE
             stdout = None # In windows msbuild always must be launched in verbose mode.
             stderr = None
+            #stdout = subprocess.PIPE
             sys.stdout.write(' - msbuild %s %s %s\n' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32'))
-            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            env = os.environ
+            env['PATH'] = env['PATH'] + ';' + os.path.join(env['OMNI_ROOT'], 'bin', 'x86_win32')
+            print env['PATH']
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
             p.wait()
             if not verbose:
                 errmsg = p.stderr.read()
