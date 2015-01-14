@@ -50,6 +50,10 @@ class Package():
         return os.path.join(self.path, self.setting['RTC_DIR'])
 
     @property
+    def rtc_rel_path(self):
+        return self.setting['RTC_DIR']
+
+    @property
     def conf_path(self):
         return os.path.join(self.path, self.conf_rel_path)
 
@@ -742,6 +746,10 @@ class Package():
             post_fix = 'Comp.exe'
         if rtc_launch_cmd.startswith(self.bin_rel_path) and rtc_launch_cmd.endswith(post_fix):
             return rtc_launch_cmd[len(self.bin_rel_path)+1:-(len(post_fix))]
+        elif rtc_launch_cmd.startswith(self.rtc_rel_path) and rtc_launch_cmd.endswith('.py'):
+            elems = rtc_launch_cmd.split('/')
+            cmd = elems[len(elems)-1]
+            return cmd[:-(3)]
         else:
             return ""
     def installed_standalone_rtcs(self, verbose=False):
@@ -753,7 +761,7 @@ class Package():
                 try:
                     rtc_ = self.rtc(rtc_name)
                     rtcs_.append(rtc_)
-                except wasanbon.RTCNotFoundExpcetion, e:
+                except wasanbon.RTCNotFoundException, e:
                     if verbose:
                         sys.stdout.write(' - Searching %s RTC in package but not found.\n')
                     
