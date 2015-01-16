@@ -103,6 +103,34 @@ class RtcRepository():
                     #    subprocess.call(cmd, env=gitenv)
                     #    #return
 
+    def get_readme(self, verbose=False, service='github', force_download=False):
+        prof_dir = os.path.join(wasanbon.rtm_temp(), 'rtcprofile')
+        readme_path = os.path.join(prof_dir, 'README.' + self.name)
+        readme_text = ''
+        if os.path.isfile(readme_path): 
+            if verbose and (not force_download): sys.stdout.write(' - Use Cached File (%s).\n' % readme_path)
+            f = open(readme_path, 'r')
+            readme_text = f.read()
+            f.close()
+
+        if force_download or len(readme_text) == 0:
+            if verbose: sys.stdout.write(' - Downloading RTC README from web.\n')
+                
+            from wasanbon.core.repositories import github_api
+            if service == 'github':
+                github_obj = github_api.GithubReference() # user, passwd)
+
+                readme_text = github_obj.get_file_contents(self.user, self.repo_name, 'README.'+self.name, verbose=verbose)
+                if os.path.isfile(readme_path):
+                    os.rename(readme_path, readme_path+wasanbon.timestampstr())
+                f = open(readme_path, 'w')
+                f.write(readme_text)
+                f.close()
+            
+        if readme_text == 'Not Found':
+            return None
+        return readme_text
+        
     def get_rtcprofile(self, verbose=False, service='github', force_download=False):
         prof_text = ''
         prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile')

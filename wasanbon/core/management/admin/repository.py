@@ -222,17 +222,16 @@ def execute_with_argv(argv, force=False, verbose=False, clean=False):
             rtc_repos = rtc.get_repositories(verbose=verbose, all_platform=options.all_flag)
             for repo in rtc_repos:
                 prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
+                readme = repo.get_readme(verbose=verbose, service='github', force_download=options.force_flag)
                 if prof:
                     print_rtc_profile(prof)
                 else:
                     sys.stdout.write(' - %s\n   - Not Found\n' % repo.name)
             return
-        elif argv[3] == 'document':
-            output_document(verbose=verbose)
-            return 
-        else:
-            repo = rtc.get_repository(argv[3])
+
+        repo = rtc.get_repository(argv[3])
         prof = repo.get_rtcprofile(verbose=verbose, service='github', force_download=options.force_flag)
+        readme = repo.get_readme(verbose=verbose, service='github', force_download=options.force_flag)
         print_rtc_profile(prof)
 
     elif argv[2] == 'install':
