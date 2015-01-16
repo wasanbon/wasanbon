@@ -369,10 +369,11 @@ def _run(_package, verbose=False, force=False, interactive=False):
         pass
     sys.stdout.write(' @ Starting RTC-daemons...\n')
 
-
-    #ns_process = None
+    global endflag
+    nss = []
     try:
-        if not package.run_nameservers(_package, verbose=verbose, force=force):
+        nss = package.run_nameservers(_package, verbose=verbose, force=force)
+        if not nss:
             raise wasanbon.BuildSystemException()
 
         if interactive:
@@ -395,7 +396,7 @@ def _run(_package, verbose=False, force=False, interactive=False):
         if not package.activate_system(_package, verbose=verbose):
             raise wasanbon.BuildSystemException()
 
-        global endflag
+
         while not endflag:
             try:
                 time.sleep(0.1)
@@ -408,7 +409,10 @@ def _run(_package, verbose=False, force=False, interactive=False):
         traceback.print_exc()
         pass
     if not package.is_shutdown(_package):
-        package.deactivate_system(_package)
+        package.deactivate_system(_package, verbose=verbose)
+        package.exit_all_rtcs(_package, verbose=verbose)
         package.stop_system(_package, verbose=verbose)
+
+    
     package.kill_nameservers(_package, verbose=verbose)
 

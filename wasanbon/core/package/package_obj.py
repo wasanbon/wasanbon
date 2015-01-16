@@ -1,4 +1,5 @@
-import os, sys, yaml, subprocess, shutil, types, time, stat, psutil
+import os, sys, yaml, subprocess, shutil, types, time, stat, psutil, traceback
+import omniORB
 import wasanbon
 #from wasanbon.core import rtc
 import wasanbon.core.rtc
@@ -9,7 +10,10 @@ from wasanbon.core import nameserver
 from wasanbon.core.package import run
 from wasanbon.core.package import workspace, repository
 
-
+from rtsprofile.rts_profile import RtsProfile
+import rtctree
+from rtshell import rtexit, path
+from rtshell.rtmgr import get_manager
 
 class Package():
 
@@ -328,6 +332,16 @@ class Package():
                 return True
         return False
 
+    def get_manager(self, language):
+        rtcconf = self.rtcconf(language)
+        naming_rule_of_manager = rtcconf['manager.naming_formats'] # %n_cpp.mgr
+        name = naming_rule_of_manager.replace('%n', 'manager').strip()
+        nameserver_uri = self.get_nameservers(language)
+        if len(nameserver_uri) == 0:
+            return 'localhost:2809/%s' % name
+        else:
+            return nameserver_uri[0].path + '/' + name
+
     def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False, conffile=None):
 
         if verbose:
@@ -428,7 +442,7 @@ class Package():
         
     def register(self, verbose=False):
         if verbose:
-            print ' - Registering workspace:'
+            sys.stdout.write(' - PackageObj.register() : Registering workspace:')
             pass
 
         y = self._open_workspace()
@@ -496,12 +510,14 @@ class Package():
         git.git_command(['remote', 'add', 'origin', 'git@github.com:' + user + '/' + self.name + '.git'], verbose=verbose, path=self.path)
         self.push(verbose=verbose)
 
-    def get_nameservers(self, verbose=False, force=False):
+    def get_nameservers(self, language='all', verbose=False, force=False):
         if not force and self._nameservers:
             return self._nameservers
 
         nss = []
         for lang in self._languages:
+            if lang != language and language != 'all':
+                continue
             ns = self.rtcconf(lang)['corba.nameservers']
             if not ':' in ns:
                 ns = ns + ':2809'
@@ -534,6 +550,8 @@ class Package():
         cmds = self.standalone_rtcs_commands
         self._process['standalone'] = []
         for cmd in cmds:
+            if cmd.split()[0].endswith('.py'):
+                cmd = "python " + cmd
             if verbose:
                 sys.stdout.write(' - Launching command: %s' % cmd.split())
             rtc_name = self.__get_rtc_name_from_standalone_command(cmd)
@@ -759,7 +777,60 @@ class Package():
                     
             #sys.stdout.write(' - package_obj.installed_standalone_rtcs not implemented.\n')
         return rtcs_
+
+
+    def exit_all_rtcs_on_manager(self, language, verbose=True):
+        mgr_name = self.get_manager(language)
+
+        if not mgr_name:
+            sys.stdout.write(' --- Error: package.exit_all_rtcs_on_manager. No manager found.\n')
+            return
+
+        if not mgr_name.startswith('/') : mgr_name = '/' + mgr_name
+        full_path = path.cmd_path_to_full_path(mgr_name)
         
+        tree, mgr = get_manager(mgr_name, full_path)
+        
+        for r in mgr.components:
+            r.exit()
+
+        while True:
+            time.sleep(1)
+            tree, mgr = get_manager(mgr_name, full_path)
+            if len(mgr.components) == 0:
+                break
+
+        pass
+
+
+
+    def exit_all_rtcs(self, verbose=True, nameservers=None):
+        rtsprof = RtsProfile(open(self.system_file, "r"))
+        sys.stdout.write(' --- exit_all_rtcs()\n')
+        rtcs = []
+        for c in rtsprof.components:
+            path_uri = c.path_uri   
+            # if path_uri.startswith("/"): path_uri = '/' + path_uri
+            rtcs.append(path_uri)
+        return self.exit_rtcs(rtcs, verbose=verbose)
+
+    def exit_rtcs(self, rtcs, verbose=True):
+        for r in rtcs:
+            try:
+                while True:
+                    
+                    if verbose or True: sys.stdout.write(' - rtexit(%s)\n' % r)
+                    ret = rtexit.main([r])
+                    if ret != 0:
+                        break
+                    time.sleep(0.5)
+            except RuntimeError:
+                traceback.print_exc()
+                pass
+            except:
+                traceback.print_exc()
+                pass
+        pass
 
     def available_connection_pairs(self, verbose=False, nameservers=None):
         pairs = []

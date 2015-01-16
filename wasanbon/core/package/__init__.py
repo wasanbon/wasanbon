@@ -24,7 +24,7 @@ def run_nameservers(obj, verbose=False, force=False):
                 sys.stdout.write(' @ Nameserver %s is not running\n' % ns.path)
             return False
 
-    return True
+    return nss
 
 
 def kill_nameservers(obj, verbose=False):
@@ -32,6 +32,18 @@ def kill_nameservers(obj, verbose=False):
     for ns in nss:
         ns.kill()
     return True
+
+"""
+def exit_all_rtcs_on_nameservers(nss, verbose=False):
+    if verbose: sys.stdout.write(' -- exiting all rtcs on nameservers.\n')
+    for ns in nss:
+        try:
+            rtcs = ns.rtcs
+            print rtcs
+        except:
+            traceback.print_exc()
+    pass
+"""
 
 """
 """
@@ -42,6 +54,7 @@ def run_system(obj, verbose=False):
 
 
 def build_system(obj, verbose=False):
+    if verbose: sys.stdout.write(" -- package.build_system\n")
     obj.connect_and_configure(verbose=verbose)
     return True
 
@@ -49,15 +62,25 @@ def is_shutdown(obj, verbose=False):
     return not obj.is_running()
 
 def activate_system(obj, verbose=False):
+    if verbose: sys.stdout.write(" -- package.activate_system\n")
     obj.activate(verbose=verbose)
     return True
 
 def deactivate_system(obj, verbose=False):
+    if verbose: sys.stdout.write(" -- package.deactivate_system\n")
+        
     obj.deactivate(verbose=verbose)
 """
 """
+
+def exit_all_rtcs(obj, verbose=False):
+    if verbose: sys.stdout.write(" -- package.exit_all_rtcs\n")
+    #obj.exit_all_rtcs(verbose=verbose, nameservers=None)
+    obj.exit_all_rtcs_on_manager('C++', verbose=True)
+
 def stop_system(obj, verbose=False):
     #obj.deactivate(verbose=verbose)
+    if verbose: sys.stdout.write(" -- package.stop_system\n")
     obj.terminate_standalone_rtcs(verbose=verbose)
     obj.terminate_all_rtcd(verbose=verbose)
 
