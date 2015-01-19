@@ -326,7 +326,7 @@ class Package():
                     shutil.copy(filepath, target)
 
             targetfile = os.path.join(bin_dir_rel, os.path.basename(filepath))
-        
+        targetfile = targetfile.replace('\\', '/')
         return targetfile
 
     def is_installed(self, rtc_, verbose=False, standalone=False):
@@ -372,14 +372,16 @@ class Package():
                 if key.find('config_file') > 0:
                     rtcconf.pop(key)
             targetconf = os.path.join(self.conf_rel_path, 'rtc_' + rtc_.name + '.conf')
+            targetconf = targetconf.replace('\\', '/')
         else:
             if len(rtcconf_filename) == 0:
                 rtcconf = self.rtcconf(rtc_.rtcprofile.language.kind, verbose=verbose)
             else:
                 rtcconf = wasanbon.core.rtc.RTCConf(rtcconf_filename)
             
-
+                
         targetfile = self.copy_binary_from_rtc(rtc_, verbose=verbose, standalone=standalone)
+
         if len(targetfile) == 0:
             targetfile = os.path.join(self.setting['BIN_DIR'], rtc_.packageprofile.get_rtc_bin_filename())
             pass
@@ -771,11 +773,13 @@ class Package():
         else:
             return ""
     def installed_standalone_rtcs(self, verbose=False):
+        verbose = True
         rtcs_ = []
         stg = self.setting
         cmds = stg.get('standalone', [])
         for cmd in cmds:
                 rtc_name = self.__get_rtc_name_from_standalone_command(cmd)
+                if verbose: sys.stdout.write(' --- command = %s\n' % rtc_name)
                 try:
                     rtc_ = self.rtc(rtc_name)
                     rtcs_.append(rtc_)
