@@ -1,4 +1,4 @@
-import os, sys, urllib, subprocess
+import os, sys, urllib, subprocess, types
 
 # This data can not be exported to yaml file because this setup can be launched without yaml library.
 _urls = {
@@ -208,11 +208,11 @@ def download_and_install(tag, verbose=False, force=False):
 
     if type(url) == types.ListType:
         for u in url:
-            _download_and_install_url(u, verboes=verbose, force=force)
+            _download_and_install_url(u, verbose=verbose, force=force)
             if import_check(tag):
                 return True
 
-    _download_and_install_url(url, verboes=verbose, force=force)
+    _download_and_install_url(url, verbose=verbose, force=force)
     
 
 def _download_and_install_url(url, verbose=False, force=False):    
