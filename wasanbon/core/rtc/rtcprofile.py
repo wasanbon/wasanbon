@@ -103,7 +103,7 @@ default_dataport_profile = """<?xml version="1.0" encoding="UTF-8" standalone="y
     </rtc:DataPorts>
 """
 default_doc_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
- <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description=""/>"""
+ <rtcDoc:Doc  xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:dataport_ext" rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description="" rtcDoc:license=""/>"""
 
 class Doc(Node):
     def __init__(self, node=None):
@@ -148,7 +148,7 @@ class ServicePort(Node):
         [uri, tag] = normalize(self.node.tag)
         self.serviceInterfaces = []
         for si in self.node.findall('{%s}ServiceInterface' % uri):
-            self.serviceInterfaces.append(Node(si))
+            self.serviceInterfaces.append(ServiceInterface(si))
             self.children.append(Node(si))
 
         docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
@@ -288,6 +288,12 @@ class RTCProfile(Node):
 
             for language in root.findall('{%s}Language' % uri):
                 self.language = Node(language) #language.attrib['{%s}kind' % uri]
+                docs = language.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+                if len(docs) != 0:
+                    self.language.doc = Doc(docs[0])
+                else:
+                    self.language.doc = Doc()
+                    
                 self.children.append(self.language)
 
             for action in root.findall('{%s}Actions' % uri):

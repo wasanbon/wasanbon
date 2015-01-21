@@ -14,7 +14,7 @@ en_US:
   status : |
    Check Repository Status. This command allows -l option to see more information.
   setup  : |
-   Download default repository from www into $RTM_HOME/repositories.
+   Download default repository from www into $RTM_HOME/binder.
   install : |
    Download specific repository from url.
    ex.,  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
@@ -53,7 +53,7 @@ ja_JP:
   status : |
    リポジトリの状態を表示します．より詳しい情報を得るためには-lオプションを付けます．
   setup  : |
-   デフォルトのリポジトリを$HOME/rtm/repositoriesにダウンロードします．
+   デフォルトのリポジトリを$HOME/rtm/binderにダウンロードします．
   install : |
    外部のリポジトリをダウンロードします．
    ex.,  $ wasanbon-admin.py repository install YOUR_OWN_REPOSITORY_URL
@@ -73,6 +73,8 @@ ja_JP:
   edit : |
    独自のリポジトリを編集します．
    ex., wasanbon-admin.py repository edit.
+  rtc : |
+   BinderからRTCの情報のみ取り出します
 """
 
 import sys, os, yaml, getpass, types, optparse, traceback
