@@ -102,7 +102,20 @@ default_dataport_profile = """<?xml version="1.0" encoding="UTF-8" standalone="y
         <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description="bumper data (lfoot_left, lfoot_right, rfoot_left, rfoot_right)"/>
     </rtc:DataPorts>
 """
+default_doc_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description=""/>"""
 
+class Doc(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_doc_profile))
+        if node is None:
+            self['rtcDoc:description'] = ''
+
+    def __getattr__(self, key):
+        if key.find('_') > 0:
+            return self.__getitem__(key.replace('_', ':'))
+        return self.__getitem__('rtcDoc:'+key)
+        
 class DataPort(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_dataport_profile))
@@ -111,6 +124,11 @@ class DataPort(Node):
         #for si in node.findall('{%s}ServiceInterface' % uri):
         #    self.serviceInterfaces.append(Node(si))
         #    self.children.append(Node(si))
+        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        if len(docs) != 0:
+            self.doc = Doc(docs[0])
+        else:
+            self.doc = Doc()
 
     def equals(self, dp):
         return self['rtc:name'] == dp['rtc:name'] and \
@@ -133,6 +151,13 @@ class ServicePort(Node):
             self.serviceInterfaces.append(Node(si))
             self.children.append(Node(si))
 
+        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        if len(docs) != 0:
+            self.doc = Doc(docs[0])
+        else:
+            self.doc = Doc()
+            
+
 default_serviceinterface_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:ServiceInterfaces xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="motion" rtc:path="/Users/ysuga/rtm/idl" rtc:type="ssr::ALMotion" rtc:idlFile="/Users/ysuga/rtm/idl/NAO.idl" rtc:instanceName="ALMotion" rtc:direction="Provided" rtc:name="ALMotion"/>
 """
@@ -141,6 +166,11 @@ class ServiceInterface(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_serviceinterface_profile))
         
+        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        if len(docs) != 0:
+            self.doc = Doc(docs[0])
+        else:
+            self.doc = Doc()
 
 default_configuration_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:Configuration xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:configuration_ext" rtcExt:variableName="ipaddress" rtc:unit="" rtc:defaultValue="nao.local" rtc:type="string" rtc:name="ipaddress">
@@ -151,7 +181,12 @@ default_configuration_profile = """<?xml version="1.0" encoding="UTF-8" standalo
 class Configuration(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_configuration_profile))
-    
+
+        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        if len(docs) != 0:
+            self.doc = Doc(docs[0])
+        else:
+            self.doc = Doc()
     
     
 class ConfigurationSet(Node):
@@ -243,6 +278,12 @@ class RTCProfile(Node):
                 self.name = basicInfo.attrib['{%s}name' % uri]
                 self.category = basicInfo.attrib['{%s}category' % uri]
                 self.basicInfo = Node(basicInfo)
+                docs = basicInfo.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+                if len(docs) != 0:
+                    self.basicInfo.doc = Doc(docs[0])
+                else:
+                    self.basicInfo.doc = Doc()
+
                 self.children.append(self.basicInfo)
 
             for language in root.findall('{%s}Language' % uri):
@@ -278,7 +319,6 @@ class RTCProfile(Node):
         except Exception, e:
             traceback.print_exc()
             raise InvalidRTCProfileError(filename, 'Parsing Error')
-
         pass
 
     def getDataPorts(self):
