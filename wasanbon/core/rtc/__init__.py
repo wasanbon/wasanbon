@@ -11,7 +11,7 @@ def get_repositories(verbose=False, all_platform=False):
     repos = []
     for key, value in rtcs.items():
         try:
-            repos.append(RtcRepository(name=key, desc=value['description'], url=value['url'], hash="", protocol=value['type']))
+            repos.append(RtcRepository(name=key, desc=value['description'], url=value['url'], platform=value['platform'], hash="", protocol=value['type']))
         except KeyError:
             sys.stdout.write(' - Repository %s is invalid.\n' % key)
     return repos

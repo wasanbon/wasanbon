@@ -5,12 +5,13 @@ import rtc_object
 
 class RtcRepository():
 
-    def __init__(self, name, url, desc, hash="", protocol='git'):
+    def __init__(self, name, url, desc, platform="", hash="", protocol='git'):
         self._name = name
         self._url = url
         self._desc = desc
         self._hash = hash
         self._protocol = protocol
+        self._platform = platform
 
     @property
     def name(self):
@@ -19,6 +20,10 @@ class RtcRepository():
     @property
     def user(self):
         return self.url.split('/')[-2]
+
+    @property
+    def platform(self):
+        return self._platform
 
     @property
     def repo_name(self):
@@ -104,8 +109,8 @@ class RtcRepository():
                     #    #return
 
     def get_readme(self, verbose=False, service='github', force_download=False):
-        prof_dir = os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.name)
-        readme_path = os.path.join(prof_dir, 'README.' + self.name)
+        prof_dir = os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.repo_name)
+        readme_path = os.path.join(prof_dir, 'README.' + self.repo_name)
         readme_text = ''
         if os.path.isfile(readme_path): 
             if verbose and (not force_download): sys.stdout.write(' - Use Cached File (%s).\n' % readme_path)
@@ -120,7 +125,7 @@ class RtcRepository():
             if service == 'github':
                 github_obj = github_api.GithubReference() # user, passwd)
 
-                readme_text = github_obj.get_file_contents(self.user, self.repo_name, 'README.'+self.name, verbose=verbose)
+                readme_text = github_obj.get_file_contents(self.user, self.repo_name, 'README.'+self.repo_name, verbose=verbose)
                 if os.path.isfile(readme_path):
                     os.rename(readme_path, readme_path+wasanbon.timestampstr())
                 f = open(readme_path, 'w')
@@ -133,10 +138,10 @@ class RtcRepository():
         
     def get_rtcprofile(self, verbose=False, service='github', force_download=False):
         prof_text = ''
-        prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.name)
+        prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.repo_name)
         if not os.path.isdir(prof_dir):
             os.mkdir(prof_dir)
-        fullpath = os.path.join(prof_dir, self.name + '.xml')
+        fullpath = os.path.join(prof_dir, self.repo_name + '.xml')
         if os.path.isfile(fullpath):
             if verbose and (not force_download): sys.stdout.write(' - Use Cached File (%s).\n' % fullpath)
             f = open(fullpath, 'r')
@@ -157,13 +162,14 @@ class RtcRepository():
                 f.write(prof_text)
                 f.close()
 
-        setting_fullpath = os.path.join(prof_dir, self.name + '.yaml')
+        setting_fullpath = os.path.join(prof_dir, self.repo_name + '.yaml')
         if not os.path.isfile(setting_fullpath) or force_download:
             if os.path.isfile(setting_fullpath):
                 os.rename(setting_fullpath, setting_fullpath + wasanbon.timestampstr())
             f = open(setting_fullpath, 'w')
-            f.write('name : %s\n' % self.name)
+            f.write('name : %s\n' % self.repo_name)
             f.write('url : %s\n' % self.url)
+            f.write('platform : %s\n' % self.platform)
             f.close()
             
         if prof_text == 'Not Found':
