@@ -66,6 +66,9 @@ class RTCNotFoundException(WasanbonException):
     def msg(self):
         return 'RTC Not Found'
 
+class RTCBuildFailedException(WasanbonException):
+    def msg(self):
+        return 'RTC Build Failed'
 
 class NotFoundException(WasanbonException):
     def msg(self):

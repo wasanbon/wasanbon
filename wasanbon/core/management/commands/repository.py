@@ -114,7 +114,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     _package = package.Package(os.getcwd())
 
     if argv[2] == 'list':
-        sys.stdout.write(' @ Listing RTC Repository\n')
+        sys.stdout.write('# Listing RTC Repository\n')
         repos_raw = wasanbon.core.rtc.get_repositories(verbose)
         repos = sorted(repos_raw, key=lambda x:x.name)
         for repo in repos:
@@ -122,7 +122,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
     elif argv[2] == 'init':
         wasanbon.arg_check(argv, 4)
-        sys.stdout.write(' @ Initializing RTC %s as GIT repository\n' % argv[3])
+        sys.stdout.write('# Initializing RTC %s as GIT repository\n' % argv[3])
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
         rtc_.git_init(verbose=verbose)
 
@@ -130,7 +130,7 @@ def execute_with_argv(args, verbose, force=False, clean=False):
         wasanbon.arg_check(argv, 4)
 
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        if verbose: sys.stdout.write(' @ Initializing %s repository in %s\n' % (options.service, argv[3]))
+        if verbose: sys.stdout.write('# Initializing %s repository in %s\n' % (options.service, argv[3]))
 
         from wasanbon.util.git import git_obj
         repo = git_obj.GitRepository(rtc_.path, verbose=verbose)

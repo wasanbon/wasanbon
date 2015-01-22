@@ -109,6 +109,7 @@ def execute_with_argv(argv, verbose):
     parser.add_option('-x', '--longlong', help='show status in longlong format', action='store_true', default=False, dest='longlong_flag')
     parser.add_option('-r', '--running', help='use with list command to show package only running', action='store_true', default=False, dest='running_flag')
     parser.add_option('-s', '--source', help='export package with source files', action='store_true', default=False, dest='source_flag')
+    parser.add_option('-c', '--clean', help='clean up when unregister', action='store_true', default=False, dest='clean_flag')
     try:
         options, args = parser.parse_args(argv[:])
     except:
@@ -117,7 +118,7 @@ def execute_with_argv(argv, verbose):
     long_option = options.long_flag
     longlong_option = options.longlong_flag
     force = False
-    clean = False
+    clean = options.clean_flag
 
     if args[2] == 'create':
         _create(args, verbose, force ,clean)

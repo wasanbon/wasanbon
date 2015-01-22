@@ -110,20 +110,20 @@ class Package():
 
     def append_rtc_repository(self, repo, verbose=False):
         repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
-        bak_file = repo_file + '.bak'
+        bak_file = repo_file + wasanbon.timestampstr()
         if os.path.isfile(bak_file):
             os.remove(bak_file)
         shutil.copy(repo_file, bak_file)
         dic = yaml.load(open(bak_file, 'r'))
         if not dic:
             dic = {}
-        dic[repo.name] = {'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+        dic[repo.name] = {'repo_name' : repo.repo_name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
 
     def update_rtc_repository(self, repo, verbose=False):
         repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
-        bak_file = repo_file + '.bak'
+        bak_file = repo_file + wasanbon.timestampstr()
         if os.path.isfile(bak_file):
             os.remove(bak_file)
         shutil.copy(repo_file, bak_file)
@@ -136,7 +136,7 @@ class Package():
 
     def remove_rtc_repository(self, name, verbose=False):
         repo_file = os.path.join(self.path, self.setting['RTC_DIR'], 'repository.yaml')
-        bak_file = repo_file + '.bak'
+        bak_file = repo_file + wasanbon.timestampstr()
         if os.path.isfile(bak_file):
             os.remove(bak_file)
         shutil.copy(repo_file, bak_file)
@@ -262,9 +262,10 @@ class Package():
         rtcconf.sync()
 
         setting_filename = os.path.join(self.path, 'setting.yaml')
-        shutil.copy(setting_filename, setting_filename + '.bak')
+        bak_ext = wasanbon.timestampstr()
+        shutil.copy(setting_filename, setting_filename + bak_ext)
 
-        dic = yaml.load(open(setting_filename + '.bak', 'r'))
+        dic = yaml.load(open(setting_filename + bak_ext, 'r'))
         all_cmd_list = dic.get('standalone', [])
         cmd_list = [cmd for cmd in all_cmd_list if cmd.startswith(targetfile)]
         if len(cmd_list) > 0:
@@ -388,8 +389,9 @@ class Package():
 
         if standalone:
             setting_filename = os.path.join(self.path, 'setting.yaml')
-            shutil.copy(setting_filename, setting_filename + '.bak')
-            dic = yaml.load(open(setting_filename + '.bak', 'r'))
+            bak_ext = wasanbon.timestampstr()
+            shutil.copy(setting_filename, setting_filename + bak_ext)
+            dic = yaml.load(open(setting_filename + bak_ext, 'r'))
 
             cmd_list = [cmd for cmd in dic['application'].get('standalone', []) if cmd.startswith(targetfile)]
             if len(cmd_list) == 0:

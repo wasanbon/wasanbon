@@ -195,12 +195,13 @@ def execute_with_argv(args, verbose, force=False, clean=False):
     parser.add_option('-v', '--vendor', help='VendorName of RTC (for create command).', default='Vendor', dest='vendor_name')
     parser.add_option('-d', '--description', help='Description of RTC (for create command).', default='Default Description', dest='description')
     parser.add_option('-c', '--category', help='Category of RTC (for create command).', default='Category', dest='category')
+    parser.add_option('-q', '--quiet', help='Quiet Build for Build Test.', default=False, action='store_true', dest='quiet_flag')
     try:
         options, argv = parser.parse_args(args[:])
     except:
         return
 
-
+    quiet_flag = options.quiet_flag
     wasanbon.arg_check(argv, 3)
     _package = pack.Package(os.getcwd())
 
@@ -288,6 +289,9 @@ def execute_with_argv(args, verbose, force=False, clean=False):
                                 traceback.print_exc()
                 else:
                     sys.stdout.write('  @ Failed\n')
+                    if quiet_flag:
+                        raise wasanbon.RTCBuildFailedException()
+
                     if util.yes_no('  @ Do you want to watch error message?') == 'yes':
                         print ret[1]
                 found_flag = True
@@ -589,7 +593,7 @@ def _distribute(_pkg, _rtc_name, verbose=False, clean=False, bakclean=False):
 
 
 def print_rtno(rtno, long=False):
-    str = ' ' + rtno.name
+    str = ' - ' + rtno.name
     if long:
         str = str + ':\n'
         str = str + '     name       : ' + rtno.name + '\n'

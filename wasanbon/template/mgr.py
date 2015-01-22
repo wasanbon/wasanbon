@@ -14,5 +14,5 @@ import wasanbon
 from wasanbon.core.management import application
 
 if __name__ == '__main__':
-    application.execute()
+    sys.exit(application.execute())
     
