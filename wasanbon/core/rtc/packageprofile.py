@@ -126,10 +126,10 @@ def find_rtc_bin(rtcp):
     
 def on_multiple_rtcfile(files):
     for f in files:
-        print '--' + f
+        print '# -' + f
     
-    print 'Current Version cannot handle this warning.'
-    print 'Use %s' % files[0]
+    print '# Current Version cannot handle this warning.'
+    print '# Use %s' % files[0]
     return files[0]
 
 

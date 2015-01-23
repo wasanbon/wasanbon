@@ -138,6 +138,10 @@ class RtcRepository():
         
     def get_rtcprofile(self, verbose=False, service='github', force_download=False):
         prof_text = ''
+        prof_root_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile')
+        if not os.path.isdir(prof_root_dir):
+            os.mkdir(prof_root_dir)
+
         prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.repo_name)
         if not os.path.isdir(prof_dir):
             os.mkdir(prof_dir)

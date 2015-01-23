@@ -46,6 +46,7 @@ def build_rtc_cpp(rtcp, verbose=False):
         if sln in os.listdir(os.getcwd()):
             sys.stdout.write(' - Visual C++ Solution File is successfully generated.\n')
             cmd = [wasanbon.setting()['local']['msbuild'], sln, '/p:Configuration=Release', '/p:Platform=Win32']
+            cmd + ['/clp:ErrorsOnly']
             #stdout = None if verbose else subprocess.PIPE
             #stderr = None if verbose else subprocess.PIPE
             stdout = None # In windows msbuild always must be launched in verbose mode.
@@ -54,14 +55,16 @@ def build_rtc_cpp(rtcp, verbose=False):
             sys.stdout.write(' - msbuild %s %s %s\n' % (os.path.basename(sln), '/p:Configuration=Release', '/p:Platform=Win32'))
             env = os.environ
             env['PATH'] = env['PATH'] + ';' + os.path.join(env['OMNI_ROOT'], 'bin', 'x86_win32')
-            print env['PATH']
+            # print env['PATH']
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
             p.wait()
+
             if not verbose:
                 errmsg = p.stderr.read()
             else:
                 errmsg = ""
-            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+            err_code = (errmsg.find('error') < 0 and errmsg.find('Error') < 0 and p.returncode == 0)
+            return (err_code, errmsg)
 
     elif sys.platform == 'darwin':
         if verbose:
