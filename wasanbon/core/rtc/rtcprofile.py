@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, traceback
+import os, traceback, types
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
@@ -108,7 +108,7 @@ default_doc_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 class Doc(Node):
     def __init__(self, node=None):
-        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_doc_profile))
+        Node.__init__(self, xml.etree.ElementTree.fromstring(node) if type(node) is types.StringType else node if node is not None else xml.etree.ElementTree.fromstring(default_doc_profile))
         if node is None:
             self['rtcDoc:description'] = ''
         #self.children.append(self.doc)
@@ -143,7 +143,9 @@ class DataPort(Node):
 
 
 default_serviceport_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rtc:ServicePorts xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceport_ext" rtcExt:position="LEFT" rtc:name="NAO_srv" />
+<rtc:ServicePorts xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceport_ext" rtcExt:position="LEFT" rtc:name="NAO_srv"> 
+  <rtcDoc:Doc rtcDoc:ifdescription="" rtcDoc:description=""/>
+</rtc:ServicePorts>
 """
 
 class ServicePort(Node):
@@ -166,7 +168,9 @@ class ServicePort(Node):
         return self['rtc:name'] == sp['rtc:name']
 
 default_serviceinterface_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rtc:ServiceInterfaces xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="motion" rtc:path="/Users/ysuga/rtm/idl" rtc:type="ssr::ALMotion" rtc:idlFile="/Users/ysuga/rtm/idl/NAO.idl" rtc:instanceName="ALMotion" rtc:direction="Provided" rtc:name="ALMotion"/>
+<rtc:ServiceInterfaces xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="motion" rtc:path="/Users/ysuga/rtm/idl" rtc:type="ssr::ALMotion" rtc:idlFile="/Users/ysuga/rtm/idl/NAO.idl" rtc:instanceName="ALMotion" rtc:direction="Provided" rtc:name="ALMotion">
+  <rtcDoc:Doc rtcDoc:docPostCondition="" rtcDoc:docPreCondition="" rtcDoc:docException="" rtcDoc:docReturn="" rtcDoc:docArgument="" rtcDoc:description=""/>
+</rtc:ServiceInterfaces>
 """
 
 class ServiceInterface(Node):
@@ -178,6 +182,9 @@ class ServiceInterface(Node):
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
+            
+    def equals(self, si):
+        return self.name == si.name and self.type == si.type and self.direction == si.direction
 
 default_configuration_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:Configuration xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:configuration_ext" rtcExt:variableName="ipaddress" rtc:unit="" rtc:defaultValue="nao.local" rtc:type="string" rtc:name="ipaddress">
@@ -185,23 +192,31 @@ default_configuration_profile = """<?xml version="1.0" encoding="UTF-8" standalo
 </rtc:Configuration>
 """
 
+default_configurationset_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:ConfigurationSet xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:ConfigurationSet>
+"""
+
 class Configuration(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_configuration_profile))
 
-        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        docs = self.node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
         if len(docs) != 0:
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
         self.children.append(self.doc)
+
+    def equals(self, cf):
+        return cf.name == self.name
     
 class ConfigurationSet(Node):
-    def __init__(self, node):
-        Node.__init__(self, node)
-        [uri, tag] = normalize(node.tag)
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_configurationset_profile))
+        [uri, tag] = normalize(self.node.tag)
         self.configurations = []
-        for c in node.findall('{%s}Configuration' % uri):
+        for c in self.node.findall('{%s}Configuration' % uri):
             conf = Configuration(c)
             self.configurations.append(conf)
             self.children.append(conf)
@@ -297,7 +312,7 @@ class RTCProfile(Node):
                 if len(docs) != 0:
                     self.basicInfo.doc = Doc(docs[0])
                 else:
-                    self.basicInfo.doc = Doc()
+                    self.basicInfo.doc = Doc(default_basicInfo_doc_str)
                 self.basicInfo.children.append(self.basicInfo.doc)
 
                 self.children.append(self.basicInfo)
@@ -331,6 +346,7 @@ class RTCProfile(Node):
                 self.children.append(ServicePort(sport))
 
             self.configurationSet = None
+            # self.children.append(self.configurationSet)
             if len(root.findall('{%s}ConfigurationSet' % uri)) > 1:
                 raise InvalidRTCProfileError(filename, 'Multiple ConfigurationSet Node.')
 
@@ -404,10 +420,14 @@ def gettag(name):
     [uri, tag] = normalize(name)
     return tag
 
+default_basicInfo_doc_str = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <rtcDoc:Doc xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" rtcDoc:reference="" rtcDoc:license="" rtcDoc:creator="" rtcDoc:algorithm="" rtcDoc:inout="" rtcDoc:description=""/>
+"""
 
 default_rtcprofile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:RtcProfile rtc:version="0.2" rtc:id="RTC:MODULE_VENDOR:MODULE_CATEGORY:MODULE_NAME:MODULE_VERSION" xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <rtc:BasicInfo xsi:type="rtcExt:basic_info_ext" rtcExt:saveProject="PROJECT_NAME" rtc:updateDate="2013-07-18T11:35:13.287+09:00" rtc:creationDate="2013-07-17T13:19:33+09:00" rtc:version="MODULE_VERSION" rtc:vendor="MODULE_VENDOR" rtc:maxInstances="1" rtc:executionType="PeriodicExecutionContext" rtc:executionRate="1000.0" rtc:description="MODULE_DESCRIPTION" rtc:category="MODULE_CATEGORY" rtc:componentKind="DataFlowComponent" rtc:activityType="PERIODIC" rtc:componentType="STATIC" rtc:name="MODULE_NAME">
+        <rtcDoc:Doc rtcDoc:reference="" rtcDoc:license="" rtcDoc:creator="" rtcDoc:algorithm="" rtcDoc:inout="" rtcDoc:description=""/>
         <rtcExt:VersionUpLogs></rtcExt:VersionUpLogs>
     </rtc:BasicInfo>
     <rtc:Actions>
@@ -448,7 +468,8 @@ default_rtcprofile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <rtc:ServiceInterface xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="videoDevice" rtc:path="/Users/ysuga/rtm/idl" rtc:type="ssr::ALVideoDevice" rtc:idlFile="/Users/ysuga/rtm/idl/NAO.idl" rtc:instanceName="ALVideoDevice" rtc:direction="Provided" rtc:name="ALVideoDevice"/>
     </rtc:ServicePorts>
 -->
-    <rtc:Language xsi:type="rtcExt:language_ext" rtc:kind="Language"/>
+    <rtc:Language xsi:type="rtcExt:language_ext" rtc:kind="Language">
+    </rtc:Language>
 </rtc:RtcProfile>
 """
 
@@ -511,6 +532,18 @@ class RTCProfileBuilder():
                 self.rtcp.serviceports.remove(s)
                 self.rtcp.children.remove(s)
 
+        pass
+
+    def removeServiceInterfaceFromServicePort(self, servicePortName, serviceInterfaceName):
+        for sp in self.rtcp.serviceports:
+            if sp.name == servicePortName:
+                for si in sp.serviceInterfaces:
+                    if si.name == serviceInterfaceNaem:
+                        sp.serviceInterfaces.remove(si)
+                        sp.children.remove(si)
+                        return
+        pass
+
     def appendServiceInterfaceToServicePort(self, servicePortName, path, idlFile, type, direction, name, instanceName=None):
         si = ServiceInterface()
         si['rtc:name'] = name
@@ -529,7 +562,15 @@ class RTCProfileBuilder():
         class ServicePortNotFoundException(Exception):
             pass
         raise ServicePortNotFoundException()
-                                            
+    
+
+
+    def removeConfiguration(self, name):
+        for cf in self.rtcp.configurationSet.configurations:
+            if cf.name == name:
+                self.rtcp.configurationSet.configurations.remove(cf)
+                self.rtcp.configurationSet.children.remove(cf)
+        pass
 
     def appendConfiguration(self, type, name, defaultValue):
         cf = Configuration()
@@ -537,6 +578,13 @@ class RTCProfileBuilder():
         cf['rtcExt:variableName'] = name
         cf['rtc:type'] = type
         cf['rtc:defaultValue'] = defaultValue
+        try:
+            if self.rtcp.configurationSet == None:
+                cs = ConfigurationSet()
+                self.rtcp.configurationSet = cs
+                self.rtcp.children.append(cs)
+        except:
+            traceback.print_exc()
         self.rtcp.configurationSet.configurations.append(cf)
         self.rtcp.configurationSet.children.append(cf)
 
