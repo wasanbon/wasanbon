@@ -469,6 +469,8 @@ def _verify(_package, rtcname, verbose=False, force=False):
                 rtc.verify_rtcprofile(rtc_, verbose=True)
                 break
             except:
+                if verbose:
+                    traceback.print_exc()
                 pass
     except KeyboardInterrupt, e:
         sys.stdout.write(' -- Aborted.\n')

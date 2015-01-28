@@ -4,6 +4,7 @@ import os, traceback
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
+import lxml.etree
 #import search_rtc
 
 ##############
@@ -99,7 +100,7 @@ class Node(object):
 """
 default_dataport_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:DataPorts xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:dataport_ext" rtcExt:position="RIGHT" rtcExt:variableName="camera" rtc:unit="" rtc:subscriptionType="" rtc:dataflowType="" rtc:interfaceType="" rtc:idlFile="" rtc:type="RTC::CameraImage" rtc:name="camera" rtc:portType="DataOutPort">
-        <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description="bumper data (lfoot_left, lfoot_right, rfoot_left, rfoot_right)"/>
+        <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description=""/>
     </rtc:DataPorts>
 """
 default_doc_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -110,6 +111,7 @@ class Doc(Node):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_doc_profile))
         if node is None:
             self['rtcDoc:description'] = ''
+        #self.children.append(self.doc)
 
     def __getattr__(self, key):
         if key.find('_') > 0:
@@ -124,11 +126,13 @@ class DataPort(Node):
         #for si in node.findall('{%s}ServiceInterface' % uri):
         #    self.serviceInterfaces.append(Node(si))
         #    self.children.append(Node(si))
-        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        docs = self.node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
         if len(docs) != 0:
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
+
+        self.children.append(self.doc)
 
     def equals(self, dp):
         return self['rtc:name'] == dp['rtc:name'] and \
@@ -156,7 +160,10 @@ class ServicePort(Node):
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
-            
+        self.children.append(self.doc)
+
+    def equals(self, sp):
+        return self['rtc:name'] == sp['rtc:name']
 
 default_serviceinterface_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <rtc:ServiceInterfaces xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="rtcExt:serviceinterface_ext" rtcExt:variableName="motion" rtc:path="/Users/ysuga/rtm/idl" rtc:type="ssr::ALMotion" rtc:idlFile="/Users/ysuga/rtm/idl/NAO.idl" rtc:instanceName="ALMotion" rtc:direction="Provided" rtc:name="ALMotion"/>
@@ -187,7 +194,7 @@ class Configuration(Node):
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
-    
+        self.children.append(self.doc)
     
 class ConfigurationSet(Node):
     def __init__(self, node):
@@ -216,7 +223,7 @@ class Actions(Node):
             self.children.append(a)
 
 def save_rtcprofile(rtcp, filename):
-    # print 'saving rtcprofile'
+    print 'saving rtcprofile to ', filename
     rtcp.actions.OnExecute.implemented = 'false' #setImplemented(True)
     def save_sub(elem, node):
         #print 'saving ', node, ' to ', elem
@@ -248,7 +255,15 @@ def save_rtcprofile(rtcp, filename):
     #root.set('xmlns:rtc', "http://www.openrtp.org/namespaces/rtc")
     #root.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
 
-    open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
+    #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
+    print 'writing', filename
+    try:
+        tree = lxml.etree.ElementTree(lxml.etree.fromstring(xml.etree.ElementTree.tostring(root)))
+
+        tree.write(filename, pretty_print=True)
+    except:
+        traceback.print_exc()
+    
     # print xml.etree.ElementTree.tostring(root)
     pass
 
@@ -283,6 +298,7 @@ class RTCProfile(Node):
                     self.basicInfo.doc = Doc(docs[0])
                 else:
                     self.basicInfo.doc = Doc()
+                self.basicInfo.children.append(self.basicInfo.doc)
 
                 self.children.append(self.basicInfo)
 
@@ -293,7 +309,7 @@ class RTCProfile(Node):
                     self.language.doc = Doc(docs[0])
                 else:
                     self.language.doc = Doc()
-                    
+                self.language.children.append(self.language.doc)                    
                 self.children.append(self.language)
 
             for action in root.findall('{%s}Actions' % uri):
@@ -419,7 +435,7 @@ default_rtcprofile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </rtc:ConfigurationSet>
 <!--
     <rtc:DataPorts xsi:type="rtcExt:dataport_ext" rtcExt:position="RIGHT" rtcExt:variableName="camera" rtc:unit="" rtc:subscriptionType="" rtc:dataflowType="" rtc:interfaceType="" rtc:idlFile="" rtc:type="RTC::CameraImage" rtc:name="camera" rtc:portType="DataOutPort">
-        <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description="bumper data (lfoot_left, lfoot_right, rfoot_left, rfoot_right)"/>
+        <rtcDoc:Doc rtcDoc:operation="" rtcDoc:occerrence="" rtcDoc:unit="" rtcDoc:semantics="" rtcDoc:number="" rtcDoc:type="" rtcDoc:description=""/>
     </rtc:DataPorts>
 -->
 <!--
@@ -489,6 +505,11 @@ class RTCProfileBuilder():
         self.rtcp.serviceports.append(sp)
         self.rtcp.children.append(sp)
 
+    def removeServicePort(self, sp):
+        for s in self.rtcp.serviceports:
+            if s.equals(sp):
+                self.rtcp.serviceports.remove(s)
+                self.rtcp.children.remove(s)
 
     def appendServiceInterfaceToServicePort(self, servicePortName, path, idlFile, type, direction, name, instanceName=None):
         si = ServiceInterface()

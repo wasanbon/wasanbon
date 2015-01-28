@@ -97,29 +97,30 @@ def print_rtcprofile(rtcp):
             sys.stdout.write('    type         : ' + c.type + '\n')
             sys.stdout.write('    defaultValue : ' + c.defaultValue + '\n')
 
-
     from wasanbon.core.rtc import rtcprofile
     rtcprofile.save_rtcprofile(rtcp, "test.xml")
 
 
 def verify_rtcprofile(rtc, verbose=False):
+    if verbose: sys.stdout.write(' - Verifying RTC profile\n')
     rtcp = rtc.rtcprofile
     rtcp_real = create_rtcprofile(rtc, verbose=verbose)
     rtcp_new = compare_rtcprofile(rtcp, rtcp_real, verbose=verbose)
+    wasanbon.core.rtc.rtcprofile.save_rtcprofile(rtcp_real, "temp.xml")
     print_rtcprofile(rtcp_new)
+    return rtcp_new
 
 def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     from wasanbon.core.rtc import rtcprofile
     b = rtcprofile.RTCProfileBuilder(rtcp)
+    modifiedFlag = False
     # compare dataports
     if verbose: sys.stdout.write(' - Comparing RTC.xml with Running RTC(%s)\n' % (rtcp.name))
     for dp in rtcp.dataports:
         match_flag = False
         if verbose:
-            sys.stdout.write(' Searching DataPort %s : %s... ' % (dp['rtc:name'], dp['rtc:type']))
+            sys.stdout.write(' - Searching DataPort %s : %s... ' % (dp['rtc:name'], dp['rtc:type']))
         for dp_real in rtcp_real.dataports:
-            #if verbose:
-                #sys.stdout.write(' Testing %s : %s...\n' % (dp_real['rtc:name'], dp_real['rtc:type']))
             if dp.equals(dp_real):
                 match_flag = True
                 break
@@ -127,10 +128,46 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
         if not match_flag: # RTC.xml does not have dp
             if verbose: sys.stdout.write('Not Found in the running RTC\n')
             b.removeDataPort(dp)
+            modifiedFlag = True
         else:
             if verbose: sys.stdout.write('Match.\n')
-            
+
+    for dp_real in rtcp_real.dataports:
+        match_flag = False
+        if verbose:
+            sys.stdout.write(' - Searching DataPort %s : %s... ' % (dp_real['rtc:name'], dp_real['rtc:type']))
+        for dp in rtcp.dataports:
+            if dp.equals(dp_real):
+                match_flag = True
+                break
+        
+        if not match_flag: # RTC.xml does not have dp
+            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            b.appendDataPort(dp_real.portType, dp_real.type, dp_real.name)
+            modifiedFlag = True
+        else:
+            if verbose: sys.stdout.write('Match.\n')
+
+    for sp in rtcp.serviceports:
+        match_flag = False
+        if verbose:
+            sys.stdout.write(' - Searching ServicePort %s ' % (sp['rtc:name']))
+        for sp_real in rtcp.serviceports:
+            if sp.equals(sp_real):
+                match_flag = True
+                break
+        if not match_flag:
+            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            b.removeServicePort(sp)
+            modifiedFlag = True
+        else:
+            if verbose: sys.stdout.write('Match.\n')
+
+    
+    if modifiedFlag:
+        return b.buildRTCProfile()
     return b.buildRTCProfile()
+#return None
 
 def create_rtcprofile(rtc, verbose=False):
     import rtcprofile
