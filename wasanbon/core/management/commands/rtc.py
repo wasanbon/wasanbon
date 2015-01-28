@@ -466,7 +466,14 @@ def _verify(_package, rtcname, verbose=False, force=False):
         for i in range(0, 3):
             time.sleep(1)
             try:
-                rtc.verify_rtcprofile(rtc_, verbose=True)
+                new_rtcp = rtc.verify_rtcprofile(rtc_, verbose=True)
+                full_path = rtc_.rtcprofile.path
+                if new_rtcp:
+                    sys.stdout.write(' - Updating RTC.xml....\n')
+                    if os.path.isfile(full_path):
+                        os.rename(full_path, full_path + wasanbon.timestampstr())
+                    rtc.rtcprofile.save_rtcprofile(new_rtcp, full_path)
+                    sys.stdout.write(' - Done\n')
                 break
             except:
                 if verbose:

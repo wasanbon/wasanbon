@@ -106,8 +106,9 @@ def verify_rtcprofile(rtc, verbose=False):
     rtcp = rtc.rtcprofile
     rtcp_real = create_rtcprofile(rtc, verbose=verbose)
     rtcp_new = compare_rtcprofile(rtcp, rtcp_real, verbose=verbose)
-    wasanbon.core.rtc.rtcprofile.save_rtcprofile(rtcp_real, "temp.xml")
-    print_rtcprofile(rtcp_new)
+    if rtcp_new: # There is modification
+        wasanbon.core.rtc.rtcprofile.save_rtcprofile(rtcp_real, "temp.xml")
+        #print_rtcprofile(rtcp_new)
     return rtcp_new
 
 def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
@@ -166,8 +167,7 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     
     if modifiedFlag:
         return b.buildRTCProfile()
-    return b.buildRTCProfile()
-#return None
+    return None
 
 def create_rtcprofile(rtc, verbose=False):
     import rtcprofile
