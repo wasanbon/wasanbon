@@ -63,21 +63,31 @@ class RtcRepository():
         if self._protocol == 'hg':
             return self.hg_clone(path=path, verbose=verbose)
 
-    def git_clone(self, path='.', verbose=False):
+    def git_clone(self, path='.', verbose=False, rename_policy='num'):
         curdir = os.getcwd()
         os.chdir(path)
         distpath = os.path.basename(self.url)
         if distpath.endswith('.git'):
             distpath = distpath[:-4]
-        if os.path.isdir(os.path.join(os.getcwd(), distpath)):
+        while os.path.isdir(os.path.join(os.getcwd(), distpath)):
             sys.stdout.write(' - Directory already exists.\n')
-            try:
-                git_obj = git.GitRepository(os.path.join(os.getcwd(), distpath))
-                git_obj.change_upstream_pointer(self.url, verbose=verbose)
-                return rtc_object.RtcObject(os.path.join(path, distpath))
-            except:# git.GitRepositoryNotFoundException, ex:
-                sys.stdout.write(' - Directory is not git repository\n')
-                return None
+            if rename_policy == 'num':
+                try:
+                    n = int(distpath[-1]) + 1
+                except ValueError, e:
+                    n = 1
+
+                distpath = distpath + str(n)
+            else:
+                distpath = distpath + '_'
+
+            #try:
+            #    git_obj = git.GitRepository(os.path.join(os.getcwd(), distpath))
+            #    git_obj.change_upstream_pointer(self.url, verbose=verbose)
+            #    return rtc_object.RtcObject(os.path.join(path, distpath))
+            #except:# git.GitRepositoryNotFoundException, ex:
+            #    sys.stdout.write(' - Directory is not git repository\n')
+            #    return None
         
         git.git_command(['clone', self.url, distpath], verbose=verbose)
         distpath_full = os.path.join(os.getcwd(), distpath)
