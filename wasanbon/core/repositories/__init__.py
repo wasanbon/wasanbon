@@ -170,6 +170,7 @@ def load_repositories(repo_dir=default_repo_directory, verbose=False, all_platfo
                     try:
                         with open(os.path.join(rtcs_dir, file), 'r') as f:
                             y = yaml.load(f)
+
                             if y:
                                 rtc_repos = dict(rtc_repos, **y)
                     except Exception, ex:

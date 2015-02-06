@@ -106,9 +106,6 @@ def verify_rtcprofile(rtc, verbose=False):
     rtcp = rtc.rtcprofile
     rtcp_real = create_rtcprofile(rtc, verbose=verbose)
     rtcp_new = compare_rtcprofile(rtcp, rtcp_real, verbose=verbose)
-    if rtcp_new: # There is modification
-        wasanbon.core.rtc.rtcprofile.save_rtcprofile(rtcp_real, "temp.xml")
-        #print_rtcprofile(rtcp_new)
     return rtcp_new
 
 def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
@@ -143,7 +140,7 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                 break
         
         if not match_flag: # RTC.xml does not have dp
-            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            if verbose: sys.stdout.write('Not Found in the existing RTC.xml\n')
             b.appendDataPort(dp_real.portType, dp_real.type, dp_real.name)
             modifiedFlag = True
         else:
@@ -152,15 +149,14 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     for sp in rtcp.serviceports:
         match_flag = False
         if verbose:
-            sys.stdout.write(' - Searching ServicePort %s (writeen in RTC.xml)' % (sp['rtc:name']))
+            sys.stdout.write(' - Searching ServicePort %s (writeen in RTC.xml) ...' % (sp['rtc:name']))
         for sp_real in rtcp_real.serviceports:
             if sp.equals(sp_real):
                 match_flag = True
-                if verbose: sys.stdout.write('Match.\n')
-
+                if verbose: sys.stdout.write(' - Match.\n')
                 for i in sp.serviceInterfaces:
                     i_match_flag = False
-                    if verbose: sys.stdout.write(' - Searching ServiceInterface %s :: %s (written in RTC.xml)' % (i.name, i.type))
+                    if verbose: sys.stdout.write(' - Searching ServiceInterface %s :: %s (written in RTC.xml) ... ' % (i.name, i.type))
                     for i_real in sp_real.serviceInterfaces:
                         if i.equals(i_real):
                             i_match_flag = True
@@ -171,7 +167,7 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                         modifiedFlag = True
                 break
         if not match_flag:
-            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            if verbose: sys.stdout.write(' - Not Found in the running RTC\n')
             b.removeServicePort(sp)
             modifiedFlag = True
 
@@ -183,7 +179,7 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
         for sp in rtcp.serviceports:
             if sp.equals(sp_real):
                 match_flag = True
-                if verbose: sys.stdout.write('Match.\n')
+                if verbose: sys.stdout.write(' - Match.\n')
 
                 for i in sp.serviceInterfaces:
                     i_match_flag = False
@@ -194,18 +190,18 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                             if verbose: sys.stdout.write(' - Match\n')
                     if not i_match_flag:
                         if verbose: sys.stdout.write(' - Not Found.\n')
-                        b.appendServiceInterfaceFromServicePort(sp_real.name, "", "", i.type, i.direction, i.name)
+                        b.appendServiceInterfaceToServicePort(sp_real.name, "", "", i.type, i.direction, i.name)
                         modifiedFlag = True
                 break
         if not match_flag:
-            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            if verbose: sys.stdout.write('Not Found in RTC.xml\n')
             b.appendServicePort(sp_real)
             modifiedFlag = True
 
     if rtcp.configurationSet:
         for conf in rtcp.configurationSet.configurations:
             match_flag = False
-            if verbose: sys.stdout.write(' - Searching Configuration %s (written in RTC.xml)' % (conf.name))
+            if verbose: sys.stdout.write(' - Searching Configuration %s (written in RTC.xml) ... ' % (conf.name))
             for conf_real in rtcp_real.configurationSet.configurations:
                 if conf.equals(conf_real):
                     match_flag = True
@@ -223,7 +219,7 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     
     for conf_real in rtcp_real.configurationSet.configurations:
         match_flag = False
-        if verbose: sys.stdout.write(' - Searching Configuration %s (implemented in RTC)' % (conf_real.name))
+        if verbose: sys.stdout.write(' - Searching Configuration %s (implemented in RTC) ...' % (conf_real.name))
         if rtcp.configurationSet:
             for conf in rtcp.configurationSet.configurations:
                 if conf.equals(conf_real):
@@ -233,13 +229,14 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                 pass
             pass
         if not match_flag:
-            if verbose: sys.stdout.write('Not Found in the running RTC\n')
+            if verbose: sys.stdout.write('Not Found in the existing RTC.xml\n')
             b.appendConfiguration(conf_real.type, conf_real.name, conf_real.defaultValue)
             modifiedFlag = True
             pass
         pass
 
     if modifiedFlag:
+        if verbose: sys.stdout.write(" - modified.\n")
         return b.buildRTCProfile()
     return None
 
@@ -282,7 +279,7 @@ def create_rtcprofile(rtc, verbose=False):
                 path = ""
                 idlFile = ""
                 rtcb.appendServiceInterfaceToServicePort(p.name, path, idlFile, i.type_name,
-                                                         i.polarity_as_string(),
+                                                         i.polarity_as_string(add_colour=False),
                                                          i.instance_name)
         
     return rtcb.buildRTCProfile()

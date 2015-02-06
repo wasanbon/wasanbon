@@ -54,9 +54,12 @@ class GitRepository():
     def pull(self, verbose=False):
         curdir = os.getcwd()
         os.chdir(self.path)
-        wasanbon.util.git.git_command(['pull', 'origin', 'master'], verbose=verbose)
+        p = wasanbon.util.git.git_command(['pull', 'origin', 'master'], verbose=verbose)
+        p.wait()
+        if p.stdout.read().strip() == 'Already up-to-date.':
+            return 0
         os.chdir(curdir)
-        pass
+        return 1
 
     def push(self, verbose=False, username=None, password=None):
         curdir = os.getcwd()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, traceback, types
+import os, traceback, types, copy
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
@@ -57,6 +57,7 @@ class Node(object):
         self.__dict__['node']  = node
         self.__dict__['attrib'] = node.attrib
         self.__dict__['children'] = []
+        self.__dict__['text'] = node.text
 
     def setNode(self, node):
         pass
@@ -78,15 +79,23 @@ class Node(object):
         if not uri:
             print 'Unknown URI: ' , tokens[0]
         self.node.attrib['{%s}%s' % (uri, tokens[1])] = value
-        
-        
+
+    def deepcopy(self, obj):
+        #return self.__getattribute__('__deepcopy__')(self, obj)
+        return object.deepcopy(self, obj)
+
     def keys(self):
         return [get_short_ns(key.split('}')[0][1:]) + ':' + key.split('}')[1] for key in self.node.attrib.keys()]
 
     def __getattr__(self, key):
-        if key.find('_') > 0:
+        if key.startswith('__'):
+            return self.__getattribute__(key)
+        elif key.find('_') > 0:
             return self.__getitem__(key.replace('_', ':'))
         return self.__getitem__('rtc:'+key)
+
+    def gettext(self):
+        return self.node.text
 
 
     #def __setattr__(self, name, value):
@@ -113,10 +122,38 @@ class Doc(Node):
             self['rtcDoc:description'] = ''
         #self.children.append(self.doc)
 
+    def deepcopy(self, obj):
+        return Node.deepcopy(self, obj)
+
     def __getattr__(self, key):
+        if key.startswith('__'):
+            return self.__getattribute__(key)
         if key.find('_') > 0:
             return self.__getitem__(key.replace('_', ':'))
         return self.__getitem__('rtcDoc:'+key)
+
+default_properties_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ <rtcDoc:Doc  xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+rtcExt:name="" rtcExt:value="" />"""
+
+class Properties(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, xml.etree.ElementTree.fromstring(node) if type(node) is types.StringType else node if node is not None else xml.etree.ElementTree.fromstring(default_properties_profile))
+        if node is None:
+            self['rtcExt:name'] = '__widget__'
+            self['rtcExt:value'] = 'text'
+
+    def deepcopy(self, obj):
+        return Node.deepcopy(self, obj)
+
+    def __getattr__(self, key):
+        if key.startswith('__'):
+            return self.__getattribute__(key)
+        if key.find('_') > 0:
+            return self.__getitem__(key.replace('_', ':'))
+        return self.__getitem__('rtcExt:'+key)
+
+
         
 class DataPort(Node):
     def __init__(self, node=None):
@@ -154,10 +191,11 @@ class ServicePort(Node):
         [uri, tag] = normalize(self.node.tag)
         self.serviceInterfaces = []
         for si in self.node.findall('{%s}ServiceInterface' % uri):
-            self.serviceInterfaces.append(ServiceInterface(si))
-            self.children.append(Node(si))
+            si_ = ServiceInterface(si)
+            self.serviceInterfaces.append(si_)
+            self.children.append(si_)
 
-        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        docs = self.node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
         if len(docs) != 0:
             self.doc = Doc(docs[0])
         else:
@@ -176,8 +214,7 @@ default_serviceinterface_profile = """<?xml version="1.0" encoding="UTF-8" stand
 class ServiceInterface(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_serviceinterface_profile))
-        
-        docs = node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        docs = self.node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
         if len(docs) != 0:
             self.doc = Doc(docs[0])
         else:
@@ -197,6 +234,8 @@ default_configurationset_profile = """<?xml version="1.0" encoding="UTF-8" stand
 </rtc:ConfigurationSet>
 """
 
+        
+
 class Configuration(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_configuration_profile))
@@ -208,8 +247,24 @@ class Configuration(Node):
             self.doc = Doc()
         self.children.append(self.doc)
 
+        props = self.node.findall('{%s}Properties' % get_long_ns('rtcExt'))
+        if len(props) != 0:
+            self.properties = Properties(props[0])
+        else:
+            self.properties = Properties()
+        self.children.append(self.properties)
+
+        const = self.node.findall('{%s}Constraint' % get_long_ns('rtc'))
+        if len(const) != 0:
+            self.constraint = Constraint(const[0])
+            self.children.append(self.constraint)
+        
+
     def equals(self, cf):
         return cf.name == self.name
+
+    def __repr__(self):
+        return self.name
     
 class ConfigurationSet(Node):
     def __init__(self, node=None):
@@ -220,6 +275,105 @@ class ConfigurationSet(Node):
             conf = Configuration(c)
             self.configurations.append(conf)
             self.children.append(conf)
+
+    def __repr__(self):
+        return self.node.tag
+
+default_constraint_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:Constraint xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:Constraint>
+"""
+class Constraint(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_constraint_profile))
+        [uri, tag] = normalize(self.node.tag)
+        ut = self.node.findall('{%s}ConstraintUnitType' % get_long_ns('rtc'))
+        if len(ut) != 0:
+            self.constraintUnitType = ConstraintUnitType(ut[0])
+        else:
+            self.constraintUnitType = ConstraintUnitType()
+        self.children.append(self.constraintUnitType)
+
+default_constraintunittype_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:ConstraintUnitType xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:ConstraintUnitType>
+"""
+
+class ConstraintUnitType(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_constraintunittype_profile))
+        [uri, tag] = normalize(self.node.tag)
+
+
+        cc = self.node.findall('{%s}Or' % get_long_ns('rtc'))
+        if len(cc) != 0:
+            self.constraint = Or(cc[0])
+            self.children.append(self.constraint)
+        else:
+            cc = self.node.findall('{%s}Constraint' % get_long_ns('rtc'))
+            if len(cc) != 0:
+                self.constraint = Constraint(cc[0])
+                self.children.append(self.constraint)
+            else:
+                cc = self.node.findall('{%s}propertyIsEqualTo' % get_long_ns('rtc'))
+                if len(cc) != 0:
+                    self.constraint = PropertyIsEqualTo(cc[0])
+                    self.children.append(self.constraint)
+                else:
+                    pass
+                pass
+            pass
+
+    def addChild(self, node):
+        self.constraint = node
+        self.children.append(node)
+
+default_propertyisequalto_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:propertyIsEqualTo rtc:matchCase="false" xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:propertyIsEqualTo>
+"""
+
+class PropertyIsEqualTo(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_propertyisequalto_profile))
+
+        cc = self.node.findall('{%s}Literal' % get_long_ns('rtc'))
+        if len(cc) != 0:
+            self.literal = Literal(cc[0])
+        else:
+            self.literal = Literal()
+
+        self.children.append(self.literal)
+
+default_literal_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:Literal xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:Literal>
+"""
+
+class Literal(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_literal_profile))
+        self.text = self.node.text
+
+
+default_or_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rtc:Or xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</rtc:Or>
+"""
+
+class Or(Node):
+    def __init__(self, node=None):
+        Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_or_profile))
+
+        self.constraints = []
+        cc = self.node.findall('{%s}Constraint' % get_long_ns('rtc'))
+        for c in cc:
+            self.appendConstraint(Constraint(c))
+            pass
+
+    def appendConstraint(self, constraint):
+        self.constraints.append(constraint)
+        self.children.append(constraint)
 
 class Action(Node):
     def __init__(self, node):
@@ -239,20 +393,23 @@ class Actions(Node):
 
 def save_rtcprofile(rtcp, filename):
     print 'saving rtcprofile to ', filename
-    rtcp.actions.OnExecute.implemented = 'false' #setImplemented(True)
     def save_sub(elem, node):
-        #print 'saving ', node, ' to ', elem
         for key, value in node.attrib.items(): # set attribute
-            #print 'key:', key
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
             elem.set(name, value)
 
+        if not node.gettext() is None:
+            if len(node.gettext().strip()) > 0:
+                elem.text = node.gettext()
+
         for child in node.children:
             key = child.node.tag
+
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
             subelem = xml.etree.ElementTree.SubElement(elem, name)
-            #elem.append(subelem)
             save_sub(subelem, child)
+
+            
             
 
 
@@ -271,9 +428,11 @@ def save_rtcprofile(rtcp, filename):
     #root.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
 
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
-    print 'writing', filename
+    print ' - writing', filename
     try:
-        tree = lxml.etree.ElementTree(lxml.etree.fromstring(xml.etree.ElementTree.tostring(root)))
+        str = xml.etree.ElementTree.tostring(root)
+        t = lxml.etree.fromstring(str)
+        tree = lxml.etree.ElementTree(t)
 
         tree.write(filename, pretty_print=True)
     except:
@@ -319,12 +478,12 @@ class RTCProfile(Node):
 
             for language in root.findall('{%s}Language' % uri):
                 self.language = Node(language) #language.attrib['{%s}kind' % uri]
-                docs = language.findall('{%s}Doc' % get_long_ns('rtcDoc'))
-                if len(docs) != 0:
-                    self.language.doc = Doc(docs[0])
-                else:
-                    self.language.doc = Doc()
-                self.language.children.append(self.language.doc)                    
+                #docs = language.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+                #if len(docs) != 0:
+                #    self.language.doc = Doc(docs[0])
+                #else:
+                #    self.language.doc = Doc()
+                #self.language.children.append(self.language.doc)                    
                 self.children.append(self.language)
 
             for action in root.findall('{%s}Actions' % uri):
@@ -342,8 +501,9 @@ class RTCProfile(Node):
 
             self.serviceports = []
             for sport in root.findall('{%s}ServicePorts' % uri):
-                self.serviceports.append(ServicePort(sport))
-                self.children.append(ServicePort(sport))
+                sp = ServicePort(sport)
+                self.serviceports.append(sp)
+                self.children.append(sp)
 
             self.configurationSet = None
             # self.children.append(self.configurationSet)
@@ -351,8 +511,10 @@ class RTCProfile(Node):
                 raise InvalidRTCProfileError(filename, 'Multiple ConfigurationSet Node.')
 
             for cset in root.findall('{%s}ConfigurationSet' % uri):
-                self.configurationSet = (ConfigurationSet(cset))
-                self.children.append(ConfigurationSet(cset))
+                cs = ConfigurationSet(cset)
+                self.configurationSet = cs
+                self.children.append(cs)
+                break
 
         except Exception, e:
             traceback.print_exc()
@@ -483,7 +645,7 @@ class RTCProfileBuilder():
     """
     def __init__(self, rtcp=None):
         if rtcp:
-            self.rtcp = rtcp
+            self.rtcp = copy.deepcopy(rtcp)
         else:
             self.rtcp = RTCProfile()
 
@@ -538,7 +700,7 @@ class RTCProfileBuilder():
         for sp in self.rtcp.serviceports:
             if sp.name == servicePortName:
                 for si in sp.serviceInterfaces:
-                    if si.name == serviceInterfaceNaem:
+                    if si.name == serviceInterfaceName:
                         sp.serviceInterfaces.remove(si)
                         sp.children.remove(si)
                         return
@@ -585,8 +747,11 @@ class RTCProfileBuilder():
                 self.rtcp.children.append(cs)
         except:
             traceback.print_exc()
+
         self.rtcp.configurationSet.configurations.append(cf)
         self.rtcp.configurationSet.children.append(cf)
+
+
 
     def buildRTCProfile(self):
         return self.rtcp

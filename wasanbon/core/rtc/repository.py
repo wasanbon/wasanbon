@@ -109,7 +109,7 @@ class RtcRepository():
                     #    #return
 
     def get_readme(self, verbose=False, service='github', force_download=False):
-        prof_dir = os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.repo_name)
+        prof_dir = os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.name)
         readme_path = os.path.join(prof_dir, 'README.' + self.repo_name)
         readme_text = ''
         if os.path.isfile(readme_path): 
@@ -142,7 +142,7 @@ class RtcRepository():
         if not os.path.isdir(prof_root_dir):
             os.mkdir(prof_root_dir)
 
-        prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.repo_name)
+        prof_dir =  os.path.join(wasanbon.rtm_temp(), 'rtcprofile', self.name)
         if not os.path.isdir(prof_dir):
             os.mkdir(prof_dir)
         fullpath = os.path.join(prof_dir, self.repo_name + '.xml')
@@ -171,7 +171,8 @@ class RtcRepository():
             if os.path.isfile(setting_fullpath):
                 os.rename(setting_fullpath, setting_fullpath + wasanbon.timestampstr())
             f = open(setting_fullpath, 'w')
-            f.write('name : %s\n' % self.repo_name)
+            f.write('name : %s\n' % self.name)
+            f.write('repo_name : %s\n' % self.repo_name)
             f.write('url : %s\n' % self.url)
             f.write('platform : %s\n' % self.platform)
             f.close()

@@ -206,9 +206,12 @@ def execute_with_argv(args, verbose, force=False, clean=False):
 
     elif argv[2] == 'pull':
         wasanbon.arg_check(argv, 4)
-        sys.stdout.write(' @ Pulling the changing upstream RTC repository %s\n' % argv[3])
+        sys.stdout.write(' # Pulling the changing upstream RTC repository %s\n' % argv[3])
         rtc_ = get_rtc_rtno(_package, argv[3], verbose=verbose)
-        rtc_.pull(verbose=verbose)
+        if rtc_.pull(verbose=verbose) == 0:
+            sys.stdout.write(' # Up-to-date.\n')
+            return
+        sys.stdout.write(' # Updating the repository information\n')
         _package.update_rtc_repository(rtc_.repository, verbose=verbose)
 
     elif argv[2] == 'checkout':

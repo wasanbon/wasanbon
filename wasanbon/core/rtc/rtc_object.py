@@ -138,8 +138,8 @@ class RtcObject():
         return self
 
     def pull(self, verbose=False):
-        self.git.pull(verbose=verbose)
-        return self
+        return self.git.pull(verbose=verbose)
+        #return self
 
     def push(self, verbose=False, username=None, password=None):
         self.git.push(verbose=verbose, username=username, password=password)
