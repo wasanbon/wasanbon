@@ -9,15 +9,18 @@ def create_rtm_home(force, verbose):
     repo = wasanbon.setting()['common']['repository']['wasanbon']
     rtm_home = wasanbon.rtm_home()
     rtm_temp = wasanbon.rtm_temp()
+    rtm_plugins = wasanbon.rtm_plugins()
     if not os.path.isdir(rtm_home):
-        if verbose:
-            sys.stdout.write(' - No RTM_HOME found. Creating RTM_HOME in %s\n' % wasanbon.rtm_home())
-        os.mkdir(rtm_home, 0777)
+        if verbose: sys.stdout.write(' - No RTM_HOME found. Creating RTM_HOME in %s\n' % wasanbon.rtm_home())
+        os.mkdir(rtm_home, 0755)
         
     if not os.path.isdir(rtm_temp):
-        if verbose:
-            sys.stdout.write(' - No RTM_HOME found. Creating RTM_TEMP in %s\n' % wasanbon.rtm_temp())
-        os.mkdir(rtm_temp, 0777)
+        if verbose: sys.stdout.write(' - No RTM_HOME found. Creating RTM_TEMP in %s\n' % wasanbon.rtm_temp())
+        os.mkdir(rtm_temp, 0755)
+
+    if not os.path.isdir(rtm_plugins):
+        if verbose: sys.stdout.write(' - No RTM_HOME found. Creating RTM_PLUGINS in %s\n' % wasanbon.rtm_plugins())
+        os.mkdir(rtm_plugins, 0755)
             
     if sys.platform == 'linux2' or sys.platform == 'darwin':
         if verbose:
@@ -25,6 +28,7 @@ def create_rtm_home(force, verbose):
         home_stat = os.stat(os.environ['HOME'])
         os.chown(rtm_home, home_stat.st_uid, home_stat.st_gid)
         os.chown(rtm_temp, home_stat.st_uid, home_stat.st_gid)
+        os.chown(rtm_plugins, home_stat.st_uid, home_stat.st_gid)
 
 
 def copy_setting_file(verbose=False, force=False):

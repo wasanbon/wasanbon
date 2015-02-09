@@ -14,8 +14,10 @@ import repository
 
 class RtcObject():
 
-    def __init__(self, path, verbose=False, ns_addr='localhost:2809'):
+    def __init__(self, path, verbose=False, ns_addr='localhost:2809', basename=None):
         self._path = path
+        if basename is None:
+            self._basename = os.path.basename(self._path)
         self.ns_addr = ns_addr
         self._rtc_xml = ""
         self._rtcprofile = None

@@ -158,7 +158,7 @@ class Package():
                     pass
                 else:
                     try:
-                        rtc_obj = wasanbon.core.rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir))
+                        rtc_obj = wasanbon.core.rtc.RtcObject(os.path.join(self.path, self.setting['RTC_DIR'], dir), basename=dir)
                         self._rtcs.append(rtc_obj)
                     except wasanbon.RTCProfileNotFoundException, ex:
                         pass

@@ -255,6 +255,10 @@ def rtm_temp():
     return setting()['common']['path']['RTM_TEMP']
 
 
+def rtm_plugins():
+    return setting()['common']['path']['RTM_PLUGINS']
+
+
 #rtm_temp = setting['common']['path']['RTM_TEMP']
 #if not os.path.isdir(rtm_temp):
 #    os.makedirs(rtm_temp)
