@@ -334,4 +334,5 @@ def platform():
             
     return _platform
 
-
+import wasanbon.core.plugins
+plugins = wasanbon.core.plugins.Loader(wasanbon.rtm_plugins())
