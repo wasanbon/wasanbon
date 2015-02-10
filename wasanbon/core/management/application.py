@@ -14,10 +14,48 @@ def get_subcommand_list(package):
     #mod = __import__('wasanbon.core.management.' + package)
     ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
     ret.append('help')
+    if package == 'admin':
+        for p in dir(wasanbon.plugins.admin):
+            if not p.startswith('__'):
+                ret.append(p)
+
+    if package == 'commands':
+        for p in dir(wasanbon.plugins.package):
+            if not p.startswith('__'):
+                ret.append(p)
+
+
     return ret
 
-def show_help_description(package, subcommand, long=False):
-    print help.get_help_text(package, subcommand, long)
+def generate_plugin_help(function):
+    for cmd in dir(function):
+        if cmd.startswith('_'):
+            continue
+
+        command = getattr(function, cmd)
+        sys.stdout.write(' - %s : \n' % cmd)
+        output = ""
+        indent = "    "
+        for line in command.__doc__.splitlines():
+            output = output + indent + line.strip() + '\n'
+            
+        sys.stdout.write(output)
+
+            
+        
+    print 'No help avaialbe in %s plugin' % function
+def show_help_description(package, subcommand, long=False, args=None):
+    if is_plugin_command(package, subcommand):
+        function = getattr(getattr(wasanbon.plugins, package), subcommand )
+        if not 'help' in dir(function):
+            generate_plugin_help(function)
+
+            return -1
+        function.help(args)
+
+        pass
+    else:
+        print help.get_help_text(package, subcommand, long)
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
@@ -79,25 +117,21 @@ def execute(argv=None):
         return
 
     if options.help_flag == True:
-        show_help_description(package, subcommand, options.longhelp_flag)
+        show_help_description(package, subcommand, options.longhelp_flag, args)
         return
 
     # If not help but option is add
     if options.longhelp_flag:
         args = args + ['-l']
 
-    module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
-    __import__(module_name)
-    mod = sys.modules[module_name]
-
     try:
         if options.alter_flag:
-            print_alternative(mod.alternative(args))
+            print_module_alternatives(package, subcommand, args=args)
         else:
-            mod.execute_with_argv(args, verbose=options.verbose_flag)
+            run_command(package, subcommand, args)
 
     except wasanbon.InvalidUsageException, ex:
-        show_help_description(package, subcommand)
+        show_help_description(package, subcommand, args=args)
         return -1
     except wasanbon.WasanbonException, ex:
         if options.verbose_flag:
@@ -109,6 +143,48 @@ def execute(argv=None):
         return -1
     return 0
 
+
+def run_command(package, subcommand, args, options= None):
+    if is_plugin_command(package, subcommand):
+        function = getattr(getattr(wasanbon.plugins, package), subcommand )
+        sub_functions = dir( function )
+        alts = [func for func in sub_functions if not func.startswith('_')]
+        target_function = None
+        for arg in args[2:]:
+            if arg.startswith('-'): continue
+            if arg in alts:
+                target_function = arg
+                break
+            pass
+        if target_function is None: return function(args)
+        else:
+            return getattr(function, target_function)(args)
+        pass
+    else:
+        verbose = False if options is None else options.verbose_flag
+        module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
+        __import__(module_name)
+        mod = sys.modules[module_name]
+        mod.execute_with_argv(args, verbose=verbose)
+    pass
+
+
+def print_module_alternatives(package, subcommand, args):
+    if is_plugin_command(package, subcommand):
+        functions = dir( getattr(getattr(wasanbon.plugins, package), subcommand ) )
+        alts = [func for func in functions if not func.startswith('__')]
+        print_alternative(alts)
+        pass
+    else:
+        module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
+        __import__(module_name)
+        mod = sys.modules[module_name]
+        
+        print_alternative(mod.alternative(args))
+        pass
+    pass
+
+
 def print_alternative(alternative, argv=None):
     for i, cmd in enumerate(alternative):
         sys.stdout.write(cmd)
@@ -117,3 +193,20 @@ def print_alternative(alternative, argv=None):
         else:
             sys.stdout.write(' ')
             pass
+
+def get_plugin_commands(package):
+    ret = []
+    if package == 'admin':
+        for p in dir(wasanbon.plugins.admin):
+            if not p.startswith('__'):
+                ret.append(p)
+
+    if package == 'commands':
+        for p in dir(wasanbon.plugins.package):
+            if not p.startswith('__'):
+                ret.append(p)
+    return ret
+
+def is_plugin_command(package, cmd):
+    cmds = get_plugin_commands(package)
+    return True if cmd in cmds else False
