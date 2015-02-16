@@ -20,7 +20,7 @@ def get_subcommand_list(package):
                 ret.append(p)
 
     if package == 'commands':
-        for p in dir(wasanbon.plugins.package):
+        for p in dir(wasanbon.plugins.mgr):
             if not p.startswith('__'):
                 ret.append(p)
 
@@ -28,32 +28,36 @@ def get_subcommand_list(package):
     return ret
 
 def generate_plugin_help(function):
+    unit_indent = "  "
+    output = ""
+    for line in function.__doc__.splitlines():
+        output = output + line.strip() + '\n'
     for cmd in dir(function):
-        if cmd.startswith('_'):
+        if cmd == '__call__':
+            command = getattr(function, cmd)
+            output = output + (unit_indent + 'without subcommand : |\n' )
+        elif cmd.startswith('_'):
             continue
-
-        command = getattr(function, cmd)
-        sys.stdout.write(' - %s : \n' % cmd)
-        output = ""
-        indent = "    "
+        else:
+            command = getattr(function, cmd)
+            output = output + (unit_indent + '%s : |\n' % cmd)
+        indent = unit_indent * 2
         for line in command.__doc__.splitlines():
             output = output + indent + line.strip() + '\n'
             
-        sys.stdout.write(output)
-
-            
+    sys.stdout.write(output)
+    pass
         
-    print 'No help avaialbe in %s plugin' % function
+
 def show_help_description(package, subcommand, long=False, args=None):
     if is_plugin_command(package, subcommand):
         function = getattr(getattr(wasanbon.plugins, package), subcommand )
         if not 'help' in dir(function):
             generate_plugin_help(function)
-
-            return -1
-        function.help(args)
-
-        pass
+            return 0
+        else:
+            function.help(args)
+        return 0
     else:
         print help.get_help_text(package, subcommand, long)
 
@@ -123,12 +127,16 @@ def execute(argv=None):
     # If not help but option is add
     if options.longhelp_flag:
         args = args + ['-l']
-
+    if options.verbose_flag:
+        args = args + ['-v']
     try:
         if options.alter_flag:
             print_module_alternatives(package, subcommand, args=args)
         else:
             run_command(package, subcommand, args)
+
+    except wasanbon.PrintAlternativeException, ex:
+        return 0
 
     except wasanbon.InvalidUsageException, ex:
         show_help_description(package, subcommand, args=args)
@@ -146,6 +154,7 @@ def execute(argv=None):
 
 def run_command(package, subcommand, args, options= None):
     if is_plugin_command(package, subcommand):
+        if package == 'commands': package = 'mgr'
         function = getattr(getattr(wasanbon.plugins, package), subcommand )
         sub_functions = dir( function )
         alts = [func for func in sub_functions if not func.startswith('_')]
@@ -171,10 +180,19 @@ def run_command(package, subcommand, args, options= None):
 
 def print_module_alternatives(package, subcommand, args):
     if is_plugin_command(package, subcommand):
-        functions = dir( getattr(getattr(wasanbon.plugins, package), subcommand ) )
-        alts = [func for func in functions if not func.startswith('__')]
+        if package == 'commands': package = 'mgr'
+        function = getattr(getattr(wasanbon.plugins, package), subcommand )
+        functions = dir( function )
+        alts = [func for func in functions if (not func.startswith('_') and type(getattr(function, func)) is types.MethodType and func != 'depends' and func != 'parse_args') ]
+        
+        argv = [arg for arg in args if not arg.startswith('-')]
+        if len(argv) >= 3:
+            if argv[2] in alts:
+                args.append('-a')
+                return getattr(function, argv[2])(args)
+
         print_alternative(alts)
-        pass
+
     else:
         module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
         __import__(module_name)
@@ -202,7 +220,7 @@ def get_plugin_commands(package):
                 ret.append(p)
 
     if package == 'commands':
-        for p in dir(wasanbon.plugins.package):
+        for p in dir(wasanbon.plugins.mgr):
             if not p.startswith('__'):
                 ret.append(p)
     return ret

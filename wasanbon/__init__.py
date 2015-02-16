@@ -21,6 +21,9 @@ class WasanbonException(Exception):
     def msg(self):
         return 'Wasanbon Exception'
 
+class PrintAlternativeException(WasanbonException):
+    def msg(self):
+        return ''
 class RemoteLoginException(WasanbonException):
     def msg(self):
         return 'LogIn Failed.'
@@ -128,6 +131,9 @@ def user_pass(user=None, passwd=None):
         passwd = getpass.getpass()
     return (user, passwd)
 
+def timestampstr():
+    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
 
 def get_home_path():
     if sys.platform == 'darwin':
@@ -142,12 +148,30 @@ def get_home_path():
 
 tagdict = {'$HOME': get_home_path()}
 
+WASANBON_HOME_ENVKEY = 'WASANBON_HOME'
+WASANBON_HOME_DEFAULT = os.path.join(get_home_path(), '.wasanbon')
+
+def get_wasanbon_home():
+    env = os.environ
+    if WASANBON_HOME_ENVKEY in env.keys():
+        return env[WASANBON_HOME_ENVKEY]
+    
+    return WASANBON_HOME_DEFAULT
+    
+home_path = get_wasanbon_home()
+temp_path = os.path.join(home_path, 'temp')
+plugins_path = os.path.join(home_path, 'plugins')
+
+if not os.path.isdir(home_path):
+    os.mkdir(home_path)
+if not os.path.isdir(temp_path):
+    os.mkdir(temp_path)
+if not os.path.isdir(plugins_path):
+    os.mkdir(plugins_path)
+
+
 rtm_temp = ""
 rtm_home = ""
-
-
-def timestampstr():
-    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 def load_settings():
     global rtm_root, rtm_home
@@ -335,4 +359,4 @@ def platform():
     return _platform
 
 import wasanbon.core.plugins
-plugins = wasanbon.core.plugins.Loader(wasanbon.rtm_plugins())
+plugins = wasanbon.core.plugins.Loader([wasanbon.rtm_plugins(), plugins_path, wasanbon.core.plugins.__path__[0]])
