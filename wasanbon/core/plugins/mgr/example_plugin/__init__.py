@@ -13,11 +13,9 @@ class Plugin(PluginFunction):
 
     @manifest
     def __call__(self, argv):
-        """ Manifesting __call__ function is available but not recommended """
         print ' # this is plain function'
         pass
 
-    @manifest
     def show(self, argv):
         """ This is print function
         """
@@ -44,7 +42,7 @@ class Plugin(PluginFunction):
         if force:
             print '# Force Option is ON!'
 
-        print '# This is test admin plugin'
+        print '# This is test mgr plugin'
         if len(argv) > 2:
             for p in argv[3:]:
                 print p

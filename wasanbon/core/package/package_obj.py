@@ -348,7 +348,6 @@ class Package():
             return nameserver_uri[0].path + '/' + name
 
     def install(self, rtc_, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False, conffile=None):
-
         if verbose:
             sys.stdout.write(' - Installing RTC in package %s\n' % self.name)
             pass

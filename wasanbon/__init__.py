@@ -89,6 +89,10 @@ class PackageNotFoundException(WasanbonException):
     def msg(self):
         return 'Package Not Found'
 
+class PluginDependencyNotResolvedException(WasanbonException):
+    def msg(self):
+        return 'Plugin Dependency can not be resolved.'
+
 class NoSuchFileException(WasanbonException):
     def __init__(self, msg):
         self.msg = msg

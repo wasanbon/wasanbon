@@ -9,12 +9,12 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.git']
+        return ['admin.environment']
 
-    def __call__(self, argv):
-        print '# Versioning Plugin : version = 1.0.0'
 
     @property
-    def versioning(self):
-        import versioning
-        return versioning
+    def rtcprofile(self):
+        import rtcprofile
+        return rtcprofile
+
+    

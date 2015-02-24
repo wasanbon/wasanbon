@@ -15,16 +15,14 @@ def get_subcommand_list(package):
     ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
     ret.append('help')
     if package == 'admin':
-        for p in dir(wasanbon.plugins.admin):
-            if not p.startswith('__'):
-                ret.append(p)
+        for n in wasanbon.plugins.get_admin_plugin_names():
+            if wasanbon.plugins.get_admin_plugin(n).is_manifest_plugin():
+                ret.append(n)
 
     if package == 'commands':
-        for p in dir(wasanbon.plugins.mgr):
-            if not p.startswith('__'):
-                ret.append(p)
-
-
+        for n in wasanbon.plugins.get_mgr_plugin_names():
+            if wasanbon.plugins.get_mgr_plugin(n).is_manifest_plugin():
+                ret.append(n)
     return ret
 
 def generate_plugin_help(function):
@@ -133,7 +131,7 @@ def execute(argv=None):
         if options.alter_flag:
             print_module_alternatives(package, subcommand, args=args)
         else:
-            run_command(package, subcommand, args)
+            return run_command(package, subcommand, args)
 
     except wasanbon.PrintAlternativeException, ex:
         return 0
@@ -149,15 +147,18 @@ def execute(argv=None):
     except Exception, ex:
         traceback.print_exc()
         return -1
-    return 0
+    return -2
 
 
 def run_command(package, subcommand, args, options= None):
     if is_plugin_command(package, subcommand):
-        if package == 'commands': package = 'mgr'
-        function = getattr(getattr(wasanbon.plugins, package), subcommand )
-        sub_functions = dir( function )
-        alts = [func for func in sub_functions if not func.startswith('_')]
+        if package == 'admin':
+            plugin = wasanbon.plugins.get_admin_plugin(subcommand)
+        if package == 'commands':
+            plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+        #sub_functions = dir( function )
+        #alts = [func for func in sub_functions if not func.startswith('_')]
+        alts = plugin.get_manifest_function_names()
         target_function = None
         for arg in args[2:]:
             if arg.startswith('-'): continue
@@ -165,10 +166,12 @@ def run_command(package, subcommand, args, options= None):
                 target_function = arg
                 break
             pass
-        if target_function is None: return function(args)
+        if target_function is None and '__call__' in alts:
+            return plugin(args)
+        elif target_function is None:
+            raise wasanbon.InvalidUsageException()
         else:
-            return getattr(function, target_function)(args)
-        pass
+            return getattr(plugin, target_function)(args)
     else:
         verbose = False if options is None else options.verbose_flag
         module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
@@ -180,16 +183,17 @@ def run_command(package, subcommand, args, options= None):
 
 def print_module_alternatives(package, subcommand, args):
     if is_plugin_command(package, subcommand):
-        if package == 'commands': package = 'mgr'
-        function = getattr(getattr(wasanbon.plugins, package), subcommand )
-        functions = dir( function )
-        alts = [func for func in functions if (not func.startswith('_') and type(getattr(function, func)) is types.MethodType and func != 'depends' and func != 'parse_args') ]
+        if package == 'admin':
+            plugin = wasanbon.plugins.get_admin_plugin(subcommand)
+        if package == 'commands':
+            plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
         
+        alts = plugin.get_manifest_function_names()
         argv = [arg for arg in args if not arg.startswith('-')]
         if len(argv) >= 3:
             if argv[2] in alts:
                 args.append('-a')
-                return getattr(function, argv[2])(args)
+                return getattr(plugin, argv[2])(args)
 
         print_alternative(alts)
 
@@ -215,15 +219,10 @@ def print_alternative(alternative, argv=None):
 def get_plugin_commands(package):
     ret = []
     if package == 'admin':
-        for p in dir(wasanbon.plugins.admin):
-            if not p.startswith('__'):
-                ret.append(p)
-
-    if package == 'commands':
-        for p in dir(wasanbon.plugins.mgr):
-            if not p.startswith('__'):
-                ret.append(p)
-    return ret
+        return wasanbon.plugins.get_admin_plugin_names()
+    elif package == 'commands':
+        return wasanbon.plugins.get_mgr_plugin_names()
+    return []
 
 def is_plugin_command(package, cmd):
     cmds = get_plugin_commands(package)

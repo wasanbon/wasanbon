@@ -3,6 +3,8 @@ import os, sys
 import wasanbon
 from wasanbon import util
 
+plugin_obj = None
+
 class RTCConf(object):
     def __init__(self, rtcconf, verbose=False):
         if verbose:

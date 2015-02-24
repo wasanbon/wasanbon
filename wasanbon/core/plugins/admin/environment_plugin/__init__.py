@@ -1,6 +1,6 @@
 import os, sys, traceback, optparse, subprocess
 import wasanbon
-from wasanbon.core.plugins import PluginFunction
+from wasanbon.core.plugins import PluginFunction, manifest
 import setup
 import shutil
 
@@ -15,6 +15,7 @@ class Plugin(PluginFunction):
         super(Plugin, self).__init__()
         pass
 
+    @manifest
     def init(self, args):
         """ This command must be called first.
         Install Pip, PyYAML, PyGithub, psutil, and python-bitbucket module if not installed.
@@ -45,7 +46,6 @@ class Plugin(PluginFunction):
             return -1
 
         sys.stdout.write('# Success.\n')
-
         sys.stdout.write('# Initializing .wasanbon directory....\n')
         
         if verbose:sys.stdout.write('## Platform: %s\n' % wasanbon.platform())
@@ -69,12 +69,14 @@ class Plugin(PluginFunction):
             if verbose: sys.stdout.write('# Installing %s\n' % rtm)
             if self._install_package(rtm, verbose=verbose, force=force) != 0:
                 sys.stdout.write('# Installng %s Failed. Try again.\n' % rtm)
+        sys.stdout.write('## Ends.\n')
         return 0
 
     def _print_install_opts(self):
         for i in self._install_list + self._install_rtms:
             print i
 
+    @manifest
     def install(self, args):
         """ Install Command """
         self.parser.add_option('-f', '--force', help='Force option (default=Flase)', default=False, action='store_true', dest='force_flag')

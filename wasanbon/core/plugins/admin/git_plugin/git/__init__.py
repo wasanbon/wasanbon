@@ -1,17 +1,18 @@
 
 import os, sys, subprocess
 
+plugin_obj = None
 def git_command(commands, path='.', verbose = False, pipe=False, interactive=False):
     cur_dir = os.getcwd()
     os.chdir(path)
     gitenv = os.environ.copy()
+    import wasanbon
     if not 'HOME' in gitenv.keys():
         gitenv['HOME'] = wasanbon.get_home_path()
         if verbose:
             sys.stdout.write(' - Environmental Variable  HOME (%s) is added.\n' % gitenv['HOME'])
 
-    import wasanbon
-    setting = wasanbon.plugins.admin.environment.path
+    setting = plugin_obj.admin.environment.path
     if len(setting['git']) == 0:
         sys.stdout.write(' @ GIT COMMAND NOT FOUND.....\n')
         return False

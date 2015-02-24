@@ -1,6 +1,6 @@
 import os, sys
 
-
+#plugin_obj = None
 
 
 class PackageObject(object):
@@ -35,7 +35,6 @@ class PackageObject(object):
         if fullpath:
             return os.path.join(self.path, dir)
         return dir
-    
 
     def get_systempath(self, fullpath=True):
         dir = self.setting['RTS_DIR']
@@ -54,6 +53,11 @@ class PackageObject(object):
         if fullpath:
             return os.path.join(self.path, dir)
         return dir
+
+    @property
+    def rtc_repository_file(self):
+        return os.path.join(self.get_rtcpath(), 'repository.yaml')
+
         
 
     def __repr__(self):
@@ -61,9 +65,10 @@ class PackageObject(object):
     
     @property
     def rtcconf(self):
+        #from . import plugin_obj
         if self._rtcconf is None:
             self._rtcconf = {}
-            import wasanbon
+            #import wasanbon
             for lang in ['C++', 'Java', 'Python']:
                 path = os.path.join(self.path, self.setting['conf.'+lang])
                 if os.path.isfile(path):
@@ -74,5 +79,6 @@ class PackageObject(object):
                 if not os.path.isfile(path):
                     sys.stdout.write('# Config file %s is not found.\n' % path)
                     continue
-                self._rtcconf[lang] = wasanbon.plugins.admin.rtcconf.rtcconf.RTCConf(path)
+                #self._rtcconf[lang] = plugin_obj.admin.rtcconf.rtcconf.RTCConf(path) #wasanbon.plugins.admin.rtcconf.rtcconf.RTCConf(path)
+                self._rtcconf[lang] = path
         return self._rtcconf

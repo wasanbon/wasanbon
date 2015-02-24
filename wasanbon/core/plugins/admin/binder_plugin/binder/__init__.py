@@ -2,6 +2,7 @@ import os, sys, types, subprocess, yaml
 #import wasanbon
 _owner_sign = '_owner'
 
+plugin_obj = None
 
 class Repository(object):
     def __init__(self, name, type, platform, url, description):
@@ -99,8 +100,7 @@ class Binder(object):
         return self._path
 
 def get_package_repos(verbose=False):
-    import wasanbon
-    binders = wasanbon.plugins.admin.binder.binder.get_binders(verbose=verbose)
+    binders = plugin_obj.admin.binder.binder.get_binders(verbose=verbose)
     package_repos = []
     for binder in binders:
         package_repos = package_repos + binder.packages
@@ -112,7 +112,8 @@ def get_package_repo(name, verbose=False):
         if package_repo.name == name:
             return package_repo
 
-    return None
+    import wasanbon
+    raise wasanbon.RepositoryNotFoundException()
 
 
 def get_binders(verbose=False):
@@ -162,8 +163,10 @@ def download_repository(url, target_path='',verbose=False, force=False):
     if verbose:
         sys.stdout.write('    - Downloading repository %s\n' % url)
         sys.stdout.write('        into %s\n' % target_path)
-    import wasanbon
-    git_command = wasanbon.plugins.admin.git.git.git_command
+    
+    #import wasanbon
+    git = plugin_obj.admin.git.git
+    git_command = git.git_command
     if os.path.isdir(target_path):
         if os.path.isdir(os.path.join(target_path, '.git')):
             git_command(['pull'], verbose=True, path=target_path)

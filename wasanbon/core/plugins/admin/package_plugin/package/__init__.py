@@ -1,7 +1,7 @@
 import os, sys, yaml, types, subprocess
 
 import wasanbon
-from package_obj import PackageObject
+from package_obj import  PackageObject
 
 def parse_and_copy(src, dist, dic, verbose=False):
     fin = open(src, "r")
@@ -124,4 +124,13 @@ def get_package(name, verbose=False):
         raise wasanbon.PackageNotFoundException()
     return PackageObject(name, y[name])
 
+
+def get_package_from_path(path, verbose=False):
+    y = load_workspace()
+    for key, value in y.items():
+        if value == path:
+            return PackageObject(key, value)
+    
+
+    raise wasanbon.PackageNotFoundException()
 
