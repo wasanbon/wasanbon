@@ -34,7 +34,6 @@ class Plugin(PluginFunction):
         #admin_rtc = admin.rtc.rtc
         pack = admin.package.get_package_from_path(os.getcwd())
 
-
         rtcs = admin.rtc.get_rtcs_from_package(pack, verbose=verbose)
         for r in rtcs:
             if not long:
