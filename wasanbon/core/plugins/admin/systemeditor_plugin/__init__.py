@@ -1,15 +1,22 @@
+import os, sys
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
 
     def __init__(self):
-        #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         pass
 
     def depends(self):
         return ['admin.environment']
+
+    def get_active_configuration_data(self, rtc):
+        if not 'configuration_sets' in dir(rtc):
+            return []
+        for conf in rtc.configuration_sets:
+            if conf.id == rtc.active_configuration_set:
+                return conf.configuration_data
 
     def get_connectable_pairs(self, nameservers, verbose=False):
         pairs = []
@@ -43,3 +50,19 @@ class Plugin(PluginFunction):
 
     
     
+    def save_to_file(self, nameservers, filepath, verbose=False, system_name='DefaultSystem',
+                     version='1.0', vendor='DefaultVendor'):
+        argv = ['-n', system_name, 
+                '-v', version,
+                '-e', vendor,
+                '-o', filepath]
+        
+        for ns in nameservers:
+            argv.append(ns.path)
+
+        if verbose: sys.stdout.write('## rtcryo %s\n' % argv)
+        from rtshell import rtcryo
+        rtcryo.main(argv=argv)
+
+        return 0
+

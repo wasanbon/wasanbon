@@ -14,6 +14,32 @@ class Plugin(PluginFunction):
         return ['admin.environment']
 
 
+    def get_component_full_path(self, comp):
+        str = ""
+        for p in comp.full_path:
+            str = str + p
+            if not str.endswith('/') and not str.endswith('.rtc'):
+                str = str + '/'
+        return str
+
+    def get_port_full_path(self, port):
+        return self.get_component_full_path(port.owner) + ':' + port.name
+
+    def connect_ports(self, port1, port2, verbose=False):
+        if verbose: sys.stdout.write('## Connecting %s to %s\n' % (self.get_port_full_path(port1),
+                                                                   self.get_port_full_path(port2)))
+        port1.connect([port2])
+        return 0
+
+    def set_active_configuration_data(self, rtc, key, value):
+        for conf in rtc.configuration_sets:
+            if conf.id == rtc.active_configuration_set:
+                for conf_data in conf.configuration_data:
+                    if conf_data.name == key:
+                        conf_data.data = value
+        pass
+
+
     def build_system(self, package, system_file=None, verbose=False, try_count=5, wait_time=1.0):
         if system_file is None:
             system_file = package.default_system_filepath

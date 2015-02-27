@@ -298,6 +298,7 @@ class PackageObject(object):
             return os.path.join(self.path, dir)
         return dir
 
+
     def get_confpath(self, fullpath=True):
         dir = self.setting.get('CONF_DIR', 'conf')
         if fullpath:
@@ -329,9 +330,10 @@ class PackageObject(object):
             sys.stdout.write('# This package contains old manner system description\n')
             return old_manner
         file = os.path.join(path, self.get_systempath(), system_file)
-        if os.path.isfile(file):
-            return file
-        return None
+        #if os.path.isfile(file):
+        #    return file
+        #return None
+        return file
 
     @property
     def rtcconf(self):
