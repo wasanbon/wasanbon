@@ -189,8 +189,16 @@ def print_module_alternatives(package, subcommand, args):
             plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
         
         alts = plugin.get_manifest_function_names()
+        can_call = False
+        if '__call__' in alts:
+            can_call = True
+
+        alts = [a for a in alts if not a == '__call__']
         argv = [arg for arg in args if not arg.startswith('-')]
-        if len(argv) >= 3:
+        if len(argv) == 2 and can_call:
+            args.append('-a')
+            return plugin(args)
+        elif len(argv) >= 3:
             if argv[2] in alts:
                 args.append('-a')
                 return getattr(plugin, argv[2])(args)

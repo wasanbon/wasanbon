@@ -48,10 +48,12 @@ class PluginFunction(object):
         return []
 
 
-    def get_manifest_function_names(self, verbose=False):
+    def get_manifest_function_names(self, verbose=False, nocall=False):
         func_names = []
         for name in dir(self):
             if name != '__call__' and name.startswith('_'):
+                continue
+            if nocall and name == '__call__':
                 continue
             if name in self.__special_functions:
                 continue
@@ -86,7 +88,7 @@ class Loader():
             self.load_plugin(name, dir, verbose=verbose)
 
 
-    def get_admin_plugin_names(self):
+    def get_admin_plugin_names(self, nocall=False):
         return [p for p in dir(self._admin) if not p.startswith('_')]
 
     def get_admin_plugins(self):

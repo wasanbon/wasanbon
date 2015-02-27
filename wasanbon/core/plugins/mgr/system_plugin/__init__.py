@@ -14,7 +14,8 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package', 'admin.rtc', 'admin.systeminstaller', 'admin.systemlauncher', 'admin.systembuilder']
+        return ['admin.environment', 'admin.package', 'admin.rtc', 'admin.systeminstaller', 
+                'admin.systemlauncher', 'admin.systembuilder', 'admin.nameserver', 'admin.systemeditor']
 
     def _print_rtcs(self):
         pack = admin.package.get_package_from_path(os.getcwd())
@@ -159,3 +160,16 @@ class Plugin(PluginFunction):
                 return -1
             return -1
         return 0
+
+
+    @manifest
+    def build(self, args):
+        """ Build System in Console interactively """
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+
+        package = admin.package.get_package_from_path(os.getcwd())
+        nss = admin.nameserver.get_nameservers_from_package(package, verbose=verbose)
+        
+        pairs = admin.systemeditor.get_connectable_pairs(nss, verbose=verbose)
+        print pairs

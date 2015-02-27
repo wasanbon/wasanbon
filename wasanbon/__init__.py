@@ -10,7 +10,7 @@ import datetime
 def get_version():
     """Get wasanbon version.
     """
-    return "0.8.0"
+    return "1.0.0"
 
 
 IDE = 'Visual Studio 10' if sys.platform == 'win32' else 'Makefile'
