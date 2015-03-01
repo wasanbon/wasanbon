@@ -22,7 +22,8 @@ def get_subcommand_list(package):
     if package == 'commands':
         for n in wasanbon.plugins.get_mgr_plugin_names():
             if wasanbon.plugins.get_mgr_plugin(n).is_manifest_plugin():
-                ret.append(n)
+                if not n in ret:
+                    ret.append(n)
     return ret
 
 def generate_plugin_help(function):
@@ -75,6 +76,61 @@ class ArgumentParser(optparse.OptionParser):
             except (optparse.BadOptionError, optparse.AmbiguousOptionError), e:
                 largs.append(e.opt_str)
 
+def show_plugin_help(package, subcommand):
+    if package == 'admin':
+        name = 'admin.' + subcommand
+        plugin = wasanbon.plugins.get_admin_plugin(subcommand)
+    elif package == 'commands':
+        name = 'mgr.' + subcommand
+        plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+
+    print 'Usage : |'
+    if '__doc__' in dir(plugin):
+        if plugin.__doc__ != None:
+            docs = [s.strip() for s in plugin.__doc__.split('\n')]
+            for d in docs:
+                print '  ', d
+        else:
+            print '  %s (No Help)' % subcommand
+    else:
+        print '  %s (No Help)' % subcommand
+    
+    alts = plugin.get_manifest_function_names()
+    print 'Subcommand :'
+    for a in alts:
+        print '  %s : |' % a
+        func = getattr(plugin, a, None)
+        if  not func.__doc__ is None:
+            docs = [s.strip() for s in func.__doc__.split('\n')]
+            for d in docs:
+                if not len(d) == 0:
+                    print '    %s' % d
+        else:
+            print '    %s' % 'No Help'
+
+def print_long_help(command, package):
+    print 'Usage : '
+    print '  ', command, ' [subcommand] (for help, use -h option with subcommand.)'
+    print 'Subcommands :'
+    subcommands = get_subcommand_list(package) 
+    for subcommand in subcommands:
+        if is_plugin_command(package, subcommand):
+            if package == 'admin': plugin = wasanbon.plugins.get_admin_plugin(subcommand)
+            elif package == 'commands': plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+            if '__doc__' in dir(plugin):
+                if plugin.__doc__ != None:
+                    docs = [s.strip() for s in plugin.__doc__.split('\n')]
+                    print '  ', subcommand, ': |'
+                    for d in docs:
+                        print '    ', d
+                else:
+                    print '  ', subcommand, ' ' *(15-len(subcommand)) + ': "No Help"'
+            else:
+                print '  ', subcommand
+        else:
+            print '  ', subcommand
+        
+
 def execute(argv=None):
     if argv == None:
         argv = sys.argv
@@ -98,8 +154,8 @@ def execute(argv=None):
     
     parser = ArgumentParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=usage, action='store_true', default=False, dest='help_flag')
-    parser.add_option('-l', '--longmessage', help='Show long help message', action='store_true', default=False, dest='longhelp_flag')
-    parser.add_option('-v', '--verbose', help='You will get more messgaes', action='store_true', default=False, dest='verbose_flag')
+    #parser.add_option('-l', '--longmessage', help='Show long help message', action='store_true', default=False, dest='longhelp_flag')
+    #parser.add_option('-v', '--verbose', help='You will get more messgaes', action='store_true', default=False, dest='verbose_flag')
     parser.add_option('-a', '--alternative', help="Get subcommand list.", action='store_true', default=False, dest='alter_flag')
     options, args = parser.parse_args(argv[:])
 
@@ -115,18 +171,19 @@ def execute(argv=None):
         subcommand = 'help'
 
     if subcommand == 'help':
-        parser.print_help()
-        return
+        print_long_help(command, package)
+        return 0
 
     if options.help_flag == True:
-        show_help_description(package, subcommand, options.longhelp_flag, args)
-        return
+        #show_help_description(package, subcommand, options.longhelp_flag, args)
+        #return
+        args = args + ['-h']
 
     # If not help but option is add
-    if options.longhelp_flag:
-        args = args + ['-l']
-    if options.verbose_flag:
-        args = args + ['-v']
+    #if options.longhelp_flag:
+    #    args = args + ['-l']
+    #if options.verbose_flag:
+    #    args = args + ['-v']
     try:
         if options.alter_flag:
             print_module_alternatives(package, subcommand, args=args)
@@ -169,7 +226,10 @@ def run_command(package, subcommand, args, options= None):
         if target_function is None and '__call__' in alts:
             return plugin(args)
         elif target_function is None:
-            raise wasanbon.InvalidUsageException()
+            if '-h' in args or '--help' in args:
+                show_plugin_help(package, subcommand)
+            else:
+                raise wasanbon.InvalidUsageException()
         else:
             return getattr(plugin, target_function)(args)
     else:

@@ -295,3 +295,82 @@ class Plugin(PluginFunction):
 
         return 0
 
+
+    @manifest
+    def configure(self, args):
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+
+        package = admin.package.get_package_from_path(os.getcwd())
+        from rtsprofile.rts_profile import RtsProfile
+        file = open(package.default_system_filepath, 'r')
+        rtsprofile = RtsProfile(xml_spec = file)
+
+        rtc_names = [rtc.instance_name for rtc in rtsprofile.components]
+        
+        from wasanbon import util
+        def select_rtc(ans):
+            rtc = rtsprofile.components[ans]
+            confs = []
+            active_conf_index = -1
+            if len(rtc.configuration_sets) != 0:
+                for i, conf in enumerate(rtc.configuration_sets):
+                    if conf.id == rtc.active_configuration_set:
+                        active_conf_index = i
+                        confs = conf.configuration_data
+            conf_names = [conf.name +':' + conf.data for conf in confs]
+        
+            def select_conf(ans2):
+                key = confs[ans2].name
+                sys.stdout.write('## INPUT (%s):' % key)
+                val = raw_input()
+                if util.yes_no('# %s = %s. Okay?' % (key, val)) == 'yes':
+                    rtc.configuration_sets[active_conf_index].configuration_data[ans2].data = val
+                    return True
+                return False
+            util.choice(conf_names, select_conf, msg='# Select Configuration')
+            return False
+        
+        util.choice(rtc_names, select_rtc, msg='# Select RTC')
+        
+        filepath = package.default_system_filepath
+        newfile = filepath + wasanbon.timestampstr()
+        os.rename(filepath, newfile)
+        fout = open(filepath, 'w')
+        fout.write(rtsprofile.save_to_xml())
+        fout.close()
+
+        return 0
+
+    @manifest
+    def switch(self, args):
+        """ Switch RT-System """
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        
+        package = admin.package.get_package_from_path(os.getcwd())
+        filenames = [file for file in os.listdir(package.get_systempath()) if file.endswith('.xml')]
+        from wasanbon import util
+        def filter_func(ans):
+            file = filenames[ans]
+            import yaml
+            dict = yaml.load(open(package.setting_file_path, 'r'))
+            setting_file_path = package.setting_file_path
+            archive_path = os.path.join(package.path, 'backup')
+            if not os.path.isdir(archive_path):
+                os.mkdir(archive_path)
+            archived_file_path = os.path.join(archive_path, 'setting.yaml' + wasanbon.timestampstr())
+            os.rename(setting_file_path, archived_file_path)
+            dict['application']['system'] = file
+            open(setting_file_path, 'w').write(yaml.dump(dict, encoding='utf8', allow_unicode=True, default_flow_style=False))
+            return False
+
+        util.choice(filenames, filter_func, msg='# Select System File')
+        return 0
+    
+    @manifest
+    def rtcs(self, args):
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+
+        return 0

@@ -3,6 +3,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
+    """ Manage RT-Component in Package """
 
     def __init__(self):
         #PluginFunction.__init__(self)

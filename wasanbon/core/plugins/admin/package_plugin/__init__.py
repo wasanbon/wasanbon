@@ -280,6 +280,10 @@ class PackageObject(object):
         return self._path
 
     @property
+    def setting_file_path(self):
+        return self._setting_file_path
+
+    @property
     def setting(self):
         if self._setting is None:
             import yaml

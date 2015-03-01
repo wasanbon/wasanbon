@@ -10,11 +10,14 @@ def manifest(func):
     @functools.wraps(func)
     def wrapper__(*args, **kwds):
         self = args[0]
-        self.parser = optparse.OptionParser(usage="", add_help_option=False)
+        if '__doc__' in dir(func):
+            usage = func.__doc__
+        else:
+            usgae = "%s (No Comments Found)" % str(func)
+        self.parser = optparse.OptionParser(usage=usage)
         self.parser.add_option('-v', '--verbose', help='Verbosity option (default=False)', default=False, action='store_true', dest='verbose_flag')
         self.parser.add_option('-a', '--alternative', help='print Alternatives of next argument (default=False)', default=False, action='store_true', dest='alt_flag')
         return func(*args, **kwds)
-        
 
     return wrapper__
 
@@ -106,7 +109,9 @@ class Loader():
     def get_mgr_plugin(self, name):
         return getattr(self._mgr, name)
 
-    
+    @property
+    def plugin_list(self):
+        return self._plugin_list
 
     def list_plugins(self, directory, verbose=False):
         if 'admin' in os.listdir(directory):

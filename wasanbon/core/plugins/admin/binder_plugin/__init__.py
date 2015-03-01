@@ -2,7 +2,10 @@ import os, sys, types, subprocess, yaml
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
+owner_sign = '_owner'
+
 class Plugin(PluginFunction):
+    """ Binder (Collection of repositories) management """
 
     def __init__(self):
         #PluginFunction.__init__(self)
@@ -10,19 +13,74 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.git']
+        return ['admin.environment', 'admin.git', 'admin.github']
 
-    def _print_alternatives(self):
-        print 'hoo'
-        print 'foo'
-        print 'hoge'
-        print 'yah'
+    @manifest 
+    def create(self, argv):
+        """ Create Binder. 
+        $ wasanbon-admin.py binder create"""
+        self.parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+        self.parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
+        self.parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        service = options.service
+        
+        user, passwd = wasanbon.user_pass(user=options.user, passwd=options.password)
+        sys.stdout.write('# Creating wasanbon binder in your %s\n' % service)
+        repo_name = 'wasanbon_binder'
+        target_path = os.path.join(wasanbon.rtm_home(), 'binder', user + owner_sign, repo_name + '.git')
+        if service=='github':
+            github = admin.github.Github(user, passwd)
+            if github.exists_repo(repo_name):
+                sys.stdout.write(' @ You have already created your own repository.\n')
+                sys.stdout.write(' @ wasanbon just clone it.\n')
+                download_repository(url=url, target_path=target_path, verbose=verbose)
+                return True
+            repo_obj = github.fork_repo('sugarsweetrobotics', 
+                                        'wasanbon_binder_template',
+                                        repo_name, verbose=verbose)
+        else:
+            sys.stdout.write('## Unknown serviec name.\n')
+            return -1
+        return 0
+
 
     @manifest
+    def delete(self, argv):
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        self.parser.add_option('-u', '--user', help='set username',  default=None, metavar='USER', dest='user')
+        self.parser.add_option('-p', '--password', help='set password',  default=None, metavar='PASSWD', dest='password')
+        self.parser.add_option('-s', '--service', help='set upstream service',  default='github', metavar='SERVICE', dest='service')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        force = options.force_flag
+        service = options.service
+
+        user, passwd = wasanbon.user_pass(user=options.user, passwd=options.password)
+        sys.stdout.write('# Creating wasanbon binder in your %s\n' % service)
+        repo_name = 'wasanbon_binder'
+        target_path = os.path.join(wasanbon.rtm_home(), 'binder', user + owner_sign, repo_name + '.git')
+        if service=='github':
+            github = admin.github.Github(user, passwd)
+            if github.exists_repo(repo_name):
+                if not force:
+                    from wasanbon import util
+                    if util.yes_no('## Really delete?') == 'no':
+                        sys.stdout.write('## Aborted.\n')
+                        return 0
+                
+                github.delete_repo(repo_name)
+                return 0
+        else:
+            sys.stdout.write('# Unknown service name %s\n' % service)
+            return -1
+        return 0
+        
+    @manifest
     def update(self, argv):
-        """ This is help text
-        """
-        options, argv = self.parse_args(argv[:], self._print_alternatives)
+        """ Update Binder. Download Binder from repository """
+        options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
         #import binder
         path = os.path.join(admin.environment.setting_path, '..', 'repository.yaml')
@@ -30,14 +88,18 @@ class Plugin(PluginFunction):
 
     @manifest
     def list(self, args):
+        """ List Installed Binders. """
         options, argv = self.parse_args(args)
         verbose = options.verbose_flag
         binders = self.get_binders(verbose=verbose)
-        print binders
+        for b in binders:
+            print b.owner, ' :'
+            print '  url : ', b.path
         return 0
     
     @manifest
     def rtcs(self, args):
+        """ Show RTC Repositories in your binders. """
         self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False, action='store_true', dest='long_flag')
         options, argv = self.parse_args(args)
         verbose = options.verbose_flag
@@ -59,6 +121,7 @@ class Plugin(PluginFunction):
     
     @manifest
     def packages(self, args):
+        """ List Package repositories in your binders. """
         self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False, action='store_true', dest='long_flag')
         options, argv = self.parse_args(args)
         verbose = options.verbose_flag

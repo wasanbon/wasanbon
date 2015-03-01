@@ -5,8 +5,8 @@ import setup
 import shutil
 
 class Plugin(PluginFunction):
-    """ This is environment initialization functions
-    """
+    """ Environment initialization functions
+        Use to initialize wasanbon environment."""
 
     _install_list = ['setuptools', 'pip', 'yaml', 'github', 'psutil', 'requests', 'requests_oauthlib', 'bitbucket', 'lxml']
     _install_rtms = ['rtm_c++', 'rtm_python', 'rtm_java', 'rtctree', 'rtsprofile', 'rtshell']
