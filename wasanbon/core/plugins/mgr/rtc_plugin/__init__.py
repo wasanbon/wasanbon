@@ -11,7 +11,13 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package', 'admin.rtc', 'admin.rtcprofile', 'admin.builder', 'admin.systeminstaller']
+        return ['admin.environment', 
+                'admin.package', 
+                'admin.rtc', 
+                'admin.rtcprofile', 
+                'admin.builder', 
+                'admin.systeminstaller',
+                'admin.editor']
 
 
     #@property
@@ -19,6 +25,11 @@ class Plugin(PluginFunction):
     #    import rtc
     #    return rtc
 
+    def _print_rtcs(self):
+        pack = admin.package.get_package_from_path(os.getcwd())
+        rtcs = admin.rtc.get_rtcs_from_package(pack)
+        for r in rtcs:
+            print r.rtcprofile.basicInfo.name
     @manifest
     def list(self, args):
         """ List RTC in current Package """
@@ -66,7 +77,7 @@ class Plugin(PluginFunction):
     def build(self, args):
         self.parser.add_option('-o', '--only', help='Build Only (Not Install) (default=False)', default=False, action='store_true', dest='only_flag')
         self.parser.add_option('-s', '--standalone', help='Install Standalone Mode (default=False)', default=False, action='store_true', dest='standalone_flag')
-        options, argv = self.parse_args(args)
+        options, argv = self.parse_args(args, self._print_rtcs)
         verbose = options.verbose_flag
         only = options.only_flag
         standalone = options.standalone_flag
@@ -80,12 +91,17 @@ class Plugin(PluginFunction):
 
         retval = 0
         for rtc in rtcs:
+            sys.stdout.write('# Building RTC (%s)\n' % rtc.rtcprofile.basicInfo.name)
             ret, msg = admin.builder.build_rtc(rtc.rtcprofile, verbose=verbose)
             if not ret:
+                sys.stdout.write('## Failed.\n')
                 retval = -1
             else:
+                sys.stdout.write('## Success.\n')
                 if not only:
+                    sys.stdout.write('## Installing RTC (standalone=%s).\n' % (standalone is True))
                     admin.systeminstaller.install_rtc_in_package(pack, rtc, verbose=verbose, standalone=standalone)
+                    sys.stdout.write('### Success.\n')
 
         return retval
 
@@ -113,3 +129,43 @@ class Plugin(PluginFunction):
                 retval = -1
 
         return retval
+
+
+    @manifest
+    def delete(self, args):
+        """ Delete Package
+        # Usage $ wasanbon-admin.py package delete [PACK_NAME]"""
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        options, argv = self.parse_args(args[:], self._print_rtcs)
+        verbose = options.verbose_flag
+        force = options.force_flag
+
+        pack = admin.package.get_package_from_path(os.getcwd())
+        if argv[3] == 'all':
+            rtcs = admin.rtc.get_rtcs_from_package(pack, verbose=verbose)
+        else:
+            rtcs = [admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)]
+        import shutil
+        for rtc in rtcs:
+            if os.path.isdir(rtc.path):
+                sys.stdout.write('# Deleting RTC (%s)\n' % rtc.rtcprofile.basicInfo.name)
+                def remShut(*args):
+                    func, path, _ = args 
+                    os.chmod(path, stat.S_IWRITE)
+                    os.remove(path)
+                    pass
+                shutil.rmtree(rtc.path, onerror = remShut)
+                    
+
+    @manifest
+    def edit(self, args):
+        """ Delete Package
+        # Usage $ wasanbon-admin.py package delete [PACK_NAME]"""
+        options, argv = self.parse_args(args[:], self._print_rtcs)
+        verbose = options.verbose_flag
+        pack = admin.package.get_package_from_path(os.getcwd())
+        rtc = admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)
+        admin.editor.edit_rtc(rtc, verbose=verbose)
+
+
+        

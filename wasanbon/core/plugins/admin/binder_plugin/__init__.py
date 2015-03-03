@@ -106,17 +106,22 @@ class Plugin(PluginFunction):
         long = options.long_flag
 
         binders = self.get_binders(verbose=verbose)
+        rtcs  =[]
         for binder in binders:
-            for rtc in binder.rtcs:
-                if not long:
-                    print ' - %s' % rtc.name
-                else:
-                    print '%s :' % rtc.name
-                    print '  %s : %s' % ('url', rtc.url)
-                    print '  %s : %s' % ('type', rtc.type)
-                    print '  %s : %s' % ('description', rtc.description)
-                    print '  %s : %s' % ('platform', rtc.platform)
-            
+            rtcs = rtcs + binder.rtcs
+
+        rtcs = sorted(rtcs, key=lambda rtc : rtc.name)
+
+        for rtc in rtcs:
+            if not long:
+                print ' - %s' % rtc.name
+            else:
+                print '%s :' % rtc.name
+                print '  %s : %s' % ('url', rtc.url)
+                print '  %s : %s' % ('type', rtc.type)
+                print '  %s : %s' % ('description', rtc.description)
+                print '  %s : %s' % ('platform', rtc.platform)
+                
         return 0
     
     @manifest
@@ -156,27 +161,36 @@ class Plugin(PluginFunction):
     def get_package_repo(self, name, verbose=False):
         return get_package_repo(name, verbose=verbose)
 
-    def Repository(self, name, type, platform, url, description):
+    def Repository(self, name, type, platform, url, description, path=None):
         return Repository(name=name, 
                           type=type,
                           platform=platform,
                           url=url,
-                          description=description)
+                          description=description,
+                          path=path)
 
+        
 _owner_sign = '_owner'
 
 #plugin_obj = None
 
 class Repository(object):
-    def __init__(self, name, type, platform, url, description):
+    def __init__(self, name, type, platform, url, description, path=None):
 
         self._name = name
         self._url  = url
         self._type = type
         self._platform = platform
         self._description = description
+        self._path = path
         pass
 
+    @property
+    def path(self):
+        return self._path
+
+    def is_local(self):
+        return (not path is None)
     @property
     def name(self):
         return self._name

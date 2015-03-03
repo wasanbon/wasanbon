@@ -79,6 +79,11 @@ class Plugin(PluginFunction):
     def clone_rtc(self, rtc_repo, verbose=False):
         import wasanbon
         admin.git.git_command(['clone', rtc_repo.url, rtc_repo.name], verbose=verbose)
+        curdir = os.getcwd()
+        os.chdir(os.path.join(curdir, rtc_repo.name))
+        admin.git.git_command(['submodule', 'init'], verbose=verbose)
+        admin.git.git_command(['submodule', 'update'], verbose=verbose)
+        os.chdir(curdir)
         return 0
 
     def get_rtc_repositories_from_package(self, package_obj, verbose=False):
@@ -100,3 +105,25 @@ class Plugin(PluginFunction):
                 pass
             pass
         return repos
+
+    def get_repository_from_rtc(self, rtc, verbose=False):
+        path = rtc.path
+        if '.git' in os.listdir(path):
+            return self.get_git_repository_from_rtc(rtc, verbose=verbose)
+
+    def get_git_repository_from_rtc(self, rtc, verbose=False):
+        typ = 'git'
+        name = rtc.rtcprofile.basicInfo.name
+        p = admin.git.git_command(['config', '--get', 'remote.origin.url'], path=rtc.path)
+        p.wait()
+        url = p.stdout.read()
+        repo = admin.binder.Repository(name=rtc.rtcprofile.basicInfo.name, type=typ, url=url, description=rtc.rtcprofile.basicInfo.description, platform=wasanbon.platform(), path=rtc.path)
+        return repo
+
+            
+    def get_status(self, repo, verbose=False):
+        if not repo.is_local():
+            sys.stdout.write('# Given Repository is not local repository.\n')
+            return -1
+        if repo.type == 'git':
+            p = admin.git.git_command(['status'], path=repo.path)
