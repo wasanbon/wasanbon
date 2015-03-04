@@ -196,9 +196,11 @@ def execute(argv=None):
     except wasanbon.InvalidUsageException, ex:
         show_help_description(package, subcommand, args=args)
         return -1
+    except wasanbon.RTCNotFoundException, ex:
+        sys.stdout.write('# RTC Not Found.\n')
     except wasanbon.WasanbonException, ex:
-        if options.verbose_flag:
-            traceback.print_exc()
+        #if options.verbose_flag:
+        traceback.print_exc()
         sys.stdout.write(' # Error. %s\n' % ex.msg())
         return -1
     except Exception, ex:
@@ -233,7 +235,8 @@ def run_command(package, subcommand, args, options= None):
         else:
             return getattr(plugin, target_function)(args)
     else:
-        verbose = False if options is None else options.verbose_flag
+        #verbose = False if options is None else options.verbose_flag
+        verbose = True
         module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
         __import__(module_name)
         mod = sys.modules[module_name]

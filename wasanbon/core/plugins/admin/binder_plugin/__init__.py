@@ -190,7 +190,8 @@ class Repository(object):
         return self._path
 
     def is_local(self):
-        return (not path is None)
+        return (not self.path is None)
+    
     @property
     def name(self):
         return self._name

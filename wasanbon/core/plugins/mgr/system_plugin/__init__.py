@@ -369,8 +369,9 @@ class Plugin(PluginFunction):
         return 0
     
     @manifest
-    def rtcs(self, args):
+    def list(self, args):
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
-
-        return 0
+        
+        package = admin.package.get_package_from_path(os.getcwd())
+        rtcconf = 

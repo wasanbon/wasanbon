@@ -120,10 +120,47 @@ class Plugin(PluginFunction):
         repo = admin.binder.Repository(name=rtc.rtcprofile.basicInfo.name, type=typ, url=url, description=rtc.rtcprofile.basicInfo.description, platform=wasanbon.platform(), path=rtc.path)
         return repo
 
+
+    def is_updated(self, repo, verbose=False):
+        output = self.get_status(repo, verbose=verbose)
+        return (output.find("modified") > 0) or (output.find("Untracked") > 0)
+
             
     def get_status(self, repo, verbose=False):
         if not repo.is_local():
             sys.stdout.write('# Given Repository is not local repository.\n')
-            return -1
+            return ""
         if repo.type == 'git':
             p = admin.git.git_command(['status'], path=repo.path)
+            p.wait()
+            output = p.stdout.read()
+            if verbose:
+                sys.stdout.write(output)
+            return output
+
+    def commit(self, repo, comment, verbose=False):
+        if repo.type == 'git':
+            if verbose: sys.stdout.write('## Committing GIT type repository (%s)\n' % repo.name)
+            p = admin.git.git_command(['commit', '-am', comment], path=repo.path)
+            p.wait()
+            output = p.stdout.read()
+            if verbose: sys.stdout.write(output)
+            return 0
+            
+    def push(self, repo, verbose=False, remote='origin'):
+        if repo.type == 'git':
+            if verbose: sys.stdout.write('## Pushing GIT type repository (%s)\n' % repo.name)
+            p = admin.git.git_command(['push', 'origin', 'master'], path=repo.path)
+            p.wait()
+            output = p.stdout.read()
+            if verbose: sys.stdout.write(output)
+            return p.returncode
+
+    def pull(self, repo, verbose=False, remote='origin'):
+        if repo.type == 'git':
+            if verbose: sys.stdout.write('## Pulling GIT type repository (%s)\n' % repo.name)
+            p = admin.git.git_command(['pull', 'origin', 'master'], path=repo.path)
+            p.wait()
+            output = p.stdout.read()
+            if verbose: sys.stdout.write(output)
+            return p.returncode

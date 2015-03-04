@@ -60,8 +60,8 @@ class Plugin(PluginFunction):
         options, argv = self.parse_args(args[:], self.print_packages)
         verbose = options.verbose_flag
 
-        import package
-        packages = package.get_packages(verbose=verbose)
+        #import package
+        packages = self.get_packages(verbose=verbose)
         for p in packages:
             if p.name == argv[3]:
                 print p.path
@@ -92,15 +92,16 @@ class Plugin(PluginFunction):
         remove = options.remove_flag
 
         wasanbon.arg_check(args, 4)
-        import package
         retval = 0
         for n in argv[3:]:
             sys.stdout.write('# Removing package %s\n' % n)
-            ret = package.delete_package(n, deletepath=remove, verbose=verbose)
+            ret = self.delete_package(n, deletepath=remove, verbose=verbose)
             if ret != 0:
                 retval = 1
         return retval
     
+    def delete_package(self, package_name, deletepath=False, verbose=False):
+        return delete_package(package_name, deletepath=deletepath, verbose=verbose)
 
 
     def get_package_from_path(self, path, verbose=False):

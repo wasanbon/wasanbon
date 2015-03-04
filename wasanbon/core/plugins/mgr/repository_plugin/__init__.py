@@ -9,7 +9,11 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.binder', 'admin.repository', 'admin.package', 'admin.rtc']
+        return ['admin.environment',
+                'admin.binder', 
+                'admin.repository', 
+                'admin.package', 
+                'admin.rtc']
 
     @manifest
     def list(self, argv):
@@ -67,7 +71,75 @@ class Plugin(PluginFunction):
         for rtc in rtcs:
             sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
             repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-            print repo
-        
+            if admin.repository.is_updated(repo, verbose=verbose):
+                sys.stdout.write('  Modified\n' )
+            else:
+                sys.stdout.write('  Up-to-date\n')
+        return 0
 
-        pass
+
+    @manifest
+    def commit(self, args):
+        """ Show Repository Status of RTCs
+        $ mgr.py repository commit [RTC_NAME] [COMMENT]"""
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 5)
+        rtc_name = argv[3]
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        sys.stdout.write('# Committing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        comment = argv[4]
+        if admin.repository.commit(repo, comment, verbose=verbose) == 0:
+            sys.stdout.write('## Success\n')
+            return 0
+        sys.stdout.write('## Failed.\n')
+        return -1
+        
+    @manifest
+    def push(self, args):
+        """ Push Repository to server
+        $ mgr.py repository push [RTC_NAME]"""
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 4)
+        rtc_name = argv[3]
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        sys.stdout.write('# Pushing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        if admin.repository.push(repo, verbose=verbose) == 0:
+            sys.stdout.write('## Success\n')
+            return 0
+
+        sys.stdout.write('## Failed\n')
+        return -1
+
+
+    @manifest
+    def pull(self, args):
+        """ Pull Repository from server
+        $ mgr.py repository pull [RTC_NAME]"""
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 4)
+        rtc_name = argv[3]
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        sys.stdout.write('# Pulling RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        if admin.repository.pull(repo, verbose=verbose) == 0:
+            sys.stdout.write('## Success\n')
+            return 0
+
+        sys.stdout.write('## Failed\n')
+        return -1
+
+        
