@@ -72,7 +72,7 @@ class Plugin(PluginFunction):
         sys.stdout.write('## Ends.\n')
         return 0
 
-    def _print_install_opts(self):
+    def _print_install_opts(self, args):
         for i in self._install_list + self._install_rtms:
             print i
 
@@ -226,7 +226,16 @@ class Plugin(PluginFunction):
             return self._is_rtmjava_installed()
         elif pack == 'rtm_python':
             try:
+                try:
+                    # If rtctree is already installed,
+                    # the rtctree must be imported before OpenRTM_aist.
+                    # because the rtctree partly uses original IDL and modules 
+                    # compatible with OpenRTM_aist
+                    import rtctree
+                except:
+                    pass
                 import OpenRTM_aist
+                del OpenRTM_aist
                 return True
             except ImportError, e:
                 traceback.print_exc()

@@ -38,11 +38,9 @@ class PluginFunction(object):
         if options.alt_flag:
             if print_alt_func == None:
                 print ' '
-                sys.exit(0)
                 raise wasanbon.PrintAlternativeException()
             else:
-                print_alt_func()
-                sys.exit(0)
+                print_alt_func(arg)
                 raise wasanbon.PrintAlternativeException()
 
         return options, argv

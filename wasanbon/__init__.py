@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, locale, getpass #, yaml
+import sys, os, locale, getpass, time #, yaml
 import platform as plt
 import types
 import codecs, subprocess
@@ -103,6 +103,9 @@ class DownloadFailedException(WasanbonException):
     def msg(self):
         return 'Download Failed'
 
+class InvalidArgumentException(WasanbonException):
+    def msg(self):
+        return 'Invalid Argument'
 def arg_check(argv, num):
     if len(argv) < num:
         raise InvalidUsageException()
@@ -364,3 +367,18 @@ def platform():
 
 import wasanbon.core.plugins
 plugins = wasanbon.core.plugins.Loader([wasanbon.rtm_plugins(), plugins_path, wasanbon.core.plugins.__path__[0]])
+
+
+def sleep(interval, verbose=True):
+    times = int(interval * 5)
+    #sys.stdout.write(' - Waiting approx. %s seconds\n' % interval)
+    for t in range(times):
+        percent = float(t) / times
+        width = 30
+        progress = (int(width*percent)+1)
+        sys.stdout.write('\r# [' + '#'*progress + ' '*(width-progress) + ']')
+        sys.stdout.flush()
+        time.sleep(0.2)
+
+    sys.stdout.write('\n')
+    

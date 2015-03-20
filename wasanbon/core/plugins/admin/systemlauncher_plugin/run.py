@@ -66,7 +66,7 @@ def start_python_rtcd(filepath, verbose=False):
     #p.stdin.write('N\n')
     return p
  
-def start_java_rtcd(rtcs, filepath, verbose=False):
+def start_java_rtcd(rtcs, filepath, verbose=False, cmd_path='java'):
     if verbose:
         sys.stdout.write(' - Starting Java rtcd.\n')
 
@@ -101,8 +101,11 @@ def start_java_rtcd(rtcs, filepath, verbose=False):
     #print java_env
 
     args['env'] = java_env
-    
-    cmd = [wasanbon.setting()['local']['java'], 'rtcd.rtcd', '-f', filepath]
+    #java_cmd = wasanbon.setting()['local']['java']
+    #java_cmd = admin.environment.path['java']
+    java_cmd = cmd_path
+    cmd = [java_cmd, 'rtcd.rtcd', '-f', filepath]
+    sys.stdout.write('java_rtcd : cmd = %s\n' % cmd)
     return subprocess.Popen(cmd, **args)
 
 

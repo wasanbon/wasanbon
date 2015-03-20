@@ -1,5 +1,5 @@
 import time, sys, os
-from rtshell import rtstart, rtresurrect, rtstop
+
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
@@ -28,7 +28,9 @@ class Plugin(PluginFunction):
     def connect_ports(self, port1, port2, verbose=False):
         if verbose: sys.stdout.write('## Connecting %s to %s\n' % (self.get_port_full_path(port1),
                                                                    self.get_port_full_path(port2)))
-        port1.connect([port2])
+        # from rtshell.rtcon import connect_ports
+        port2.connect([port1], name='hoge', id='id', props={})
+        
         return 0
 
     def set_active_configuration_data(self, rtc, key, value):
@@ -46,6 +48,7 @@ class Plugin(PluginFunction):
 
         for i in range(0, try_count):
             if verbose: sys.stdout.write('# Building RT-System (file=%s)\n' % system_file)
+            from rtshell import rtresurrect
             if rtresurrect.main([system_file]) == 0:
                 return 0
             time.sleep(wait_time)
@@ -57,6 +60,7 @@ class Plugin(PluginFunction):
 
         for i in range(0, try_count):
             if verbose: sys.stdout.write('# Activating RT-System (file=%s)\n' % system_file)
+            from rtshell import rtstart
             if rtstart.main([system_file]) == 0:
                 return 0
             time.sleep(wait_time)
@@ -69,6 +73,7 @@ class Plugin(PluginFunction):
 
         for i in range(0, try_count):
             if verbose: sys.stdout.write('# Activating RT-System (file=%s)\n' % system_file)
+            from rtshell import rtstop
             if rtstop.main([system_file]) == 0:
                 return 0
             time.sleep(wait_time)

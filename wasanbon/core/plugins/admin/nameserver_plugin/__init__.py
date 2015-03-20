@@ -52,8 +52,8 @@ class Plugin(PluginFunction):
     def is_running(self, ns, verbose=False, try_count=3, interval=5.0):
         for i in range(0, try_count):
             if verbose: sys.stdout.write('## Checking Nameservice(%s) is running\n' % ns.path)
-            import rtctree, omniORB
             from rtctree import path as rtctree_path
+            import rtctree, omniORB
             try:
                 if not ns.tree:
                     if verbose: sys.stdout.write('### Parsing path....\n')
@@ -229,9 +229,9 @@ class NameServer(object):
         for i in range(0, try_count):
             try:
                 if not self.tree:
-                    path, port = rtctree_path.parse_path('/' + self.path)
-                    self.tree = rtctree_tree.RTCTree(paths=path, filter=[path])
-                    self.dir_node = self.tree.get_node(path)
+                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
+                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
                 break
             except Exception, e:
                 pass
@@ -257,6 +257,7 @@ class NameServer(object):
     def refresh(self, verbose=False, force=False, try_count=5):
         from rtctree import path as rtctree_path
         from rtctree import tree as rtctree_tree
+        import omniORB
         for i in range(0, try_count):
             try:
                 #if self.tree and force:
@@ -269,11 +270,11 @@ class NameServer(object):
                 else:
                     orb = None
                 if not self.tree or force:
-                    sys.stdout.write(' - refreshing tree... for %s\n' % self.path)
-                    self.__path, self.__port = rtctree_.path.parse_path('/' + self.path)
+                    sys.stdout.write('# Refreshing tree... for %s\n' % self.path)
+                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
                     self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path], orb=orb)
                     self.dir_node = self.tree.get_node(self.__path)
-                    sys.stdout.write(' - success.\n')
+                    sys.stdout.write('## Success.\n')
                     return 
             except omniORB.CORBA.OBJECT_NOT_EXIST, e:
                 print 'omniORB'
@@ -289,6 +290,7 @@ class NameServer(object):
         from rtctree import path as rtctree_path
         for i in range(0, try_count):
             try:
+
                 if not self.tree:
                     self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
                     self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
@@ -296,6 +298,7 @@ class NameServer(object):
                 break
             except Exception, e:
                 traceback.print_exc()
+                self.tree = None
                 pass
         if not self.tree:
             return []

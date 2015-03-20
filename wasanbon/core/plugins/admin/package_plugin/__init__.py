@@ -13,14 +13,14 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.rtcconf']
+        return ['admin.environment', 'admin.rtcconf', 'admin.rtc']
 
     #@property
     #def package(self):
     #    import package
     #    return package
 
-    def print_packages(self):
+    def print_packages(self, args):
         packages = self.get_packages()
         for p in packages:
             print p.name
@@ -47,7 +47,11 @@ class Plugin(PluginFunction):
             if not long:
                 print p.name
             else:
-                print p.path
+                print '%s : ' % p.name
+                print '  path : %s' % p.path
+                print '  rtcs : '
+                for r in admin.rtc.get_rtcs_from_package(p):
+                    print '    %s : ' % r.rtcprofile.basicInfo.name
 
         return 0
 

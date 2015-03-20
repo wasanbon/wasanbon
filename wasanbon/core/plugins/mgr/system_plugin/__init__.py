@@ -7,26 +7,36 @@ endflag = False
 ev = threading.Event()
 
 class Plugin(PluginFunction):
-
+    """ System Management (Launch, Installing RTCs, Configuration, and Connection) """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package', 'admin.rtc', 'admin.systeminstaller', 
-                'admin.systemlauncher', 'admin.systembuilder', 'admin.nameserver', 'admin.systemeditor']
+        return ['admin.environment', 
+                'admin.package', 
+                'admin.rtc', 
+                'admin.systeminstaller', 
+                'admin.systemlauncher', 
+                'admin.systembuilder', 
+                'admin.nameserver',
+                'admin.systemeditor',
+                'admin.rtcconf']
 
-    def _print_rtcs(self):
+    def _print_rtcs(self, args):
         pack = admin.package.get_package_from_path(os.getcwd())
         for rtc in admin.rtc.get_rtcs_from_package(pack):
             print rtc.rtcprofile.basicInfo.name
         
     @manifest 
     def install(self, args):
+        """ Install RTCs to System
+        $ mgr.py system install [RTC_NAME]
+        """
         self.parser.add_option('-f', '--force', help='Force option (default=True)', default=True, action='store_true', dest='force_flag')
         self.parser.add_option('-s', '--standalone', help='Install Standalone RTC(default=False)', default=False, action='store_true', dest='standalone_flag')
-        options, argv = self.parse_args(args[:])
+        options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         force  = options.force_flag
         standalone = options.standalone_flag
@@ -55,7 +65,11 @@ class Plugin(PluginFunction):
 
     @manifest
     def uninstall(self, args):
-        options, argv = self.parse_args(args[:])
+        """ Uninstall RTC from system.
+        $ mgr.py system uninstall [RTC_NAME]
+        """
+        
+        options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
 
         pack = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
@@ -70,6 +84,9 @@ class Plugin(PluginFunction):
 
     @manifest
     def terminate(self, args):
+        """ Terminate Launched System.
+        $ mgr.py system terminate
+        """
         #self.parser.add_option('-b', '--background', help='Launch in background(default=False)', default=False, action='store_true', dest='background_flag')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
@@ -88,6 +105,7 @@ class Plugin(PluginFunction):
                 admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
                 admin.systemlauncher.terminate_system(package, verbose=verbose)
             except:
+                traceback.print_exc()
                 return -1
             return -1
         return 0
@@ -95,7 +113,8 @@ class Plugin(PluginFunction):
 
     @manifest
     def run(self, args):
-        """ Launch System """
+        """ Launch System 
+        $ mgr.py system run """
         #self.parser.add_option('-f', '--force', help='Force option (default=True)', default=True, action='store_true', dest='force_flag')
         #self.parser.add_option('-s', '--standalone', help='Install Standalone RTC(default=False)', default=False, action='store_true', dest='standalone_flag')
         self.parser.add_option('-b', '--background', help='Launch in background(default=False)', default=False, action='store_true', dest='background_flag')
@@ -106,13 +125,25 @@ class Plugin(PluginFunction):
         wakeuptimeout = options.wakeuptimeout
         #force  = options.force_flag
         #standalone = options.standalone_flag
-        
+
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+
+        started_nss = []
+        nss = admin.nameserver.get_nameservers_from_package(package, verbose=verbose)
+        for ns in nss:
+            if not admin.nameserver.is_running(ns, verbose=verbose, try_count=5, interval=5.0):
+                sys.stdout.write('## Nameserver %s is not running.\n' % ns.path)
+                if ns.address == 'localhost' or ns.address == '127.0.0.1':
+                    if verbose: '# Start Nameserver %s\n' % ns.path
+                    admin.nameserver.launch(ns, verbose=verbose)
+                    started_nss.append(ns)
+                    wasanbon.sleep(5.0)
+
         global endflag
         endflag = False
         try:
             processes = admin.systemlauncher.launch_system(package, verbose=verbose)
-            time.sleep(wakeuptimeout)
+            wasanbon.sleep(wakeuptimeout)
             admin.systembuilder.build_system(package, verbose=verbose)
 
             admin.systembuilder.activate_system(package, verbose=verbose)
@@ -158,12 +189,17 @@ class Plugin(PluginFunction):
             except:
                 return -1
 
+        for ns in started_nss:
+            if verbose: '# Stopping Nameserver %s\n' % ns.path
+            admin.nameserver.terminate(ns, verbose=verbose)
+
         return 0
 
 
     @manifest
     def build(self, args):
-        """ Build System in Console interactively """
+        """ Build System in Console interactively 
+        $ mgr.py system build """
         self.parser.add_option('-b', '--background', help='Launch in background(default=False)', default=False, action='store_true', dest='background_flag')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:])
@@ -171,7 +207,6 @@ class Plugin(PluginFunction):
         background = options.background_flag
         wakeuptimeout = options.wakeuptimeout
         #force  = options.force_flag
-
 
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
         global endflag
@@ -184,20 +219,25 @@ class Plugin(PluginFunction):
             package = admin.package.get_package_from_path(os.getcwd())
             nss = admin.nameserver.get_nameservers_from_package(package, verbose=verbose)
 
+            for ns in nss:
+                ns.refresh(verbose=verbose)
             # Interactive Connect
             pairs = admin.systemeditor.get_connectable_pairs(nss, verbose=verbose)
             from wasanbon import util
             for pair in pairs:
                 if util.no_yes('# Connect? (%s->%s)\n' % (admin.systembuilder.get_port_full_path(pair[0]),
                                                           admin.systembuilder.get_port_full_path(pair[1]))) == 'yes':
-                    try:
-                        admin.systembuilder.connect_ports(pair[0], pair[1], verbose=verbose)
-                        sys.stdout.write('## Connected.\n')
-                    except Exception, ex:
-                        if verbose:
-                            traceback.print_exc()
-                            
-                        sys.stdout.write('## Failed.\n')
+                    while True:
+                        try:
+                            admin.systembuilder.connect_ports(pair[0], pair[1], verbose=verbose)
+                            sys.stdout.write('## Connected.\n')
+                        except Exception, ex:
+                            if verbose:
+                                traceback.print_exc()
+                                pass
+                            sys.stdout.write('## Failed. \n')
+                            if util.yes_no('### Retry?') == 'no':
+                                break
                 pass
 
             rtc_names = []
@@ -298,6 +338,8 @@ class Plugin(PluginFunction):
 
     @manifest
     def configure(self, args):
+        """ Configure system interactively in console.
+        $ mgr.py system configure """
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
 
@@ -344,7 +386,9 @@ class Plugin(PluginFunction):
 
     @manifest
     def switch(self, args):
-        """ Switch RT-System """
+        """ Switch RT-System 
+        $ mgr.py system switch [SYSTEM_FILENAME] 
+        The SYSTEM_FILENAME file must be included in RTS_DIR (defined in setting.yaml) """
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         
@@ -370,8 +414,18 @@ class Plugin(PluginFunction):
     
     @manifest
     def list(self, args):
+        """ List RTCs installed.
+        $ mgr.py system list """
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         
         package = admin.package.get_package_from_path(os.getcwd())
-        rtcconf = 
+        rtcconf_paths = package.rtcconf
+        for language, rtcconf_path in rtcconf_paths.items():
+            rtcconf = admin.rtcconf.RTCConf(rtcconf_path)
+            sys.stdout.write('%s :\n' % language)
+            sys.stdout.write('  conf_file : %s\n' % rtcconf_path)
+            sys.stdout.write('  rtcd :\n')
+            sys.stdout.write('    uri            : %s\n' % rtcconf['corba.master_manager'])
+            sys.stdout.write('    nameservers    : %s\n' % rtcconf['corba.nameservers'])
+            sys.stdout.write('    installed_rtcs : %s\n' % rtcconf['manager.components.precreate'])

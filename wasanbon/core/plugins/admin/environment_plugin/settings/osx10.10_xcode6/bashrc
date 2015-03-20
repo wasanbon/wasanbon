@@ -40,22 +40,30 @@ _wsb_svc_cmpl() {
 }
 
 _mgr_svc_cmpl() {
-    local cur prev pprev target subtarget subcmds subsubcmds
+    local cur prev pprev ppprev target subtarget subcmds subsubcmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     pprev=""
+    ppprev=""
     if [[ $COMP_CWORD == 3 ]]
     then
         prev="${COMP_WORDS[COMP_CWORD-2]}"
         pprev="${COMP_WORDS[COMP_CWORD-1]}"
     fi
+    if [[ $COMP_CWORD == 4 ]]
+    then
+        prev="${COMP_WORDS[COMP_CWORD-3]}"
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+        ppprev="${COMP_WORDS[COMP_CWORD-1]}"
+    fi
+
     subcmds=`./mgr.py -a`
     #target=( $(compgen -W "${subcmds}" -- $1) )    
     for val in ${subcmds[@]}; do
 	if [[ ${val} == ${prev} ]]
 	then
-	    subsubcmds=`./mgr.py ${prev} ${pprev} -a`
+	    subsubcmds=`./mgr.py ${prev} ${pprev} ${ppprev}-a`
 	    subtarget=( $(compgen -W "${subsubcmds}" -- ${cur}) )
 	    COMPREPLY=(${subtarget[@]})
             return 0

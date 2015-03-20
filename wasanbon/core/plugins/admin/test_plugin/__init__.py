@@ -49,8 +49,8 @@ class Plugin(PluginFunction):
         cons = open('console_output.txt', 'w')
         sys.stdout = cons
 
-        self.test(admin, 'environment', 'init', '-v')
 
+        self.test(admin, 'environment', 'init', '-v')
 
         self.test(admin, 'binder', 'list', '-v')
         self.test(admin, 'binder', 'packages', '-v')
@@ -77,15 +77,16 @@ class Plugin(PluginFunction):
             self.test(mgr, 'rtc', 'build', 'all', '-v')
 
             timeout = 3.0
-            self.test(mgr, 'system', 'run', '-vb', '-w', str(timeout))
+            self.test(mgr, 'system', 'run', '-v', '-b', '-w', str(timeout))
             time.sleep(timeout*1.5)
             self.test(mgr, 'system', 'terminate', '-v')
 
             if not os.path.isfile('testout.txt'):
                 log("testout.txt not found.")
-            with open("testout.txt", "r") as f:
-                val = int(f.read().strip())
-                log("testout.txt == %d" % val)
+            else:
+                with open("testout.txt", "r") as f:
+                    val = int(f.read().strip())
+                    log("testout.txt == %d" % val)
             
             self.test(mgr, 'rtc', 'clean', 'all', '-v')
             os.chdir(curdir)

@@ -3,8 +3,8 @@ import os, sys, types, traceback, psutil, time
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
-from rtshell import rtexit, path, rts_exceptions
-from rtshell.rtmgr import get_manager
+# from rtshell import rtexit, path, rts_exceptions
+
 class Plugin(PluginFunction):
 
     def __init__(self):
@@ -97,10 +97,14 @@ class Plugin(PluginFunction):
             for mgr_addr in mgr_addrs[lang]:
                 cleaned = False
                 if not mgr_addr.startswith('/') : mgr_addr = '/' + mgr_addr
+                from rtshell import path
                 full_path = path.cmd_path_to_full_path(mgr_addr)
                 mgr = None
                 for i in range(0, try_count):
+                    from rtshell import rts_exceptions
+                    from rtshell.rtmgr import get_manager
                     try:
+
                         tree, mgr = get_manager(mgr_addr, full_path)
                         break
                     except rts_exceptions.ZombieObjectError, e:
@@ -132,7 +136,8 @@ def start_rtcd(pkg, language, filepath, verbose=False):
         return run.start_cpp_rtcd(filepath, verbose=verbose)
     elif language == 'Java':
         rtcs = admin.rtc.get_rtcs_from_package(pkg, verbose=verbose)
-        return run.start_java_rtcd(rtcs, filepath, verbose=verbose)
+        cmd_path = admin.environment.path['java']
+        return run.start_java_rtcd(rtcs, filepath, verbose=verbose, cmd_path=cmd_path)
     elif language == 'Python':
         return run.start_python_rtcd(filepath, verbose=verbose)
     else:

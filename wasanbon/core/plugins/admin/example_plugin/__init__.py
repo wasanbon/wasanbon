@@ -23,7 +23,7 @@ class Plugin(PluginFunction):
         """
         print " # This is example plugin's print function"
 
-    def _print_alternatives(self):
+    def _print_alternatives(self, args):
         print 'hoo'
         print 'foo'
         print 'hoge'

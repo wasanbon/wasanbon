@@ -25,7 +25,7 @@ class Plugin(PluginFunction):
     #    import rtc
     #    return rtc
 
-    def _print_rtcs(self):
+    def _print_rtcs(self, args):
         pack = admin.package.get_package_from_path(os.getcwd())
         rtcs = admin.rtc.get_rtcs_from_package(pack)
         for r in rtcs:
