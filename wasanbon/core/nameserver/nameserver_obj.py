@@ -171,7 +171,11 @@ class NameService(object):
         
         process_pid = self._process.pid
         for p in psutil.process_iter():
-            if p.name() == 'omniNames':
+            if sys.platform == 'darwin':
+                name = p.name
+            else:
+                name = p.name()
+            if name == 'omniNames':
                 process_pid = p.pid
         if verbose:
             sys.stdout.write(' - Creating PID file (%s)\n' % process_pid)
