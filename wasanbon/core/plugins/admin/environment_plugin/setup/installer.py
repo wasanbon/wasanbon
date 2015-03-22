@@ -26,11 +26,16 @@ def install_easy_install(cmd, verbose=False):
         env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
     return call_subprocess(cmds, verbose, env)
 
-def install_pip(cmd, verbose=False):
+def install_pip(cmd, verbose=False, env_option=None):
     cmds = cmd.split()
+
     env = os.environ
     if sys.platform == 'darwin':
         env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+
+    if not env_option is None:
+        for key, value in env_option.items():
+            env[key] = value
     return call_subprocess(cmds, verbose, env)
 
 def install_apt(cmd, verbose=False):

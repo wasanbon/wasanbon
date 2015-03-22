@@ -83,7 +83,8 @@ class Loader():
         self._directories = directories
         self._plugin_list = {}
         for d in directories:
-            self.list_plugins(d, verbose=verbose)
+            if os.path.isdir(d):
+                self.list_plugins(d, verbose=verbose)
 
         for name, dir in self._plugin_list.items():
             self.load_plugin(name, dir, verbose=verbose)

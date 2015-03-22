@@ -4,7 +4,7 @@ import os, traceback, types, copy
 import sys
 from xml.dom import minidom, Node
 import xml.etree.ElementTree
-import lxml.etree
+
 #import search_rtc
 
 ##############
@@ -430,6 +430,7 @@ def save_rtcprofile(rtcp, filename):
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
     print ' - writing', filename
     try:
+        import lxml.etree
         str = xml.etree.ElementTree.tostring(root)
         t = lxml.etree.fromstring(str)
         tree = lxml.etree.ElementTree(t)

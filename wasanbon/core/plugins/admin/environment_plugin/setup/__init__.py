@@ -91,7 +91,7 @@ def extract_tar_and_install(filename, verbose=False):
             install_setup_py(dirname, verbose=verbose)
         return True
 
-def try_import_and_install(pack, verbose=False, force=False, workpath='downloads'):
+def try_import_and_install(pack, verbose=False, force=False, workpath='downloads', env_option=None):
     if verbose: sys.stdout.write('# Trying to import %s module.\n' % pack)
     if import_check(pack):
         if verbose: sys.stdout.write('## Package %s is successfully imported.\n')
@@ -106,13 +106,13 @@ def try_import_and_install(pack, verbose=False, force=False, workpath='downloads
             pass
         else:
             return -1
-    if not download_and_install(pack, force=force, verbose=verbose, temppath=workpath):
+    if not download_and_install(pack, force=force, verbose=verbose, temppath=workpath, env_option=env_option):
         sys.stdout.write('# Error. There may be "download" directory in the current path.\n')
         return -1
     return 0
 
 
-def download_and_install(tag, verbose=False, force=False, temppath='downloads', installpath='.'):
+def download_and_install(tag, verbose=False, force=False, temppath='downloads', installpath='.', env_option=None):
     if verbose: sys.stdout.write('# Download and Intall [%s]\n' % tag)
     url = _get_url(tag)
     if url is None:
@@ -122,18 +122,18 @@ def download_and_install(tag, verbose=False, force=False, temppath='downloads', 
         url = [url]
         
     for u in url:
-        _download_and_install_url(u, verbose=verbose, force=force, temppath=temppath, installpath=installpath)
+        _download_and_install_url(u, verbose=verbose, force=force, temppath=temppath, installpath=installpath, env_option=env_option)
         if import_check(tag):
             return True
     return False
 
 
-def _download_and_install_url(url, verbose=False, force=False, temppath='downloads', installpath='.'):    
+def _download_and_install_url(url, verbose=False, force=False, temppath='downloads', installpath='.', env_option=None):    
     if url.startswith('easy_install'):
         return install_easy_install(url, verbose=verbose)
 
     if url.startswith('pip'):
-        return install_pip(url, verbose=verbose)
+        return install_pip(url, verbose=verbose, env_option=env_option)
 
     if url.startswith('apt-get'):
         return install_apt(url, verbose=verbose)

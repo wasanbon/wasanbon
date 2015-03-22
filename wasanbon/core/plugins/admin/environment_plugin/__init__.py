@@ -9,6 +9,8 @@ class Plugin(PluginFunction):
         Use to initialize wasanbon environment."""
 
     _install_list = ['setuptools', 'pip', 'yaml', 'github', 'psutil', 'requests', 'requests_oauthlib', 'bitbucket', 'lxml']
+    #_env_option_dict = {'lxml': {'STATIC_DEPS':'true'}}
+    _env_option_dict = {}
     _install_rtms = ['rtm_c++', 'rtm_python', 'rtm_java', 'rtctree', 'rtsprofile', 'rtshell']
 
     def __init__(self):
@@ -38,7 +40,10 @@ class Plugin(PluginFunction):
 
         retval = []
         for install_pack in self._install_list:
-            ret = setup.try_import_and_install(install_pack, verbose=verbose, force=force, workpath=wasanbon.temp_path)
+            env_option = None
+            if install_pack in self._env_option_dict.keys():
+                env_option = self._env_option_dict[install_pack]
+            ret = setup.try_import_and_install(install_pack, verbose=verbose, force=force, workpath=wasanbon.temp_path, env_option=env_option)
             retval.append(ret == 0)
 
         if not all(retval):
@@ -294,6 +299,8 @@ class Plugin(PluginFunction):
 
     def _is_rtmjava_installed(self):
         jardir = os.path.join(wasanbon.home_path, 'jar')
+        if not os.path.isdir(jardir):
+            os.mkdir(jardir)
         for f in os.listdir(jardir):
             if f.endswith('.jar') and f.startswith('OpenRTM'):
                 return True
