@@ -106,6 +106,7 @@ class DownloadFailedException(WasanbonException):
 class InvalidArgumentException(WasanbonException):
     def msg(self):
         return 'Invalid Argument'
+
 def arg_check(argv, num):
     if len(argv) < num:
         raise InvalidUsageException()
@@ -277,17 +278,20 @@ def setting():
     return __setting
 
 def rtm_home():
-    return setting()['common']['path']['RTM_HOME']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_HOME']
 
 #if not os.path.isdir(rtm_home):
 #    os.makedirs(rtm_home)
 
 def rtm_temp():
-    return setting()['common']['path']['RTM_TEMP']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_TEMP']
 
 
 def rtm_plugins():
-    return setting()['common']['path']['RTM_PLUGINS']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_PLUGINS']
 
 
 #rtm_temp = setting['common']['path']['RTM_TEMP']
@@ -366,7 +370,7 @@ def platform():
     return _platform
 
 import wasanbon.core.plugins
-plugins = wasanbon.core.plugins.Loader([wasanbon.rtm_plugins(), plugins_path, wasanbon.core.plugins.__path__[0]])
+plugins = wasanbon.core.plugins.Loader([plugins_path, wasanbon.core.plugins.__path__[0]])
 
 
 def sleep(interval, verbose=True):

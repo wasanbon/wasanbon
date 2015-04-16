@@ -1,4 +1,4 @@
-import os, sys, types, traceback, psutil, time
+import os, sys, types, traceback, time
 
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
@@ -46,6 +46,7 @@ class Plugin(PluginFunction):
 
     def is_rtcd_launched(self, package, language, verbose=False, autoremove=False):
         pids = self._get_rtcd_pid(package, language, verbose=verbose, autoremove=autoremove)
+        import psutil
         for proc in psutil.process_iter():
             for pid in pids:
                 if proc.pid == pid:
@@ -54,6 +55,7 @@ class Plugin(PluginFunction):
 
     def terminate_rtcd(self, package, language, verbose=False):
         pids = self._get_rtcd_pid(package, language, verbose=verbose, autoremove=True)
+        import psutil
         for proc in psutil.process_iter():
             for pid in pids:
                 if proc.pid == pid:

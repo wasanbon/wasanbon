@@ -58,7 +58,6 @@ class PluginFunction(object):
                 continue
             if name in self.__special_functions:
                 continue
-
             func = getattr(self, name)
             if type(func) is types.MethodType:
                 if '__wasanbon_manifest__' in dir(func):

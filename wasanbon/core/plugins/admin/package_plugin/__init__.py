@@ -121,7 +121,7 @@ class Plugin(PluginFunction):
     def validate_package(self, package, verbose=False, autofix=False, interactive=False, ext_only=False):
         return validate_package(package, verbose=verbose, autofix=autofix, interactive=interactive, ext_only=ext_only)
 
-import os, sys, yaml, types, subprocess
+import os, sys, types, subprocess
 import wasanbon
 
 def parse_and_copy(src, dist, dic, verbose=False):
@@ -146,12 +146,14 @@ def load_workspace(verbose=False):
         return {}
     else:
         if verbose: sys.stdout.write(' - Opening workspace.yaml.\n')
+        import yaml
         y= yaml.load(open(ws_file_name, "r"))
         if not y: y = {}
         return y
 
 def save_workspace(dic):
     ws_file_name = os.path.join(wasanbon.home_path, 'workspace.yaml')
+    import yaml
     yaml.dump(dic, open(ws_file_name, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)
 
 

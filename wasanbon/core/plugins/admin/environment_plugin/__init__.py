@@ -109,8 +109,12 @@ class Plugin(PluginFunction):
     def path(self):
         path_filename = os.path.join(wasanbon.home_path, 'path.yaml')
         if not os.path.isfile(path_filename): return {}
-        import yaml
-        return yaml.load(open(path_filename, 'r'))
+        try:
+            yaml = __import__('yaml')
+            return yaml.load(open(path_filename, 'r'))
+        except ImportError, e:
+            return {}
+
 
 
     # Private Functions

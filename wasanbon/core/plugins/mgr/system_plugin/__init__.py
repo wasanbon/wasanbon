@@ -414,6 +414,50 @@ class Plugin(PluginFunction):
     
     @manifest
     def list(self, args):
+        """ List Systems installed.
+        $ mgr.py system list """
+        self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False, action='store_true', dest='long_flag')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        long = options.long_flag
+
+        package = admin.package.get_package_from_path(os.getcwd())
+        filenames = [file for file in os.listdir(package.get_systempath()) if file.endswith('.xml') and not file.startswith('.')]
+
+        for file in filenames:
+            if not long:
+                sys.stdout.write('- %s\n' % file)
+            else:
+                from rtsprofile import rts_profile
+                try:
+                    rtsp = rts_profile.RtsProfile(open(os.path.join(package.get_systempath(), file), 'r'))
+                except:
+                    sys.stdout.write('%s : \n' % file)
+                    sys.stdout.write('  status : error\n')
+                    continue
+                #sys.stdout.write(str(dir(rtsp)))
+                sys.stdout.write('%s : \n' % file)
+                sys.stdout.write('  status   : success\n')
+                sys.stdout.write('  id       : %s\n' % rtsp.id)
+                sys.stdout.write('  abstract : %s\n' % rtsp.abstract)
+                if len(rtsp.components) > 0:
+                    sys.stdout.write('  components:\n')
+                    for comp in rtsp.components:
+                        sys.stdout.write('    %s : \n' % comp.instance_name)
+                        sys.stdout.write('      id                       : %s\n' % comp.id)
+                        sys.stdout.write('      path_uri                 : %s\n' % comp.path_uri)
+                        sys.stdout.write('      is_required              : %s\n' % comp.is_required)
+                        sys.stdout.write('      active_configuration_set : %s\n' % comp.active_configuration_set)
+                        if len(comp.configuration_sets) > 0:
+                            sys.stdout.write('      configurations_sets :\n')
+                            for conf_set in comp.configuration_sets:
+                                sys.stdout.write('        %s : \n' % conf_set.id)
+                                for conf in conf_set.configuration_data:
+                                    sys.stdout.write('          %s : %s\n' % (conf.name, conf.data))
+                    
+
+    @manifest
+    def list_rtc(self, args):
         """ List RTCs installed.
         $ mgr.py system list """
         options, argv = self.parse_args(args[:])

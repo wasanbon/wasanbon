@@ -1,4 +1,4 @@
-import os, sys, types, subprocess, yaml
+import os, sys, types, subprocess
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
@@ -321,6 +321,7 @@ def download_repositories(setting_filepath, verbose=False, force=False):
         sys.stdout.write('    - Opening setting file in %s\n' % setting_filepath)
 
     with open(setting_filepath, 'r') as repo_setting:
+        import yaml
         for name, value in yaml.load(repo_setting).items():
             if verbose: sys.stdout.write('    - Repository : %s\n' % name)
             urls = value['url']
@@ -363,6 +364,7 @@ def download_repository(url, target_path='',verbose=False, force=False):
     setting_file_path = os.path.join(target_path, 'setting.yaml')
     if os.path.isfile(setting_file_path):
         with open(setting_file_path, 'r') as setting_file:
+            import yaml
             setting = yaml.load(setting_file)
             if type(setting) is types.DictType:
                 child_repos = setting.get('child_binder', [])

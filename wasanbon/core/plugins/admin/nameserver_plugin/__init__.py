@@ -94,30 +94,30 @@ class Plugin(PluginFunction):
         if verbose: sys.stdout.write('### Nameservice not found.\n')
         return False
 
-    def get_running_nss_from_pidfile(self, path=None, verbose=False):
+    def get_running_nss_from_pidfile(self, path=None, verbose=False, pidFilePath='pid'):
         if verbose: sys.stdout.write('## checking Nameservice is runing or not with pid file.\n')
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
         pids = []
-        for file in os.listdir('pid'):
+        for file in os.listdir(pidFilePath):
             if file.startswith('nameserver_'):
                 pid = file[len('nameserver_'):]
                 pids.append(int(pid))
         os.chdir(curdir)
         return pids
 
-    def remove_nss_pidfile(self, pid=None, path=None, verbose=False):
+    def remove_nss_pidfile(self, pid=None, path=None, verbose=False, pidFilePath='pid'):
         if verbose: sys.stdout.write('## checking Nameservice is runing or not with pid file.\n')
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
         pids = []
-        for file in os.listdir('pid'):
+        for file in os.listdir(pidFilePath):
             if file.startswith('nameserver_'):
                 pid_str = file[len('nameserver_'):]
                 if pid == None or int(pid_str) == pid:
-                    os.remove(os.path.join('pid', file))
+                    os.remove(os.path.join(pidFilePath, file))
         pass
 
 
@@ -126,38 +126,58 @@ class Plugin(PluginFunction):
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
-        if not os.path.isdir('pid'):
+        if not os.path.isdir(ns.pidFilePath):
             return False
 
-        pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose)
+        pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
         import psutil
         for pid in pids:
             for proc in psutil.process_iter():
                 if proc.pid == pid:
                     if verbose: sys.stdout.write('## Stopping Nameservice of PID (%s)\n' % pid)                    
                     proc.kill()
-                    self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose)
+                    self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
 
         os.chdir(curdir)
         return True
 
-    def launch(self, ns, verbose=False, force=False, path=None, pidfile=True):
+
+    @manifest 
+    def start(self, argv):
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        self.parser.add_option('-p', '--port', help='Set TCP Port number for web server', type='int', default=2809, dest='port')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        force   = options.force_flag
+        port = options.port
+        ns = NameServer('localhost:%s' % port, pidFilePath='.')
+        self.launch(ns, verbose=verbose, force=force, pidFilePath='.')
+        
+        return 0
+
+    @manifest
+    def stop(self, argv):
+        ns = NameServer('localhost:2809', pidFilePath='.')
+        self.terminate(ns)
+        return 0
+
+    def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return False
         
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
         if pidfile:
-            if not os.path.isdir('pid'):
-                os.mkdir('pid')
-            pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose)
+            if not os.path.isdir(pidFilePath):
+                os.mkdir(pidFilePath)
+            pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
             import psutil
             for pid in pids:
                 for proc in psutil.process_iter():
                     if proc.pid == pid:
                         if verbose: sys.stdout.write('## Stopping Nameservice of PID (%s)\n' % pid)                    
                         proc.kill()
-                        self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose)
+                        self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
 
         if verbose: sys.stdout.write('## Starting Nameserver \n')
 
@@ -189,8 +209,8 @@ class Plugin(PluginFunction):
                     process_pid = p.pid
             if verbose:
                 sys.stdout.write('## Creating PID file (%s)\n' % process_pid)
-                sys.stdout.write('### Filename :%s\n' % os.path.join(os.getcwd(), 'pid', 'nameserver_' + str(process_pid)))
-            open(os.path.join('pid', 'nameserver_' +  str(process_pid)), 'w').close()
+                sys.stdout.write('### Filename :%s\n' % os.path.join(os.getcwd(), pidFilePath, 'nameserver_' + str(process_pid)))
+            open(os.path.join(pidFilePath, 'nameserver_' +  str(process_pid)), 'w').close()
 
         if verbose: sys.stdout.write('## OK.\n')
         os.chdir(curdir)
@@ -200,7 +220,7 @@ class Plugin(PluginFunction):
     
 class NameServer(object):
 
-    def __init__(self, path):
+    def __init__(self, path, pidFilePath='pid'):
         if path.find(':') < 0:
             path = path.strip() + ':2809'
         if path.strip().startswith('/'):
@@ -209,6 +229,7 @@ class NameServer(object):
         self._process = None
         self._rtcs = None
         self.tree = None
+        self.pidFilePath = pidFilePath
 
     @property
     def path(self):

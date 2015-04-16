@@ -1,4 +1,4 @@
-import os, sys, yaml
+import os, sys
 
 def search_command(cmd, path, hints, verbose=False):
     if cmd.startswith('python_'):

@@ -62,10 +62,22 @@ class Plugin(PluginFunction):
                         if not detail:
                             print '     - ' + d.name
                         else:
-                            print '    name     : ' + d.name
-                            print '    portType : ' + d.portType
-                            print '    type     : ' + d.type
-                            
+                            print '    ' + d.name + ':'
+                            #print '      name     : ' + d.name
+                            print '      portType : ' + d.portType
+                            print '      type     : ' + d.type
+                if len(r.rtcprofile.serviceports):
+                    print '  serviceports :'
+                    for s in r.rtcprofile.serviceports:
+                        if not detail:
+                            print '     - ' + s.name
+                        else:
+                            print '    ' + s.name + ':'
+                            #print '      name     : ' + s.name
+                            for i in s.serviceInterfaces:
+                                print '      ' + i.name + ':'
+                                print '        type         : ' + i.type
+                                print '        instanceName : ' + i.instanceName
             if detail:
                 print '  language : '
                 print '    kind        : ' + r.rtcprofile.language.kind

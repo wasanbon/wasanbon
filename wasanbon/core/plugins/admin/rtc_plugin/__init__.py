@@ -50,6 +50,9 @@ class RTCPackage(object):
             self._rtcprofile = rtcprofile.RTCProfile(self._rtcprofile_path)
         return self._rtcprofile
     
+    def get_rtc_profile_path(self, verbose=False):
+        return self._rtcprofile_path
+
     def get_rtc_file_path(self, verbose=False):
         return find_rtc_bin(self.rtcprofile)
 
