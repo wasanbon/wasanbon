@@ -119,10 +119,13 @@ class Plugin(PluginFunction):
         #self.parser.add_option('-s', '--standalone', help='Install Standalone RTC(default=False)', default=False, action='store_true', dest='standalone_flag')
         self.parser.add_option('-b', '--background', help='Launch in background(default=False)', default=False, action='store_true', dest='background_flag')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
+        self.parser.add_option('-f', '--file', help='Build System with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         background = options.background_flag
         wakeuptimeout = options.wakeuptimeout
+        systemfile = options.systemfile
+            
         #force  = options.force_flag
         #standalone = options.standalone_flag
 
@@ -144,9 +147,9 @@ class Plugin(PluginFunction):
         try:
             processes = admin.systemlauncher.launch_system(package, verbose=verbose)
             wasanbon.sleep(wakeuptimeout)
-            admin.systembuilder.build_system(package, verbose=verbose)
+            admin.systembuilder.build_system(package, verbose=verbose, system_file=systemfile)
 
-            admin.systembuilder.activate_system(package, verbose=verbose)
+            admin.systembuilder.activate_system(package, verbose=verbose, system_file=systemfile)
 
             if background:
                 return 0
@@ -173,7 +176,7 @@ class Plugin(PluginFunction):
                     pass
                 pass
 
-            admin.systembuilder.deactivate_system(package, verbose=verbose)
+            admin.systembuilder.deactivate_system(package, verbose=verbose, system_file=systemfile)
             
         except wasanbon.BuildSystemException, ex:
             sys.stdout.write('# Build System Failed.\n')
@@ -424,7 +427,9 @@ class Plugin(PluginFunction):
         package = admin.package.get_package_from_path(os.getcwd())
         filenames = [file for file in os.listdir(package.get_systempath()) if file.endswith('.xml') and not file.startswith('.')]
 
+        defaultSystemPath = package.default_system_filepath
         for file in filenames:
+            path = os.path.join(package.get_systempath(), file)
             if not long:
                 sys.stdout.write('- %s\n' % file)
             else:
@@ -437,6 +442,7 @@ class Plugin(PluginFunction):
                     continue
                 #sys.stdout.write(str(dir(rtsp)))
                 sys.stdout.write('%s : \n' % file)
+                sys.stdout.write('  default  : %s\n' % str(defaultSystemPath == path))
                 sys.stdout.write('  status   : success\n')
                 sys.stdout.write('  id       : %s\n' % rtsp.id)
                 sys.stdout.write('  abstract : %s\n' % rtsp.abstract)
@@ -473,3 +479,50 @@ class Plugin(PluginFunction):
             sys.stdout.write('    uri            : %s\n' % rtcconf['corba.master_manager'])
             sys.stdout.write('    nameservers    : %s\n' % rtcconf['corba.nameservers'])
             sys.stdout.write('    installed_rtcs : %s\n' % rtcconf['manager.components.precreate'])
+
+    
+    @manifest
+    def dump(self, args):
+        self.parser.add_option('-f', '--file', help='Build System with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
+        options, argv = self.parse_args(args[:])
+        systemfile = options.systemfile
+        verbose = options.verbose_flag
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+
+        if systemfile is None:
+            systemfile = package.default_system_filepath
+        else:
+            systemfile = os.path.join(package.get_systempath(), systemfile)
+
+        if not os.path.isfile(systemfile):
+            print '# File Not Found.'
+            return -1
+
+        for line in open(systemfile, 'r'):
+            sys.stdout.write(line)
+        return 0
+
+
+    @manifest
+    def cat(self, args):
+        self.parser.add_option('-f', '--file', help='Build System with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        systemfile = options.systemfile
+
+        if systemfile is None:
+            package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+            systemfile = package.default_system_filepath
+        else:
+            systemfile = os.path.join(package.get_system_filepath(), systemfile)
+
+        if os.path.isfile(systemfile):
+            newfile = systemfile + wasanbon.timestampstr()
+            os.rename(systemfile, newfile)
+
+        fout = open(systemfile, 'w')
+        fout.write(args[3])
+        fout.close()
+
+        sys.stdout.write('Success\n')
+        return 0

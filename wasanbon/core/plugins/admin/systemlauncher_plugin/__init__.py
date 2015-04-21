@@ -35,6 +35,8 @@ class Plugin(PluginFunction):
     def _get_rtcd_pid(self, package, language, verbose=False, autoremove=False):
         pids = []
         piddir = os.path.join(package.path, 'pid')
+        if not os.path.isdir(piddir):
+            return pids
         for f in os.listdir(piddir):
             if f.startswith('rtcd_'+language+'_'):
                 pid = int(f[len('rtcd_'+language+'_'):])
@@ -52,6 +54,13 @@ class Plugin(PluginFunction):
                 if proc.pid == pid:
                     return True
         return False
+
+    def is_launched(self, package, verbose=False, autoremove=False):
+        langs = ['C++', 'Python', 'Java']
+        flag = False
+        for lang in langs:
+            flag = flag or self.is_rtcd_launched(package, lang, verbose=verbose, autoremove=autoremove)
+        return flag
 
     def terminate_rtcd(self, package, language, verbose=False):
         pids = self._get_rtcd_pid(package, language, verbose=verbose, autoremove=True)

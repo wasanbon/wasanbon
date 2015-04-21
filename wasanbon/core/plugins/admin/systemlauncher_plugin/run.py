@@ -79,7 +79,7 @@ def start_java_rtcd(rtcs, filepath, verbose=False, cmd_path='java'):
         args['creationflags'] = 512
 
 
-    rtm_java_classpath = os.path.join(wasanbon.rtm_home(), 'jar')
+    rtm_java_classpath = os.path.join(wasanbon.home_path, 'jar')
     java_env = os.environ.copy()
     if not "CLASSPATH" in java_env.keys():
         java_env["CLASSPATH"]=os.getcwd() 

@@ -78,8 +78,11 @@ class Plugin(PluginFunction):
         for language, rtcconf_path in rtcconf_paths.items():
             rtcconf = admin.rtcconf.RTCConf(rtcconf_path)
             sys.stdout.write('%s :\n' % language)
-            for key in rtcconf_keys:
-                sys.stdout.write('  %s : %s\n' % (key, rtcconf[key]))
+            sys.stdout.write('  path  : %s\n' % rtcconf_path)
+            if long:
+                sys.stdout.write('  value : \n')
+                for key in rtcconf_keys:
+                    sys.stdout.write('    %s : "%s"\n' % (key, rtcconf[key].strip()))
 
         return 0
 

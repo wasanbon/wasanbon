@@ -13,7 +13,7 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.rtcconf', 'admin.rtc']
+        return ['admin.environment', 'admin.rtcconf', 'admin.rtc', 'admin.systemlauncher']
 
     #@property
     #def package(self):
@@ -35,23 +35,40 @@ class Plugin(PluginFunction):
         """
         self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False, action='store_true', dest='long_flag')
         self.parser.add_option('-q', '--quiet', help='Verbosity option (default=False)', default=False, action='store_true', dest='quiet_flag')
+        self.parser.add_option('-r', '--running', help='List Running Package only', default=False, action='store_true', dest='running_flag')
         options, argv = self.parse_args(args[:])
 
         verbose = options.verbose_flag
+        running_only = options.running_flag
         if options.quiet_flag: verbose = False
         long = options.long_flag
 
         #import package
         packages = self.get_packages(verbose=verbose)
         for p in packages:
+            if running_only:
+                if not admin.systemlauncher.is_launched(p, verbose=verbose):
+                    continue
             if not long:
                 print p.name
             else:
                 print '%s : ' % p.name
-                print '  path : %s' % p.path
+                print '  description : %s' % p.description
+                print '  path : '
+                print '    root   : %s' % p.path
+                print '    rtc    : %s' % p.get_rtcpath(fullpath=False)
+                print '    conf   : %s' % p.get_confpath(fullpath=False)
+                print '    bin    : %s' % p.get_binpath(fullpath=False)
+                print '    system : %s' % p.get_systempath(fullpath=False)
                 print '  rtcs : '
                 for r in admin.rtc.get_rtcs_from_package(p):
-                    print '    %s : ' % r.rtcprofile.basicInfo.name
+                    print '   -  %s ' % r.rtcprofile.basicInfo.name
+                print '  nameservers : %s' % p.setting['nameservers']
+                print '  conf:'
+                print '    C++    : %s' % os.path.basename(p.rtcconf['C++'])
+                print '    Python : %s' % os.path.basename(p.rtcconf['Python'])
+                print '    Java   : %s' % os.path.basename(p.rtcconf['Java'])
+                print '  defaultSystem : %s' % p.default_system_filepath
 
         return 0
 
@@ -291,6 +308,10 @@ class PackageObject(object):
         return self._setting_file_path
 
     @property
+    def description(self):
+        return self.setting.get('description', '')
+
+    @property
     def setting(self):
         if self._setting is None:
             import yaml
@@ -365,3 +386,4 @@ class PackageObject(object):
                 #self._rtcconf[lang] = plugin_obj.admin.rtcconf.rtcconf.RTCConf(path) #wasanbon.plugins.admin.rtcconf.rtcconf.RTCConf(path)
                 self._rtcconf[lang] = path
         return self._rtcconf
+

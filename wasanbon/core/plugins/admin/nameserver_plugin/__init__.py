@@ -122,12 +122,12 @@ class Plugin(PluginFunction):
 
 
     def terminate(self, ns, verbose=False, path=None):
-        if ns.address != 'localhost' and ns.address != '127.0.0.1': return False        
+        if ns.address != 'localhost' and ns.address != '127.0.0.1': return -1
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
         if not os.path.isdir(ns.pidFilePath):
-            return False
+            return -2
 
         pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
         import psutil
@@ -137,9 +137,8 @@ class Plugin(PluginFunction):
                     if verbose: sys.stdout.write('## Stopping Nameservice of PID (%s)\n' % pid)                    
                     proc.kill()
                     self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
-
         os.chdir(curdir)
-        return True
+        return 0
 
 
     @manifest 
@@ -151,15 +150,39 @@ class Plugin(PluginFunction):
         force   = options.force_flag
         port = options.port
         ns = NameServer('localhost:%s' % port, pidFilePath='.')
-        self.launch(ns, verbose=verbose, force=force, pidFilePath='.')
-        
-        return 0
+        if self.launch(ns, verbose=verbose, force=force, pidFilePath='.') == 0:
+            sys.stdout.write('Success\n')
+            return 0
+        else:
+            sys.stdout.write('Failed\n')
+            return -1
 
     @manifest
     def stop(self, argv):
         ns = NameServer('localhost:2809', pidFilePath='.')
-        self.terminate(ns)
-        return 0
+        if self.terminate(ns) == 0:
+            sys.stdout.write('Success\n')
+            return 0
+        else:
+            sys.stdout.write('Failed\n')
+            return -1
+
+    @manifest
+    def check_running(self, argv):
+        if self.check_global_running():
+            sys.stdout.write('Running\n')
+            return 1
+        else:
+            sys.stdout.write('Not Running\n')
+            return 0
+
+    def check_global_running(self):
+        import psutil
+        for process in psutil.process_iter():
+            if process.name().find('omniNames') >= 0:
+                return True
+        return False
+
 
     def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return False
