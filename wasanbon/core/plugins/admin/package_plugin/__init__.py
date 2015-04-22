@@ -44,7 +44,9 @@ class Plugin(PluginFunction):
         long = options.long_flag
 
         #import package
-        packages = self.get_packages(verbose=verbose)
+        
+        packages = sorted(self.get_packages(verbose=verbose), key= lambda x : x.name)
+        
         for p in packages:
             if running_only:
                 if not admin.systemlauncher.is_launched(p, verbose=verbose):
