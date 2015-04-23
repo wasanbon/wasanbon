@@ -1,3 +1,6 @@
+#from rtctree import tree as rtctree_tree
+#from rtctree import path as rtctree_path
+
 import os, sys, time, threading, types, subprocess, signal, traceback
 from ctypes import *
 
@@ -83,7 +86,7 @@ class Plugin(PluginFunction):
                         if verbose: sys.stdout.write('### RTCTree Success.\n')
 
                 if verbose: sys.stdout.write('### Getting Node...\n')
-                dir_node = ns.tree.get_node(path)
+                self. dir_node = ns.tree.get_node(path)
                 if verbose: sys.stdout.write('### Success.\n')
                 if verbose: sys.stdout.write('### Nameservice(%s) is found.\n' % ns.path)
                 return True
@@ -321,33 +324,20 @@ class NameServer(object):
                     sys.stdout.write('## Success.\n')
                     return 
             except omniORB.CORBA.OBJECT_NOT_EXIST, e:
-                print 'omniORB'
+                print 'omniORB.CORBA.OBJECT_NOT_EXIST'
             except omniORB.OBJECT_NOT_EXIST_NoMatch, e:
-                print 'omniORB2'
+                print 'omniORB.OBJECT_NOT_EXIST_NoMatch'
             except Exception, e:
-                print 'omniORB3'
                 print e
                 pass
 
-    def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5, polarity="any"):
+    def dataports(self, data_type="any", port_type=['DataInPort', 'DataOutPort'], try_count=5, polarity="any", verbose=False):
         from rtctree import tree as rtctree_tree
         from rtctree import path as rtctree_path
-        for i in range(0, try_count):
-            try:
-
-                if not self.tree:
-                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
-                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
-                    self.dir_node = self.tree.get_node(self.__path)
-                break
-            except Exception, e:
-                traceback.print_exc()
-                self.tree = None
-                pass
-        if not self.tree:
-            return []
-
         ports = []
+        if verbose:
+            sys.stdout.write('## get dataports from nameserver(%s)\n' % self.path)
+
         def func(node, ports, data_type=data_type, port_type=port_type):
             ports__ = []
             if 'DataInPort' in port_type:
@@ -363,13 +353,30 @@ class NameServer(object):
                         ports.append(port)
                 #for port in [port for port in ports__ if port.properties['dataport.data_type'] == data_type]:
                 #    ports.append(port)
-            
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
                 return True
             return False
 
-        self.dir_node.iterate(func, ports, [filter_func])
+        for i in range(0, try_count):
+            try:
+                if not self.tree:
+                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
+                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+
+                self.dir_node.iterate(func, ports, [filter_func])
+                break
+            except Exception, e:
+                sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                if verbose:
+                    traceback.print_exc()
+                self.tree = None
+                pass
+            time.sleep(0.5)
+        if not self.tree:
+            return []
+
         return ports
         
 
@@ -377,18 +384,6 @@ class NameServer(object):
     def svcports(self, interface_type="any", try_count=5, polarity="any"):
         from rtctree import tree as rtctree_tree
         from rtctree import path as rtctree_path
-        for i in range(0, try_count):
-            try:
-                if not self.tree:
-                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
-                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
-                    self.dir_node = self.tree.get_node(self.__path)
-                break
-            except Exception, e:
-                traceback.print_exc
-                pass
-        if not self.tree:
-            return []
 
         ports = []
         def func(node, ports, interface_type=interface_type, polarity=polarity):
@@ -408,6 +403,24 @@ class NameServer(object):
                 return True
             return False
 
-        self.dir_node.iterate(func, ports, [filter_func])
+
+        for i in range(0, try_count):
+            try:
+                if not self.tree:
+                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
+                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+                self.dir_node.iterate(func, ports, [filter_func])
+                break
+            except Exception, e:
+                sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                if verbose:
+                    traceback.print_exc()
+                pass
+            time.sleep(0.5)
+        if not self.tree:
+            return []
+
+
         return ports
         

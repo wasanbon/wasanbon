@@ -24,12 +24,13 @@ class Plugin(PluginFunction):
         # For DataPorts
         outports = []
         for ns in nameservers:
-            outports = outports + ns.dataports(port_type='DataOutPort')
+            outports = outports + ns.dataports(port_type='DataOutPort', verbose=verbose)
         for outport in outports:
             inports = []
             for ns in nameservers:
                 inports = inports + ns.dataports(port_type='DataInPort', 
-                                                 data_type=outport.properties['dataport.data_type'])
+                                                 data_type=outport.properties['dataport.data_type'],
+                                                 verbose=verbose)
             for inport in inports:
                 pairs.append([outport, inport])
 
@@ -51,8 +52,9 @@ class Plugin(PluginFunction):
     
     
     def save_to_file(self, nameservers, filepath, verbose=False, system_name='DefaultSystem',
-                     version='1.0', vendor='DefaultVendor'):
+                     version='1.0', vendor='DefaultVendor', abstract='RT System'):
         argv = ['-n', system_name, 
+                '-a', abstract, 
                 '-v', version,
                 '-e', vendor,
                 '-o', filepath]

@@ -128,8 +128,11 @@ class Plugin(PluginFunction):
             
         #force  = options.force_flag
         #standalone = options.standalone_flag
-
+            
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+
+        if systemfile:
+            systemfile = os.path.join(package.get_systempath(), systemfile)
 
         started_nss = []
         nss = admin.nameserver.get_nameservers_from_package(package, verbose=verbose)
@@ -234,6 +237,7 @@ class Plugin(PluginFunction):
                         try:
                             admin.systembuilder.connect_ports(pair[0], pair[1], verbose=verbose)
                             sys.stdout.write('## Connected.\n')
+                            break
                         except Exception, ex:
                             if verbose:
                                 traceback.print_exc()
@@ -297,14 +301,17 @@ class Plugin(PluginFunction):
                     vendorName = raw_input()
                     sys.stdout.write('# Input Version:')
                     version = raw_input()
-                    sys.stdout.write('# Input System Name (%s)' % package.name)
+                    sys.stdout.write('# Input System Name (%s):' % package.name)
                     systemName = raw_input()
                     if len(systemName) == 0:
                         systemName = package.name
+                    sys.stdout.write('# Input Description of System (abstract):')
+                    abstract = raw_input()
                     
                     sys.stdout.write('## Vendor Name = %s\n' % vendorName)
                     sys.stdout.write('## Version     = %s\n' % version)
                     sys.stdout.write('## System Name = %s\n' % systemName)
+                    sys.stdout.write('## Abstract    = %s\n' % abstract)
                     if util.yes_no('# Okay?') == 'yes':
                         break
                     else:
@@ -313,7 +320,12 @@ class Plugin(PluginFunction):
                 for i in range(5):
                     try:
                         sys.stdout.write('# Saving to %s\n' % filepath)
-                        admin.systemeditor.save_to_file(nss, filepath, verbose=verbose)
+                        admin.systemeditor.save_to_file(nss, filepath, 
+                                                        system_name=systemName,
+                                                        abstract=abstract,
+                                                        version=version,
+                                                        vendor=vendor,
+                                                        verbose=verbose)
                         break
                     except:
                         traceback.print_exc()
@@ -509,19 +521,19 @@ class Plugin(PluginFunction):
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         systemfile = options.systemfile
-
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
         if systemfile is None:
-            package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+
             systemfile = package.default_system_filepath
         else:
-            systemfile = os.path.join(package.get_system_filepath(), systemfile)
+            systemfile = os.path.join(package.get_systempath(), systemfile)
 
         if os.path.isfile(systemfile):
             newfile = systemfile + wasanbon.timestampstr()
             os.rename(systemfile, newfile)
 
         fout = open(systemfile, 'w')
-        fout.write(args[3])
+        fout.write(argv[3])
         fout.close()
 
         sys.stdout.write('Success\n')

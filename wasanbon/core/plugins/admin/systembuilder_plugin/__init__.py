@@ -25,11 +25,11 @@ class Plugin(PluginFunction):
     def get_port_full_path(self, port):
         return self.get_component_full_path(port.owner) + ':' + port.name
 
-    def connect_ports(self, port1, port2, verbose=False):
+    def connect_ports(self, port1, port2, props = {}, verbose=False):
         if verbose: sys.stdout.write('## Connecting %s to %s\n' % (self.get_port_full_path(port1),
                                                                    self.get_port_full_path(port2)))
         # from rtshell.rtcon import connect_ports
-        port2.connect([port1], name='hoge', id='id', props={})
+        port1.connect([port2], props=props)
         
         return 0
 
