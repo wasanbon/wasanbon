@@ -202,6 +202,7 @@ class Plugin(PluginFunction):
         return 0
 
 
+
     @manifest
     def build(self, args):
         """ Build System in Console interactively 
@@ -324,7 +325,7 @@ class Plugin(PluginFunction):
                                                         system_name=systemName,
                                                         abstract=abstract,
                                                         version=version,
-                                                        vendor=vendor,
+                                                        vendor=vendorName,
                                                         verbose=verbose)
                         break
                     except:
@@ -451,6 +452,8 @@ class Plugin(PluginFunction):
                 except:
                     sys.stdout.write('%s : \n' % file)
                     sys.stdout.write('  status : error\n')
+                    if verbose:
+                        traceback.print_exc()
                     continue
                 #sys.stdout.write(str(dir(rtsp)))
                 sys.stdout.write('%s : \n' % file)
@@ -537,4 +540,62 @@ class Plugin(PluginFunction):
         fout.close()
 
         sys.stdout.write('Success\n')
+        return 0
+
+    @manifest
+    def copy(self, args):
+        self.parser.add_option('-f', '--force', help='Force Delete without yes/no option (default=False)', default=False, dest='force_flag', action='store_true')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        force = options.force_flag
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+        wasanbon.arg_check(argv, 5)
+        srcfile = argv[3]
+        dstfile = argv[4]
+        srcfile_relpath = os.path.join(package.get_systempath(fullpath=False), srcfile)
+        srcfile_fullpath = os.path.join(package.get_systempath(), srcfile)
+        if not os.path.isfile(srcfile_fullpath):
+            sys.stdout.write('## No System File exists.\n')
+            return -1
+
+        dstfile_fullpath = os.path.join(package.get_systempath(), dstfile)
+        if os.path.isfile(dstfile_fullpath):
+            if not force:
+                from wasanbon import util
+                if util.no_yes('# Overwrite? (%s):' % systemfile_relpath) == 'no':
+                    sys.stdout.write('## Aborted.\n')
+                    return 0
+            newfile = dstfile_fullpath + wasanbon.timestampstr()
+            os.rename(dstfile_fullpath, newfile)
+        
+        import shutil
+        shutil.copyfile(srcfile_fullpath, dstfile_fullpath)
+        sys.stdout.write('## Success\n')
+        return 0
+        
+
+    @manifest
+    def delete(self, args):
+        self.parser.add_option('-f', '--force', help='Force Delete without yes/no option (default=False)', default=False, dest='force_flag', action='store_true')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        force = options.force_flag
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+        systemfile = argv[3]
+        systemfile_relpath = os.path.join(package.get_systempath(fullpath=False), systemfile)
+        systemfile_fullpath = os.path.join(package.get_systempath(), systemfile)
+        if not os.path.isfile(systemfile_fullpath):
+            sys.stdout.write('## No System File exists.\n')
+            return -1
+
+        if not force:
+            from wasanbon import util
+            if util.no_yes('# Delete? (%s):' % systemfile_relpath) == 'no':
+                sys.stdout.write('## Aborted.\n')
+                return 0
+        
+        newfile = systemfile_fullpath + wasanbon.timestampstr()
+        os.rename(systemfile_fullpath, newfile)
+
+        sys.stdout.write('## Success\n')
         return 0
