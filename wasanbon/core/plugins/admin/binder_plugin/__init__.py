@@ -119,7 +119,7 @@ class Plugin(PluginFunction):
                 print '%s :' % rtc.name
                 print '  %s : %s' % ('url', rtc.url)
                 print '  %s : %s' % ('type', rtc.type)
-                print '  %s : %s' % ('description', rtc.description)
+                print '  %s : "%s"' % ('description', rtc.description)
                 print '  %s : %s' % ('platform', rtc.platform)
                 
         return 0
