@@ -1,0 +1,4 @@
+name : example
+depends : []
+function : admin
+# function : package

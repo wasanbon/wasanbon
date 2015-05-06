@@ -1,0 +1,12 @@
+source /usr/local/share/rtshell/shell_support
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export RTM_ROOT=/usr/local/include/openrtm-1.1
+export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+export CMAKE_PREFIX_PATH=/opt/local/lib/cmake:/usr/local/lib/cmake:$CMAKE_PREFIX_PATH
+wasanbon-cd() {
+  if [ ${#} -eq 0 ]; then
+    wasanbon-admin.py package list
+  else
+    cd `wasanbon-admin.py package directory ${1}` 
+  fi
+};

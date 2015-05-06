@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, locale, getpass #, yaml
+import sys, os, locale, getpass, time #, yaml
 import platform as plt
 import types
 import codecs, subprocess
@@ -10,7 +10,7 @@ import datetime
 def get_version():
     """Get wasanbon version.
     """
-    return "0.8.0"
+    return "1.0.0"
 
 
 IDE = 'Visual Studio 10' if sys.platform == 'win32' else 'Makefile'
@@ -21,6 +21,9 @@ class WasanbonException(Exception):
     def msg(self):
         return 'Wasanbon Exception'
 
+class PrintAlternativeException(WasanbonException):
+    def msg(self):
+        return ''
 class RemoteLoginException(WasanbonException):
     def msg(self):
         return 'LogIn Failed.'
@@ -86,6 +89,10 @@ class PackageNotFoundException(WasanbonException):
     def msg(self):
         return 'Package Not Found'
 
+class PluginDependencyNotResolvedException(WasanbonException):
+    def msg(self):
+        return 'Plugin Dependency can not be resolved.'
+
 class NoSuchFileException(WasanbonException):
     def __init__(self, msg):
         self.msg = msg
@@ -95,6 +102,10 @@ class NoSuchFileException(WasanbonException):
 class DownloadFailedException(WasanbonException):
     def msg(self):
         return 'Download Failed'
+
+class InvalidArgumentException(WasanbonException):
+    def msg(self):
+        return 'Invalid Argument'
 
 def arg_check(argv, num):
     if len(argv) < num:
@@ -128,6 +139,9 @@ def user_pass(user=None, passwd=None):
         passwd = getpass.getpass()
     return (user, passwd)
 
+def timestampstr():
+    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
 
 def get_home_path():
     if sys.platform == 'darwin':
@@ -142,12 +156,30 @@ def get_home_path():
 
 tagdict = {'$HOME': get_home_path()}
 
+WASANBON_HOME_ENVKEY = 'WASANBON_HOME'
+WASANBON_HOME_DEFAULT = os.path.join(get_home_path(), '.wasanbon')
+
+def get_wasanbon_home():
+    env = os.environ
+    if WASANBON_HOME_ENVKEY in env.keys():
+        return env[WASANBON_HOME_ENVKEY]
+    
+    return WASANBON_HOME_DEFAULT
+    
+home_path = get_wasanbon_home()
+temp_path = os.path.join(home_path, 'temp')
+plugins_path = os.path.join(home_path, 'plugins')
+
+if not os.path.isdir(home_path):
+    os.mkdir(home_path)
+if not os.path.isdir(temp_path):
+    os.mkdir(temp_path)
+if not os.path.isdir(plugins_path):
+    os.mkdir(plugins_path)
+
+
 rtm_temp = ""
 rtm_home = ""
-
-
-def timestampstr():
-    return datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
 def load_settings():
     global rtm_root, rtm_home
@@ -246,17 +278,20 @@ def setting():
     return __setting
 
 def rtm_home():
-    return setting()['common']['path']['RTM_HOME']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_HOME']
 
 #if not os.path.isdir(rtm_home):
 #    os.makedirs(rtm_home)
 
 def rtm_temp():
-    return setting()['common']['path']['RTM_TEMP']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_TEMP']
 
 
 def rtm_plugins():
-    return setting()['common']['path']['RTM_PLUGINS']
+    raise InvalidMethodException()
+    #return setting()['common']['path']['RTM_PLUGINS']
 
 
 #rtm_temp = setting['common']['path']['RTM_TEMP']
@@ -335,4 +370,19 @@ def platform():
     return _platform
 
 import wasanbon.core.plugins
-plugins = wasanbon.core.plugins.Loader(wasanbon.rtm_plugins())
+plugins = wasanbon.core.plugins.Loader([plugins_path, wasanbon.core.plugins.__path__[0]])
+
+
+def sleep(interval, verbose=True):
+    times = int(interval * 5)
+    #sys.stdout.write(' - Waiting approx. %s seconds\n' % interval)
+    for t in range(times):
+        percent = float(t) / times
+        width = 30
+        progress = (int(width*percent)+1)
+        sys.stdout.write('\r# [' + '#'*progress + ' '*(width-progress) + ']')
+        sys.stdout.flush()
+        time.sleep(0.2)
+
+    sys.stdout.write('\n')
+    

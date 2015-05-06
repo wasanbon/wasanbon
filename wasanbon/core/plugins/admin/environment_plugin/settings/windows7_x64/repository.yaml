@@ -1,0 +1,71 @@
+ConsoleOutput : 
+  description : 'Console Output RT-component with Long type DataInPort.'
+  git : 'https://github.com/sugarsweetrobotics/ConsoleOutput_cpp.git'
+ConsoleInput :
+  description : 'Console Input RT-component with Long type DataOutPort'
+  git : 'https://github.com/sugarsweetrobotics/ConsoleInput_cpp.git'
+DoubleSeqViewer :
+  description : 'Double Sequence Data Viewer RT-component.'
+  hg : 'https://ysuga0731@code.google.com/p/doubleseqviewer/'
+StringViewer :
+  description : 'String Value Viewer RT-component'
+  git : 'https://github.com/sugarsweetrobotics/StringViewer.git'
+TimedLongSeqViewer :
+  description : 'TimedLongSeq viewer RT-component'
+  git : 'https://github.com/sugarsweetrobotics/TimedLongSeqViewer.git'
+
+JoystickToVelocity :
+  description : 'Joystick input data to velocity. available with DirectInput RTC.'
+  git :  'https://github.com/sugarsweetrobotics/JoystickToVelocity.git'
+VirtualJoystick : 
+  description : 'Virtual Joypad RT-Component with cross-button GUI'
+  git : 'https://github.com/sugarsweetrobotics/VirtualJoystick.git'
+RTnoProxy :
+  description : 'RTno can help to develop RTC available devices using arduino and mbed.'
+  git : 'https://github.com/sugarsweetrobotics/RTnoProxy.git'
+
+MobileRobotSim : 
+  description : 'Mobile Robot Simulator with TimedVelocity2D input.'
+  git : 'https://github.com/sugarsweetrobotics/MobileRobotSim.git'
+MobileRobotController : 
+  description : 'Mobile Robot Controller available with VirtulaJoystick. TimedVelocity2D output.'
+  git : 'https://github.com/sugarsweetrobotics/MobileRobotController.git'
+KeyInput :
+  description : 'kbhit RT-Componennt.'
+  git : 'https://github.com/sugarsweetrobotics/KeyInput_cpp.git'
+DirectInput : 
+  description : 'Direct input for Joystick and Gamepad.'
+  git : 'https://github.com/sugarsweetrobotics/DirectInputRTC.git'
+NAO_python :
+  description : 'NAO RT-component'
+  git : 'https://github.com/ogata-lab/NAO.git'
+NAO_test :
+  description : 'NAO Test Template'
+  git : 'https://github.com/ogata-lab/NAOTest.git'
+Kinect :
+  description : 'Kinect RT-Component'
+  git : 'https://github.com/sugarsweetrobotics/Kinect4Win.git'
+KinectToRanger : 
+  description : 'Kinect Data To Range Sensor.'
+  git : 'https://github.com/sugarsweetrobotics/KinectToRanger.git'
+KinectTest : 
+  description : 'Kinect Data Viewer'
+  git : 'https://github.com/sugarsweetrobotics/KinectTest.git'
+UrgRTC : 
+  description : 'Hokuyo URG (Laser Range Sensor) RTC'
+  git : 'https://github.com/sugarsweetrobotics/UrgRTC.git'
+RangeDataViewer : 
+  description : 'Range Data Viewer'
+  git : 'https://github.com/sugarsweetrobotics/RangeDataViewer.git'
+OpenCVCameraCapture :
+  description : 'OpenCV Camera Capture Component'
+  git : 'https://github.com/sugarsweetrobotics/OpenCVCameraCapture.git'
+CameraViewer_java: 
+  description : 'CameraImage Viewer (Java version)'
+  git : 'https://github.com/sugarsweetrobotics/JCameraViewer.git'
+SpaceNavigator :
+  description : '3DConnexion s 3-D mouse RT-component'
+  git : 'https://github.com/sugarsweetrobotics/SpaceNavigatorRTC.git'
+Roomba :
+  description : 'Roomba RT-component'
+  git : 'https://github.com/sugarsweetrobotics/RoombaRTC.git'

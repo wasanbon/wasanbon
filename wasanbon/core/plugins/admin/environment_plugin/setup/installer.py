@@ -1,5 +1,91 @@
-import os, sys, traceback
-import subprocess
+import os, sys, subprocess, traceback
+
+
+def call_subprocess(cmds, verbose, env=None):
+    out = None if verbose else subprocess.PIPE
+    out = None if verbose else subprocess.PIPE
+    if env == None:
+        env = os.environ
+    p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
+    return p.wait()
+
+def install_exe(file, verbose=False, path='downloads'):
+    if verbose: sys.stdout.write('# Launching %s\n' % file)
+    cmds = [ os.path.join(os.getcwd(), path, file) ]
+    return call_subprocess(cmds, verbose)
+
+def install_py(file, verbose=False, path='downloads'):
+    if verbose: sys.stdout.write('# Launching %s\n' % file)
+    cmds = ['python', os.path.join(os.getcwd(), path, file) ]
+    return call_subprocess(cmds, verbose)
+
+def install_easy_install(cmd, verbose=False):
+    cmds = cmd.split()
+    env = os.environ
+    if sys.platform == 'darwin':
+        env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+    return call_subprocess(cmds, verbose, env)
+
+def install_pip(cmd, verbose=False):
+    cmds = cmd.split()
+    env = os.environ
+    if sys.platform == 'darwin':
+        env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+    return call_subprocess(cmds, verbose, env)
+
+def install_apt(cmd, verbose=False):
+    cmds = cmd.split()
+    return call_subprocess(cmds)
+
+def install_svn(cmd, path, verbose=False, path_svn='svn'):
+    url = cmd.split(' ')[1].strip()
+    stdout = None if verbose else subprocess.PIPE
+    old_dir = os.getcwd()
+    os.chdir(path)
+    cmd = ['svn', 'co', url]
+    ret = subprocess.call(cmd, stdout=stdout)
+    if url.endswith('/'):
+        url = url[:-1]
+    dirname = os.path.basename(url)
+    os.chdir(dirname)
+
+    if dirname.startswith('OpenRTM'):
+        install_pyrtm(stdout=stdout)
+    else:
+        for root, dirs, files in os.walk(os.getcwd()):
+            for file in files:
+                if file == 'setup.py':
+                    install_setup_py(root, verbose=verbose)
+                    
+    os.chdir(old_dir)
+
+def install_pyrtm(stdout=None):
+    cmd = ['python', 'setup.py', 'build_core']
+    ret = subprocess.call(cmd, stdout=stdout)
+    cmd = ['python', 'setup.py', 'install']
+    ret = subprocess.call(cmd, stdout=stdout)
+    cmd = ['python', 'setup.py', 'install_example']
+    ret = subprocess.call(cmd, stdout=stdout)
+    
+
+def install_setup_py(dirname, args=[['install']], verbose=False):
+    if verbose: sys.stdout.write('# Installing Python Module in "%s" with distutil.\n' % dirname)
+    cwd = os.getcwd()
+    os.chdir(dirname)
+    out = None if verbose else subprocess.PIPE
+    if os.path.isfile('setup.py'):
+        for arg in args:
+            cmds = ['python', 'setup.py'] + arg
+            if sys.platform == 'linux' or sys.platform == 'darwin':
+                cmds = ['sudo'] + cmds
+            env = os.environ
+            if sys.platform == 'darwin':
+                env['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in-future'
+            ret = call_subprocess(cmds, verbose, env=env)
+            #ret = subprocess.call(cmd, stdout=out, stdin=out, env=env)
+    os.chdir(cwd)
+    return ret
+
 
 
 def install(file, open_only=False, verbose=False):
@@ -108,4 +194,4 @@ def install_app(app, verbose=False):
             sys.stdout.write(' @ Error. Installing %s is failed. Maybe this process must have done by super user.\n' % app)
         return False
 
-
+    return False
