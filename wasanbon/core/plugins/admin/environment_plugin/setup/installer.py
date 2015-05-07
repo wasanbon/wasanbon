@@ -107,12 +107,10 @@ def install(file, open_only=False, verbose=False):
     elif file.endswith(".exe"):
         cmd = [file]
     else:
-        #if verbose:
-        #    sys.stdout.write(' @ Unsuppoted file type: %s\n' % file)
-        return
+        if verbose: sys.stdout.write('## Unsuppoted file type: %s\n' % file)
+        return False
 
-    if verbose:
-        sys.stdout.write(' - Executing %s\n' % str(cmd))
+    if verbose: sys.stdout.write(' - Executing %s\n' % str(cmd))
 
     try:
         if sys.platform == 'win32':

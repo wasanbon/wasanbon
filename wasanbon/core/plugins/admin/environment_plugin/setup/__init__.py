@@ -7,8 +7,8 @@ from archive import *
 
 # This data can not be exported to yaml file because this setup can be launched without yaml library.
 _urls = {
-    'yaml': { #'win32' : 'pip install pyyaml',
-        'win32' : 'https://pypi.python.org/packages/2.6/P/PyYAML/PyYAML-3.11.win32-py2.6.exe',
+    'yaml': { 'win32' : 'pip install pyyaml',
+        #'win32' : 'https://pypi.python.org/packages/2.6/P/PyYAML/PyYAML-3.11.win32-py2.6.exe',
         'darwin' : 'pip install pyyaml',
         'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
 
@@ -21,7 +21,9 @@ _urls = {
 
     'psutil' : {'darwin' : 'pip install psutil',
                 'linux2' : 'apt-get install python-psutil',
-                'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-2.0.0.win32-py2.6.exe'},
+                #'win32' : 'https://pypi.python.org/packages/2.6/p/psutil/psutil-2.0.0.win32-py2.6.exe'
+                'win32' : 'pip install psutil'
+                },
 
     'pip' : {'darwin' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
              'linux2' : 'https://raw.github.com/pypa/pip/master/contrib/get-pip.py',
@@ -129,6 +131,8 @@ def download_and_install(tag, verbose=False, force=False, temppath='downloads', 
 
 
 def _download_and_install_url(url, verbose=False, force=False, temppath='downloads', installpath='.'):    
+    if not os.path.isdir(temppath):
+        os.mkdir(temppath)
     if url.startswith('easy_install'):
         return install_easy_install(url, verbose=verbose)
 
@@ -157,6 +161,8 @@ def _download_and_install_url(url, verbose=False, force=False, temppath='downloa
         return extract_zip_and_install(filename, verbose=verbose, distpath=installpath)
     elif filename.endswith('.dmg'):
         return install_dmg(filename, verbose=verbose)
+    elif filename.endswith('.msi'):
+        return install(filename, verbose=verbose)
     else:
         sys.stdout.write(' ## Error. Unsupported Format File %s\n' % filename)
 

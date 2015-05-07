@@ -225,7 +225,7 @@ def delete_package(name, deletepath=False, verbose=False):
     save_workspace(dic)
 
     if deletepath:
-        import shutil
+        import shutil, stat
         def remShut(*args):
             func, path, _ = args 
             os.chmod(path, stat.S_IWRITE)

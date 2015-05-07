@@ -69,7 +69,10 @@ class Plugin(PluginFunction):
             if verbose: sys.stdout.write('# Installing %s\n' % rtm)
             if self._install_package(rtm, verbose=verbose, force=force) != 0:
                 sys.stdout.write('# Installng %s Failed. Try again.\n' % rtm)
-        sys.stdout.write('## Ends.\n')
+            else:
+                if verbose: sys.stdout.write('## Installing %s succeeded.\n' % rtm)
+                
+        sys.stdout.write('## Installing RTMs Ends.\n')
         return 0
 
     def _print_install_opts(self, args):
@@ -176,6 +179,7 @@ class Plugin(PluginFunction):
 
             
         import yaml
+        from wasanbon import util
         package_dict = yaml.load(open(os.path.join(self.setting_path, 'packages.yaml'), 'r'))
         
         if sys.platform == 'darwin':
@@ -189,13 +193,17 @@ class Plugin(PluginFunction):
 
 
         elif sys.platform == 'win32':
+
             if pack == 'emacs':
-                return util.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
+                return setup.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
                                                 path=wasanbon.home_path, 
                                                 verbose=verbose, force=force)
             else:
-                return util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages'][pack], 
-                                      verbose=verbose, force=force, path=wasanbon.temp_path)
+                return setup.download_and_install(package_dict[pack],
+                                                  verbose=verbose,
+                                                  force=force, 
+                                                  temppath=os.path.join(wasanbon.temp_path, pack),
+                                                  installpath=wasanbon.home_path)
         elif sys.platform == 'linux2':
             return util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
                                              verbose=verbose, force=force, path=wasanbon.temp_path)
@@ -298,6 +306,8 @@ class Plugin(PluginFunction):
 
     def _is_rtmjava_installed(self):
         jardir = os.path.join(wasanbon.home_path, 'jar')
+        if not os.path.isdir(jardir):
+            os.mkdir(jardir)
         for f in os.listdir(jardir):
             if f.endswith('.jar') and f.startswith('OpenRTM'):
                 return True
