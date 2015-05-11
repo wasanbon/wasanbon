@@ -120,11 +120,13 @@ class Plugin(PluginFunction):
         self.parser.add_option('-b', '--background', help='Launch in background(default=False)', default=False, action='store_true', dest='background_flag')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         self.parser.add_option('-f', '--file', help='Build System with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
+        self.parser.add_option('-p', '--plain', help='Plain Launch. Without building/activating system.', default=False, dest='plain_flag', action='store_true')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         background = options.background_flag
         wakeuptimeout = options.wakeuptimeout
         systemfile = options.systemfile
+        plain = options.plain_flag
             
         #force  = options.force_flag
         #standalone = options.standalone_flag
@@ -150,9 +152,14 @@ class Plugin(PluginFunction):
         try:
             processes = admin.systemlauncher.launch_system(package, verbose=verbose)
             wasanbon.sleep(wakeuptimeout)
-            admin.systembuilder.build_system(package, verbose=verbose, system_file=systemfile)
+            if not plain:
+                admin.systembuilder.build_system(package, 
+                                                 verbose=verbose, 
+                                                 system_file=systemfile)
 
-            admin.systembuilder.activate_system(package, verbose=verbose, system_file=systemfile)
+                admin.systembuilder.activate_system(package, 
+                                                    verbose=verbose,
+                                                    system_file=systemfile)
 
             if background:
                 return 0
@@ -179,7 +186,10 @@ class Plugin(PluginFunction):
                     pass
                 pass
 
-            admin.systembuilder.deactivate_system(package, verbose=verbose, system_file=systemfile)
+            if not plain:
+                admin.systembuilder.deactivate_system(package, 
+                                                      verbose=verbose, 
+                                                      system_file=systemfile)
             
         except wasanbon.BuildSystemException, ex:
             sys.stdout.write('# Build System Failed.\n')
@@ -356,14 +366,18 @@ class Plugin(PluginFunction):
     def configure(self, args):
         """ Configure system interactively in console.
         $ mgr.py system configure """
+        self.parser.add_option('-f', '--file', help='Configure with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
-
         package = admin.package.get_package_from_path(os.getcwd())
+        if options.systemfile:
+            filename = os.path.join(package.get_systempath(), options.systemfile)
+        else:
+            filename = package.default_system_filepath
         from rtsprofile.rts_profile import RtsProfile
-        file = open(package.default_system_filepath, 'r')
+        file = open(filename, 'r')
         rtsprofile = RtsProfile(xml_spec = file)
-
+	del(file)
         rtc_names = [rtc.instance_name for rtc in rtsprofile.components]
         
         from wasanbon import util
@@ -391,12 +405,30 @@ class Plugin(PluginFunction):
         
         util.choice(rtc_names, select_rtc, msg='# Select RTC')
         
-        filepath = package.default_system_filepath
-        newfile = filepath + wasanbon.timestampstr()
-        os.rename(filepath, newfile)
-        fout = open(filepath, 'w')
-        fout.write(rtsprofile.save_to_xml())
-        fout.close()
+        if util.yes_no("Save System?") != 'yes':
+            sys.stdout.write('# Aborted \n')
+            return 0
+        while True:
+            if util.no_yes('Rename Filename?') == 'yes':
+                filepath = os.path.join(package.get_systempath(), raw_input('Filename:'))
+            else:
+                filepath = filename
+                newfile = filepath + wasanbon.timestampstr()
+                try:
+                    os.rename(filepath, newfile)
+                except Exception, e:
+                    sys.stdout.write('## Exception occurred when renaming file.\n')
+                    traceback.print_exc()
+                    continue
+            try:
+                fout = open(filepath, 'w')
+                fout.write(rtsprofile.save_to_xml())
+                fout.close()
+            except:
+                sys.stdout.write('## Exception occurred when saving file.\n')
+                traceback.print_exc()
+                continue
+            break
 
         return 0
 

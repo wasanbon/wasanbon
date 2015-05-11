@@ -142,5 +142,26 @@ class Plugin(PluginFunction):
         sys.stdout.write('## Failed\n')
         return -1
 
-        
+    @manifest
+    def sync(self, args):
+        """ Synchronize rtc/repository.yaml file and each rtc repository version hash. """
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
 
+        package = admin.package.get_package_from_path(os.getcwd())
+        for rtc in admin.rtc.get_rtcs_from_package(package, verbose=verbose):
+            repo = admin.repository.get_repository_from_path(rtc.path, description=rtc.rtcprofile.basicInfo.description)
+
+        repo_file = os.path.join(package.get_rtcpath(), 'repository.yaml')
+
+        bak_file = repo_file + wasanbon.timestampstr()
+        if os.path.isfile(bak_file):
+            os.remove(bak_file)
+        import shutil, yaml
+        shutil.copy(repo_file, bak_file)
+        dic = yaml.load(open(bak_file, 'r'))
+        if not dic:
+            dic = {}
+        dic[repo.name] = {'repo_name' : repo.name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
+        pass

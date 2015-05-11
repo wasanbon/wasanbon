@@ -98,7 +98,10 @@ def build_rtc_cpp(rtcp, verbose=False):
             p.wait()
 
             if not verbose:
-                errmsg = p.stderr.read()
+                if p.stderr != None:
+                    errmsg = p.stderr.read()
+                else:
+                    errmsg = ""
             else:
                 errmsg = ""
             err_code = (errmsg.find('error') < 0 and errmsg.find('Error') < 0 and p.returncode == 0)
@@ -247,8 +250,8 @@ def build_rtc_java(rtcp, verbose=False):
 
 
     cmd = [javac_path, 
-           '-source', '1.6',
-           '-target', '1.6',
+           '-source', '1.7',
+           '-target', '1.7',
            '-encoding', 'SJIS',
            '-s', src_dir, '-d', cls_dir]
     for f in javafiles:

@@ -201,6 +201,14 @@ class Repository(object):
         return self._url
 
     @property
+    def hash(self):
+        if self.type == 'git':
+            popen = admin.git.git_command(['log', '--pretty=format:"%H"', '-1'], pipe=True, path=self.path)
+            popen.wait()
+            return popen.stdout.readline().strip()[1:-1]
+        return ""
+
+    @property
     def basename(self):
         b = os.path.basename(self.url)
         if b.endswith('.git'):

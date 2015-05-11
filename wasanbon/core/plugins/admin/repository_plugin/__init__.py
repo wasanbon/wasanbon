@@ -140,18 +140,18 @@ class Plugin(PluginFunction):
             return None
 
 
-    def get_repository_from_path(self, path, verbose=False):
+    def get_repository_from_path(self, path, verbose=False, description=""):
         if '.git' in os.listdir(path):
-            return self.get_git_repository_from_path(path, verbose=verbose)
+            return self.get_git_repository_from_path(path, verbose=verbose, description=description)
         return None
         
-    def get_git_repository_from_path(self, path, verbose=False):
+    def get_git_repository_from_path(self, path, verbose=False, description=""):
         typ = 'git'
         p = admin.git.git_command(['config', '--get', 'remote.origin.url'], path=path)
         p.wait()
         url = p.stdout.read()
         name = os.path.basename(url).strip()
-        desc = ""
+        desc = description
         if name.endswith('.git'): name = name[:-4]
         repo = admin.binder.Repository(name=name, type=typ, url=url, description=desc, platform=wasanbon.platform(), path=path)
         return repo
