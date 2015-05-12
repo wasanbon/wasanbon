@@ -392,7 +392,14 @@ class Actions(Node):
             self.children.append(a)
 
 def save_rtcprofile(rtcp, filename):
-    print 'saving rtcprofile to ', filename
+    #print 'saving rtcprofile to ', filename
+    tree = get_etree(rtcp)
+    if tree is None:
+        print 'Saving RTCProfile failed.'
+        return -1
+    tree.write(filename, pretty_print=True)
+
+def get_etree(rtcp):
     def save_sub(elem, node):
         for key, value in node.attrib.items(): # set attribute
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
@@ -409,10 +416,6 @@ def save_rtcprofile(rtcp, filename):
             subelem = xml.etree.ElementTree.SubElement(elem, name)
             save_sub(subelem, child)
 
-            
-            
-
-
     root = xml.etree.ElementTree.Element('rtc:RtcProfile')
     #for key, value in rtcp.attrib.items():
     #    name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
@@ -428,21 +431,24 @@ def save_rtcprofile(rtcp, filename):
     #root.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
 
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
-    print ' - writing', filename
+    #print ' - writing', filename
     try:
         str = xml.etree.ElementTree.tostring(root)
         import lxml.etree
         t = lxml.etree.fromstring(str)
         tree = lxml.etree.ElementTree(t)
-
-        tree.write(filename, pretty_print=True)
+        return tree
     except:
         traceback.print_exc()
     
     # print xml.etree.ElementTree.tostring(root)
-    pass
+    return None
 
-
+def tostring(rtcp, pretty_print=False):
+    import lxml.etree
+    tree = get_etree(rtcp)
+    return lxml.etree.tostring(tree, pretty_print=pretty_print)
+    
 class RTCProfile(Node):
 
     """

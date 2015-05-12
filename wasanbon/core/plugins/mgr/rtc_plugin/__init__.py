@@ -192,7 +192,7 @@ class Plugin(PluginFunction):
         rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
         return self.run_rtc_in_package(package, rtc, verbose=verbose)
 
-    def run_rtc_in_package(self, package, rtc, verbose=False):
+    def run_rtc_in_package(self, package, rtc, verbose=False, background=False):
         global endflag
         endflag = False
         def signal_action(num, frame):
@@ -222,12 +222,16 @@ class Plugin(PluginFunction):
 
         try:
             admin.systemlauncher.launch_rtcd(package, rtc.rtcprofile.language.kind, rtcconf=rtc_temp, verbose=True)
+            if background:
+                return 0
             while not endflag:
                 try:
                     time.sleep(0.1)
                 except IOError, e:
                     print e
+                    pass
                 pass
+            pass
         except:
             traceback.print_exc()
             return -1
@@ -235,3 +239,25 @@ class Plugin(PluginFunction):
         admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
         admin.systemlauncher.terminate_system(package, verbose=verbose)
         return 0
+
+    def terminate_rtcd(self, package, verbose=False):
+        admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
+        admin.systemlauncher.terminate_system(package, verbose=verbose)
+        return 0
+
+    @manifest 
+    def download_profile(self, args):
+        """ Run just one RTC """
+        options, argv = self.parse_args(args[:], self._print_rtcs)
+        verbose = options.verbose_flag
+        package = admin.package.get_package_from_path(os.getcwd())
+        rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
+        if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
+            return -1
+        
+        rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
+        print admin.rtcprofile.tostring(rtcp)
+        self.terminate_rtcd(package, verbose=verbose)
+        return 0
+        
+        
