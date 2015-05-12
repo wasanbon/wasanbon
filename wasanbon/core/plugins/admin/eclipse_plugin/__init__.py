@@ -52,6 +52,7 @@ class Plugin(PluginFunction):
             p.wait()
 
         os.chdir(curdir)
+        return 0
         
     @manifest
     def launch(self, argv):
