@@ -165,3 +165,49 @@ class Plugin(PluginFunction):
         dic[repo.name] = {'repo_name' : repo.name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
         pass
+
+    @manifest
+    def url(self, args):
+        """ Get Repository URL of RTC.
+        $ mgr.py repository url [RTC_NAME] """
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 4)
+        rtc_name = argv[3]
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        print repo.url.strip()
+        return 0
+
+    @manifest
+    def name(self, args):
+        """ Get Repository URL of RTC.
+        $ mgr.py repository url [RTC_NAME] """
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 4)
+        rtc_name = argv[3]
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        repo = self.get_registered_repository_from_rtc(rtc,verbose=verbose)
+        if repo is None:
+            sys.stdout.write('# Repository Not Found.\n')
+            return -1
+        print repo.name
+        return 0
+
+    def get_registered_repository_from_rtc(self, rtc, verbose=False):
+        """ Search Repository Object from RTC Information """
+        target_repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        repos = admin.binder.get_rtc_repos()
+        result_repo = None
+        for repo in repos:
+            if repo.url.strip() == target_repo.url.strip():
+                return repo
+
+        return None

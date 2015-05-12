@@ -12,7 +12,7 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package', 'admin.rtc']
+        return ['admin.environment', 'admin.package', 'admin.rtc', 'mgr.repository']
 
     def _print_rtcs(self, args):
         pack = admin.package.get_package_from_path(os.getcwd())
@@ -54,7 +54,7 @@ class Plugin(PluginFunction):
     def get_html(self, rtc_name):
         pack = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(pack, rtc_name)
-
+        repo = mgr.repository.get_registered_repository_from_rtc(rtc)
         from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader('./', encoding='utf8'))
         template_path = os.path.join(__path__[0], 'template')
@@ -63,9 +63,9 @@ class Plugin(PluginFunction):
         tpl = env.get_template('page_template.html')
         os.chdir(cwd)
         info = {'name' : rtc.rtcprofile.basicInfo.name,
-                'repo_name' : rtc.rtcprofile.basicInfo.name,
-                'url' : 'url',
-                'platform' : 'hoge'}
+                'repo_name' : repo.name,
+                'url' : repo.url.strip(),
+                'platform' : repo.platform}
         html = tpl.render({'rtc': rtc.rtcprofile, 'info':info})
         return html
 
