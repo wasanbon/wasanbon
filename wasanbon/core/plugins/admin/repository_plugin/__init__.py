@@ -176,6 +176,14 @@ class Plugin(PluginFunction):
     def is_updated(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("modified") > 0) or (output.find("Untracked") > 0)
+
+    def is_modified(self, repo, verbose=False):
+        output = self.get_status(repo, verbose=verbose)
+        return (output.find("modified") > 0)
+
+    def is_added(self, repo, verbose=False):
+        output = self.get_status(repo, verbose=verbose)
+        return (output.find("Untracked") > 0)
             
     def get_status(self, repo, verbose=False):
         if not repo.is_local():

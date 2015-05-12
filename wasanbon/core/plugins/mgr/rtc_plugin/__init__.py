@@ -248,13 +248,16 @@ class Plugin(PluginFunction):
     @manifest 
     def download_profile(self, args):
         """ Run just one RTC """
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
+        wakeuptimeout = options.wakeuptimeout
+
         package = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
         if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
             return -1
-        
+        wasanbon.sleep(wakeuptimeout)        
         rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
         print admin.rtcprofile.tostring(rtcp)
         self.terminate_rtcd(package, verbose=verbose)
@@ -264,13 +267,17 @@ class Plugin(PluginFunction):
     @manifest 
     def verify_profile(self, args):
         """ Run just one RTC """
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
+        wakeuptimeout = options.wakeuptimeout
+
         package = admin.package.get_package_from_path(os.getcwd())
         sys.stdout.write('# Starting RTC.\n')
         rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
         if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
             return -1
+        wasanbon.sleep(wakeuptimeout)
         sys.stdout.write('# Acquiring RTCProfile from Inactive RTC\n')
         rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
         self.terminate_rtcd(package, verbose=verbose)
@@ -280,5 +287,48 @@ class Plugin(PluginFunction):
             sys.stdout.write('Failed.\n# RTCProfile must be updated.\n')
             return -1
         sys.stdout.write('Succeeded.\n# RTCProfile is currently matches to binary.\n')
+        return 0
+        
+
+    @manifest 
+    def update_profile(self, args):
+        """ Run just one RTC """
+        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        filename = options.filename
+        wakeuptimeout = options.wakeuptimeout
+
+        wasanbon.arg_check(argv, 4)
+        rtc_name = argv[3]
+
+        package = admin.package.get_package_from_path(os.getcwd())
+        sys.stdout.write('# Starting RTC.\n')
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
+            return -1
+        wasanbon.sleep(wakeuptimeout)
+        sys.stdout.write('# Acquiring RTCProfile from Inactive RTC\n')
+        rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
+        self.terminate_rtcd(package, verbose=verbose)
+        sys.stdout.write('# Comparing Acquired RTCProfile and Existing RTCProfile.\n')
+        retval = admin.rtcprofile.compare_rtcprofile(rtc.rtcprofile, rtcp, verbose=verbose)
+        if retval:
+            filepath = os.path.join(rtc.path, filename)
+
+            if os.path.isfile(filepath):
+                file = filepath + wasanbon.timestampstr()
+                os.rename(filepath, file)
+                pass
+
+            fout = open(filepath, 'w')
+            fout.write(admin.rtcprofile.tostring(rtcp, pretty_print=True))
+            fout.close()
+
+            sys.stdout.write('Succeed.\n')
+            
+            return 0
+        sys.stdout.write('Succeed.\n')
         return 0
         

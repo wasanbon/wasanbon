@@ -1,3 +1,4 @@
+import sys, os, time, traceback
 import wasanbon
 from wasanbon.core.plugins import PluginFunction
 
@@ -25,17 +26,29 @@ class Plugin(PluginFunction):
         import rtctree.tree
         ns_addr = ns
         full_path = '/' + ns_addr + '/' + rtc.rtcprofile.basicInfo.name + '0' + '.rtc'
+
         path, port = rtctree.path.parse_path(full_path)
         if not path[-1]:
             # There was a trailing slash
             trailing_slash = True
             path = path[:-1]
         filter = []
-        tree = rtctree.tree.RTCTree(paths=path, filter=filter)
-        comp = tree.get_node(path)    
-        if not comp.is_component:
-            sys.stdout.write(' Object is not component\n')
-            return None
+        tree = None
+        import CORBA
+        while True:
+            try:
+                if verbose: sys.stdout.write('# Searching for RTC (%s)\n' % full_path)
+                tree = rtctree.tree.RTCTree(paths=path, filter=filter)
+                comp = tree.get_node(path)
+
+                if not comp.is_component:
+                    sys.stdout.write(' Object is not component\n')
+                    return None
+
+                break
+            except:
+                traceback.print_exc()
+            time.sleep(1.0)
     
         rtcb.setBasicInfo(comp.type_name, comp.category, comp.vendor, comp.version, comp.description)
         rtcb.setLanguage(comp.properties['language'])

@@ -91,6 +91,34 @@ class Plugin(PluginFunction):
     def get_image(self, rtcprofile):
         return create_image(rtcprofile)
 
+    @manifest
+    def cat(self, args):
+        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        filename = options.filename
+        wasanbon.arg_check(argv, 5)
+        rtc_name = argv[3]
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+        filepath = os.path.join(rtc.path, filename)
+
+        if os.path.isfile(filepath):
+            file = filepath + wasanbon.timestampstr()
+            os.rename(filepath, file)
+
+        fout = open(filepath, 'w')
+        fout.write(argv[4])
+        fout.close()
+
+        sys.stdout.write('Success\n')
+        return 0
+
+
+
+
+
+
 def create_image(rtcprof):
     from PIL import Image, ImageDraw, ImageFont
 

@@ -60,8 +60,11 @@ class Plugin(PluginFunction):
     @manifest
     def status(self, args):
         """ Show Repository Status of RTCs """
+        self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False,
+                               action='store_true', dest='long_flag')
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
+        long = options.long_flag
 
         if len(argv) == 2: argv = argv + ['all']
         
@@ -69,12 +72,23 @@ class Plugin(PluginFunction):
         rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
         
         for rtc in rtcs:
-            sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
+            if argv[3] != 'all' and argv[3] != rtc.rtcprofile.basicInfo.name:
+                continue
+
             repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-            if admin.repository.is_updated(repo, verbose=verbose):
-                sys.stdout.write('  Modified\n' )
+
+            if long:
+                output = admin.repository.get_status(repo)
+                sys.stdout.write(output)
             else:
-                sys.stdout.write('  Up-to-date\n')
+                sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
+
+                if admin.repository.is_modified(repo, verbose=verbose):
+                    sys.stdout.write('  Modified\n' )
+                elif admin.repository.is_added(repo, verbose=verbose):
+                    sys.stdout.write('  Added\n' )
+                else:
+                    sys.stdout.write('  Up-to-date\n')
         return 0
 
 
