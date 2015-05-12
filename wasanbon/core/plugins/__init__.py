@@ -165,9 +165,10 @@ class Loader():
         try:
             file, pathname, description = imp.find_module(os.path.basename(directory))
             m = imp.load_module(name, file, pathname, description)
-            
         except:
-            traceback.print_exc()
+            sys.stdout.write('# Loading Plugin (%s) Failed.\n' % name)
+            if verbose:
+                traceback.print_exc()
         if getattr(m, 'admin', None) is None: setattr(m, 'admin', FunctionList())
         if getattr(m, 'mgr', None) is None: setattr(m, 'mgr', FunctionList())
         #m = __import__(os.path.basename(directory))

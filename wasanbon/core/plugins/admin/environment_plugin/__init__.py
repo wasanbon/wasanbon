@@ -172,23 +172,30 @@ class Plugin(PluginFunction):
                 if not os.path.isdir(distpath):
                     shutil.copytree(os.path.join(srcdir, file), os.path.join(distdir, file))
 
-    def _install_package(self, pack, verbose=False, force=False):
+    def _install_package(self, pack, verbose=False, force=False, install_path=None):
         if self._is_installed(pack, verbose=verbose) and not force:
             if verbose: sys.stdout.write('# %s is already installed.\n' % pack)
             return 0
-
+        if install_path is None:
+            install_path = wasanbon.home_path
             
         import yaml
         from wasanbon import util
         package_dict = yaml.load(open(os.path.join(self.setting_path, 'packages.yaml'), 'r'))
         
         if sys.platform == 'darwin':
+            #if pack == 'eclipse':
+            #    return setup.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
+            #                                     path=wasanbon.home_path, 
+            #                                     verbose=verbose, force=force)    
+
             retval = setup.download_and_install(package_dict[pack],
                                                 verbose=verbose, force=force,
                                                 temppath = wasanbon.temp_path,
                                                 installpath = wasanbon.home_path)
             if pack == 'rtm_c++':
                 self._post_install_rtm_cpp_darwin(verbose=verbose, force=force)
+
             return 0
 
 

@@ -86,8 +86,9 @@ def extract_zip_and_install(filename, verbose=False, distpath='.'):
                     shutil.move(src, dst)
                 
 
-def extract_tar_and_install(filename, verbose=False):
-    ret, dirname = extract_tar(filename, verbose=verbose)
+def extract_tar_and_install(filename, verbose=False, distpath=None):
+    if verbose: sys.stdout.write('# Extracting tar file and installing ....\n')
+    ret, dirname = extract_tar(filename, verbose=verbose, distpath=distpath)
     if ret == 0:
         if os.path.isfile(os.path.join(dirname, 'setup.py')):
             install_setup_py(dirname, verbose=verbose)
@@ -156,7 +157,7 @@ def _download_and_install_url(url, verbose=False, force=False, temppath='downloa
     elif filename.endswith('.py'):
         return install_py(filename, verbose=verbose)
     elif filename.endswith('.tar.gz'):
-        return extract_tar_and_install(filename, verbose=verbose)
+        return extract_tar_and_install(filename, verbose=verbose, distpath=installpath)
     elif filename.endswith('.zip'):
         return extract_zip_and_install(filename, verbose=verbose, distpath=installpath)
     elif filename.endswith('.dmg'):

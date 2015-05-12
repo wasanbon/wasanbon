@@ -36,6 +36,10 @@ class InvalidUsageException(WasanbonException):
     def msg(self):
         return 'Invalid Usage'
 
+class InvalidMethodException(WasanbonException):
+    def msg(self):
+        return 'Invalid Method. This function is no longer supported.'
+
 class UnsupportedLanguageException(WasanbonException):
     def msg(self):
         return 'Unsupported Language'
@@ -386,3 +390,11 @@ def sleep(interval, verbose=True):
 
     sys.stdout.write('\n')
     
+def get_rtm_root():
+    if 'RTM_ROOT' in os.environ.keys():
+        return os.environ['RTM_ROOT']
+    else:
+        for hint in rtm_root_hints:
+            if os.path.isfile(os.path.join(hint, 'rtm', 'version.txt')):
+                return hint
+        return ""
