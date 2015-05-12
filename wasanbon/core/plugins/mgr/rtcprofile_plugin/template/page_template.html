@@ -1,0 +1,144 @@
+<h2>Name</h2>
+{{ rtc.basicInfo.name }}
+
+<h2>Brief</h2>
+{{ rtc.basicInfo.description }}
+<!--more-->
+
+<h2>Description</h2>
+{{ rtc.basicInfo.doc.description }}
+
+<h2>License</h2>
+{{ rtc.basicInfo.doc.license }}
+
+<h2>Image</h2>
+[post_thumbnail size='full']
+
+<h2>Language</h2>
+{{ rtc.language.kind }}
+
+<h2>URL</h2>
+<a href="{{ info['url'] }}" target="new">{{ info['url'] }}</a>
+
+<h2>Platform</h2>
+{{ info['platform'] }}
+
+<h2>Data In Ports</h2>
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+{% for port in rtc.inports %}
+  <tr>
+    <td>{{ port.name }}</td>
+    <td>{{ port.type }}</td>
+    <td>{{ port.unit }}</td>
+    <td>{{ port.doc.description }}</td>
+  </tr>
+{% endfor %}</ul>
+</table>
+
+<h2>Data Out Ports</h2>
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+{% for port in rtc.outports %}
+  <tr>
+    <td>{{ port.name }}</td>
+    <td>{{ port.type }}</td>
+    <td>{{ port.unit }}</td>
+    <td>{{ port.doc.description }}</td>
+  </tr>
+{% endfor %}</ul>
+</table>
+
+<h2>Service Ports</h2>
+{% for port in rtc.serviceports %}<h3>{{ port.name }}</h3>
+{{ port.doc.description }}
+<table>
+  <tr>
+    <td>Name</td>
+    <td>Direction</td>
+    <td>Type</td>
+    <td>Description</td>
+  </tr>
+  {% for intf in port.serviceInterfaces %}<tr>
+    <td>{{ intf.name }}</td>
+    <td>{{ intf.direction }}</td>
+    <td>{{ intf.type }}</td>
+    <td>{{ intf.doc.description }}</td>
+  </tr>{% endfor %}
+</table>
+{% endfor %}
+
+<h2>Configurations</h2>
+<table>
+  <tr>
+    <td>Name</td>
+    <td>Type</td>
+    <td>Default</td>
+    <td>Unit</td>
+    <td>Description</td>
+  </tr>
+{% for conf in rtc.configurationSet.configurations %}<tr>
+    <td>{{ conf.name }}</td>
+    <td>{{ conf.type }}</td>
+    <td>{{ conf.defaultValue }}</td>
+    <td>{{ conf.unit }}</td>
+    <td>{{ conf.doc.description }}</td>
+  </tr>{% endfor %}
+</table>
+
+<h2>How To Build</h2>
+{% if rtc.language.kind == 'C++' %}<pre>
+<h3>Linux</h3>
+  $ git clone {{ info['url'] }}
+  $ cd {{ rtc.basicInfo.name }}
+  $ mkdir build
+  $ cd build
+  $ cmake ../
+  $ make
+<h3>Windows</h3>
+  Download ZIP file from the website, and use CMake to generate VC2010 project.
+  Then, open the project and build it.
+</pre>{% elif rtc.language.kind == 'Python' %}<pre>
+  $ git clone {{ info['url'] }}
+  $ cd {{ rtc.basicInfo.name }}
+  $ mkdir build
+  $ cd build
+  $ cmake ../
+  $ make
+</pre>{% elif rtc.language.kind == 'Java' %}<pre>
+  Please import .project by Eclipse IDE and build it.
+</pre>
+{% endif %}
+
+<h2>How To Build in wasanbon</h2>
+<pre>
+  $ wasanbon-admin.py package create {{ rtc.name }}_test_project # You can also use other preinstalled package 
+  $ wasanbon-cd {{ rtc.name }}_test_project
+  $ ./mgr.py rtc clone {{ info['name'] }}
+  $ ./mgr.py rtc build {{ rtc.name }}
+  $ ./mgr.py rtc run {{ rtc.name }} # To Run RTC
+</pre>
+
+<h2>Profile Status</h2>
+Not available
+
+<h2>Build Status</h2>
+<h3>Build in Windows</h3>
+Not available
+<h3>Build in OSX</h3>
+Not available
+<h3>Build in Linux</h3>
+Not available
+
+<h2>Copyright</h2>
+{{ rtc.basicInfo.vendor }}

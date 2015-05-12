@@ -11,7 +11,7 @@ _urls = {
         #'win32' : 'https://pypi.python.org/packages/2.6/P/PyYAML/PyYAML-3.11.win32-py2.6.exe',
         'darwin' : 'pip install pyyaml',
         'linux2' : 'http://sugarsweetrobotics.com/pub/Darwin/libs/PyYAML-3.10.tar.gz'},
-
+    
     'github' : {'darwin' : 'pip install pygithub',
                 'win32'  : 'pip install pygithub',
                 'linux2'  : 'pip install pygithub'},
@@ -45,6 +45,14 @@ _urls = {
     'lxml' : {'darwin' : 'pip install lxml',
               'linux2' : 'pip install lxml',
               'win32' : 'pip install lxml'},
+
+    'pillow' : {'darwin' : 'pip install pillow',
+              'linux2' : 'pip install pillow',
+              'win32' : 'pip install pillow'},
+
+    'jinja2' : {'darwin' : 'pip install jinja2',
+              'linux2' : 'pip install jinja2',
+              'win32' : 'pip install jinja2'},
     }
 
 def _get_url(tag):
