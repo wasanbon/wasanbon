@@ -260,4 +260,25 @@ class Plugin(PluginFunction):
         self.terminate_rtcd(package, verbose=verbose)
         return 0
         
+    
+    @manifest 
+    def verify_profile(self, args):
+        """ Run just one RTC """
+        options, argv = self.parse_args(args[:], self._print_rtcs)
+        verbose = options.verbose_flag
+        package = admin.package.get_package_from_path(os.getcwd())
+        sys.stdout.write('# Starting RTC.\n')
+        rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
+        if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
+            return -1
+        sys.stdout.write('# Acquiring RTCProfile from Inactive RTC\n')
+        rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
+        self.terminate_rtcd(package, verbose=verbose)
+        sys.stdout.write('# Comparing Acquired RTCProfile and Existing RTCProfile.\n')
+        retval = admin.rtcprofile.compare_rtcprofile(rtc.rtcprofile, rtcp, verbose=verbose)
+        if retval:
+            sys.stdout.write('Failed.\n# RTCProfile must be updated.\n')
+            return -1
+        sys.stdout.write('Succeeded.\n# RTCProfile is currently matches to binary.\n')
+        return 0
         
