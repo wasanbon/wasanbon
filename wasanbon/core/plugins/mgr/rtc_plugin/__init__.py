@@ -1,7 +1,9 @@
-import os, sys
+import os, sys, signal, time, traceback, threading
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
+ev = threading.Event()
+endflag = False
 class Plugin(PluginFunction):
     """ Manage RT-Component in Package """
 
@@ -14,9 +16,11 @@ class Plugin(PluginFunction):
         return ['admin.environment', 
                 'admin.package', 
                 'admin.rtc', 
+                'admin.rtcconf',
                 'admin.rtcprofile', 
                 'admin.builder', 
                 'admin.systeminstaller',
+                'admin.systemlauncher',
                 'admin.editor']
 
 
@@ -171,8 +175,7 @@ class Plugin(PluginFunction):
 
     @manifest
     def edit(self, args):
-        """ Delete Package
-        # Usage $ wasanbon-admin.py package delete [PACK_NAME]"""
+        """ Edit RTC with editor """
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         pack = admin.package.get_package_from_path(os.getcwd())
@@ -180,4 +183,55 @@ class Plugin(PluginFunction):
         admin.editor.edit_rtc(rtc, verbose=verbose)
 
 
+    @manifest
+    def run(self, args):
+        """ Run just one RTC """
+        options, argv = self.parse_args(args[:], self._print_rtcs)
+        verbose = options.verbose_flag
+        package = admin.package.get_package_from_path(os.getcwd())
+        rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
+        return self.run_rtc_in_package(package, rtc, verbose=verbose)
+
+    def run_rtc_in_package(self, package, rtc, verbose=False):
+        global endflag
+        endflag = False
+        def signal_action(num, frame):
+            print ' - SIGINT captured'
+            ev.set()
+            global endflag
+            endflag = True
+            pass
+
+        signal.signal(signal.SIGINT, signal_action)
+
+        if sys.platform == 'win32':
+            sys.stdout.write(' - Escaping SIGBREAK...\n')
+            signal.signal(signal.SIGBREAK, signal_action)
+            pass
         
+        sys.stdout.write('# Executing RTC %s\n' % rtc.rtcprofile.basicInfo.name)
+        rtcconf_path = package.rtcconf[rtc.rtcprofile.language.kind]
+        rtcconf = admin.rtcconf.RTCConf(rtcconf_path, verbose=verbose)
+        rtc_temp = os.path.join("conf", "rtc_temp.conf")
+        if os.path.isfile(rtc_temp):
+            os.remove(rtc_temp)
+            pass
+        rtcconf.sync(verbose=True, outfilename=rtc_temp)
+        admin.systeminstaller.uninstall_all_rtc_from_package(package, rtcconf_filename=rtc_temp, verbose=True)
+        admin.systeminstaller.install_rtc_in_package(package, rtc, rtcconf_filename=rtc_temp, copy_conf=False)
+
+        try:
+            admin.systemlauncher.launch_rtcd(package, rtc.rtcprofile.language.kind, rtcconf=rtc_temp, verbose=True)
+            while not endflag:
+                try:
+                    time.sleep(0.1)
+                except IOError, e:
+                    print e
+                pass
+        except:
+            traceback.print_exc()
+            return -1
+        if verbose: sys.stdout.write('## Exitting RTC Manager.\n')
+        admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
+        admin.systemlauncher.terminate_system(package, verbose=verbose)
+        return 0

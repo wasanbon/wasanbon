@@ -16,8 +16,10 @@ class Plugin(PluginFunction):
         return ['admin.environment', 'admin.systeminstaller', 'admin.rtcconf', 'admin.rtc']
 
     
-    def launch_system(self, package, verbose=False, console_bind=''):
-        languages = ['C++', 'Java', 'Python']
+    def launch_system(self, package,
+                      languages = ['C++', 'Java', 'Python'],
+                      verbose=False, console_bind=''):
+
         if not type(console_bind) is types.ListType:
             console_bind = [console_bind]
         if verbose:

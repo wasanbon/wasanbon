@@ -87,7 +87,10 @@ class Plugin(PluginFunction):
         else:
             return name in self.get_installed_standalone_rtc_names(package, verbose=verbose)
 
-    def install_rtc_in_package(self, package, rtc, verbose=False, preload=True, precreate=True, copy_conf=True, rtcconf_filename="", copy_bin=True, standalone=False, conffile=None):
+    def install_rtc_in_package(self, package, rtc, verbose=False, 
+                               preload=True, precreate=True, copy_conf=True, 
+                               rtcconf_filename="", 
+                               copy_bin=True, standalone=False, conffile=None):
         if verbose: sys.stdout.write('# Installing RTC in package %s\n' % package.name)
 
         if not standalone and self.is_installed(package, rtc, standalone=True, verbose=verbose):
@@ -142,8 +145,10 @@ class Plugin(PluginFunction):
             pass
 
         else:
+            if verbose: sys.stdout.write('### Setting manager.modules.load_path:')
             rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
             if preload:
+                if verbose: sys.stdout.write('### Setting manager.modules.preload:')
                 rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
             if precreate:
                 rtcconf.append('manager.components.precreate', rtc.rtcprofile.basicInfo.name)
@@ -162,12 +167,15 @@ class Plugin(PluginFunction):
 
         return 0
 
-    def uninstall_rtc_from_package(self, package, rtc, verbose=False):
+    def uninstall_rtc_from_package(self, package, rtc, rtcconf_filename=None, verbose=False):
         if self.is_installed(package, rtc, standalone=True):
             return self.uninstall_standalone_rtc_from_package(package, rtc, verbose=verbose)
             
         if verbose: sys.stdout.write('## Uninstall RTC (%s) from package\n' % rtc.rtcprofile.basicInfo.name)
-        rtcconf = admin.rtcconf.RTCConf(package.rtcconf[rtc.rtcprofile.language.kind])
+        if rtcconf_filename:
+            rtcconf = admin.rtcconf.RTCConf(rtcconf_filename)
+        else:
+            rtcconf = admin.rtcconf.RTCConf(package.rtcconf[rtc.rtcprofile.language.kind])
 
         name = rtc.rtcprofile.basicInfo.name 
         targetfile = os.path.join(package.get_binpath(), os.path.basename(rtc.get_rtc_file_path()))
@@ -197,6 +205,25 @@ class Plugin(PluginFunction):
         for k in keys:
             rtcconf.remove(k)
 
+        rtcconf.sync()
+
+    def uninstall_all_rtc_from_package(self, package, rtcconf_filename=None, verbose=False):
+        if verbose: sys.stdout.write('## Uninstall All RTC from conf in package\n')
+        if rtcconf_filename:
+            rtcconf = admin.rtcconf.RTCConf(rtcconf_filename)
+        else:
+            rtcconf = admin.rtcconf.RTCConf(package.rtcconf[rtc.rtcprofile.language.kind])
+
+        rtcconf.remove('manager.components.precreate')
+        rtcconf.remove('manager.modules.preload')
+        rtcconf.remove('manager.modules.load_path')
+        """
+        keys = [rtc.rtcprofile.basicInfo.category + '.' + rtc.rtcprofile.basicInfo.name + '.config_file']
+        for i in range(0, 16):
+            keys.append(rtc.rtcprofile.basicInfo.category + '.' + rtc.rtcprofile.basicInfo.name + str(i) + '.config_file')
+        for k in keys:
+            rtcconf.remove(k)
+        """
         rtcconf.sync()
 
     def uninstall_standalone_rtc_from_package(self, package, rtc, verbose=False):

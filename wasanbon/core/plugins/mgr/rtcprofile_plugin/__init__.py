@@ -84,9 +84,12 @@ class Plugin(PluginFunction):
             os.mkdir(image_path)
         rtc = admin.rtc.get_rtc_from_package(package, argv[3])
         filepath = os.path.join(image_path, rtc.rtcprofile.basicInfo.name + '.jpg')
-        im = create_image(rtc.rtcprofile)
+        im = self.get_image(rtc.rtcprofile)
         im.save(filepath)
         return 0
+
+    def get_image(self, rtcprofile):
+        return create_image(rtcprofile)
 
 def create_image(rtcprof):
     from PIL import Image, ImageDraw, ImageFont
