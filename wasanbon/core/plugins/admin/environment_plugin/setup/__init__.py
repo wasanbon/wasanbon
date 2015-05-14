@@ -46,9 +46,9 @@ _urls = {
               'linux2' : 'pip install lxml',
               'win32' : 'pip install lxml'},
 
-    'pillow' : {'darwin' : 'pip install pillow',
-              'linux2' : 'pip install pillow',
-              'win32' : 'pip install pillow'},
+    #'pillow' : {'darwin' : 'pip install pillow',
+    #          'linux2' : 'pip install pillow',
+    #          'win32' : 'pip install pillow'},
 
     'jinja2' : {'darwin' : 'pip install jinja2',
               'linux2' : 'pip install jinja2',
