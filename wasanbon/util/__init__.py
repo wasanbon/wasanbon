@@ -1,6 +1,6 @@
 import os, sys, subprocess, types, time, threading
 import wasanbon
-from . import download, install, archive, svn#, git
+#from . import download, install, archive, svn#, git
 
 
 def choice(alts, callback, msg='Choice', choice_msg='Choice?:', noquit=False):
@@ -63,7 +63,7 @@ def no_yes(msg):
         else:
             return 'no'
     
-
+"""
 def download_and_unpack(url, dist_path, force=False, verbose=False):
     filename = os.path.basename(url)
     dist_file = os.path.join(wasanbon.rtm_temp(), filename)
@@ -105,7 +105,7 @@ def download_and_install(url, force=False, temp="", verbose=False, open_only=Fal
     else:
         install.install(dist_file, open_only=open_only, verbose=verbose)
     pass
-
+"""
 
 def search_file(rootdir, filename):
     found_files_ = []

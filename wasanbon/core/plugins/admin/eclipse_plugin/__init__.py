@@ -3,7 +3,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ Eclipse management plugin """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
@@ -13,6 +13,14 @@ class Plugin(PluginFunction):
         return ['admin.environment']
 
     def launch_eclipse(self, workbench=".", argv=None, nonblock=True, verbose=False):
+        """ Launch Eclipse. 
+        :param string workbench: Directory of workspace.
+        :param list<string> argv: Command-line argument for eclipse.
+        :param bool nonblock: If true, this function returns immediately, if false, this function blocks until ecilpse halts.
+        :param bool verbose: message verbosity
+        :rtype int:
+        :return: Zero if success. Non-zero if failed.
+        """
         eclipse_dir = os.path.join(wasanbon.home_path, 'eclipse')
         if sys.platform == 'darwin':
             eclipse_dir = os.path.join(eclipse_dir, 'Eclipse.app/Contents/MacOS')
@@ -56,12 +64,14 @@ class Plugin(PluginFunction):
         
     @manifest
     def launch(self, argv):
-        """ This is help text
-        """
-        #self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        """ Launch Eclipse """
+        self.parser.add_option('-d', '--directory', help='Workspace Directory (default=select when launched)', default=".", action='store', dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
-        #force   = options.force_flag
-
-        self.launch_eclipse()
+        directory = option.directory
+        if len(argv) > 3:
+            args = argv[2:]
+        else:
+            args = []
+        self.launch_eclipse(argv=args, verbose=verbose)
         return 0
