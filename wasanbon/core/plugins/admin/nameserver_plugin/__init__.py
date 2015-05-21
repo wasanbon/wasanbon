@@ -37,7 +37,7 @@ def disable_sig():
 
 
 class Plugin(PluginFunction):
-
+    """ Nameserver Management plugin """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
@@ -47,12 +47,24 @@ class Plugin(PluginFunction):
         return ['admin.environment']
 
     def get_nameservers_from_package(self, package, verbose=False):
+        """ Get Nameserver object from package.
+        :rtype: list<NameServer>:
+        :return: NameServer class objects.
+        """
         nss = []
         ns_paths = package.setting['nameservers']
         if not type(ns_paths) == types.ListType: ns_paths = [ns_paths]
         return [NameServer(path) for path in ns_paths]
 
     def is_running(self, ns, verbose=False, try_count=3, interval=5.0):
+        """ Check NameServer (specified by NameServer class object) is running or not.
+        :param NameServer ns: NameServer class object.
+        :param bool verbose: Verbosity.
+        :param int try_count: Retry in this count if connecting nameserver failed.
+        :param float interval: Interval between retry.
+        :rtype bool:
+        :return: True if success
+        """
         for i in range(0, try_count):
             if verbose: sys.stdout.write('## Checking Nameservice(%s) is running\n' % ns.path)
             from rtctree import path as rtctree_path
@@ -146,14 +158,22 @@ class Plugin(PluginFunction):
 
     @manifest 
     def start(self, argv):
-        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
-        self.parser.add_option('-p', '--port', help='Set TCP Port number for web server', type='int', default=2809, dest='port')
+        """ Start Naming Service
+        """
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', 
+                               default=False, action='store_true', dest='force_flag')
+        self.parser.add_option('-p', '--port', help='Set TCP Port number for server', 
+                               type='int', default=2809, dest='port')
+        self.parser.add_option('-d', '--directory', help='Directory for log and pid file', 
+                               type='string', default=os.path.join(wasanbon.home_path, 'pid'), dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
         force   = options.force_flag
         port = options.port
-        ns = NameServer('localhost:%s' % port, pidFilePath='.')
-        if self.launch(ns, verbose=verbose, force=force, pidFilePath='.') == 0:
+        directory = options.directory
+
+        ns = NameServer('localhost:%s' % port, pidFilePath=directory)
+        if self.launch(ns, verbose=verbose, force=force, pidFilePath=directory) == 0:
             sys.stdout.write('Success\n')
             return 0
         else:
@@ -162,9 +182,14 @@ class Plugin(PluginFunction):
 
     @manifest
     def stop(self, argv):
+        """ Stop NamingService
+        """
+        self.parser.add_option('-d', '--directory', help='Directory for log and pid file', 
+                               type='string', default=os.path.join(wasanbon.home_path, 'pid'), dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
-        ns = NameServer('localhost:2809', pidFilePath='.')
+        directory = options.directory
+        ns = NameServer('localhost:2809', pidFilePath=directory)
         if self.terminate(ns) == 0:
             sys.stdout.write('Success\n')
             return 0
@@ -235,6 +260,9 @@ class Plugin(PluginFunction):
             
 
     def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
+        """ Launch Name Server 
+        :param: NameService ns:
+        """
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return False
         
         curdir = os.getcwd()
