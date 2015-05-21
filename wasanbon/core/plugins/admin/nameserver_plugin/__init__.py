@@ -165,15 +165,15 @@ class Plugin(PluginFunction):
         self.parser.add_option('-p', '--port', help='Set TCP Port number for server', 
                                type='int', default=2809, dest='port')
         self.parser.add_option('-d', '--directory', help='Directory for log and pid file', 
-                               type='string', default=os.path.join(wasanbon.home_path, 'pid'), dest='directory')
+                               type='string', default=os.path.join(wasanbon.home_path), dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
         force   = options.force_flag
         port = options.port
         directory = options.directory
 
-        ns = NameServer('localhost:%s' % port, pidFilePath=directory)
-        if self.launch(ns, verbose=verbose, force=force, pidFilePath=directory) == 0:
+        ns = NameServer('localhost:%s' % port, pidFilePath=os.path.join(directory, 'pid'))
+        if self.launch(ns, verbose=verbose, path=os.path.join(directory, 'log'), force=force, pidFilePath=os.path.join(directory, 'pid')) == 0:
             sys.stdout.write('Success\n')
             return 0
         else:
@@ -266,7 +266,10 @@ class Plugin(PluginFunction):
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return False
         
         curdir = os.getcwd()
-        if path != None: os.chdir(path)
+        if path != None: 
+            if not os.path.isdir(path):
+                os.mkdir(path)
+            os.chdir(path)
 
         if pidfile:
             if not os.path.isdir(pidFilePath):
