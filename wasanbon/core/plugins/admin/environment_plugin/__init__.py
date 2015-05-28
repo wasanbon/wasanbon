@@ -9,7 +9,6 @@ class Plugin(PluginFunction):
         Use to initialize wasanbon environment."""
 
     _install_list = ['setuptools', 'pip', 'yaml', 'github', 'psutil', 'requests', 'requests_oauthlib', 'bitbucket', 'lxml',
-                     #'pillow'
                      ]
     _install_rtms = ['rtm_c++', 'rtm_python', 'rtm_java', 'rtctree', 'rtsprofile', 'rtshell']
 
@@ -204,9 +203,30 @@ class Plugin(PluginFunction):
         elif sys.platform == 'win32':
 
             if pack == 'emacs':
-                return setup.download_and_unpack(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
-                                                path=wasanbon.home_path, 
-                                                verbose=verbose, force=force)
+                retval = setup.download_and_install(package_dict[pack],
+                                                  verbose=verbose,
+                                                  force=force, 
+                                                  temppath=os.path.join(wasanbon.temp_path, pack),
+                                                  installpath=wasanbon.home_path)
+
+                import shutil
+                shutil.move(os.path.join(wasanbon.temp_path, 'emacs', 'emacs-23.4-bin-i386'),
+                            os.path.join(wasanbon.home_path, 'emacs'))
+
+                return retval
+            if pack == 'eclipse':
+                retval = setup.download_and_install(package_dict[pack],
+                                                  verbose=verbose,
+                                                  force=force, 
+                                                  temppath=os.path.join(wasanbon.temp_path, pack),
+                                                  installpath=wasanbon.home_path)
+
+                import shutil
+                shutil.move(os.path.join(wasanbon.temp_path, 'eclipse',
+                                             'eclipse421-openrtp110rc4v20130216-win32', 'eclipse'),
+                            os.path.join(wasanbon.home_path, 'eclipse'))
+
+                return retval
             else:
                 return setup.download_and_install(package_dict[pack],
                                                   verbose=verbose,
