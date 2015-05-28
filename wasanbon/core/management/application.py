@@ -3,7 +3,7 @@
 import os, sys, types, optparse, traceback, inspect
 
 import wasanbon
-from wasanbon import help
+#from wasanbon import help
     
 def get_subcommand_list(package):
     """
@@ -12,7 +12,8 @@ def get_subcommand_list(package):
     package can be admin or commands.
     """
     #mod = __import__('wasanbon.core.management.' + package)
-    ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
+    #ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
+    ret = []
     ret.append('help')
     if package == 'admin':
         for n in wasanbon.plugins.get_admin_plugin_names():
@@ -236,11 +237,14 @@ def run_command(package, subcommand, args, options= None):
             return getattr(plugin, target_function)(args)
     else:
         #verbose = False if options is None else options.verbose_flag
+        """
         verbose = True
         module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
         __import__(module_name)
         mod = sys.modules[module_name]
         mod.execute_with_argv(args, verbose=verbose)
+        """
+        raise wasanbon.InvalidUsageException()
     pass
 
 
@@ -269,12 +273,14 @@ def print_module_alternatives(package, subcommand, args):
         print_alternative(alts)
 
     else:
+        """
         module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
         __import__(module_name)
         mod = sys.modules[module_name]
-        
-        print_alternative(mod.alternative(args))
-        pass
+        """
+        #print_alternative(mod.alternative(args))
+        raise wasanbon.InvalidUsageException()
+
     pass
 
 
