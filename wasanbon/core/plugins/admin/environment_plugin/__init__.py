@@ -234,8 +234,15 @@ class Plugin(PluginFunction):
                                                   temppath=os.path.join(wasanbon.temp_path, pack),
                                                   installpath=wasanbon.home_path)
         elif sys.platform == 'linux2':
-            return util.download_and_install(wasanbon.setting()[wasanbon.platform()]['packages'][pack],
-                                             verbose=verbose, force=force, path=wasanbon.temp_path)
+            if pack == 'rtm_c++':
+                apt_prepare()
+            return setup.download_and_install(package_dict[pack],
+                                              verbose=verbose,
+                                              force=force,
+                                              temppath=os.path.join(wasanbon.temp_path, pack),
+                                              installpath=wasanbon.home_path)
+            #wasanbon.setting()[wasanbon.platform()]['packages'][pack],
+            #                                 verbose=verbose, force=force, path=wasanbon.temp_path)
         raise wasanbon.UnsupportedPlatformError()
 
 
@@ -341,3 +348,35 @@ class Plugin(PluginFunction):
             if f.endswith('.jar') and f.startswith('OpenRTM'):
                 return True
         return False
+
+
+def apt_prepare():
+    import subprocess
+    output = subprocess.check_output(['lsb_release', '-c']).split(':')[1].strip()
+
+    srcsfile = '/etc/apt/sources.list.d/openrtm-aist.list'
+    key1 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ %s main\n' % output
+    #key2 = 'deb http://www.openrtm.org/pub/Linux/ubuntu/ precise-unstable main'                                                                                                                                
+    if os.path.isfile(srcsfile):
+        flag1 = False
+            #flag2 = False                                                                                                                                                                                      
+        file = open(srcsfile, 'r+w')
+        for line in file:
+            if line.strip() == key1:
+                flag1 = True
+                #if line.strip() == key2:                                                                                                                                                                       
+                #    flag2 = True                                                                                                                                                                               
+
+        if not flag1:
+            file.write(key1)
+        #if not flag2:                                                                                                                                                                                          
+	#    file.write(key2)                                                                                                                                                                                   
+        file.close()
+    else:
+        file = open(srcsfile, 'w')
+        file.write(key1)
+	#file.write(key2)                                                                                                                                                                                       
+	file.close()
+
+    subprocess.call(['apt-get', 'update'])
+    

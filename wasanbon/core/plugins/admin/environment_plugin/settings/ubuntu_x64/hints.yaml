@@ -27,4 +27,7 @@ emacs :
   - "/usr/bin/emacs"
 hg :
   - "/usr/bin/hg"
-  - "/usr/local/hg"
+  - "/usr/local/bin/hg"
+pkg-config : 
+  - "/usr/local/bin/pkg-config"
+  - "/usr/bin/pkg-config"
