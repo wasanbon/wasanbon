@@ -1,7 +1,7 @@
 import os, sys, subprocess, traceback
 
 
-def call_subprocess(cmds, verbose, env=None):
+def call_subprocess(cmds, verbose=False, env=None):
     out = None if verbose else subprocess.PIPE
     out = None if verbose else subprocess.PIPE
     if env == None:
