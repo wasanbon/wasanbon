@@ -118,11 +118,62 @@ class Plugin(PluginFunction):
             return yaml.load(open(path_filename, 'r'))
         except ImportError, e:
             return {}
+        
+    @manifest
+    def setup_bashrc(self, verbose=False):
+        if sys.platform == 'darwin':
+            filename = '.bash_profile'
+        elif sys.platform == 'linux2':            
+            filename = '.bashrc'
+        else:
+            return -1
 
+        start_str = '#-- Starting Setup Script of wasanbon --#'
+        stop_str  = '#-- Ending Setup Script of wasanbon --#'
+        target = os.path.join(wasanbon.get_home_path(), filename)
+        script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform(), "bashrc"), "r").read()
+        
+        if verbose: sys.stdout.write('# Initializing $HOME/%s\n' % filename)
+        
+        if os.path.isfile(target):
+            erase = False
+            file = open(target, "r")
+            fout = open(target + '.bak', "w")
+            for line in file:
+                if line.strip() == start_str:
+                    erase = True
+                    continue
+
+                elif line.strip() == stop_str:
+                    erase = False
+                    continue
+
+                if not erase:
+                    fout.write(line)
+                    pass
+                pass
+        
+            file.close()
+            fout.close()
+
+            os.remove(target)
+            os.rename(target + ".bak" , target)
+            
+            fout = open(target, "a")
+        else:
+            fout = open(target, "w")
+            pass
+
+        fout.write("\n\n" + start_str + "\n")
+        fout.write(script)
+        fout.write("\n" + stop_str + "\n\n")
+            
+
+        fout.close()
+        return 0
 
 
     # Private Functions
-
     def _install_commands(self, verbose=False, force=False):
         retval = True
         ret = {}
