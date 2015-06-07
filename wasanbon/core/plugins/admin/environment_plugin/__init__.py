@@ -131,7 +131,7 @@ class Plugin(PluginFunction):
         start_str = '#-- Starting Setup Script of wasanbon --#'
         stop_str  = '#-- Ending Setup Script of wasanbon --#'
         target = os.path.join(wasanbon.get_home_path(), filename)
-        script = open(os.path.join(wasanbon.__path__[0], "settings", wasanbon.platform(), "bashrc"), "r").read()
+        script = open(os.path.join(__path__[0], "settings", wasanbon.platform(), "bashrc"), "r").read()
         
         if verbose: sys.stdout.write('# Initializing $HOME/%s\n' % filename)
         

@@ -174,12 +174,35 @@ home_path = get_wasanbon_home()
 temp_path = os.path.join(home_path, 'temp')
 plugins_path = os.path.join(home_path, 'plugins')
 
+username = None
+if sys.platform == 'darwin' or sys.platform == 'linux2':
+    username = os.environ['USER']
+    if username == 'root': # might be launched with sudo
+        username = os.environ.get('SUDO_USER', None)
+
 if not os.path.isdir(home_path):
     os.mkdir(home_path)
 if not os.path.isdir(temp_path):
     os.mkdir(temp_path)
 if not os.path.isdir(plugins_path):
     os.mkdir(plugins_path)
+_admin_path = os.path.join(plugins_path, 'admin')
+_mgr_path = os.path.join(plugins_path, 'mgr')
+if not os.path.isdir(_admin_path):
+    os.mkdir(_admin_path)
+if not os.path.isdir(_mgr_path):
+    os.mkdir(_mgr_path)
+
+if username:
+    import pwd
+    uid = pwd.getpwnam(username).pw_uid
+    gid = pwd.getpwnam(username).pw_gid
+    os.chown(home_path, uid, gid)
+    os.chown(temp_path, uid, gid)
+    os.chown(plugins_path, uid, gid)
+    os.chown(_admin_path, uid, gid)
+    os.chown(_mgr_path, uid, gid)
+        
 
 
 rtm_temp = ""
