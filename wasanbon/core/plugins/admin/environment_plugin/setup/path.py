@@ -25,10 +25,10 @@ def search_command(cmd, path, hints, verbose=False):
 
     if verbose:
         sys.stdout.write('## Searching %s ... ' % (cmd))
-    if path.endswith(cmd) and os.path.isfile(path):
-        if verbose:
-            sys.stdout.write(' Found in %s\n' % path)
-        return path
+    if not path is None:
+        if path.endswith(cmd) and os.path.isfile(path):
+            if verbose: sys.stdout.write(' Found in %s\n' % path)
+            return path
 
     paths = [os.path.join(p,cmd) for p in os.environ['PATH'].split(path_splitter) \
                  if os.path.isfile(os.path.join(p,cmd))]

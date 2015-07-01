@@ -20,9 +20,9 @@ class Plugin(PluginFunction):
         curdir = os.getcwd()
         if rtcprofile.language.kind == 'C++':
             retval = build_rtc_cpp(rtcprofile, verbose=verbose)
-        if rtcprofile.language.kind == 'Java':
+        elif rtcprofile.language.kind == 'Java':
             retval = build_rtc_java(rtcprofile, verbose=verbose)
-        if rtcprofile.language.kind == 'Python':
+        elif rtcprofile.language.kind == 'Python':
             retval = build_rtc_python(rtcprofile, verbose=verbose)
         os.chdir(curdir)
         return retval
@@ -40,6 +40,7 @@ class Plugin(PluginFunction):
 
 
 def build_rtc_cpp(rtcp, verbose=False):
+    if verbose: sys.stdout.write('## Building C++ RT-component source\n')
     rtc_name = rtcp.basicInfo.name
     rtc_dir, rtc_xml = os.path.split(rtcp.filename)
     build_dir = os.path.join(rtc_dir, 'build-%s' % sys.platform)
@@ -70,19 +71,21 @@ def build_rtc_cpp(rtcp, verbose=False):
     stdout = None if verbose else subprocess.PIPE
     stderr = None if verbose else subprocess.PIPE
     if verbose:
-        sys.stdout.write(' - Cross Platform Make (CMAKE)\n');
+        sys.stdout.write('# Cross Platform Make (CMAKE)\n');
     p = subprocess.Popen(cmd, env=os.environ, stdout=stdout, stderr=stderr)
     ret = p.wait()
     if ret != 0:
-        sys.stdout.write(' - Failed.\n')
+        sys.stdout.write('# Failed.\n')
         if verbose:
             return (False, None)
         return (False, p.stderr.read())
+    sys.stdout.write('# CMake Success.\n')
 
     if sys.platform == 'win32':
+        sys.stdout.write('# Building in Win32 platform.\n')
         sln = '%s.sln' % rtcp.basicInfo.name
         if sln in os.listdir(os.getcwd()):
-            sys.stdout.write(' - Visual C++ Solution File is successfully generated.\n')
+            sys.stdout.write('# Visual C++ Solution File is successfully generated.\n')
             cmd = [msbuild_path, sln, '/p:Configuration=Release', '/p:Platform=Win32']
             cmd + ['/clp:ErrorsOnly']
             #stdout = None if verbose else subprocess.PIPE
@@ -143,6 +146,9 @@ def build_rtc_cpp(rtcp, verbose=False):
             else:
                 errmsg = ""
             return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+    else:
+        sys.stdout.write('# Error. Unknown Platform : %s\n' % sys.platform)
+        return -1, 'Unknown Platform (%s)' % sys.platform
 
 def build_rtc_python(rtcp, verbose=False):
     rtc_name = rtcp.basicInfo.name

@@ -95,6 +95,9 @@ class Plugin(PluginFunction):
         self.parser.add_option('-s', '--standalone', help='Install Standalone Mode (default=False)', default=False, action='store_true', dest='standalone_flag')
         options, argv = self.parse_args(args, self._print_rtcs)
         verbose = options.verbose_flag
+        if sys.platform == 'win32':
+            if verbose: sys.stdout.write('# In Windows, always build with verbose option.\n')
+            verbose = True
         only = options.only_flag
         standalone = options.standalone_flag
 

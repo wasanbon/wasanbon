@@ -13,7 +13,7 @@ def get_version():
     return "1.0.0"
 
 
-IDE = 'Visual Studio 10' if sys.platform == 'win32' else 'Makefile'
+IDE = 'Visual Studio 12' if sys.platform == 'win32' else 'Makefile'
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 
