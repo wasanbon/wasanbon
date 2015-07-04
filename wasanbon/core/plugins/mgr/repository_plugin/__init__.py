@@ -145,17 +145,24 @@ class Plugin(PluginFunction):
         verbose = True
         package = admin.package.get_package_from_path(os.getcwd())
         wasanbon.arg_check(argv, 4)
-        rtc_name = argv[3]
-        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
-        sys.stdout.write('# Pulling RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
-        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-        if admin.repository.pull(repo, verbose=verbose) == 0:
-            sys.stdout.write('## Success\n')
-            return 0
+        if argv[3] == 'all':
+            rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
+        else:
+            names = argv[3:]
+            rtcs = [admin.rtc.get_rtc_from_package(package, name, verbose=verbose) for name in names]
+        
+        failed_flag = False
+        for rtc in rtcs:
+            # rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+            sys.stdout.write('# Pulling RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+            if admin.repository.pull(repo, verbose=verbose) == 0:
+                sys.stdout.write('## Success\n')
+            else:
+                sys.stdout.write('## Failed\n')
+                failed_flag = True
 
-        sys.stdout.write('## Failed\n')
-        return -1
-
+        return failed_flag
     @manifest
     def sync(self, args):
         """ Synchronize rtc/repository.yaml file and each rtc repository version hash. """

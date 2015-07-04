@@ -107,11 +107,13 @@ class Plugin(PluginFunction):
             rtcs = admin.rtc.get_rtcs_from_package(pack, verbose=verbose)
         else:
             rtcs = [admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)]
-
+            
+        return_value_map = {}
         retval = 0
         for rtc in rtcs:
             sys.stdout.write('# Building RTC (%s)\n' % rtc.rtcprofile.basicInfo.name)
             ret, msg = admin.builder.build_rtc(rtc.rtcprofile, verbose=verbose)
+            return_value_map[rtc.rtcprofile.basicInfo.name] = ret
             if not ret:
                 sys.stdout.write('## Failed.\n')
                 retval = -1
@@ -122,6 +124,10 @@ class Plugin(PluginFunction):
                     admin.systeminstaller.install_rtc_in_package(pack, rtc, verbose=verbose, standalone=standalone)
                     sys.stdout.write('### Success.\n')
 
+        if verbose:
+            sys.stdout.write('Build Summary:\n')
+            for key, value in return_value_map.items():
+                sys.stdout.write(' - Build RTC (' + key + ')' + ' '*(25-len(key)) + ('Success' if value else 'False') + '\n')
         return retval
 
 
