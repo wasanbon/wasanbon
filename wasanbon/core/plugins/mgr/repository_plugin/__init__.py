@@ -94,7 +94,7 @@ class Plugin(PluginFunction):
 
     @manifest
     def commit(self, args):
-        """ Show Repository Status of RTCs
+        """ Commit local changes to local repository.
         $ mgr.py repository commit [RTC_NAME] [COMMENT]"""
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
@@ -102,20 +102,35 @@ class Plugin(PluginFunction):
         verbose = True
         package = admin.package.get_package_from_path(os.getcwd())
         wasanbon.arg_check(argv, 5)
-        rtc_name = argv[3]
-        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
-        sys.stdout.write('# Committing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
-        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-        comment = argv[4]
-        if admin.repository.commit(repo, comment, verbose=verbose) == 0:
-            sys.stdout.write('## Success\n')
-            return 0
-        sys.stdout.write('## Failed.\n')
-        return -1
+        if argv[3] == 'all':
+            rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
+        else:
+            rtcs = [admin.rgc.get_rtc_from_package(package, argv[3], verbose=verbose)]
+        #rtc_names = [argv[3]]
+        return_value_map = {}
+        failed_flag = False
+        for rtc in rtcs:
+            #rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+            sys.stdout.write('# Committing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+            comment = argv[4]
+            if admin.repository.commit(repo, comment, verbose=verbose) == 0:
+                sys.stdout.write('## Success\n')
+                return_value_map[rtc.rtcprofile.basicInfo.name] = True
+            else:
+                sys.stdout.write('## Failed.\n')
+                return_value_map[rtc.rtcprofile.basicInfo.name] = False
+                failed_flag = True
+
+        if verbose:
+            for key, value in return_value_map.items():
+                sys.stdout.write('# RTC (' + key + ') Commit : ' + ' '*(25-len(key)) + ('Success' if value else 'Failed') + '\n')
+        if failed_flag: return -1
+        return 0
         
     @manifest
     def push(self, args):
-        """ Push Repository to server
+        """ Push Repository to server (default origin, master)
         $ mgr.py repository push [RTC_NAME]"""
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
@@ -123,16 +138,29 @@ class Plugin(PluginFunction):
         verbose = True
         package = admin.package.get_package_from_path(os.getcwd())
         wasanbon.arg_check(argv, 4)
-        rtc_name = argv[3]
-        rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
-        sys.stdout.write('# Pushing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
-        repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-        if admin.repository.push(repo, verbose=verbose) == 0:
-            sys.stdout.write('## Success\n')
-            return 0
+        if argv[3] == 'all':
+            rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
+        else:
+            rtcs = [admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)]
 
-        sys.stdout.write('## Failed\n')
-        return -1
+        failed_flag = False
+        return_value_map = {}
+        for rtc in rtcs:
+            #rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+            sys.stdout.write('# Pushing RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+            if admin.repository.push(repo, verbose=verbose) == 0:
+                sys.stdout.write('## Success\n')
+                return_value_map[rtc.rtcprofile.basicInfo.name] = True
+            else:
+                sys.stdout.write('## Failed\n')
+                return_value_map[rtc.rtcprofile.basicInfo.name] = False
+                failed_flag = False
+        if verbose:
+            for key, value in return_value_map.items():
+                sys.stdout.write('# RTC (' + key + ') Push : ' + ' '*(25-len(key)) + ('Success' if value else 'Failed') + '\n')
+        if failed_flag: return -1
+        return 0
 
 
     @manifest
@@ -163,6 +191,7 @@ class Plugin(PluginFunction):
                 failed_flag = True
 
         return failed_flag
+
     @manifest
     def sync(self, args):
         """ Synchronize rtc/repository.yaml file and each rtc repository version hash. """
