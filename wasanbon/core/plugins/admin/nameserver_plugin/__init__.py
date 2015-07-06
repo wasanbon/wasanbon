@@ -137,6 +137,7 @@ class Plugin(PluginFunction):
 
 
     def terminate(self, ns, verbose=False, path=None):
+        if verbose: sys.stdout.write('# Terminating Nameservice in %s\n' % ns.address)
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return -1
         curdir = os.getcwd()
         if path != None: os.chdir(path)
@@ -145,7 +146,9 @@ class Plugin(PluginFunction):
             return -2
 
         pids = self.get_running_nss_from_pidfile(path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
+        if verbose: sys.stdout.write("# Running NameServer's PID == %s\n" % pids)
         import psutil
+
         for pid in pids:
             for proc in psutil.process_iter():
                 if proc.pid == pid:
@@ -190,7 +193,7 @@ class Plugin(PluginFunction):
         verbose = options.verbose_flag # This is default option
         directory = options.directory
         ns = NameServer('localhost:2809', pidFilePath=directory)
-        if self.terminate(ns) == 0:
+        if self.terminate(ns, verbose=verbose) == 0:
             sys.stdout.write('Success\n')
             return 0
         else:
@@ -211,8 +214,11 @@ class Plugin(PluginFunction):
     def check_global_running(self):
         import psutil
         for process in psutil.process_iter():
-            if process.name().find('omniNames') >= 0:
-                return True
+            try:
+                if process.name().find('omniNames') >= 0:
+                    return True
+            except psutil.AccessDenied, e:
+                continue
         return False
 
     @manifest
@@ -309,8 +315,11 @@ class Plugin(PluginFunction):
             time.sleep(0.5);
             process_pid = process.pid
             for p in psutil.process_iter():
-                if p.name() == 'omniNames':
-                    process_pid = p.pid
+                try:
+                    if p.name().find('omniNames') >= 0:
+                        process_pid = p.pid
+                except psutil.AccessDenied, e:
+                    continue
             if verbose:
                 sys.stdout.write('## Creating PID file (%s)\n' % process_pid)
                 sys.stdout.write('### Filename :%s\n' % os.path.join(os.getcwd(), pidFilePath, 'nameserver_' + str(process_pid)))
