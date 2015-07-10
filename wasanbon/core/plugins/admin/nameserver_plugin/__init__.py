@@ -187,6 +187,8 @@ class Plugin(PluginFunction):
     def stop(self, argv):
         """ Stop NamingService
         """
+        self.parser.add_option('-p', '--port', help='Set TCP Port number for server', 
+                               type='int', default=2809, dest='port')
         self.parser.add_option('-d', '--directory', help='Directory for log and pid file', 
                                type='string', default=os.path.join(wasanbon.home_path, 'pid'), dest='directory')
         options, argv = self.parse_args(argv[:])
