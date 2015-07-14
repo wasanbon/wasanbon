@@ -95,11 +95,20 @@ class Plugin(PluginFunction):
 
     def clone_rtc(self, rtc_repo, verbose=False):
         import wasanbon
-        admin.git.git_command(['clone', rtc_repo.url, rtc_repo.name], verbose=verbose)
+        process_ = admin.git.git_command(['clone', rtc_repo.url, rtc_repo.name], verbose=verbose)
+        if process_.returncode != 0:
+            if verbose: sys.stdout.write('### Cloning RTC (%s) failed.\n' % rtc_repo.name)
+            return -1
         curdir = os.getcwd()
         os.chdir(os.path.join(curdir, rtc_repo.name))
-        admin.git.git_command(['submodule', 'init'], verbose=verbose)
-        admin.git.git_command(['submodule', 'update'], verbose=verbose)
+        process_ = admin.git.git_command(['submodule', 'init'], verbose=verbose)
+        if process_.returncode != 0:
+            if verbose: sys.stdout.write('### Init Submodule RTC (%s) failed.\n' % rtc_repo.name)
+            return -2
+        process_ = admin.git.git_command(['submodule', 'update'], verbose=verbose)
+        if process_.returncode != 0:
+            if verbose: sys.stdout.write('### Update Submodule RTC (%s) failed.\n' % rtc_repo.name)
+            return -3
         os.chdir(curdir)
         return 0
 

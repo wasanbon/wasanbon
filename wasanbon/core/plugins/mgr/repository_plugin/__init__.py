@@ -44,16 +44,24 @@ class Plugin(PluginFunction):
 
         curdir = os.getcwd()
         os.chdir(pack.get_rtcpath())
+        failed_flag = False
         match = False
         for rtc_name in argv[3:]:
             for repo in repos:
                 if repo.name == argv[3]:
                     sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
-                    admin.repository.clone_rtc(repo, verbose=verbose)
+                    ret = admin.repository.clone_rtc(repo, verbose=verbose)
+                    if ret < 0:
+                        sys.stdout.write('## Failed. Return Code = %s\n' % ret)
+                        failed_flag = True
+                    else:
+                        sys.stdout.write('## Success.\n')
                     match = True
         os.chdir(curdir)
         if not match: raise wasanbon.RepositoryNotFoundException()
         
+        if failed_flag:
+            return -1
         return 0
 
 
