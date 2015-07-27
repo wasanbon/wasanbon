@@ -303,10 +303,14 @@ class Plugin(PluginFunction):
         path_filename = os.path.join(wasanbon.home_path, 'path.yaml')
         dir = yaml.load(open(path_filename, 'r'))
         hints = yaml.load(open(os.path.join(self.setting_path, 'hints.yaml'), 'r'))
+            
+
 
         path_dict = {}
         for key, value in dir.items():
-            new_path = setup.search_command(key, value, hints[key], verbose=verbose)
+            hints_org = hints[key]
+            hints_ = [h.replace('$HOME', wasanbon.get_home_path()) for h in hints_org]
+            new_path = setup.search_command(key, value, hints_, verbose=verbose)
             path_dict[key] = new_path
 
         yaml.dump(path_dict, open(path_filename, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)

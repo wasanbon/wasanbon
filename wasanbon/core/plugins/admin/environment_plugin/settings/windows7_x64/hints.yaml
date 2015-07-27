@@ -23,7 +23,7 @@ msbuild :
   - "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe"
 #  - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe"
 emacs : 
-  - "$HOME\\rtm\\emacs-23.4\\bin\\emacs.exe"
+  - "$HOME\\.wasanbon\\emacs\\emacs-23.4\\bin\\emacs.exe"
 hg :
   - "C:\\Program Files\\Mercurial\\hg.exe"
   - "C:\\Program Files\\TortoiseHg\\hg.exe"

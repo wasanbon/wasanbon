@@ -137,7 +137,7 @@ setup(
         'psutil',
         'requests',
         'requests_oauthlib',
-        'bitbucket-api',
+        # 'bitbucket-api',
         'freetype-py',
         'lxml',
         'jinja2',
