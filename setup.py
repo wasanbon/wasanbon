@@ -59,7 +59,7 @@ for dirpath, dirnames, filenames in os.walk(wasanbon_dir):
     if '__init__.py' in filenames:
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+        data_files.append((dirpath.replace('\\', '/'), [os.path.join(dirpath, f).replace('\\', '/') for f in filenames]))
 
 # Small hack for working with bdist_wininst.
 # See http://mail.python.org/pipermail/distutils-sig/2004-August/004134.html
@@ -74,12 +74,13 @@ def _get_version():
         if line.startswith('_version'):
             tokens = [t.strip() for t in line.split(" ")]
             if tokens[1] == '=':
-                return tokens[2]
+                return tokens[2][1:-1]
     sys.stdout.write('Invalid File wasanbon/__init__.py\n')
     raise Exception('Invalid File wasanbon/__init__.py\n')
 version = _get_version()
 name = "wasanbon"
 short_description = '`wasanbon` is a framework for Robotic Software Development with Robotic Technology Middleware (RT-middleware).'
+
 long_description = """\
 `wasanbon` is a framework for Robotic Software Developers with Robotic Technology Middleware (RT-middleware).
 
