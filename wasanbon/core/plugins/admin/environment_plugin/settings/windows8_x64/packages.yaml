@@ -1,5 +1,6 @@
 eclipse: 'http://openrtm.org/pub/openrtp/packages/1.1.0.rc4v20130216/eclipse421-openrtp110rc4v20130216-win32.zip'
-cmake : 'http://www.cmake.org/files/v2.8/cmake-2.8.10.2-win32-x86.exe'
+#cmake : 'http://www.cmake.org/files/v2.8/cmake-2.8.10.2-win32-x86.exe'
+cmake : 'http://www.cmake.org/files/v3.3/cmake-3.3.0-win32-x86.exe'
 git : 'https://msysgit.googlecode.com/files/Git-1.8.1.2-preview20130201.exe'
 doxygen : 'http://sugarsweetrobotics.com/pub/Win32/doxygen/doxygen-1.8.3.1-setup.exe'
 java : 'http://www.sugarsweetrobotics.com/pub/Win32/jdk/jdk-7u21-windows-i586.exe'
