@@ -147,7 +147,10 @@ class Plugin(PluginFunction):
         if not os.path.isdir(setting_path):
             raise wasanbon.UnsupportedPlatformException()
         return setting_path
-    
+
+    def getIDE(self):
+        return wasanbon.IDE
+
     @property
     def path(self):
         path_filename = os.path.join(wasanbon.home_path, 'path.yaml')
