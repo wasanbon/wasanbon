@@ -38,6 +38,9 @@ class Plugin(PluginFunction):
         os.chdir(curdir)
         return retval
 
+def getIDE():
+    return admin.environment.getIDE()
+
 
 def build_rtc_cpp(rtcp, verbose=False):
     if verbose: sys.stdout.write('## Building C++ RT-component source\n')
@@ -58,7 +61,7 @@ def build_rtc_cpp(rtcp, verbose=False):
             print ' - Detected Darwin. modifying PKG_CONFIG_PATH environ.'
         os.environ['PKG_CONFIG_PATH'] = '/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/'
     elif sys.platform == 'win32':
-        arg = ['-G', wasanbon.IDE]
+        arg = ['-G', getIDE()]
 
     current_dir = os.getcwd()
     os.chdir(rtc_dir)

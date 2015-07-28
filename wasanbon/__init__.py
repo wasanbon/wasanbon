@@ -174,6 +174,7 @@ def get_wasanbon_home():
 home_path = get_wasanbon_home()
 temp_path = os.path.join(home_path, 'temp')
 plugins_path = os.path.join(home_path, 'plugins')
+register_file = os.path.join(home_path, 'register.yaml')
 
 username = None
 if sys.platform == 'darwin' or sys.platform == 'linux2':

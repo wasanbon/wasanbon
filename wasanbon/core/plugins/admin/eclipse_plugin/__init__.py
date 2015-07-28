@@ -68,7 +68,7 @@ class Plugin(PluginFunction):
         self.parser.add_option('-d', '--directory', help='Workspace Directory (default=select when launched)', default=".", action='store', dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
-        directory = option.directory
+        directory = options.directory
         if len(argv) > 3:
             args = argv[2:]
         else:

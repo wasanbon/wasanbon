@@ -1,6 +1,10 @@
 cmake :
   - "C:\\Program Files (x86)\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files (x86)\\CMake 3.2\\bin\\cmake.exe"
+  - "C:\\Program Files (x86)\\CMake\\bin\\cmake.exe"
   - "C:\\Program Files\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake 3.2\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake\\bin\\cmake.exe"
 doxygen :
   - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
 git : 

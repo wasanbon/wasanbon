@@ -19,9 +19,7 @@ class Plugin(PluginFunction):
     @manifest
     def init(self, args):
         """ This command must be called first.
-        Install Pip, PyYAML, PyGithub, psutil, and python-bitbucket module if not installed.
-        Initialize $HOME/.wasanbon directory
-        Search commands used in wasanbon
+        Install Pip, PyYAML, PyGithub, psutil, python-bitbucket, and several modules if not installed. After that, Initialize $HOME/.wasanbon directory, and search commands used in wasanbon. If some command-line tools are not installed, this will tries to install them.
         """
 
         sys.stdout.write('# Starting wasanbon environment initialization...\n')
@@ -31,7 +29,6 @@ class Plugin(PluginFunction):
         verbose = True #options.verbose_flag
         if options.quiet_flag: verbose = False
         force = options.force_flag
-
 
         sys.stdout.write('# Checking Installationg and Repair Environment.....\n')
 
@@ -82,11 +79,10 @@ class Plugin(PluginFunction):
 
     @manifest
     def install(self, args):
-        """ Install Command """
+        """ Install Command. This command allows users to install comand-line tool manually. """
         self.parser.add_option('-f', '--force', help='Force option (default=Flase)', default=False, action='store_true', dest='force_flag')
         self.parser.add_option('-q', '--quiet', help='Verbosity option (default=Flase)', default=False, action='store_true', dest='quiet_flag')
         options, argv = self.parse_args(args[:], self._print_install_opts)
-
         verbose = True #options.verbose_flag
         if options.quiet_flag: verbose = False
         force = options.force_flag
@@ -101,6 +97,49 @@ class Plugin(PluginFunction):
             self._install_command(cmd, verbose=verbose, force=force)
         else:
             self._install_package(cmd, verbose=verbose, force=force)
+            
+        return 0
+
+    @manifest
+    def register(self, args):
+        """ Register some specific information of users. 1. account of github.com, 2. version of Visual Studio (in windows) """
+        self.parser.add_option('-u', '--username', help='Username of github.com', default=None, dest='username', action='store', type='string')
+        self.parser.add_option('-p', '--password', help='Password of github.com', default=None, dest='password', action='store', type='string')
+        if sys.platform == 'win32':
+            self.parser.add_option('-c', '--compiler', help='Compiler of Win32 system', default='', dest='compiler', action='store', type='string')
+        options, argv = self.parse_args(args[:], self._print_install_opts)
+
+        verbose = True #options.verbose_flag
+        
+        if os.path.isfile(wasanbon.register_file):
+            try:
+                open(wasanbon.register_file, 'w').close()
+            except:
+                sys.stdout.write(
+                    """# Creating Register file failed.\n This may be caused by incorrectly initialized the path of $HOME/.wasanbon.\n Use wasanbon-admin.py environment init command.\n""")
+                return -1
+
+        sys.stdout.write('# Input Username and Password of github.com\n')
+        user, passwd = wasanbon.user_pass(options.username, options.password)
+
+        # Try to register 
+        reg_dict = {'github.com': 
+                    {'username' : user,
+                     'password' : passwd},
+                    }
+        
+        if sys.platform == 'win32':
+            if len(options.compiler ) == 0:
+                sys.stdout.write('# Input compiler of current system [default=Visual Studio 12]')
+                comp = raw_input()
+                options.compiler = comp
+            reg_dict['compiler'] = options.compiler
+        
+        sys.stdout.write('# Saving registration data...\n')
+        import yaml
+        open(wasanbon.register_file, 'w').write(yaml.dump(reg_dict))
+        sys.stdout.write('## Success\n')
+        return 0
 
     @property
     def setting_path(self):
@@ -108,7 +147,10 @@ class Plugin(PluginFunction):
         if not os.path.isdir(setting_path):
             raise wasanbon.UnsupportedPlatformException()
         return setting_path
-    
+
+    def getIDE(self):
+        return wasanbon.IDE
+
     @property
     def path(self):
         path_filename = os.path.join(wasanbon.home_path, 'path.yaml')
@@ -385,12 +427,16 @@ class Plugin(PluginFunction):
             return self._find_file(paths, 'version.txt')
 
         elif sys.platform == 'win32':
-            file = 'version.txt'
+            files = ['version.txt',
+                     'version.h']
             paths = ['C:\\Program Files (x86)\\OpenRTM-aist\\1.1\\rtm',
                      'C:\\Program Files\\OpenRTM-aist\\1.1\\rtm']
             if ('RTM_ROOT' in os.environ.keys()):
                 paths.append(os.path.join(os.environ['RTM_ROOT'], 'rtm'))
-            return self._find_file(paths, 'version.txt')
+            for f in files:
+                if self._find_file(paths, f):
+                    return True
+            return False
 
         raise wasanbon.UnsupportedPlatformError()
         
