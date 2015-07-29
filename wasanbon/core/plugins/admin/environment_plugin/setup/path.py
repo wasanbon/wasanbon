@@ -1,6 +1,10 @@
 import os, sys
 
 def search_command(cmd, path, hints, verbose=False):
+    if verbose:
+        sys.stdout.write('## Searching Command (%s)\n' % cmd)
+        for h in hints:
+            sys.stdout.write('### Hint: %s\n' % h)
     if cmd.startswith('python_'):
         module_name = cmd[7:]
         try:
@@ -11,7 +15,8 @@ def search_command(cmd, path, hints, verbose=False):
 
     if sys.platform == 'win32':
         path_splitter = ';'
-        cmd = cmd + '.exe'
+        if not cmd.endswith(cmd):
+            cmd = cmd + '.exe'
     elif sys.platform == 'darwin':
         path_splitter = ':'        
     elif sys.platform == 'linux2':

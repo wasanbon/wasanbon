@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+_version = '1.0.0b9'
 
 import sys, os, locale, getpass, time #, yaml
 import platform as plt
@@ -10,7 +11,7 @@ import datetime
 def get_version():
     """Get wasanbon version.
     """
-    return "1.0.0"
+    return _version
 
 
 IDE = 'Visual Studio 12' if sys.platform == 'win32' else 'Makefile'
@@ -173,6 +174,7 @@ def get_wasanbon_home():
 home_path = get_wasanbon_home()
 temp_path = os.path.join(home_path, 'temp')
 plugins_path = os.path.join(home_path, 'plugins')
+register_file = os.path.join(home_path, 'register.yaml')
 
 username = None
 if sys.platform == 'darwin' or sys.platform == 'linux2':

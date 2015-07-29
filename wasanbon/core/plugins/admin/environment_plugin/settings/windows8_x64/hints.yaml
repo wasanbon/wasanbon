@@ -1,6 +1,10 @@
 cmake :
   - "C:\\Program Files (x86)\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files (x86)\\CMake 3.2\\bin\\cmake.exe"
+  - "C:\\Program Files (x86)\\CMake\\bin\\cmake.exe"
   - "C:\\Program Files\\CMake 2.8\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake 3.2\\bin\\cmake.exe"
+  - "C:\\Program Files\\CMake\\bin\\cmake.exe"
 doxygen :
   - "C:\\Program Files\\doxygen\\bin\\doxygen.exe"
 git : 
@@ -20,9 +24,10 @@ svn :
   - "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
   - "C:\\Program Files\\SlikSvn\\bin\\svn.exe"
 msbuild :
+  - "C:\\Program Files (x86)\\MSBuild\\12.0\\Bin\\MSBuild.exe"
   - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\msbuild.exe"
 emacs : 
-  - "$HOME\\rtm\\emacs-23.4\\bin\\emacs.exe"
+  - "$HOME\\.wasanbon\\emacs\\emacs-23.4\\bin\\emacs.exe"
 hg :
   - "C:\\Program Files\\Mercurial\\hg.exe"
   - "C:\\Program Files\\TortoiseHg\\hg.exe"

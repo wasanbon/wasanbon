@@ -1,4 +1,5 @@
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 import os
@@ -58,7 +59,7 @@ for dirpath, dirnames, filenames in os.walk(wasanbon_dir):
     if '__init__.py' in filenames:
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+        data_files.append((dirpath.replace('\\', '/'), [os.path.join(dirpath, f).replace('\\', '/') for f in filenames]))
 
 # Small hack for working with bdist_wininst.
 # See http://mail.python.org/pipermail/distutils-sig/2004-August/004134.html
@@ -67,40 +68,99 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
         file_info[0] = '\\PURELIB\\%s' % file_info[0]
 
 # Dynamically calculate the version based on django.VERSION.
-version = __import__('wasanbon').get_version()
+def _get_version():
+    f = open('wasanbon/__init__.py', 'r')
+    for line in f:
+        if line.startswith('_version'):
+            tokens = [t.strip() for t in line.split(" ")]
+            if tokens[1] == '=':
+                return tokens[2][1:-1]
+    sys.stdout.write('Invalid File wasanbon/__init__.py\n')
+    raise Exception('Invalid File wasanbon/__init__.py\n')
+version = _get_version()
+name = "wasanbon"
+short_description = '`wasanbon` is a framework for Robotic Software Development with Robotic Technology Middleware (RT-middleware).'
+
+long_description = """\
+`wasanbon` is a framework for Robotic Software Developers with Robotic Technology Middleware (RT-middleware).
+
+Robotic Technology Middleware is a standard for Robotic Softwares. In RTM, each software element (like actuator, sensor, algorithm, and so on) is regarded as Robotic Technology Component (RTC). Using RTM, developers can create their robot software with constructing of those software components. 
+
+Each RTC has ports as data-trasnporting endpoints, and a statemachine. To construct RT-system, connection between ports, and state activation is indispensable. To launch multiple RTCs also disturbs developers. `wasanbon` automates multiple RTC development in some aspects. 
+
+
+Requirements
+------------
+* Python 2.7
+
+Features
+--------
+* Repository and Package Management
+* Semi-automated Build in Command Line
+* Automatical Launch Configuration
+* Automatic Launch, Configuration, Connection, and Activation of the RT-System
+
+
+Setup
+-----
+::
+
+   $ easy_install wasanbon
+
+History
+-------
+1.0.0b (2015-7-30)
+~~~~~~~~~~~~~~~~~~
+* first release
+
+"""
 
 scripts = ['wasanbon/bin/wasanbon-admin.py']
 if sys.platform == 'win32':
     scripts.append('wasanbon/bin/wasanbon-cd.bat')
 
 setup(
-    name = "wasanbon",
+    name = name,
     version = version,
     url = 'http://www.sugarsweetrobotics.com/',
-    author = 'Sugar Sweet Robotics',
-    author_email = 'ysuga@sugarsweetrobotics.com',
-    description = '',
-    download_url = '',
+    author = 'ysuga',
+    author_email = 'ysuga@ysuga.net',
+    description = 'Development Framework for Robotics Technology Middleware (RTM)',
+    download_url = 'https://github.com/sugarsweetrobotics/wasanbon.git',
     packages = packages,
     cmdclass = cmdclasses,
     data_files = data_files,
     scripts = scripts,
+    license = 'GPLv3',
+    install_requires = [
+        'pyyaml',
+        'pygithub',
+        'psutil',
+        'requests',
+        'requests_oauthlib',
+        # 'bitbucket-api',
+        'freetype-py',
+        'lxml',
+        'jinja2',
+        'pillow',
+        'nevow',
+        'twisted',
+        'python-wordpress-xmlrpc',
+        ],
     classifiers = [
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Framework :: wasanbon',
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        #'Framework :: wasanbon',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.5',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Internet :: WWW/HTTP :: WSGI',
+        'Topic :: Desktop Environment',
+        'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development',
    ],
 )
 
