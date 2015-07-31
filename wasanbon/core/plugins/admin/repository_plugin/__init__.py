@@ -182,6 +182,15 @@ class Plugin(PluginFunction):
             return hash.strip()
         return None
 
+    def init_git_repository_to_path(self, path, verbose=False):
+        if verbose: sys.stdout.write('# Initializing git repository to %s\n' % path)
+        p =admin.git.git_command(['init'], path=path, verbose=verbose)
+        p.wait()
+        if p.returncode != 0:
+            if verbose: sys.stdout.write('## Error git command returns non zero value (%s)\n' % p.returncode)
+            return None
+        return self.get_git_repository_from_path(path, verbose=verbose)
+    
     def is_updated(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("modified") > 0) or (output.find("Untracked") > 0)
@@ -233,3 +242,15 @@ class Plugin(PluginFunction):
             output = p.stdout.read()
             if verbose: sys.stdout.write(output)
             return p.returncode
+
+    def add(self, repo, filelist, verbose=False):
+        if repo.type == 'git':
+            if verbose: sys.stdout.write('## Adding File to GIT type repository (%s)\n' % repo.name)
+            for f in filelist:
+                p = admin.git.git_command(['add', f], path=repo.path)
+                p.wait()
+                if verbose: sys.stdout.write(p.stdout.read())
+            return p.returncode
+
+        return -1
+

@@ -80,7 +80,66 @@ class Plugin(PluginFunction):
         os.rename(file, file+wasanbon.timestampstr())
         yaml.dump(repo_dict, open(file, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)
         return 0
-            
+
+    @manifest
+    def git_init(self, args):
+        """ Create local repository
+        """
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        p = admin.package.get_package_from_path(os.getcwd())        
+        sys.stdout.write('# Initializing git repository of package %s\n' % p.name)
+        try:
+            repo = admin.repository.get_repository_from_path(os.getcwd(), verbose=verbose)
+            if not repo is None:
+                sys.stdout.write('# Repository exists already.\n')
+                return -1
+        except wasanbon.RepositoryNotFoundException, e:
+            pass
+        sys.stdout.write('## OK. No repository found.\n')
+        
+        repo = admin.repository.init_git_repository_to_path(os.getcwd(), verbose=verbose)
+
+        def list_filepath_not_under_git(directory, output, verbose=False):
+            import re
+            if re.compile('^\.|.*\.pyc$|.*~$|.*\.log$').match(os.path.basename(directory)):
+                pass
+            elif directory.startswith( p.get_binpath().replace('/', '\\') ):
+                pass
+            elif os.path.isdir(directory):
+                dirs = os.listdir(directory)
+                if not '.git' in dirs:
+                    for d in dirs:
+                        fullpath = os.path.join(directory, d)
+                        list_filepath_not_under_git(fullpath, output, verbose=verbose)
+            elif os.path.isfile(directory):
+                output.append(directory)
+                
+        filelist = []
+        for directory in os.listdir(p.path):
+            fullpath = os.path.join(p.path, directory)
+            if not fullpath is p.get_binpath():
+                list_filepath_not_under_git(fullpath, filelist, verbose=True)
+
+        if admin.repository.add(repo, filelist, verbose=verbose) != 0:
+            sys.stdout.write('## Add File failed.\n')
+            return -1
+        comment = 'First Commit'
+        if admin.repository.commit(repo, comment, verbose=verbose) != 0:
+            sys.stdout.write('## First Commit failed.\n')
+            return -1
+        sys.stdout.write('## Success\n')
+        return 0
+        
+
+        if repo is None:
+            sys.stdout.write('# Error. Failed to create git repository to %s\n' % os.getcwd())
+            return -2
+
+        
+        
+        return 0
+
     @manifest
     def commit(self, args):
         """ Commit changes to local Package repository
