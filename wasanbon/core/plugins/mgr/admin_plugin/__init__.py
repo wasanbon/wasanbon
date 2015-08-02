@@ -13,7 +13,9 @@ class Plugin(PluginFunction):
         return ['admin.environment', 
                 'admin.repository',
                 'admin.rtc',
-                'admin.package']
+                'admin.package',
+                'admin.github',
+                'admin.git']
 
     def __call__(self, argv):
         print ' # this is plain function'
@@ -55,6 +57,42 @@ class Plugin(PluginFunction):
 
         return 0
 
+    @manifest
+    def remote_create(self, args):
+        """ Create local repository
+        """
+        self.parser.add_option('-u', '--username', help='Username of github', default=None, dest='username', action='store', type='string')
+        self.parser.add_option('-p', '--password', help='Password of github', default=None, dest='password', action='store', type='string')
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        p = admin.package.get_package_from_path(os.getcwd())        
+
+        try:
+            repo = admin.repository.get_repository_from_path(os.getcwd(), verbose=verbose)
+            if repo is None:
+                sys.stdout.write('# Repository is not found.\n')
+                return -1
+        except wasanbon.RepositoryNotFoundException, e:
+            sys.stdout.write('# Repository is not found.\n')
+            return -1
+
+        username, password = wasanbon.user_pass(options.username, passwd=options.password)
+
+        github = admin.github.Github(user=username, passwd=password)
+        sys.stdout.write('# Creating Remote repository named %s\n' % p.name)
+        if github.exists_repo(p.name):
+            sys.stdout.write('## Error. Repository %s already exists.\n' % p.name)
+            return -1
+
+        github_repo = github.create_repo(p.name)
+        _url = 'https://github.com/' + username + '/' + p.name + '.git'
+        admin.git.git_command(['remote', 'add', 'origin', _url], verbose=verbose)
+
+        if admin.repository.push(repo, verbose=verbose) != 0:
+            sys.stdout.write('## Failed.\n')
+            return -1
+        sys.stdout.write('## Success.\n')
+        return 0
 
     @manifest
     def sync(self, args):
@@ -164,6 +202,9 @@ class Plugin(PluginFunction):
     def push(self, args):
         """ Commit changes to local Package repository
         """
+        self.parser.add_option('-u', '--username', help='Username of github', default=None, dest='username', action='store', type='string')
+        self.parser.add_option('-p', '--password', help='Password of github', default=None, dest='password', action='store', type='string')
+
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         

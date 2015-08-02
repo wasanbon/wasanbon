@@ -225,10 +225,10 @@ class Plugin(PluginFunction):
             if verbose: sys.stdout.write(output)
             return 0
             
-    def push(self, repo, verbose=False, remote='origin'):
+    def push(self, repo, verbose=False, remote='origin', branch='master'):
         if repo.type == 'git':
             if verbose: sys.stdout.write('## Pushing GIT type repository (%s)\n' % repo.name)
-            p = admin.git.git_command(['push', 'origin', 'master'], path=repo.path)
+            p = admin.git.git_command(['push', remote, branch], path=repo.path)
             p.wait()
             output = p.stdout.read()
             if verbose: sys.stdout.write(output)
