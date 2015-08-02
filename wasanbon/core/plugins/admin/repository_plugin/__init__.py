@@ -158,9 +158,9 @@ class Plugin(PluginFunction):
         typ = 'git'
         p = admin.git.git_command(['config', '--get', 'remote.origin.url'], path=path)
         p.wait()
-        url = p.stdout.read()
+        url = p.stdout.read().strip()
         name = os.path.basename(url).strip()
-        desc = description
+        desc = description.strip()
         if name.endswith('.git'): name = name[:-4]
         repo = admin.binder.Repository(name=name, type=typ, url=url, description=desc, platform=wasanbon.platform(), path=path)
         return repo
