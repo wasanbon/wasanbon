@@ -27,8 +27,17 @@ class Plugin(PluginFunction):
         pass
 
     def _print_alternative_rtcs(self, args=None):
-        for r in admin.binder.get_rtc_repos():
-            print r.name
+        rtc_command = ['git_init', 'pull', 'push']
+        
+        if args[2] in rtc_command:
+            pack = admin.package.get_package_from_path(os.getcwd())
+            rtcs = admin.rtc.get_rtcs_from_package(pack)
+            for r in rtcs:
+                print r.rtcprofile.basicInfo.name
+            return
+        else:
+            for r in admin.binder.get_rtc_repos():
+                print r.name
 
     @manifest
     def clone(self, args):
@@ -258,6 +267,49 @@ class Plugin(PluginFunction):
             return -1
         print repo.name
         return 0
+
+    @manifest
+    def git_init(self, args):
+        """ Initialize git repository in RTC directory.
+        $ mgr.py repository git_init [RTC_NAME] """
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+
+        verbose = True
+        package = admin.package.get_package_from_path(os.getcwd())
+        wasanbon.arg_check(argv, 4)
+        if argv[3] == 'all':
+            rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
+        else:
+            names = argv[3:]
+            rtcs = [admin.rtc.get_rtc_from_package(package, name, verbose=verbose) for name in names]
+
+        failed_flag = False
+        for rtc in rtcs:
+            # rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
+            sys.stdout.write('# Initializing git local repository on RTC (%s) \n' %  rtc.rtcprofile.basicInfo.name)
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+            if not repo is None:
+                failed_flag = True
+                sys.stdout.write('## RTC already has local repository.\n')
+                continue
+            
+            sys.stdout.write('## Creating git repository in %s\n' % rtc.path)
+            repo = admin.repository.init_git_repository_to_path(rtc.path, verbose=verbose)
+            sys.stdout.write('## Adding Files to repository\n') 
+            admin.repository.add_files(repo, verbose=verbose, exclude_pattern='^\.|.*\.pyc$|.*~$|.*\.log$|build-.*')
+            comment = 'First comment.'
+            sys.stdout.write('## Commiting ...\n')
+            if admin.repository.commit(repo, comment, verbose=verbose) != 0:
+                sys.stdout.write('## First Commit failed.')
+            sys.stdout.write('## Success\n')
+
+        if failed_flag:
+            sys.stdout.write('## Failed.\n')
+            return -1
+        sys.stdout.write('### Success.\n')
+        return 0
+
 
     def get_registered_repository_from_rtc(self, rtc, verbose=False):
         """ Search Repository Object from RTC Information """

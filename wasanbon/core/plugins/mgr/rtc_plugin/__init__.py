@@ -34,6 +34,7 @@ class Plugin(PluginFunction):
         rtcs = admin.rtc.get_rtcs_from_package(pack)
         for r in rtcs:
             print r.rtcprofile.basicInfo.name
+
     @manifest
     def list(self, args):
         """ List RTC in current Package """

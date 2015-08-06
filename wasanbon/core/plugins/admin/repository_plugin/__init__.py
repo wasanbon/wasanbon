@@ -1,4 +1,4 @@
-import os, sys, traceback
+import os, sys, traceback, types
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
@@ -244,6 +244,8 @@ class Plugin(PluginFunction):
             return p.returncode
 
     def add(self, repo, filelist, verbose=False):
+        if  not type(filelist) is types.ListType:
+            filelist = [filelist]
         if repo.type == 'git':
             if verbose: sys.stdout.write('## Adding File to GIT type repository (%s)\n' % repo.name)
             for f in filelist:
@@ -254,3 +256,35 @@ class Plugin(PluginFunction):
 
         return -1
 
+
+    def add_files(self, repo, verbose=False, exclude_if_git_repo=True, exclude_path=[], exclude_pattern='^\.|.*\.pyc$|.*~$|.*\.log$'):
+        directory = repo.path
+    
+        def list_filepath_not_under_git(directory, output, verbose=False):
+            import re
+            if re.compile(exclude_pattern).match(os.path.basename(directory)):
+                return
+
+            for p in exclude_path:
+                if directory.startswith( p.replace('/', '\\') ):
+                    return
+            if os.path.isdir(directory):
+                dirs = os.listdir(directory)
+                if '.git' in dirs and ecluse_if_git_repo:
+                    return # Do nothing
+                for d in dirs:
+                    fullpath = os.path.join(directory, d)
+                    list_filepath_not_under_git(fullpath, output, verbose=verbose)
+            elif os.path.isfile(directory):
+                output.append(directory)
+                
+        filelist = []
+        for d in os.listdir(directory):
+            fullpath = os.path.join(directory, d)
+            if not fullpath in exclude_path:
+                list_filepath_not_under_git(fullpath, filelist, verbose=True)
+        
+
+        if self.add(repo, filelist, verbose=verbose) != 0:
+            sys.stdout.write('## Add File failed.\n')
+            return -1

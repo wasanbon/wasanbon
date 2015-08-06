@@ -135,33 +135,12 @@ class Plugin(PluginFunction):
         except wasanbon.RepositoryNotFoundException, e:
             pass
         sys.stdout.write('## OK. No repository found.\n')
-        
+
+        sys.stdout.write('## Creating git repository in %s\n' % os.getcwd())
         repo = admin.repository.init_git_repository_to_path(os.getcwd(), verbose=verbose)
+        sys.stdout.write('## Adding Files to repository\n') 
+        admin.repository.add_files(repo, verbose=verbose, exclude_path=[p.get_binpath()])
 
-        def list_filepath_not_under_git(directory, output, verbose=False):
-            import re
-            if re.compile('^\.|.*\.pyc$|.*~$|.*\.log$').match(os.path.basename(directory)):
-                pass
-            elif directory.startswith( p.get_binpath().replace('/', '\\') ):
-                pass
-            elif os.path.isdir(directory):
-                dirs = os.listdir(directory)
-                if not '.git' in dirs:
-                    for d in dirs:
-                        fullpath = os.path.join(directory, d)
-                        list_filepath_not_under_git(fullpath, output, verbose=verbose)
-            elif os.path.isfile(directory):
-                output.append(directory)
-                
-        filelist = []
-        for directory in os.listdir(p.path):
-            fullpath = os.path.join(p.path, directory)
-            if not fullpath is p.get_binpath():
-                list_filepath_not_under_git(fullpath, filelist, verbose=True)
-
-        if admin.repository.add(repo, filelist, verbose=verbose) != 0:
-            sys.stdout.write('## Add File failed.\n')
-            return -1
         comment = 'First Commit'
         if admin.repository.commit(repo, comment, verbose=verbose) != 0:
             sys.stdout.write('## First Commit failed.\n')
