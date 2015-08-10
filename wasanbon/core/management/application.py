@@ -111,8 +111,8 @@ def show_plugin_help(package, subcommand):
 
 def print_long_help(command, package):
     print 'Usage : '
-    print '  ', command, ' [subcommand] (for help, use -h option with subcommand.)'
-    print 'Subcommands :'
+    print '  ', command, ' [command] (for help, use -h option with subcommand.)'
+    print 'Commands :'
     subcommands = get_subcommand_list(package) 
     for subcommand in subcommands:
         if is_plugin_command(package, subcommand):
@@ -195,7 +195,9 @@ def execute(argv=None):
         return 0
 
     except wasanbon.InvalidUsageException, ex:
-        show_help_description(package, subcommand, args=args)
+        #show_help_description(package, subcommand, args=args)
+        #print_long_help_sub(command, subcommand, package)
+        run_command(package, subcommand, ['-h'])
         return -1
     except wasanbon.RTCNotFoundException, ex:
         sys.stdout.write('# RTC Not Found.\n')
