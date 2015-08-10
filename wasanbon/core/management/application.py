@@ -27,6 +27,8 @@ def get_subcommand_list(package):
                     ret.append(n)
     return ret
 
+
+"""
 def generate_plugin_help(function):
     unit_indent = "  "
     output = ""
@@ -60,6 +62,9 @@ def show_help_description(package, subcommand, long=False, args=None):
         return 0
     else:
         print help.get_help_text(package, subcommand, long)
+
+
+"""
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
@@ -204,10 +209,11 @@ def execute(argv=None):
     except wasanbon.WasanbonException, ex:
         #if options.verbose_flag:
         traceback.print_exc()
-        sys.stdout.write(' # Error. %s\n' % ex.msg())
+        sys.stdout.write('## WasanbonError. %s\n' % ex.msg())
         return -1
     except Exception, ex:
         traceback.print_exc()
+        sys.stdout.write('## UnknownError.\n')
         return -1
     return -2
 
