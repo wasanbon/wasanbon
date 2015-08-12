@@ -176,6 +176,7 @@ class Plugin(PluginFunction):
             if os.path.isdir(rtc.path):
                 sys.stdout.write('# Deleting RTC (%s)\n' % rtc.rtcprofile.basicInfo.name)
                 def remShut(*args):
+                    import stat
                     func, path, _ = args 
                     os.chmod(path, stat.S_IWRITE)
                     os.remove(path)
