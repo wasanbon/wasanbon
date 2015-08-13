@@ -43,29 +43,50 @@ class Plugin(PluginFunction):
     def clone(self, args):
         """ Clone RTC.
         $ mgr.py repository clone [repo_name] """
-
+        self.parser.add_option('-u', '--url', help='Directory point the url of repository  (default="None")', default="None", type="string", dest="url")
+        self.parser.add_option('-t', '--type', help='Set the type of repository  (default="git")', default="git", type="string", dest="type")
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
-
-        wasanbon.arg_check(argv, 4)
+        url = options.url
+        typ = options.type
+        
+        if url is "None":
+            wasanbon.arg_check(argv, 4)
         pack = admin.package.get_package_from_path(os.getcwd())        
         repos = admin.binder.get_rtc_repos()
-
         curdir = os.getcwd()
         os.chdir(pack.get_rtcpath())
-        failed_flag = False
         match = False
-        for rtc_name in argv[3:]:
-            for repo in repos:
-                if repo.name == argv[3]:
-                    sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
-                    ret = admin.repository.clone_rtc(repo, verbose=verbose)
-                    if ret < 0:
-                        sys.stdout.write('## Failed. Return Code = %s\n' % ret)
-                        failed_flag = True
-                    else:
-                        sys.stdout.write('## Success.\n')
-                    match = True
+        if url is "None":
+            failed_flag = False
+
+            for rtc_name in argv[3:]:
+                for repo in repos:
+                    if repo.name == argv[3]:
+                        sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
+                        ret = admin.repository.clone_rtc(repo, verbose=verbose)
+                        if ret < 0:
+                            sys.stdout.write('## Failed. Return Code = %s\n' % ret)
+                            failed_flag = True
+                        else:
+                            sys.stdout.write('## Success.\n')
+                            pass
+                        match = True
+        else:
+            match = True
+            rtc_name = os.path.basename(url)
+            repo = admin.binder.Repository(os.path.basename(url), type=typ, platform=wasanbon.platform, url=url, description="")
+
+            sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
+            ret = admin.repository.clone_rtc(repo, verbose=verbose)
+            if ret < 0:
+                sys.stdout.write('## Failed. Return Code = %s\n' % ret)
+                failed_flag = True
+            else:
+                sys.stdout.write('## Success.\n')
+                pass
+            match = True
+
         os.chdir(curdir)
         if not match: raise wasanbon.RepositoryNotFoundException()
         

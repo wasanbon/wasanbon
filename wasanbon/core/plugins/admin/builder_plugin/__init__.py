@@ -199,27 +199,33 @@ def build_rtc_java(rtcp, verbose=False):
 
     need_idlcompile = False
     arg = None
+    args = []
     build_script = os.path.join(rtc_dir, 'build_' + rtc_name + ".xml")
     if os.path.isfile(build_script):
         for target in et.parse(build_script).findall('target'):
             if target.attrib['name'] == 'idlcompile':
                 need_idlcompile = True
                 #arg = et.parse(build_script).findall('arg')
-                arg = target.getiterator('arg')[0].attrib['line'].split()[-1][1:-1]
+                for a in target.getiterator('arg'):
+                    arg = a.attrib['line'].split()[-1][1:-1]
+                    args.append(arg)
     if need_idlcompile:
         idlc = os.path.join(os.path.split(javac_path)[0], 'idlj')
         if 'RTM_ROOT' in os.environ.keys():
             rtm_idl_dir = os.path.join(os.environ['RTM_ROOT'], 'rtm', 'idl')
         else:
             rtm_idl_dir = '.'
-        cmd = [idlc, '-td', src_dir, '-I', rtm_idl_dir, '-fall', arg]
 
-        if verbose:
-            sys.stdout.write(' -- compiling idl with command(%s)\n' % cmd)
+        for arg in args:
+            cmd = [idlc, '-td', src_dir, '-I', rtm_idl_dir, '-I', 'idl', '-fall', arg]
 
-        myenv = os.environ
-        myenv['LANG'] = 'C'
-        subprocess.call(cmd, env=myenv)
+            if verbose: sys.stdout.write(' -- compiling idl with command(%s)\n' % cmd)
+
+            myenv = os.environ
+            myenv['LANG'] = 'C'
+            subprocess.call(cmd, env=myenv)
+            pass
+        pass
             
 
     java_env = os.environ.copy()
@@ -272,7 +278,7 @@ def build_rtc_java(rtcp, verbose=False):
     ret = p.wait()
 
     if ret != 0:
-        return (False,  p.stderr.read())
+        return (False,  p.stdout.read())
 
     clsfiles = []
     for root, dirs, files in os.walk(cls_dir):
