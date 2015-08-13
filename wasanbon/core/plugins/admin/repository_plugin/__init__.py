@@ -38,24 +38,41 @@ class Plugin(PluginFunction):
         """ Cloning Package from repository. 
         $ wasanbon-admin.py repository clone [PACKAGE_REPOSITORY_NAME] """
         #self.parser.add_option('-r', '--remove', help='Remove All Files (default=False)', default=False, action='store_true', dest='remove_flag')
+        self.parser.add_option('-u', '--url', help='Directory point the url of repository  (default="None")', default="None", type="string", dest="url")
+        self.parser.add_option('-t', '--type', help='Set the type of repository  (default="git")', default="git", type="string", dest="type")
         options, argv = self.parse_args(args[:], self._list_package_repos)
         verbose = options.verbose_flag
-        #remove = options.remove_flag
+        url = options.url
+        typ = options.type
 
-        wasanbon.arg_check(argv, 4)
-        repo_name = argv[3]
-        package_repo = admin.binder.get_package_repo(repo_name)
-        sys.stdout.write('# Cloning Package %s\n' % package_repo.name)
+        if url is "None":
+            wasanbon.arg_check(argv, 4)
+            repo_name = argv[3]
+            package_repo = admin.binder.get_package_repo(repo_name)
+            sys.stdout.write('# Cloning Package %s\n' % package_repo.name)
         #import repository
-        try:
-            if self.clone_package(package_repo, path=package_repo.basename, verbose=verbose) == 0:
-                sys.stdout.write('## Success.\n')
-                return 0
-        except:
-            return -1
+            try:
+                if self.clone_package(package_repo, path=package_repo.basename, verbose=verbose) == 0:
+                    sys.stdout.write('## Success.\n')
+                    return 0
+                else:
+                    sys.stdout.write('## Failed.\n')
+                    return -1
+            except:
+                return -1
         else:
-            sys.stdout.write('## Failed.\n')
-            return -1
+            package_repo = admin.binder.Repository(os.path.basename(url), type=typ, platform=wasanbon.platform, url=url, description="")
+            sys.stdout.write('# Cloning Package %s\n' % package_repo.name)
+            try:
+                if self.clone_package(package_repo, path=package_repo.basename, verbose=verbose) == 0:
+                    sys.stdout.write('## Success.\n')
+                    return 0
+                else:
+                    sys.stdout.write('## Failed.\n')
+                    return -1
+            except:
+                return -1
+            
         
     def clone_package(self, package_repo, path=None, verbose=False):
         if verbose: sys.stdout.write('# Cloning package %s\n' % package_repo)

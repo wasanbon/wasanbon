@@ -289,7 +289,7 @@ class Binder(object):
 
 def get_package_repos(verbose=False):
     binders = get_binders(verbose=verbose)
-    package_repos = []
+    pacnkage_repos = []
     for binder in binders:
         package_repos = package_repos + binder.packages
         
