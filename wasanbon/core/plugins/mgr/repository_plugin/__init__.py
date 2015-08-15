@@ -104,7 +104,7 @@ class Plugin(PluginFunction):
         verbose = options.verbose_flag
         long = options.long_flag
 
-        if len(argv) == 2: argv = argv + ['all']
+        if len(argv) == 3: argv = argv + ['all']
         
         package = admin.package.get_package_from_path(os.getcwd())
         rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
@@ -143,7 +143,7 @@ class Plugin(PluginFunction):
         if argv[3] == 'all':
             rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
         else:
-            rtcs = [admin.rgc.get_rtc_from_package(package, argv[3], verbose=verbose)]
+            rtcs = [admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)]
         #rtc_names = [argv[3]]
         return_value_map = {}
         failed_flag = False
