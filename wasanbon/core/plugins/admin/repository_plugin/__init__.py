@@ -287,7 +287,7 @@ class Plugin(PluginFunction):
                     return
             if os.path.isdir(directory):
                 dirs = os.listdir(directory)
-                if '.git' in dirs and ecluse_if_git_repo:
+                if '.git' in dirs and exclude_if_git_repo:
                     return # Do nothing
                 for d in dirs:
                     fullpath = os.path.join(directory, d)
