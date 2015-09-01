@@ -120,6 +120,8 @@ class Plugin(PluginFunction):
                 sys.stdout.write(output)
             else:
                 sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
+                
+                admin.repository.check_dot_gitignore(repo, verbose=False)
 
                 if admin.repository.is_modified(repo, verbose=verbose):
                     sys.stdout.write('  Modified\n' )
