@@ -121,11 +121,14 @@ class Plugin(PluginFunction):
             else:
                 sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
                 
-                admin.repository.check_dot_gitignore(repo, verbose=False)
+                if not admin.repository.check_dot_gitignore(repo, verbose=False):
+                    admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
 
                 if admin.repository.is_modified(repo, verbose=verbose):
                     sys.stdout.write('  Modified\n' )
-                elif admin.repository.is_added(repo, verbose=verbose):
+                elif admin.repository.is_untracked(repo, verbose=False):
+                    sys.stdout.write('  Untracked\n' )
+                elif admin.repository.is_added(repo, verbose=False):
                     sys.stdout.write('  Added\n' )
                 else:
                     sys.stdout.write('  Up-to-date\n')
