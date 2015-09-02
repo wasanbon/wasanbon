@@ -94,6 +94,38 @@ class Plugin(PluginFunction):
             return -1
         return 0
 
+    @manifest
+    def fix_gitignore(self, args):
+        """ Fix .gitignore files in RTC directories. """
+        self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False,
+                               action='store_true', dest='long_flag')
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+        long = options.long_flag
+
+        if len(argv) == 3: argv = argv + ['all']
+        
+        package = admin.package.get_package_from_path(os.getcwd())
+        rtcs = admin.rtc.get_rtcs_from_package(package, verbose=verbose)
+        
+        for rtc in rtcs:
+            if argv[3] != 'all' and argv[3] != rtc.rtcprofile.basicInfo.name:
+                continue
+
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+
+            if long:
+                output = admin.repository.get_status(repo)
+                sys.stdout.write(output)
+            else:
+                sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
+                
+                if not admin.repository.check_dot_gitignore(repo, verbose=False):
+                    admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
+
+        return 0
+
+
 
     @manifest
     def status(self, args):
@@ -122,7 +154,7 @@ class Plugin(PluginFunction):
                 sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
                 
                 if not admin.repository.check_dot_gitignore(repo, verbose=False):
-                    admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
+                    sys.stdout.write('## Warning! .gitignore seems to have some problems.\n')
 
                 if admin.repository.is_modified(repo, verbose=verbose):
                     sys.stdout.write('  Modified\n' )
