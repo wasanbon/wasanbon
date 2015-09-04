@@ -342,3 +342,77 @@ class Plugin(PluginFunction):
                 return repo
 
         return None
+
+    @manifest 
+    def get_rtcprofile(self, args):
+        """ Get RTCProfile from Repository
+        $ mgr.py repository get_rtcprofile [RTC_NAME] """
+        #self.parser.add_option('-p', '--pathuri', help='Directory point the url of repository  (default="None")', default="None", type="string", dest="url")
+        self.parser.add_option('-t', '--type', help='Set the type of repository  (default="git")', default="git", type="string", dest="type")
+        self.parser.add_option('-u', '--username', help='Username of github', default=None, dest='username', action='store', type='string')
+        self.parser.add_option('-p', '--password', help='Password of github', default=None, dest='password', action='store', type='string')
+        options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
+        verbose = options.verbose_flag
+        url = options.url
+        typ = options.type
+        
+        username, password = wasanbon.user_pass(options.username, passwd=options.password)
+        github = admin.github.Github(user=username, passwd=password)
+
+        if url is "None":
+            wasanbon.arg_check(argv, 4)
+        pack = admin.package.get_package_from_path(os.getcwd())        
+        repos = admin.binder.get_rtc_repos()
+        curdir = os.getcwd()
+        os.chdir(pack.get_rtcpath())
+        match = False
+        if url is "None":
+            failed_flag = False
+
+            for rtc_name in argv[3:]:
+                for repo in repos:
+                    if repo.name == argv[3]:
+                        sys.stdout.write('# Accessing Remote repository named %s\n' % repo.name)
+                        if verbose:
+                            sys.stdout.write('## Repository Service is %s\n' % repo.service)
+
+                        if repo.service != 'github':
+                            sys.stdout.write('## Error Service (%s) is not available\n' % repo.service)
+                            continue
+                        
+                        github = admin.github.Github(user=username, passwd=password)
+                        github.get_file_contents(repo.owner, repo.repo_name, 'RTC.xml', verbose=verbose)
+                        
+                        """
+                        sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
+                        ret = admin.repository.clone_rtc(repo, verbose=verbose)
+                        if ret < 0:
+                            sys.stdout.write('## Failed. Return Code = %s\n' % ret)
+                            failed_flag = True
+                        else:
+                            sys.stdout.write('## Success.\n')
+                            pass
+                        """
+                        match = True
+        else:
+            match = True
+            rtc_name = os.path.basename(url)
+            repo = admin.binder.Repository(os.path.basename(url), type=typ, platform=wasanbon.platform, url=url, description="")
+
+            sys.stdout.write('# Cloning RTC (%s)\n' % rtc_name)
+            ret = admin.repository.clone_rtc(repo, verbose=verbose)
+            if ret < 0:
+                sys.stdout.write('## Failed. Return Code = %s\n' % ret)
+                failed_flag = True
+            else:
+                sys.stdout.write('## Success.\n')
+                pass
+            match = True
+
+        os.chdir(curdir)
+        if not match: raise wasanbon.RepositoryNotFoundException()
+        
+        if failed_flag:
+            return -1
+        return 0
+

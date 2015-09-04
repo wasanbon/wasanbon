@@ -226,6 +226,15 @@ class Repository(object):
     @property
     def description(self):
         return self._description
+
+    @property
+    def service(self):
+        service = self._url.split('/')[3].split('.')[0]
+        if service.find('@') >= 0:
+            return service.split('@')[1]
+        return service
+
+    
     
 
 class Binder(object):
