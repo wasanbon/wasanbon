@@ -5,11 +5,16 @@ from wasanbon.core.plugins import PluginFunction, manifest
 class Plugin(PluginFunction):
     """ Repository management plugin (mainly for package repository) """
 
+
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         #import repository
         #repository.plugin_obj = self
+
+        self.default_dot_gitignore_rtc = "*.pyc *~ *.bak *.BAK build-* *.log *.lock"
+        self.default_dot_gitignore_package = "*.pyc *~ *.bak *.BAK *.log *.lock"
+
         pass
 
     def depends(self):
@@ -208,6 +213,69 @@ class Plugin(PluginFunction):
             return None
         return self.get_git_repository_from_path(path, verbose=verbose)
     
+    def is_rtc_repo(self, repo, verbose=False):
+        filepath = os.path.join(repo.path, 'RTC.xml')
+        return os.path.isfile(filepath)
+
+
+    def add_default_dot_gitignore(self, repo, verbose=False):
+        if self.is_rtc_repo(repo, verbose):
+            default_dot_gitignore = self.default_dot_gitignore_rtc
+        else:
+            default_dot_gitignore = self.default_dot_gitignore_package
+
+        lines = [t.strip() for t in default_dot_gitignore.split(' ')]
+        filepath = os.path.join(repo.path, '.gitignore')
+
+        f = open(filepath, 'w')
+        for line in lines:
+            f.write(line + '\n')
+        f.close()
+        return False
+
+    def check_dot_gitignore(self, repo, verbose=False):
+        if self.is_rtc_repo(repo, verbose):
+            default_dot_gitignore = self.default_dot_gitignore_rtc
+        else:
+            default_dot_gitignore = self.default_dot_gitignore_package
+
+        tokens = [t.strip() for t in default_dot_gitignore.split(' ')]
+
+        filepath = os.path.join(repo.path, '.gitignore')
+        if not os.path.isfile(filepath):
+            if verbose: sys.stdout.write('## No gitignore file in %s\n'% repo.name)
+            return self.add_default_dot_gitignore(repo, verbose)
+
+        if verbose: sys.stdout.write('## .gitignore found.\n')
+        f = open(filepath, 'r')
+        foundCount = 0
+        lines = []
+        for line in f:
+            lines.append(line)
+            if line.strip() in tokens:
+                foundCount = foundCount + 1
+                tokens.remove(line.strip())
+        f.close()
+        if len(tokens) == 0:
+            if verbose: sys.stdout.write('### .gitignore covers default options.\n')
+            return True
+        if verbose:
+            sys.stdout.write('### WARNING! .gitignore does not cover default options.\n')
+            for token in tokens:
+                sys.stdout.write(' - %s\n' % token)
+                
+            sys.stdout.write('### Fixing automatically.\n')
+            pass
+        
+        os.rename(filepath, filepath + wasanbon.timestampstr())
+        f = open(filepath, 'w')
+        lines = lines + tokens
+        for line in lines:
+            f.write(line + '\n')
+
+        f.close()
+        return False
+        
     def is_updated(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("modified") > 0) or (output.find("Untracked") > 0)
@@ -216,9 +284,13 @@ class Plugin(PluginFunction):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("modified") > 0)
 
-    def is_added(self, repo, verbose=False):
+    def is_untracked(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("Untracked") > 0)
+
+    def is_added(self, repo, verbose=False):
+        output = self.get_status(repo, verbose=verbose)
+        return (output.find("new file:") > 0)
             
     def get_status(self, repo, verbose=False):
         if not repo.is_local():
@@ -287,7 +359,7 @@ class Plugin(PluginFunction):
                     return
             if os.path.isdir(directory):
                 dirs = os.listdir(directory)
-                if '.git' in dirs and ecluse_if_git_repo:
+                if '.git' in dirs and exclude_if_git_repo:
                     return # Do nothing
                 for d in dirs:
                     fullpath = os.path.join(directory, d)

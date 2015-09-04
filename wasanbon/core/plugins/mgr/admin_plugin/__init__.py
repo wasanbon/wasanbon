@@ -140,7 +140,8 @@ class Plugin(PluginFunction):
         repo = admin.repository.init_git_repository_to_path(os.getcwd(), verbose=verbose)
         sys.stdout.write('## Adding Files to repository\n') 
         admin.repository.add_files(repo, verbose=verbose, exclude_path=[p.get_binpath()])
-
+        if not admin.repository.check_dot_gitignore(repo, verbose=verbose):
+            admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
         comment = 'First Commit'
         if admin.repository.commit(repo, comment, verbose=verbose) != 0:
             sys.stdout.write('## First Commit failed.\n')

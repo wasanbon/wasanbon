@@ -120,10 +120,15 @@ class Plugin(PluginFunction):
                 sys.stdout.write(output)
             else:
                 sys.stdout.write('%s : \n' %  rtc.rtcprofile.basicInfo.name)
+                
+                if not admin.repository.check_dot_gitignore(repo, verbose=False):
+                    admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
 
                 if admin.repository.is_modified(repo, verbose=verbose):
                     sys.stdout.write('  Modified\n' )
-                elif admin.repository.is_added(repo, verbose=verbose):
+                elif admin.repository.is_untracked(repo, verbose=False):
+                    sys.stdout.write('  Untracked\n' )
+                elif admin.repository.is_added(repo, verbose=False):
                     sys.stdout.write('  Added\n' )
                 else:
                     sys.stdout.write('  Up-to-date\n')
@@ -235,10 +240,16 @@ class Plugin(PluginFunction):
         """ Synchronize rtc/repository.yaml file and each rtc repository version hash. """
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
+        sys.stdout.write('# Writing repository.yaml for package distribution\n')
 
+        sys.stdout.write('## Parsing RTC directory\n')
         package = admin.package.get_package_from_path(os.getcwd())
+        repos = []
         for rtc in admin.rtc.get_rtcs_from_package(package, verbose=verbose):
+            sys.stdout.write('### RTC %s\n' % rtc.rtcprofile.basicInfo.name)
             repo = admin.repository.get_repository_from_path(rtc.path, description=rtc.rtcprofile.basicInfo.description)
+
+            repos.append(repo)
 
         repo_file = os.path.join(package.get_rtcpath(), 'repository.yaml')
 
@@ -250,8 +261,10 @@ class Plugin(PluginFunction):
         dic = yaml.load(open(bak_file, 'r'))
         if not dic:
             dic = {}
-        dic[repo.name] = {'repo_name' : repo.name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
-        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True)
+        for repo in repos:
+            dic[repo.name] = {'repo_name' : repo.name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+
+        yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)
         pass
 
     @manifest

@@ -187,12 +187,15 @@ class Plugin(PluginFunction):
     def stop(self, argv):
         """ Stop NamingService
         """
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', 
+                               default=False, action='store_true', dest='force_flag')
         self.parser.add_option('-p', '--port', help='Set TCP Port number for server', 
                                type='int', default=2809, dest='port')
         self.parser.add_option('-d', '--directory', help='Directory for log and pid file', 
                                type='string', default=os.path.join(wasanbon.home_path, 'pid'), dest='directory')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
+        force   = options.force_flag
         directory = options.directory
         ns = NameServer('localhost:2809', pidFilePath=directory)
         if self.terminate(ns, verbose=verbose) == 0:
@@ -201,6 +204,13 @@ class Plugin(PluginFunction):
         else:
             sys.stdout.write('Failed\n')
             return -1
+
+    @manifest 
+    def restart(self, argv):
+        """ Stop and Start NameServer """
+        if self.stop(argv) == 0:
+            return self.start(argv)
+        return -1
 
     @manifest
     def check_running(self, argv):
