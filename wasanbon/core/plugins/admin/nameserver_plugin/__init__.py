@@ -523,16 +523,16 @@ class NameServer(object):
             if node.is_nameserver:
                 sys.stdout.write(tab * tablevel + '/"' + node.full_path[1] + '":' + '\n')
             elif node.is_manager:
-                sys.stdout.write(tab * tablevel + ' - ' + node.name + '\n')                
+                sys.stdout.write(tab * tablevel + '' + node.name + ': {}\n')                
             elif node.is_directory:
-                sys.stdout.write(tab * tablevel + ' - ' + node.name + ':\n')
+                sys.stdout.write(tab * tablevel + '' + node.name + ':\n')
             elif node.is_zombie:
-                sys.stdout.write(tab * tablevel + ' - ' + node.name + '*\n')                
+                sys.stdout.write(tab * tablevel + '' + node.name + '* : {}\n')                
             elif node.is_component:
                 if not long and not detail:
-                    sys.stdout.write(tab * tablevel + ' - ' + node.name + '\n')
+                    sys.stdout.write(tab * tablevel + '' + node.name + '\n')
                 else:
-                    sys.stdout.write(tab * tablevel + node.name + ':\n')
+                    sys.stdout.write(tab * tablevel + '' + node.name + ':\n')
                     sys.stdout.write(tab * (tablevel + 1) + 'DataOutPorts:\n')
                     if len(node.outports) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
