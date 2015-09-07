@@ -68,15 +68,21 @@ def import_check(pack):
     except ImportError, ex:
         return False
 
-def extract_zip_and_install(filename, verbose=False, distpath='.'):
+def extract_zip_and_install(filename, verbose=False, distpath='.', force=False):
     if verbose: sys.stdout.write('# Extracting %s\n' % filename)
     dist_path = filename[:-4]
-    original_dist_path  = dist_path
-    i = 2
-    while os.path.isdir(dist_path):
-        dist_path = original_dist_path + str(i)
-        i = i + 1
-    unpack_zip(filename, dist_path, verbose=verbose)
+    
+    if os.path.isdir(dist_path):
+        if force:
+            original_dist_path  = dist_path
+            i = 2
+            while os.path.isdir(dist_path):
+                dist_path = original_dist_path + str(i)
+                i = i + 1
+            unpack_zip(filename, dist_path, verbose=verbose)
+    else:
+        unpack_zip(filename, dist_path, verbose=verbose)        
+
     for root, dirs, files in os.walk(dist_path):
         for dir in dirs:
             if dir.endswith('.mpkg'):
@@ -85,13 +91,14 @@ def extract_zip_and_install(filename, verbose=False, distpath='.'):
             if file == 'setup.py':
                 return install_setup_py(root, verbose=verbose)
             if file.endswith('.jar'):
-                src = os.path.join(root, file)
-                dst = os.path.join(distpath, 'jar')
-                dstfile = os.path.join(dst, os.path.basename(src))
-                if not os.path.isdir(dst):
-                    os.mkdir(dst)
-                if not os.path.isfile(dstfile):
-                    shutil.move(src, dst)
+                if distpath:
+                    src = os.path.join(root, file)
+                    dst = os.path.join(distpath, 'jar')
+                    dstfile = os.path.join(dst, os.path.basename(src))
+                    if not os.path.isdir(dst):
+                        os.mkdir(dst)
+                    if not os.path.isfile(dstfile):
+                        oshutil.move(src, dst)
                 
 
 def extract_tar_and_install(filename, verbose=False, distpath=None):

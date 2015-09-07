@@ -50,11 +50,28 @@ class Plugin(PluginFunction):
         repo = admin.repository.get_repository_from_path(os.getcwd(), verbose=verbose)
         if repo is None:
             raise wasanbon.RepositoryNotFoundException()
-        if admin.repository.is_updated(repo, verbose=verbose):
+        if admin.repository.is_modified(repo, verbose=verbose):
             sys.stdout.write('  Modified\n')
+        elif admin.repository.is_untracked(repo, verbose=verbose):
+            sys.stdout.write('  Untracked files found\n')
+        elif admin.repository.is_added(repo, verbose=False):
+            sys.stdout.write('  Added\n' )
+
         else:
             sys.stdout.write('  Up-to-date\n')
 
+        return 0
+
+    @manifest
+    def fix_gitignore(self, args):
+        """ Fix .gitignore file in Package directories. """
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        
+        package = admin.package.get_package_from_path(os.getcwd())
+        repo = admin.repository.get_repository_from_path(package.path, verbose=verbose)
+        if not admin.repository.check_dot_gitignore(repo, verbose=verbose):
+            admin.repository.add(repo, [os.path.join(repo.path, '.gitignore')], verbose=verbose)
         return 0
 
     @manifest

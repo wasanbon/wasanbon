@@ -307,16 +307,22 @@ class Plugin(PluginFunction):
                             os.path.join(wasanbon.home_path, 'emacs'))
 
                 return retval
-            if pack == 'eclipse':
+            elif pack == 'eclipse':
                 retval = setup.download_and_install(package_dict[pack],
                                                   verbose=verbose,
                                                   force=force, 
                                                   temppath=os.path.join(wasanbon.temp_path, pack),
-                                                  installpath=wasanbon.home_path)
+                                                  installpath=None)
+                extracted_eclipse_dir = os.path.join(wasanbon.temp_path, 'eclipse')
+                extracted_eclipse_dir_path= None
+                for root, dirs, files in os.walk(extracted_eclipse_dir):
+                    for f in files:
+                        if f == 'eclipse.exe':
+                            sys.stdout.write('## eclipse.exe found.\n')
+                            extracted_eclipse_dir_path = root
 
                 import shutil
-                shutil.move(os.path.join(wasanbon.temp_path, 'eclipse',
-                                             'eclipse421-openrtp110rc4v20130216-win32', 'eclipse'),
+                shutil.move(extracted_eclipse_dir_path, 
                             os.path.join(wasanbon.home_path, 'eclipse'))
 
                 return retval

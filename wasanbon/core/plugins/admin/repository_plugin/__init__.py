@@ -13,7 +13,7 @@ class Plugin(PluginFunction):
         #repository.plugin_obj = self
 
         self.default_dot_gitignore_rtc = "*.pyc *~ *.bak *.BAK build-* *.log *.lock"
-        self.default_dot_gitignore_package = "*.pyc *~ *.bak *.BAK *.log *.lock"
+        self.default_dot_gitignore_package = "*.pyc *~ bin/* *.bak *.BAK *.log *.lck rtc/*"
 
         pass
 
