@@ -46,14 +46,16 @@ class Plugin(PluginFunction):
         verbose = options.verbose_flag # This is default option
 
         wasanbon.arg_check(argv, 4)
+
+        rtc_name = argv[3]
+        pack = admin.package.get_package_from_path(os.getcwd())
+        rtc = admin.rtc.get_rtc_from_package(pack, rtc_name)
         
-        html = self.get_html(argv[3])
+        html = self.get_html(rtc)
         print html
         return 0
 
-    def get_html(self, rtc_name):
-        pack = admin.package.get_package_from_path(os.getcwd())
-        rtc = admin.rtc.get_rtc_from_package(pack, rtc_name)
+    def get_html(self, rtc):
         repo = mgr.repository.get_registered_repository_from_rtc(rtc)
         from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader('./', encoding='utf8'))

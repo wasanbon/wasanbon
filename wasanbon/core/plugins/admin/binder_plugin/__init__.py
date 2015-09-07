@@ -226,6 +226,15 @@ class Repository(object):
     @property
     def description(self):
         return self._description
+
+    @property
+    def service(self):
+        service = self._url.split('/')[3].split('.')[0]
+        if service.find('@') >= 0:
+            return service.split('@')[1]
+        return service
+
+    
     
 
 class Binder(object):
@@ -289,7 +298,7 @@ class Binder(object):
 
 def get_package_repos(verbose=False):
     binders = get_binders(verbose=verbose)
-    pacnkage_repos = []
+    package_repos = []
     for binder in binders:
         package_repos = package_repos + binder.packages
         

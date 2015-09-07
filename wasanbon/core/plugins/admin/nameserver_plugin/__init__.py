@@ -233,48 +233,50 @@ class Plugin(PluginFunction):
                 continue
         return False
 
+         
     @manifest
     def tree(self, argv):
         self.parser.add_option('-p', '--port', help='Set TCP Port number for web server', type='int', default=2809, dest='port')
         self.parser.add_option('-l', '--long', help='long format', default=False, action="store_true", dest='long_flag')
+        self.parser.add_option('-d', '--detail', help='detail format', default=False, action="store_true", dest='detail_flag')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
         long = options.long_flag
+        detail = options.detail_flag
         port = options.port
         ns = NameServer('localhost:%s' % port, pidFilePath='.')
         if not self.check_global_running():
+            sys.stdout.write('## Nameserver is not running.\n')
             sys.stdout.write('\n')
             return 0
 
+        ns.yaml_dump(long=long, detail=detail)
+        return 0
+
+    def ___hoge(self):
+        tab =  '  '
         ns.refresh()
         sys.stdout.write('/ :\n')
-        sys.stdout.write('  "%s" :\n' % ns.path)
+        sys.stdout.write(tab + '"%s" :\n' % ns.path)
+        if len(ns.components()) == 0:
+            sys.stdout.write(tab * 2 + '{}\n')
+            return 0
         for comp in ns.components(verbose=verbose):
-            sys.stdout.write('    %s :\n' % comp.name)
-            if long:
-                for p in comp.outports:
-                    sys.stdout.write('      - DataOutPorts:\n')
-                    sys.stdout.write('        name : %s\n' % p.name)
-                    for key in p.properties.keys():
-                        sys.stdout.write('        - Propertiews : %s\n' % p.name)
-                        sys.stdout.write('          name : %s\n' % key)
-                        sys.stdout.write('          value : %s\n' % p.properties[key])
-                    for con in p.connections:
-                        sys.stdout.write('        - Connections :\n')
-                        sys.stdout.write('          name : %s\n' % con.name)
-                        sys.stdout.write('          id   : %s\n' % con.id)
-                        sys.stdout.write('          ports :\n')
-                        for path, pp in con.ports:
-                            sys.stdout.write('          - DataPorts:\n')
-                            sys.stdout.write('            name : %s\n' % pp.name)
-
-                        for key in p.properties.keys():
-                            sys.stdout.write('          - Propertiews : %s\n' % p.name)
-                            sys.stdout.write('            name : %s\n' % key)
-                            sys.stdout.write('            value : %s\n' % p.properties[key])
-                        
-
-        
+            sys.stdout.write(tab * 2 + '%s :\n' % comp.name)
+            if long or detail:
+                sys.stdout.write(tab * 3 + 'DataInPorts:\n')
+                if len(comp.inports) == 0:
+                    sys.stdout.write(tab * 4 + '{}\n')
+                else:
+                    for p in comp.inports:
+                        self._print_port(p, long, detail, 4)
+                sys.stdout.write(tab * 3 + 'ServicePorts:\n')
+                if len(comp.svcports) == 0:
+                    sys.stdout.write(tab * 4 + '{}\n')
+                else:
+                    for p in comp.svcports:
+                        self._print_port(p, long, detail, 4)
+        return 0
             
 
     def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
@@ -289,6 +291,7 @@ class Plugin(PluginFunction):
                 os.mkdir(path)
             os.chdir(path)
 
+            
         if pidfile:
             if not os.path.isdir(pidFilePath):
                 os.mkdir(pidFilePath)
@@ -452,6 +455,7 @@ class NameServer(object):
                         ports.append(port)
                 #for port in [port for port in ports__ if port.properties['dataport.data_type'] == data_type]:
                 #    ports.append(port)
+
         def filter_func(node):
             if node.is_component and not node.parent.is_manager:
                 return True
@@ -479,6 +483,103 @@ class NameServer(object):
         return ports
         
 
+    def _print_port(self, port, long, detail, tablevel):
+        tab =  '  '
+        if not long and not detail:
+            sys.stdout.write(tab*tablevel + ' - %s\n' % port.name)
+        elif long and not detail:
+            sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
+            sys.stdout.write(tab*(tablevel+1) + 'type : %s\n' % port.properties['dataport.data_type'])
+            pass
+        elif detail:
+            sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
+            sys.stdout.write(tab*(tablevel+1) + 'properties : \n')
+            for key, value in port.properties.items():
+                sys.stdout.write(tab*(tablevel+2) + '%s : "%s"\n' % (key, value))
+            sys.stdout.write(tab*(tablevel+1) + 'connections :\n')
+            if len(port.connections) == 0:
+                sys.stdout.write(tab*(tablevel+2) + '{}\n')
+            else:
+                for con in port.connections:
+                    sys.stdout.write(tab*(tablevel+2) + 'name : %s\n' % con.name)
+                    sys.stdout.write(tab*(tablevel+2) + 'id   : %s\n' % con.id)
+                    sys.stdout.write(tab*(tablevel+2) + 'ports :\n')
+                    for path, pp in con.ports:
+                        sys.stdout.write(tab*(tablevel+3) + ' - %s\n' % path)
+                        pass
+                    sys.stdout.write(tab*(tablevel+2) + 'properties :\n')
+                    for key, value in con.properties.items():
+                        sys.stdout.write(tab*(tablevel+3) + '%s : "%s"\n' % (key, value))
+                        
+
+
+    def yaml_dump(self, long=False, detail=False, verbose=False):
+        from rtctree import tree as rtctree_tree
+        from rtctree import path as rtctree_path
+
+        ports = []
+        tab = '  '
+        def show_func(node, tablevel, long=False, detail=False):
+            if node.is_nameserver:
+                sys.stdout.write(tab * tablevel + '/"' + node.full_path[1] + '":' + '\n')
+            elif node.is_manager:
+                sys.stdout.write(tab * tablevel + '' + node.name + ': {}\n')                
+            elif node.is_directory:
+                sys.stdout.write(tab * tablevel + '' + node.name + ':\n')
+            elif node.is_zombie:
+                sys.stdout.write(tab * tablevel + '' + node.name + '* : {}\n')                
+            elif node.is_component:
+                if not long and not detail:
+                    sys.stdout.write(tab * tablevel + '' + node.name + '\n')
+                else:
+                    sys.stdout.write(tab * tablevel + '' + node.name + ':\n')
+                    sys.stdout.write(tab * (tablevel + 1) + 'DataOutPorts:\n')
+                    if len(node.outports) == 0:
+                        sys.stdout.write(tab * (tablevel + 2) + '{}\n')
+                    else:
+                        for p in node.outports:
+                            self._print_port(p, long, detail, 4)
+
+                    sys.stdout.write(tab * (tablevel + 1) + 'DataInPorts:\n')
+                    if len(node.inports) == 0:
+                        sys.stdout.write(tab * (tablevel + 2) + '{}\n')
+                    else:
+                        for p in node.inports:
+                            self._print_port(p, long, detail, 4)
+                    sys.stdout.write(tab * (tablevel + 1) + 'ServicePorts:\n')
+                    if len(node.svcports) == 0:
+                        sys.stdout.write(tab * (tablevel + 2) + '{}\n')
+                    else:
+                        for p in node.svcports:
+                            self._print_port(p, long, detail, 4)
+            if not node.is_manager:
+                for c in node.children:
+                    show_func(c, tablevel+1, long, detail)
+            
+        try_count = 5
+        for i in range(0, try_count):
+            try:
+                if not self.tree:
+                    if verbose: sys.stdout.write('## Refreshing Name Server Tree.\n')
+                    self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
+                    self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
+                    self.dir_node = self.tree.get_node(self.__path)
+                sys.stdout.write('"/' + self.path + '":\n')
+                for c in self.dir_node.children:
+                    show_func(c, 1, long, detail)
+                
+                break
+            except Exception, e:
+                sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                if verbose:
+                    traceback.print_exc()
+                pass
+            time.sleep(0.5)
+        if not self.tree:
+            return []
+
+
+        return ports
 
     def svcports(self, interface_type="any", try_count=5, polarity="any"):
         from rtctree import tree as rtctree_tree
@@ -506,6 +607,7 @@ class NameServer(object):
         for i in range(0, try_count):
             try:
                 if not self.tree:
+                    if verbose: sys.stdout.write('## Refreshing Name Server Tree.\n')
                     self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
                     self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
                     self.dir_node = self.tree.get_node(self.__path)
