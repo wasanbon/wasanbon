@@ -218,7 +218,7 @@ class Plugin(PluginFunction):
     def check_running(self, argv):
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
-        sys.stdout.write('# Checking Nameserver (%s)\n' % str(ns))
+        sys.stdout.write('# Checking Nameserver\n')
         if self.check_global_running():
             sys.stdout.write('Running\n')
             return 1
