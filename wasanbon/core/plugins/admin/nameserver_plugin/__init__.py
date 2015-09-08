@@ -176,6 +176,7 @@ class Plugin(PluginFunction):
         directory = options.directory
 
         ns = NameServer('localhost:%s' % port, pidFilePath=os.path.join(directory, 'pid'))
+        sys.stdout.write('# Starting Nameserver (%s)\n' % str(ns))
         if self.launch(ns, verbose=verbose, path=os.path.join(directory, 'log'), force=force, pidFilePath=os.path.join(directory, 'pid')) == 0:
             sys.stdout.write('Success\n')
             return 0
@@ -198,6 +199,7 @@ class Plugin(PluginFunction):
         force   = options.force_flag
         directory = options.directory
         ns = NameServer('localhost:2809', pidFilePath=directory)
+        sys.stdout.write('# Stopping Nameserver (%s)\n' % str(ns))
         if self.terminate(ns, verbose=verbose) == 0:
             sys.stdout.write('Success\n')
             return 0
@@ -216,6 +218,7 @@ class Plugin(PluginFunction):
     def check_running(self, argv):
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
+        sys.stdout.write('# Checking Nameserver (%s)\n' % str(ns))
         if self.check_global_running():
             sys.stdout.write('Running\n')
             return 1
