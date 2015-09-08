@@ -148,7 +148,7 @@ setup(
         'python-wordpress-xmlrpc',
         ],
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         #'Framework :: wasanbon',
         'Intended Audience :: Developers',
