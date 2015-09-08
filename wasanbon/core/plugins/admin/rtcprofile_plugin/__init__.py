@@ -155,16 +155,16 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                 match_flag = True
                 if verbose: sys.stdout.write(' - Match.\n')
 
-                for i in sp.serviceInterfaces:
+                for i_real in sp_real.serviceInterfaces:
                     i_match_flag = False
-                    if verbose: sys.stdout.write(' - Searching ServiceInterface %s :: %s (implemented in RTC)' % (i.name, i.type))
-                    for i_real in sp_real.serviceInterfaces:
+                    if verbose: sys.stdout.write(' - Searching ServiceInterface %s :: %s (implemented in RTC)' % (i_real.name, i_real.type))
+                    for i in sp.serviceInterfaces:
                         if i.equals(i_real):
                             i_match_flag = True
                             if verbose: sys.stdout.write(' - Match\n')
                     if not i_match_flag:
                         if verbose: sys.stdout.write(' - Not Found.\n')
-                        b.appendServiceInterfaceToServicePort(sp_real.name, "", "", i.type, i.direction, i.name)
+                        b.appendServiceInterfaceToServicePort(sp_real.name, "", "", i_real.type, i_real.direction, i_real.name)
                         modifiedFlag = True
                 break
         if not match_flag:
