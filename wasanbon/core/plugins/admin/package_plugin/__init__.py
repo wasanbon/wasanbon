@@ -65,7 +65,7 @@ class Plugin(PluginFunction):
                 print '  rtcs : '
                 for r in admin.rtc.get_rtcs_from_package(p):
                     print '   -  %s ' % r.rtcprofile.basicInfo.name
-                print '  nameservers : %s' % p.setting['nameservers']
+                print '  nameservers : %s' % p.setting.get('nameservers', '')
                 print '  conf:'
                 print '    C++    : %s' % os.path.basename(p.rtcconf['C++'])
                 print '    Python : %s' % os.path.basename(p.rtcconf['Python'])
@@ -321,7 +321,7 @@ class PackageObject(object):
         return self._setting['application']
 
     def get_binpath(self, fullpath=True):
-        dir = self.setting['BIN_DIR']
+        dir = self.setting.get('BIN_DIR', "bin")
         if fullpath:
             return os.path.join(self.path, dir)
         return dir

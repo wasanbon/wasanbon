@@ -98,10 +98,16 @@ class Plugin(PluginFunction):
     @manifest
     def cat(self, args):
         self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
+        self.parser.add_option('-i', '--inputfile', help='Input from RTCProfile filename (default=None)', default=None, dest='inputfile', action='store', type='string')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         filename = options.filename
-        wasanbon.arg_check(argv, 5)
+        inputfile = options.inputfile
+        if inputfile:
+            sys.stdout.write('## Input File is %s\n' % inputfile)
+            wasanbon.arg_check(argv, 4)
+        else:
+            wasanbon.arg_check(argv, 5)
         rtc_name = argv[3]
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
         rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
@@ -111,8 +117,12 @@ class Plugin(PluginFunction):
             file = filepath + wasanbon.timestampstr()
             os.rename(filepath, file)
 
+        if inputfile:
+            inputData = open(inputfile, 'r').read()
+        else:
+            inputData = argv[4]
         fout = open(filepath, 'w')
-        fout.write(argv[4])
+        fout.write(inputData)
         fout.close()
 
         sys.stdout.write('Success\n')

@@ -219,6 +219,7 @@ class ServiceInterface(Node):
             self.doc = Doc(docs[0])
         else:
             self.doc = Doc()
+        self.children.append(self.doc)
             
     def equals(self, si):
         return self.name == si.name and self.type == si.type and self.direction == si.direction
