@@ -361,6 +361,9 @@ default_or_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 </rtc:Or>
 """
 
+default_action_doc_profile = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <rtcDoc:Doc xmlns:rtcExt="http://www.openrtp.org/namespaces/rtc_ext" xmlns:rtcDoc="http://www.openrtp.org/namespaces/rtc_doc" xmlns:rtc="http://www.openrtp.org/namespaces/rtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" rtcDoc:preCondition="" rtcDoc:postCondition="" rtcDoc:description="" />"""
+
 class Or(Node):
     def __init__(self, node=None):
         Node.__init__(self, node if node is not None else xml.etree.ElementTree.fromstring(default_or_profile))
@@ -378,6 +381,13 @@ class Or(Node):
 class Action(Node):
     def __init__(self, node):
         Node.__init__(self, node)
+        docs = self.node.findall('{%s}Doc' % get_long_ns('rtcDoc'))
+        if len(docs) != 0:
+            self.doc = Doc(docs[0])
+        else:
+            self.doc = Doc(default_action_doc_profile)
+        self.children.append(self.doc)
+
     def setImplemented(self, flag):
         self['rtc:implemented'] = 'true' if flag else 'false'
         

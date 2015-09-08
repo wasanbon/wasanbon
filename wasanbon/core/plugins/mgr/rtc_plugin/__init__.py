@@ -305,9 +305,11 @@ class Plugin(PluginFunction):
     def update_profile(self, args):
         """ Run just one RTC """
         self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
+        self.parser.add_option('-d', '--dryrun', help='Just output on console', default=False, dest='dry_flag', action='store_true')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
+        dry = options.dry_flag
         filename = options.filename
         wakeuptimeout = options.wakeuptimeout
 
@@ -328,14 +330,17 @@ class Plugin(PluginFunction):
         if retval:
             filepath = os.path.join(rtc.path, filename)
 
-            if os.path.isfile(filepath):
-                file = filepath + wasanbon.timestampstr()
-                os.rename(filepath, file)
-                pass
+            if not dry:
+                if os.path.isfile(filepath):
+                    file = filepath + wasanbon.timestampstr()
+                    os.rename(filepath, file)
+                    pass
 
-            fout = open(filepath, 'w')
-            fout.write(admin.rtcprofile.tostring(rtcp, pretty_print=True))
-            fout.close()
+                fout = open(filepath, 'w')
+                fout.write(admin.rtcprofile.tostring(retval, pretty_print=True))
+                fout.close()
+            else:
+                sys.stdout.write(admin.rtcprofile.tostring(retval, pretty_print=True))
 
             sys.stdout.write('Succeed.\n')
             

@@ -12,7 +12,7 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package', 'admin.rtc', 'mgr.repository']
+        return ['admin.environment', 'admin.package', 'admin.rtc', 'mgr.repository', 'admin.rtcprofile']
 
     def _print_rtcs(self, args):
         pack = admin.package.get_package_from_path(os.getcwd())
@@ -32,9 +32,11 @@ class Plugin(PluginFunction):
         pack = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(pack, argv[3])
 
-        path = rtc.get_rtc_profile_path()
-        with open(path, 'r') as f:
-            sys.stdout.write(f.read())
+        
+        #path = rtc.get_rtc_profile_path()
+        #with open(path, 'r') as f:
+        #    sys.stdout.write(f.read())
+        sys.stdout.write(admin.rtcprofile.tostring(rtc.rtcprofile, pretty_print=True))        
 
         return 0
 
