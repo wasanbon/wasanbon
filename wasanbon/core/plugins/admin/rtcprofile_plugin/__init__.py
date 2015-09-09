@@ -88,6 +88,18 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     modifiedFlag = False
     # compare dataports
     if verbose: sys.stdout.write('# Comparing RTC.xml with Running RTC(%s)\n' % (rtcp.name))
+    
+    basicInfo_diff = False
+    if rtcp_real.basicInfo.name != rtcp.basicInfo.name or \
+       rtcp_real.basicInfo.category != rtcp.basicInfo.category or \
+       rtcp_real.basicInfo.version != rtcp.basicInfo.version or \
+       rtcp_real.basicInfo.description != rtcp.basicInfo.description:
+        from wasanbon import util
+        if util.yes_no('# Basic Info is different. Update?:') == 'yes':
+            b.setBasicInfo(rtcp_real.basicInfo.name, rtcp_real.basicInfo.category,
+                           rtcp_real.basicInfo.version, rtcp_real.basicInfo.description)
+            modifiedFlag = True
+    
     for dp in rtcp.dataports:
         match_flag = False
         if verbose:
