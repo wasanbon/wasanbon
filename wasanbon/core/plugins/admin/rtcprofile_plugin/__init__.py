@@ -47,7 +47,7 @@ class Plugin(PluginFunction):
 
                 break
             except:
-                traceback.print_exc()
+                if verbose: traceback.print_exc()
             time.sleep(1.0)
     
         rtcb.setBasicInfo(comp.type_name, comp.category, comp.vendor, comp.version, comp.description)
@@ -92,11 +92,13 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
     basicInfo_diff = False
     if rtcp_real.basicInfo.name != rtcp.basicInfo.name or \
        rtcp_real.basicInfo.category != rtcp.basicInfo.category or \
+       rtcp_real.basicInfo.vendor != rtcp.basicInfo.vendor or \
        rtcp_real.basicInfo.version != rtcp.basicInfo.version or \
        rtcp_real.basicInfo.description != rtcp.basicInfo.description:
         from wasanbon import util
         if util.yes_no('# Basic Info is different. Update?:') == 'yes':
             b.setBasicInfo(rtcp_real.basicInfo.name, rtcp_real.basicInfo.category,
+                           rtcp_real.basicInfo.vendor, 
                            rtcp_real.basicInfo.version, rtcp_real.basicInfo.description)
             modifiedFlag = True
     

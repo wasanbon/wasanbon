@@ -252,6 +252,7 @@ class Plugin(PluginFunction):
         return 0
 
     def terminate_rtcd(self, package, verbose=False):
+        if verbose: sys.stdout.write('# Terminating RTCDs.\n')
         admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
         admin.systemlauncher.terminate_system(package, verbose=verbose)
         return 0
@@ -307,7 +308,7 @@ class Plugin(PluginFunction):
         self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
         self.parser.add_option('-d', '--dryrun', help='Just output on console', default=False, dest='dry_flag', action='store_true')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
-        options, argv = self.parse_args(args[:])
+        options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         dry = options.dry_flag
         filename = options.filename

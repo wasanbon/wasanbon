@@ -65,6 +65,7 @@ class Plugin(PluginFunction):
         return flag
 
     def terminate_rtcd(self, package, language, verbose=False):
+        if verbose: sys.stdout.write('# Terminating rtcd for language (%s) in package (%s)\n' % (language, package.name))
         pids = self._get_rtcd_pid(package, language, verbose=verbose, autoremove=True)
         import psutil
         for proc in psutil.process_iter():
@@ -103,10 +104,12 @@ class Plugin(PluginFunction):
         return process
 
     def exit_all_rtcs(self, package, verbose=False, try_count=5, wait_time=1.0):
-        if verbose: sys.stdout.write('## Exitting RTCS on package %s\n' % package.name)
+        """ Exit All RTCs on package. """
+        if verbose: sys.stdout.write('## Exitting All RTCS on package %s\n' % package.name)
         mgr_addrs = admin.systeminstaller.get_rtcd_manager_addresses(package, verbose=verbose)
         if verbose: sys.stdout.write('# Parsing manager : %s\n' % mgr_addrs)
         for lang in ['C++', 'Java', 'Python']:
+            sys.stdout.write('# Getting Manager for language (%s)\n' % lang)
             for mgr_addr in mgr_addrs[lang]:
                 cleaned = False
                 if not mgr_addr.startswith('/') : mgr_addr = '/' + mgr_addr
@@ -114,6 +117,7 @@ class Plugin(PluginFunction):
                 full_path = path.cmd_path_to_full_path(mgr_addr)
                 mgr = None
                 for i in range(0, try_count):
+                    if verbose: sys.stdout.write('## Getting Manager [%s]\n' % mgr_addr)
                     from rtshell import rts_exceptions
                     from rtshell.rtmgr import get_manager
                     try:
@@ -122,24 +126,37 @@ class Plugin(PluginFunction):
                         break
                     except rts_exceptions.ZombieObjectError, e:
                         if i == try_count-1:
-                            sys.stdout.write('# Exception Occured when exit_all_rtcs\n')
+                            sys.stdout.write('# ZombieObjectError Occured when exit_all_rtcs\n')
                             traceback.print_exc()
                             return -1
                     except rts_exceptions.NoSuchObjectError, e:
                         break
                 if mgr:
-                    for r in mgr.components:
-                        r.exit()
+                    if len(mgr.components) == 0:
+                        if verbose: sys.stdout.write('### Manager (%s) has no RTCs.\n' % mgr_addr)
+                        cleaned = True
+                    else:
+                        for r in mgr.components:
+                            if verbose: sys.stdout.write('### Exitting RTC (%s)\n' % r.instance_name)
+                            r.exit()
 
-                    for i in range(0, try_count):
-                        time.sleep(wait_time)
-                        tree, mgr = get_manager(mgr_addr, full_path)
-                        if len(mgr.components) == 0:
-                            cleaned = True
+                        for i in range(0, try_count):
+                            time.sleep(wait_time)
+                            if verbose: sys.stdout.write('## Getting Manager [%s] Again\n' % mgr_addr)
+                            tree, mgr = get_manager(mgr_addr, full_path)
+                            if len(mgr.components) == 0:
+                                if verbose: sys.stdout.write('### Manager (%s) has no RTCs.\n' % mgr_addr)
+                                cleaned = True
+                                break
+                            else:
+                                if verbose: sys.stdout.write('### Manager (%s) still have RTCs.\n' % mgr_addr)
+                                pass
+
                     if cleaned: break
                 else:
+                    if verbose: sys.stdout.write('## Getting Manager failed.\n')
                     break
-                    
+        sys.stdout.write('# Exitting All RTCs done.\n')
         return 0
 
 
