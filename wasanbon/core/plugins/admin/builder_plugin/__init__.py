@@ -76,9 +76,11 @@ def build_rtc_cpp(rtcp, verbose=False):
     if verbose:
         sys.stdout.write('# Cross Platform Make (CMAKE)\n');
     p = subprocess.Popen(cmd, env=os.environ, stdout=stdout, stderr=stderr)
-    ret = p.wait()
+    std_out = p.communicate()
+    ret = p.returncode
+    #ret = p.wait()
     if ret != 0:
-        sys.stdout.write('# Failed.\n')
+        sys.stdout.write('# CMake Failed.\n')
         if verbose:
             return (False, None)
         return (False, p.stderr.read())
@@ -101,13 +103,15 @@ def build_rtc_cpp(rtcp, verbose=False):
             env['PATH'] = env['PATH'] + ';' + os.path.join(env['OMNI_ROOT'], 'bin', 'x86_win32')
             # print env['PATH']
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
-            p.wait()
-
+            std_out, std_err = p.communicate()
+            ret = p.returncode
+            if verbose:
+                sys.stdout.write('## Return Code = %s\n' % ret)
             if not verbose:
                 if p.stderr != None:
-                    errmsg = p.stderr.read()
+                    errmsg = std_out#p.stderr.read()
                 else:
-                    errmsg = ""
+                    errmsg = std_out
             else:
                 errmsg = ""
             err_code = (errmsg.find('error') < 0 and errmsg.find('Error') < 0 and p.returncode == 0)
@@ -126,12 +130,16 @@ def build_rtc_cpp(rtcp, verbose=False):
             if verbose:
                 sys.stdout.write(' - make\n')
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
-            p.wait()
+            std_out, std_err = p.communicate()
+            #p.wait()
+            ret = p.returncode
+            if verbose:
+                sys.stdout.write('## Return Code = %s\n' % ret)
             if not verbose:
-                errmsg = p.stderr.read()
+                errmsg = std_out
             else:
-                errmsg = ""
-            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+                errmsg = std_out
+            return ((ret == 0), errmsg)
 
     elif sys.platform == 'linux2':
         if 'Makefile' in os.listdir(os.getcwd()):
@@ -143,12 +151,16 @@ def build_rtc_cpp(rtcp, verbose=False):
             if verbose:
                 sys.stdout.write(' - make\n')
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
-            p.wait()
+            std_out, std_err = p.communicate()
+            ret = p.returncode
+            if verbose:
+                sys.stdout.write('## Return Code = %s\n' % ret)
+
             if not verbose:
-                errmsg = p.stderr.read()
+                errmsg = std_out
             else:
-                errmsg = ""
-            return ((errmsg.find('error') < 0 and errmsg.find('Error') < 0), errmsg)
+                errmsg = std_out
+            return ((ret == 0), errmsg)
     else:
         sys.stdout.write('# Error. Unknown Platform : %s\n' % sys.platform)
         return -1, 'Unknown Platform (%s)' % sys.platform
