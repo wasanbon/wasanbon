@@ -97,7 +97,7 @@ class Plugin(PluginFunction):
     @manifest
     def delete(self, args):
         self.parser.add_option('-f', '--force', help='Force Delete without yes/no option (default=False)', default=False, dest='force_flag', action='store_true')
-        options, argv = self.parse_args(args[:])
+        options, argv = self.parse_args(args[:], self._print_system_profiles)
         verbose = options.verbose_flag
         force = options.force_flag
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
@@ -119,3 +119,34 @@ class Plugin(PluginFunction):
 
         sys.stdout.write('## Success\n')
         return 0
+
+    @manifest
+    def image(self, args):
+        """ Create image from RTSProfile. This will saved to ${path_to_package}/images/[RTSP_NAME].jpg
+        $ mgr.py rtsprofile image [RTSP_NAME] """
+        options, argv = self.parse_args(args[:], self._print_system_profiles)
+        verbose = options.verbose_flag # This is default option
+        wasanbon.arg_check(argv, 4)
+        package = admin.package.get_package_from_path(os.getcwd())
+        systemfile = argv[3]
+        systemfile_relpath = os.path.join(package.get_systempath(fullpath=False), systemfile)
+        systemfile_fullpath = os.path.join(package.get_systempath(), systemfile)
+        if not os.path.isfile(systemfile_fullpath):
+            sys.stdout.write('## No System File exists.\n')
+            return -1
+
+        image_path = os.path.join(package.path, 'image')
+        if not os.path.isdir(image_path):
+            os.mkdir(image_path)
+
+        from rtsprofile.rts_profile import RtsProfile
+        rtsp = RtsProfile(open(systemfile_fullpath, 'r').read())
+
+        for c in rtsp.components:
+            print c
+
+        #filepath = os.path.join(image_path, argv[3][:-4] + '.jpg')
+        #im = self.get_image()
+        #im.save(filepath)
+        return 0
+        
