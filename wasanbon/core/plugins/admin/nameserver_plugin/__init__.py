@@ -475,6 +475,7 @@ class NameServer(object):
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 self.tree = None
@@ -484,6 +485,24 @@ class NameServer(object):
             return []
 
         return ports
+
+    def _print_conf_set(self, name, conf_set, long, detail, tablevel):
+        tab =  '  '
+        if not long and not detail:
+            if name.startsWith('__'):
+                return
+            sys.stdout.write(tab*tablevel + ' - %s\n' % name)
+        elif long and not detail:
+            if name.startsWith('__'):
+                return
+            sys.stdout.write(tab*tablevel + '%s : \n' % name)
+            for key, value in conf_set.data.items():
+                sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
+        elif detail:
+            sys.stdout.write(tab*tablevel + '%s : \n' % name)
+            #sys.stdout.write(tab*(tablevel+1) + 'properties : \n')
+            for key, value in conf_set.data.items():
+                sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
         
 
     def _print_port(self, port, long, detail, tablevel):
@@ -492,7 +511,8 @@ class NameServer(object):
             sys.stdout.write(tab*tablevel + ' - %s\n' % port.name)
         elif long and not detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
-            sys.stdout.write(tab*(tablevel+1) + 'type : %s\n' % port.properties['dataport.data_type'])
+            if 'dataport.data_type' in port.properties.keys():
+                sys.stdout.write(tab*(tablevel+1) + 'type : %s\n' % port.properties['dataport.data_type'])
             pass
         elif detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
@@ -503,16 +523,22 @@ class NameServer(object):
             if len(port.connections) == 0:
                 sys.stdout.write(tab*(tablevel+2) + '{}\n')
             else:
+
                 for con in port.connections:
-                    sys.stdout.write(tab*(tablevel+2) + 'name : %s\n' % con.name)
-                    sys.stdout.write(tab*(tablevel+2) + 'id   : %s\n' % con.id)
-                    sys.stdout.write(tab*(tablevel+2) + 'ports :\n')
+                    sys.stdout.write(tab*(tablevel+2) + con.name + ' : \n')
+                    #sys.stdout.write(tab*(tablevel+3) + 'name : %s\n' % con.name)
+                    sys.stdout.write(tab*(tablevel+3) + 'id   : %s\n' % con.id)
+                    sys.stdout.write(tab*(tablevel+3) + 'ports :\n')
                     for path, pp in con.ports:
-                        sys.stdout.write(tab*(tablevel+3) + ' - %s\n' % path)
+                        name = pp.name
+                        if name.find('.') >= 0:
+                            name = name.split('.')[-1].strip()
+                        fullpath = pp.owner.full_path_str + ':' + name
+                        sys.stdout.write(tab*(tablevel+4) + ' - %s\n' % fullpath)
                         pass
-                    sys.stdout.write(tab*(tablevel+2) + 'properties :\n')
+                    sys.stdout.write(tab*(tablevel+3) + 'properties :\n')
                     for key, value in con.properties.items():
-                        sys.stdout.write(tab*(tablevel+3) + '%s : "%s"\n' % (key, value))
+                        sys.stdout.write(tab*(tablevel+4) + '%s : "%s"\n' % (key, value))
                         
 
 
@@ -555,6 +581,18 @@ class NameServer(object):
                     else:
                         for p in node.svcports:
                             self._print_port(p, long, detail, 4)
+                    sys.stdout.write(tab * (tablevel + 1) + 'ConfigurationSets:\n')
+                    if len(node.conf_sets) == 0:
+                        sys.stdout.write(tab * (tablevel + 2) + '{}\n')
+                    else:
+                        for cs in node.conf_sets:
+                            self._print_conf_set(cs, node.conf_sets[cs], long, detail, 3)
+
+                    sys.stdout.write(tab * (tablevel + 1) + 'properties:\n')
+
+                    for key in sorted(node.properties.keys()):
+                        value = node.properties[key]
+                        sys.stdout.write(tab * (tablevel + 2) + key + ' : ' + value + '\n')
             if not node.is_manager:
                 for c in node.children:
                     show_func(c, tablevel+1, long, detail)
@@ -574,6 +612,7 @@ class NameServer(object):
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 pass
