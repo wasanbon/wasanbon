@@ -285,6 +285,27 @@ class Plugin(PluginFunction):
         ns.yaml_dump(long=long, detail=detail)
         return 0
 
+    @manifest
+    def configure(self, argv):
+        self.parser.add_option('-s', '--set', help='Configuration Set Name (default=default)', type='string', default='default', dest='set_name')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        wasanbon.arg_check(argv, 6)
+        set_name = options.set_name
+        rtc_full_path = argv[3]
+        conf_name = argv[4]
+        conf_value = argv[5]
+        def func(comp):
+            for cs in comp.conf_sets:
+                if cs == set_name:
+                    cset = comp.conf_sets[set_name]
+                    for key, value in cset.data.items():
+                        if key == conf_name:
+                            comp.set_conf_set_value(set_name, conf_name, conf_value)
+        comp = self.component(rtc_full_path, func, verbose=verbose)
+
+        return 0
+
     def ___hoge(self):
         tab =  '  '
         ns.refresh()
