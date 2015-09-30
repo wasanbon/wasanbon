@@ -304,7 +304,7 @@ class Plugin(PluginFunction):
 
     @manifest 
     def update_profile(self, args):
-        """ Run just one RTC """
+        """ Run just one RTC and compare the profile between the existing RTC.xml and launched RTC, then save RTC.xml """
         self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
         self.parser.add_option('-d', '--dryrun', help='Just output on console', default=False, dest='dry_flag', action='store_true')
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
@@ -332,13 +332,17 @@ class Plugin(PluginFunction):
             filepath = os.path.join(rtc.path, filename)
 
             if not dry:
+                outstr = admin.rtcprofile.tostring(retval, pretty_print=True)
+                if outstr == None:
+                    sys.stdout.write('# RTC Profile save failed.\n')
+                    return -1
                 if os.path.isfile(filepath):
-                    file = filepath + wasanbon.timestampstr()
-                    os.rename(filepath, file)
+                    f = filepath + wasanbon.timestampstr()
+                    os.rename(filepath, f)
                     pass
 
                 fout = open(filepath, 'w')
-                fout.write(admin.rtcprofile.tostring(retval, pretty_print=True))
+                fout.write(outstr)
                 fout.close()
             else:
                 sys.stdout.write(admin.rtcprofile.tostring(retval, pretty_print=True))

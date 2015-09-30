@@ -69,7 +69,10 @@ class Plugin(PluginFunction):
                 for i in p.interfaces:
                     path = ""
                     idlFile = ""
-                    rtcb.appendServiceInterfaceToServicePort(p.name, path, idlFile, i.type_name,
+                    rtcb.appendServiceInterfaceToServicePort(p.name, 
+                                                             path, 
+                                                             idlFile, 
+                                                             i.type_name,
                                                              i.polarity_as_string(add_colour=False),
                                                              i.instance_name)
         
@@ -183,7 +186,9 @@ def compare_rtcprofile(rtcp, rtcp_real, verbose=False):
                 break
         if not match_flag:
             if verbose: sys.stdout.write('## Not Found in RTC.xml\n')
-            b.appendServicePort(sp_real)
+            b.appendServicePort(sp_real.name)
+            for i in sp_real.serviceInterfaces:
+                b.appendServiceInterfaceToServicePort(sp_real.name, "", "", i.type, i.direction, i.name)
             modifiedFlag = True
 
     if rtcp.configurationSet:

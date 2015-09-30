@@ -412,18 +412,20 @@ def save_rtcprofile(rtcp, filename):
 
 def get_etree(rtcp):
     def save_sub(elem, node):
+        #print 'save_sub:', node
         for key, value in node.attrib.items(): # set attribute
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
             elem.set(name, value)
-
+            
         if not node.gettext() is None:
             if len(node.gettext().strip()) > 0:
                 elem.text = node.gettext()
 
+
         for child in node.children:
             key = child.node.tag
-
             name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
+            #print ' children:', name
             subelem = xml.etree.ElementTree.SubElement(elem, name)
             save_sub(subelem, child)
 
@@ -431,7 +433,7 @@ def get_etree(rtcp):
     #for key, value in rtcp.attrib.items():
     #    name = '%s:%s' % (get_short_ns(key.split('}')[0][1:]), key.split('}')[1])
     #    root.set(name, value)
-
+    
     for key, value in known_namespaces.items():
         root.set('xmlns:%s' % key, value)
 
@@ -443,8 +445,10 @@ def get_etree(rtcp):
 
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
     #print ' - writing', filename
+    print root
     try:
-        str = xml.etree.ElementTree.tostring(root)
+        encoding = 'utf-8'
+        str = xml.etree.ElementTree.tostring(root, encoding=encoding)
         import lxml.etree
         t = lxml.etree.fromstring(str)
         tree = lxml.etree.ElementTree(t)
