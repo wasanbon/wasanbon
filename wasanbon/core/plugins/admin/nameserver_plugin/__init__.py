@@ -44,7 +44,7 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment']
+        return ['admin.environment', 'admin.systemeditor']
 
     def get_nameservers_from_package(self, package, verbose=False):
         """ Get Nameserver object from package.
@@ -436,9 +436,82 @@ class Plugin(PluginFunction):
         if verbose: sys.stdout.write('## OK.\n')
         os.chdir(curdir)
         return 0
-    
 
+    @manifest
+    def list_connectable_pair(self, argv):
+        self.parser.add_option('-n', '--nameservers', help='Set NameServers. If plural servers, separate with ",".', 
+                               type='string', default='localhost:2809', dest='nameservers')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        nameserver_uris = [n.strip() for n in options.nameservers.split(',')]
+
+        nss = [NameServer(path) for path in nameserver_uris]
+        pairs = admin.systemeditor.get_connectable_pairs(nss, verbose=verbose)
+        for pair in pairs:
+            def get_port_fullpath(port):
+                path = ""
+                for p in port.owner.full_path[1:]:
+                    path = path + '/' + p
+                    
+                portName = port.name
+                if portName.find('.') >= 0:
+                    portName = portName.split('.')[1]
+
+                return path + ':' + portName
+            def is_connected(p0, p1):
+                return len(p0.get_connections_by_dest(p1)) > 0
+            sys.stdout.write('%s %s %s\n' % (get_port_fullpath(pair[0]), '==>' if is_connected(pair[0], pair[1]) else '   ',
+                                              get_port_fullpath(pair[1])))
+
+        return 0
     
+    @manifest
+    def connect(self, argv):
+        def property_callback(option, opt, option_value, parser):
+            if option_value.count('=') != 1:
+                raise wasanbon.InvalidUsageException()
+            key, equals, value = option_value.partition('=')
+            if not getattr(parser.values, option.dest):
+                setattr(parser.values, option.dest, {})
+            if key in getattr(parser.values, option.dest):
+                raise wasanbon.InvalidUsageException()
+            getattr(parser.values, option.dest)[key] = value
+
+
+        self.parser.add_option('-n', '--name', help='Name of connection. (Default: None)', 
+                               type='string', default=None, dest='name')
+        self.parser.add_option('-i', '--id', help='id of connection. (Default: "")', 
+                               type='string', default='', dest='id')
+        self.parser.add_option('-p', '--property', help='Properties of connection. Use A=B Format (Default:"")', 
+                               type='string', dest='properties', action='callback', callback=property_callback)
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        if not getattr(options, 'properties'):
+            setattr(options, 'properties', {})
+        
+        from rtshell import path
+        from rtshell.rtcon import connect_ports
+        
+        paths = [(arg, path.cmd_path_to_full_path(arg)) for arg in argv[3:]]
+        connect_ports(paths, options, tree=None)
+        
+        return 0
+
+    @manifest
+    def disconnect(self, argv):
+        self.parser.add_option('-i', '--id', help='id of connection. (Default: "")', 
+                               type='string', default='', dest='id')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        
+        from rtshell import path
+        from rtshell.rtdis import disconnect_ports
+        
+        paths = [(arg, path.cmd_path_to_full_path(arg)) for arg in argv[3:]]
+        disconnect_ports(paths, options, tree=None)
+        
+        return 0
+
 class NameServer(object):
 
     def __init__(self, path, pidFilePath='pid'):

@@ -181,6 +181,12 @@ class Plugin(PluginFunction):
             while not endflag:
                 try:
                     time.sleep(0.1)
+                    languages = ['Java', 'Python', 'C++']
+                    stopped = []
+                    for l in languages:
+                        stopped.append(not admin.systemlauncher.is_rtcd_launched(package, l, verbose=verbose))
+                    if all(stopped):
+                        endflag = True
                 except IOError, e:
                     print e
                     pass
