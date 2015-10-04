@@ -9,7 +9,7 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 'admin.package']
+        return ['admin.environment', 'admin.package', 'admin.rtc', 'mgr.imaging']
 
     def _print_system_profiles(self, args):
         package = admin.package.get_package_from_path(os.getcwd(), verbose=False)
@@ -142,11 +142,9 @@ class Plugin(PluginFunction):
         from rtsprofile.rts_profile import RtsProfile
         rtsp = RtsProfile(open(systemfile_fullpath, 'r').read())
 
-        for c in rtsp.components:
-            print c
-
-        #filepath = os.path.join(image_path, argv[3][:-4] + '.jpg')
+        im = mgr.imaging.get_rtsp_image(package, rtsp, port_height=10, port_text_font=10)
+        filepath = os.path.join(image_path, argv[3][:-4] + '.png')
         #im = self.get_image()
-        #im.save(filepath)
+        im.save(filepath)
         return 0
         
