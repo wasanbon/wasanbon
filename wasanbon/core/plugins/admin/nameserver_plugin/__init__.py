@@ -56,6 +56,35 @@ class Plugin(PluginFunction):
         if not type(ns_paths) == types.ListType: ns_paths = [ns_paths]
         return [NameServer(path) for path in ns_paths]
 
+    def component(self, path, func, verbose=False, try_count=5):
+        from rtctree import tree as rtctree_tree
+        from rtctree import path as rtctree_path
+        comps = []
+        if verbose:
+            sys.stdout.write('## get components from nameserver(%s)\n' % path)
+
+        for i in range(0, try_count):
+            try:
+                path_, port_ = rtctree_path.parse_path('/' + path)
+                tree = rtctree_tree.RTCTree(paths=path_, filter=[path_])
+                dir_node = tree.get_node(path_)
+                if dir_node.is_component:
+                    if func:
+                        func(dir_node)
+                    return dir_node
+                break
+            except Exception, e:
+                sys.stdout.write('## Exception occurred when getting component information from nameserver(%s)\n' % path)
+                if verbose:
+                    traceback.print_exc()
+                self.tree = None
+                pass
+            time.sleep(0.5)
+        if not self.tree:
+            return []
+
+        return None
+
     def is_running(self, ns, verbose=False, try_count=3, interval=5.0):
         """ Check NameServer (specified by NameServer class object) is running or not.
         :param NameServer ns: NameServer class object.
@@ -256,6 +285,27 @@ class Plugin(PluginFunction):
         ns.yaml_dump(long=long, detail=detail)
         return 0
 
+    @manifest
+    def configure(self, argv):
+        self.parser.add_option('-s', '--set', help='Configuration Set Name (default=default)', type='string', default='default', dest='set_name')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        wasanbon.arg_check(argv, 6)
+        set_name = options.set_name
+        rtc_full_path = argv[3]
+        conf_name = argv[4]
+        conf_value = argv[5]
+        def func(comp):
+            for cs in comp.conf_sets:
+                if cs == set_name:
+                    cset = comp.conf_sets[set_name]
+                    for key, value in cset.data.items():
+                        if key == conf_name:
+                            comp.set_conf_set_value(set_name, conf_name, conf_value)
+        comp = self.component(rtc_full_path, func, verbose=verbose)
+
+        return 0
+
     def ___hoge(self):
         tab =  '  '
         ns.refresh()
@@ -280,7 +330,47 @@ class Plugin(PluginFunction):
                     for p in comp.svcports:
                         self._print_port(p, long, detail, 4)
         return 0
-            
+
+
+    @manifest
+    def activate_rtc(self, argv):
+        self.parser.add_option('-i', '--id', help='Set EC_ID', 
+                               type='int', default=0, dest='ec_id')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write('# Activating RTC (%s)\n' % argv[3])
+        ec_id = options.ec_id
+        comp = self.component(argv[3], lambda c : c.activate_in_ec(ec_id), verbose=verbose)
+        return 0
+
+
+    @manifest
+    def deactivate_rtc(self, argv):
+        self.parser.add_option('-i', '--id', help='Set EC_ID', 
+                               type='int', default=0, dest='ec_id')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write('# Deactivating RTC (%s)\n' % argv[3])
+        ec_id = options.ec_id
+        comp = self.component(argv[3], lambda c : c.deactivate_in_ec(ec_id), verbose=verbose)
+        return 0
+
+    @manifest
+    def reset_rtc(self, argv):
+        self.parser.add_option('-i', '--id', help='Set EC_ID', 
+                               type='int', default=0, dest='ec_id')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write('# Resetting RTC (%s)\n' % argv[3])
+        ec_id = options.ec_id
+        comp = self.component(argv[3], lambda c : c.reset_in_ec(ec_id), verbose=verbose)
+        return 0
 
     def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
         """ Launch Name Server 
@@ -475,6 +565,7 @@ class NameServer(object):
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 self.tree = None
@@ -484,6 +575,24 @@ class NameServer(object):
             return []
 
         return ports
+
+    def _print_conf_set(self, name, conf_set, long, detail, tablevel):
+        tab =  '  '
+        if not long and not detail:
+            if name.startsWith('__'):
+                return
+            sys.stdout.write(tab*tablevel + ' - %s\n' % name)
+        elif long and not detail:
+            if name.startsWith('__'):
+                return
+            sys.stdout.write(tab*tablevel + '%s : \n' % name)
+            for key, value in conf_set.data.items():
+                sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
+        elif detail:
+            sys.stdout.write(tab*tablevel + '%s : \n' % name)
+            #sys.stdout.write(tab*(tablevel+1) + 'properties : \n')
+            for key, value in conf_set.data.items():
+                sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
         
 
     def _print_port(self, port, long, detail, tablevel):
@@ -492,7 +601,8 @@ class NameServer(object):
             sys.stdout.write(tab*tablevel + ' - %s\n' % port.name)
         elif long and not detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
-            sys.stdout.write(tab*(tablevel+1) + 'type : %s\n' % port.properties['dataport.data_type'])
+            if 'dataport.data_type' in port.properties.keys():
+                sys.stdout.write(tab*(tablevel+1) + 'type : %s\n' % port.properties['dataport.data_type'])
             pass
         elif detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
@@ -503,16 +613,22 @@ class NameServer(object):
             if len(port.connections) == 0:
                 sys.stdout.write(tab*(tablevel+2) + '{}\n')
             else:
+
                 for con in port.connections:
-                    sys.stdout.write(tab*(tablevel+2) + 'name : %s\n' % con.name)
-                    sys.stdout.write(tab*(tablevel+2) + 'id   : %s\n' % con.id)
-                    sys.stdout.write(tab*(tablevel+2) + 'ports :\n')
+                    sys.stdout.write(tab*(tablevel+2) + con.name + ' : \n')
+                    #sys.stdout.write(tab*(tablevel+3) + 'name : %s\n' % con.name)
+                    sys.stdout.write(tab*(tablevel+3) + 'id   : %s\n' % con.id)
+                    sys.stdout.write(tab*(tablevel+3) + 'ports :\n')
                     for path, pp in con.ports:
-                        sys.stdout.write(tab*(tablevel+3) + ' - %s\n' % path)
+                        name = pp.name
+                        if name.find('.') >= 0:
+                            name = name.split('.')[-1].strip()
+                        fullpath = pp.owner.full_path_str + ':' + name
+                        sys.stdout.write(tab*(tablevel+4) + ' - %s\n' % fullpath)
                         pass
-                    sys.stdout.write(tab*(tablevel+2) + 'properties :\n')
+                    sys.stdout.write(tab*(tablevel+3) + 'properties :\n')
                     for key, value in con.properties.items():
-                        sys.stdout.write(tab*(tablevel+3) + '%s : "%s"\n' % (key, value))
+                        sys.stdout.write(tab*(tablevel+4) + '%s : "%s"\n' % (key, value))
                         
 
 
@@ -524,7 +640,9 @@ class NameServer(object):
         tab = '  '
         def show_func(node, tablevel, long=False, detail=False):
             if node.is_nameserver:
-                sys.stdout.write(tab * tablevel + '/"' + node.full_path[1] + '":' + '\n')
+                full_path  = node.full_path[1]
+                if full_path.startsWith('/'): full_path = full_path[1:]
+                sys.stdout.write(tab * tablevel + '"' + full_path + '":' + '\n')
             elif node.is_manager:
                 sys.stdout.write(tab * tablevel + '' + node.name + ': {}\n')                
             elif node.is_directory:
@@ -541,20 +659,41 @@ class NameServer(object):
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.outports:
-                            self._print_port(p, long, detail, 4)
+                            self._print_port(p, long, detail, 3)
 
                     sys.stdout.write(tab * (tablevel + 1) + 'DataInPorts:\n')
                     if len(node.inports) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.inports:
-                            self._print_port(p, long, detail, 4)
+                            self._print_port(p, long, detail, 3)
                     sys.stdout.write(tab * (tablevel + 1) + 'ServicePorts:\n')
                     if len(node.svcports) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.svcports:
-                            self._print_port(p, long, detail, 4)
+                            self._print_port(p, long, detail, 3)
+                    sys.stdout.write(tab * (tablevel + 1) + 'ConfigurationSets:\n')
+                    if len(node.conf_sets) == 0:
+                        sys.stdout.write(tab * (tablevel + 2) + '{}\n')
+                    else:
+                        for cs in node.conf_sets:
+                            self._print_conf_set(cs, node.conf_sets[cs], long, detail, 3)
+
+                    sys.stdout.write(tab * (tablevel + 1) + 'properties:\n')
+                    for key in sorted(node.properties.keys()):
+                        value = node.properties[key]
+                        sys.stdout.write(tab * (tablevel + 2) + key + ' : "' + value + '"\n')
+                    sys.stdout.write(tab * (tablevel + 1) + 'state : ' + node.get_state_string(add_colour=False) + '\n')
+                    sys.stdout.write(tab * (tablevel + 1) + 'exec_cxts:\n')
+                    ec = node.get_ec(0)
+                    for ec1 in node.owned_ecs:
+                        #sys.stdout.write(tab * (tablevel + 2) + 'owner : ' + str(ec.participants) + '\n')
+                        #sys.stdout.write(tab * (tablevel + 2) + 'state : ' + str(ec.get_component_state(node)) + '\n')
+                        sys.stdout.write(tab * (tablevel + 2) + 'properties:\n')
+                        for key in sorted(ec.properties.keys()):
+                            value = ec.properties[key]
+                            sys.stdout.write(tab * (tablevel + 3) + key + ' : "' + value + '"\n')
             if not node.is_manager:
                 for c in node.children:
                     show_func(c, tablevel+1, long, detail)
@@ -567,13 +706,14 @@ class NameServer(object):
                     self.__path, self.__port = rtctree_path.parse_path('/' + self.path)
                     self.tree = rtctree_tree.RTCTree(paths=self.__path, filter=[self.__path])
                     self.dir_node = self.tree.get_node(self.__path)
-                sys.stdout.write('"/' + self.path + '":\n')
+                sys.stdout.write('"' + self.path + '":\n')
                 for c in self.dir_node.children:
                     show_func(c, 1, long, detail)
                 
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 pass
@@ -627,7 +767,9 @@ class NameServer(object):
 
 
         return ports
+
         
+
 
     def components(self, instanceName=None, verbose=False, try_count=5):
         from rtctree import tree as rtctree_tree
