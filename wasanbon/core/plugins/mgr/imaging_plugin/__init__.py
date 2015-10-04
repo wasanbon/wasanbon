@@ -37,7 +37,7 @@ class Plugin(PluginFunction):
     def get_image_height(self, rtcprof, port_height = 20):
         (num_port, num_rightside_port, num_leftside_port) = self.get_num_ports(rtcprof)
         top_margin = port_height
-        bottom_margin = port_height 
+        bottom_margin = port_height * 3
         top_bottom_margin = port_height
         port_margin = port_height
         num_margin = num_port -1
@@ -256,7 +256,11 @@ class Plugin(PluginFunction):
         height = 0
         img_height = 0
         height_array = []
+        
         row = 3
+        column = 0
+        if verbose:
+            sys.stdout.write('# ROW = %s\n' % row)
         components = {}
         i = 0
         for c in rtsp.components:
@@ -264,6 +268,7 @@ class Plugin(PluginFunction):
             i = i + 1
         
         for c in components.values():
+            sys.stdout.write('# Component %s\n' % c.instance_name)
             rtc_typename = c.id.split(':')[3]
             rtc = admin.rtc.get_rtc_from_package(package, rtc_typename, verbose=verbose)
             rtcprof = rtc.rtcprofile
@@ -273,8 +278,15 @@ class Plugin(PluginFunction):
             count = count + 1
             if count == row:
                 count = 0
-                img_height = img_height + height + port_height
+                column = column+1
+                sys.stdout.write('# Column %s height = %s\n' % (column, height))
+                img_height = img_height + height + port_height*4
                 height_array.append(height)
+        if count > 0:
+            column = column+1
+            sys.stdout.write('# Column %s height = %s\n' % (column, height))
+            img_height = img_height + height + port_height*4
+            height_array.append(height)
 
         #img_height = img_height + port_height # for text
 
