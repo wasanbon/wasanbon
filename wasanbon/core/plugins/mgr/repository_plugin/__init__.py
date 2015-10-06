@@ -59,9 +59,8 @@ class Plugin(PluginFunction):
         curdir = os.getcwd()
         os.chdir(pack.get_rtcpath())
         match = False
+        failed_flag = False
         if url is "None":
-            failed_flag = False
-
             for rtc_name in argv[3:]:
                 for repo in repos:
                     if repo.name == argv[3]:
