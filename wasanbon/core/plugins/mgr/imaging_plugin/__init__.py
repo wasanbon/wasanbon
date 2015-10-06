@@ -251,6 +251,8 @@ class Plugin(PluginFunction):
         from PIL import Image
         img_width = 1600
 
+        if verbose:
+            sys.stdout.write('# Get RTSP Image.\n')
         #port_height = 20
         count = 0
         height = 0
@@ -261,13 +263,55 @@ class Plugin(PluginFunction):
         column = 0
         if verbose:
             sys.stdout.write('# ROW = %s\n' % row)
-        components = {}
+        components = []
         i = 0
+
+        def comp_chara(comp):
+            rtc_typename = comp.id.split(':')[3]
+            rtc = admin.rtc.get_rtc_from_package(package, rtc_typename, verbose=verbose)
+            rtcprof = rtc.rtcprofile
+
+            print rtcprof.basicInfo.name, ':',
+
+            in_score = +1
+            out_score = -1
+            prov_score = +2
+            req_score = -2
+            score = 0
+            score = score + len(rtcprof.inports) * in_score
+            score = score + len(rtcprof.outports) * out_score
+            for sp in rtcprof.serviceports:
+                for i in sp.serviceInterfaces:
+                    if i.polarity == 'Provided':
+                        score = score + prov_score
+                    else:
+                        score = score + req_score
+            print score
+            return score
+
         for c in rtsp.components:
-            components[i] = c
-            i = i + 1
+            components.append(c)
         
-        for c in components.values():
+        components_buf = sorted(components, key=comp_chara)
+        
+        max_col = len(components) / row 
+        if len(components) % row > 0:
+            max_col = max_col + 1
+            pass
+        ind = 0
+        components_dic = {}
+        r = 0
+        for i, c in enumerate(components_buf):
+            components_dic[ind*row + r] = c
+            ind = ind + 1
+            if ind == max_col:
+                ind = 0
+                r = r + 1
+        components = []
+        for i in range(0, len(components_dic.keys())):
+            components.append(components_dic[i])
+        
+        for c in components:
             sys.stdout.write('# Component %s\n' % c.instance_name)
             rtc_typename = c.id.split(':')[3]
             rtc = admin.rtc.get_rtc_from_package(package, rtc_typename, verbose=verbose)
@@ -298,7 +342,7 @@ class Plugin(PluginFunction):
         count = 0
         height = 0
         column = 0
-        for c in components.values():
+        for c in components:
             rtc_typename = c.id.split(':')[3]
             rtc = admin.rtc.get_rtc_from_package(package, rtc_typename, verbose=verbose)
             rtcprof = rtc.rtcprofile
