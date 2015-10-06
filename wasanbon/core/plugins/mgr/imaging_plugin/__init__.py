@@ -37,7 +37,7 @@ class Plugin(PluginFunction):
     def get_image_height(self, rtcprof, port_height = 20):
         (num_port, num_rightside_port, num_leftside_port) = self.get_num_ports(rtcprof)
         top_margin = port_height
-        bottom_margin = port_height 
+        bottom_margin = port_height * 3
         top_bottom_margin = port_height
         port_margin = port_height
         num_margin = num_port -1

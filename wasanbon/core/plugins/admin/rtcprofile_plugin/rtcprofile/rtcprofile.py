@@ -445,7 +445,7 @@ def get_etree(rtcp):
 
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
     #print ' - writing', filename
-    print root
+    # print root
     try:
         encoding = 'utf-8'
         str = xml.etree.ElementTree.tostring(root, encoding=encoding)
