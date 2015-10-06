@@ -394,7 +394,10 @@ class Plugin(PluginFunction):
                 for proc in psutil.process_iter():
                     if proc.pid == pid:
                         if verbose: sys.stdout.write('## Stopping Nameservice of PID (%s)\n' % pid)                    
-                        proc.kill()
+                        try:
+                            proc.kill()
+                        except psutil.AccessDenied, e:
+                            sys.stdout.write('### PID(%d) access denyed. Proceeding... \n' % pid)
                         self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
 
         if verbose: sys.stdout.write('## Starting Nameserver \n')

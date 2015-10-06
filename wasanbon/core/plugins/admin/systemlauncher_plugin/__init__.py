@@ -72,7 +72,10 @@ class Plugin(PluginFunction):
             for pid in pids:
                 if proc.pid == pid:
                     if verbose: sys.stdout.write('## Kill Process (%d)\n' % pid)
-                    proc.kill()
+                    try:
+                        proc.kill()
+                    except psutil.AccessDenied, ex:
+                        sys.stdout.write('## Access Denied to pid(%s).\n' % pid)
         return 0
 
 

@@ -59,9 +59,8 @@ class Plugin(PluginFunction):
         curdir = os.getcwd()
         os.chdir(pack.get_rtcpath())
         match = False
+        failed_flag = False
         if url is "None":
-            failed_flag = False
-
             for rtc_name in argv[3:]:
                 for repo in repos:
                     if repo.name == argv[3]:
@@ -147,8 +146,12 @@ class Plugin(PluginFunction):
             if argv[3] != 'all' and argv[3] != rtc.rtcprofile.basicInfo.name:
                 continue
 
-            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
-
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose
+)
+            if repo is None:
+                sys.stdout.write('%s does not have local repository.\n' % rtc.rtcprofile.basicInfo.name)
+                continue
+                
             if long:
                 output = admin.repository.get_status(repo)
                 sys.stdout.write(output)
@@ -173,9 +176,10 @@ class Plugin(PluginFunction):
     def commit(self, args):
         """ Commit local changes to local repository.
         $ mgr.py repository commit [RTC_NAME] [COMMENT]"""
+        self.parser.add_option('-p', '--push', help='Commit with push  (default="False")', default=False, action="store_true", dest="push_flag")
         options, argv = self.parse_args(args[:], self._print_alternative_rtcs)
         verbose = options.verbose_flag
-
+        push = options.push_flag
         verbose = True
         package = admin.package.get_package_from_path(os.getcwd())
         wasanbon.arg_check(argv, 5)
@@ -193,7 +197,16 @@ class Plugin(PluginFunction):
             comment = argv[4]
             if admin.repository.commit(repo, comment, verbose=verbose) == 0:
                 sys.stdout.write('## Success\n')
-                return_value_map[rtc.rtcprofile.basicInfo.name] = True
+                if push:
+                    sys.stdout.write('# Pushing RTC (%s) \n' % rtc.rtcprofile.basicInfo.name)
+                    if admin.repository.push(repo, verbose=verbose) == 0:
+                        sys.stdout.write('## Success\n')
+                        return_value_map[rtc.rtcprofile.basicInfo.name] = True
+                    else:
+                        sys.stdout.write('## Failed.\n')
+                        return_value_map[rtc.rtcprofile.basicInfo.name] = False
+                else:
+                    return_value_map[rtc.rtcprofile.basicInfo.name] = True
             else:
                 sys.stdout.write('## Failed.\n')
                 return_value_map[rtc.rtcprofile.basicInfo.name] = False
