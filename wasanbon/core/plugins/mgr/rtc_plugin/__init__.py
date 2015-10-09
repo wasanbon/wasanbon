@@ -134,7 +134,7 @@ class Plugin(PluginFunction):
 
     @manifest
     def clean(self, args):
-        options, argv = self.parse_args(args)
+        options, argv = self.parse_args(args, self._print_rtcs)
         verbose = options.verbose_flag
 
         if verbose: sys.stdout.write('# Cleanup RTCs\n')
