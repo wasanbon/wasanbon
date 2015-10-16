@@ -179,8 +179,11 @@ class Plugin(PluginFunction):
     def commit(self, args):
         """ Commit changes to local Package repository
         """
+        self.parser.add_option('-p', '--push', help='Push simultaneously', default=False, dest='push_flag', action='store_true')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
+        push = options.push_flag
+
         p = admin.package.get_package_from_path(os.getcwd())        
         sys.stdout.write('# Committing package %s to local repository\n' % p.name)
         repo = admin.repository.get_repository_from_path(os.getcwd(), verbose=verbose)
@@ -190,6 +193,15 @@ class Plugin(PluginFunction):
             raise wasanbon.RepositoryNotFoundException()
         if admin.repository.commit(repo, comment, verbose=verbose) == 0:
             sys.stdout.write('## Success.\n')
+
+            if push:
+                sys.stdout.write('# Pushing Package %s\n' % os.path.basename(os.getcwd()))
+                repo = admin.repository.get_repository_from_path(os.getcwd(), verbose=verbose)
+                if admin.repository.push(repo, verbose=verbose) != 0:
+                    sys.stdout.write('## Failed.\n')
+                    return -1
+                sys.stdout.write('## Success.\n')
+
             return 0
         sys.stdout.write('## Failed.\n')
         return -1
