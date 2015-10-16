@@ -153,6 +153,7 @@ class Plugin(PluginFunction):
             processes = admin.systemlauncher.launch_system(package, verbose=verbose)
             wasanbon.sleep(wakeuptimeout)
             if not plain:
+
                 admin.systembuilder.build_system(package, 
                                                  verbose=verbose, 
                                                  system_file=systemfile)
@@ -185,6 +186,7 @@ class Plugin(PluginFunction):
                     stopped = []
                     for l in languages:
                         stopped.append(not admin.systemlauncher.is_rtcd_launched(package, l, verbose=verbose))
+                    stopped.append(not admin.systemlauncher.is_standalone_rtcs_launched(package, verbose=verbose))
                     if all(stopped):
                         endflag = True
                 except IOError, e:

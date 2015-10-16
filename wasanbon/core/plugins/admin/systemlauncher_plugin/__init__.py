@@ -15,10 +15,12 @@ class Plugin(PluginFunction):
     def depends(self):
         return ['admin.environment', 'admin.systeminstaller', 'admin.rtcconf', 'admin.rtc']
 
-    
+    piddir = 'pid'
+    logdir = 'log'
+
     def launch_system(self, package,
                       languages = ['C++', 'Java', 'Python'],
-                      verbose=False, console_bind=''):
+                      verbose=False, console_bind='', standalone=True):
 
         if not type(console_bind) is types.ListType:
             console_bind = [console_bind]
@@ -27,7 +29,104 @@ class Plugin(PluginFunction):
         for lang in languages:
             console_output = True if lang in console_bind else False
             process = self.launch_rtcd(package, lang, verbose=console_output)
+        if standalone:
+            self.launch_standalone_rtcs(package, verbose=verbose)
         pass
+    
+
+    def is_standalone_rtc_launched(self, package, command, verbose=False):
+        pids = self.get_standalone_rtc_pids(package, command, verbose=verbose)
+        import psutil
+        for proc in psutil.process_iter():
+            for pid in pids:
+                if proc.pid == pid:
+                    if proc.status() == 'zombie': # For OSX, Ubuntu
+                        continue
+
+                    if verbose: sys.stdout.write('### PID (%s) is running.\n' % pid)
+                    return True
+        if verbose:
+            sys.stdout.write('### PID (%s) is not running.\n' % pids)
+        return False
+
+    def is_standalone_rtcs_launched(self, package, verbose=False):
+        flag = False
+        for command in package.standalone_rtc_commands:
+            flag = flag or self.is_standalone_rtc_launched(package, command, verbose=verbose)
+        return flag
+            
+    def get_standalone_rtc_pids(self, package, command, verbose=False, autoremove=False):
+        pids = []
+        piddir = os.path.join(package.path, self.piddir)
+        logdir = self.logdir
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+        if verbose: sys.stdout.write('## Check Standalone RTC (command=%s) is launched\n' % command)
+        rtcs = admin.rtc.get_rtcs_from_package(package)
+        for rtc in rtcs:
+            rtc_name = rtc.rtcprofile.basicInfo.name
+            if command.find(rtc_name) >= 0:
+                pidfile_prefix = 'rtc_' + rtc_name + '_'
+                for f in os.listdir(piddir):
+                    if f.startswith(pidfile_prefix):
+                        pid = int(f[len(pidfile_prefix):])
+                        pids.append(pid)
+                        if autoremove:
+                            os.remove(os.path.join(piddir, f))
+                            
+        return pids
+
+    def terminate_standalone_rtc(self, package, command, verbose=False):
+
+        rtcs = admin.rtc.get_rtcs_from_package(package)
+        for rtc in rtcs:
+            rtc_name = rtc.rtcprofile.basicInfo.name
+            if command.find(rtc_name) >= 0:
+                if verbose: sys.stdout.write('# Terminating RTC (%s)\n' % rtc_name)
+                pids = self.is_standalone_rtc_launched(package, command, verbose=verbose, autoremove=True)
+                import psutil
+                for proc in psutil.process_iter():
+                    for pid in pids:
+                        if proc.pid == pid:
+                            if verbose: sys.stdout.write('## Kill Process (%d)\n' % pid)
+                            try:
+                                proc.kill()
+                            except psutil.AccessDenied, ex:
+                                sys.stdout.write('## Access Denied to pid(%s).\n' % pid)
+        return 0
+
+    def launch_standalone_rtcs(self, package, verbose=False, stdout=True):
+        piddir = os.path.join(package.path, self.piddir)
+        logdir = self.logdir
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+
+        commands = package.standalone_rtc_commands
+        for command in commands:
+            if verbose: sys.stdout.write('## Launch Standalone RTC (command=%s)\n' % command)
+            
+
+            rtcs = admin.rtc.get_rtcs_from_package(package)
+            for rtc in rtcs:
+                rtc_name = rtc.rtcprofile.basicInfo.name
+                if command.find(rtc_name) >= 0:
+                    if self.is_standalone_rtc_launched(package, command, verbose=verbose):
+                        self.terminate_standalone_rtc(package, command, verbose=verbose)
+                
+                    cmds = command.split(' ')
+                    import subprocess
+                    if not stdout:
+                        out = subprocess.PIPE
+                    else:
+                        out = None
+                    proc = subprocess.Popen(cmds, stdout=out, stderr=out, shell=True)
+                    pid_file = os.path.join(piddir, 'rtc_' + rtc_name + '_' + str(proc.pid))
+                    open(pid_file, 'w').close()
+        return 0
 
     def terminate_system(self, package, verbose=False):
         languages = ['C++', 'Java', 'Python']
@@ -62,6 +161,9 @@ class Plugin(PluginFunction):
         flag = False
         for lang in langs:
             flag = flag or self.is_rtcd_launched(package, lang, verbose=verbose, autoremove=autoremove)
+
+        for command in package.standalone_rtc_commands:
+            flag = flag or self.is_standalone_rtc_launched(package, command, verbose=verbose)
         return flag
 
     def terminate_rtcd(self, package, language, verbose=False):

@@ -389,3 +389,7 @@ class PackageObject(object):
                 self._rtcconf[lang] = path
         return self._rtcconf
 
+
+    @property
+    def standalone_rtc_commands(self):
+        return self.setting.get('standalone', [])
