@@ -150,6 +150,13 @@ class Plugin(PluginFunction):
     def get_binders(self, verbose=False):
         return get_binders(verbose=verbose)
 
+    def get_binder(self, binder_name, verbose=False):
+        binders = self.get_binders(verbose=verbose)
+        for b in binders:
+            if b.owner == binder_name:
+                return b
+        return None
+
     def get_package_repos(self, verbose=False):    
         return get_package_repos(verbose=verbose)
             
@@ -294,7 +301,20 @@ class Binder(object):
     def path(self):
         return self._path
 
+    @property
+    def rtcs_path(self):
+        return os.path.join(self.path, 'rtcs')
+    @property
+    def packages_path(self):
+        return os.path.join(self.path, 'packages')
+    @property
+    def rtc_files(self):
+        return [f for f in os.listdir(self.rtcs_path) if f.endswith('yaml')]
 
+    @property
+    def package_files(self):
+        return [f for f in os.listdir(self.packages_path) if f.endswith('yaml')]
+    
 
 def get_package_repos(verbose=False):
     binders = get_binders(verbose=verbose)

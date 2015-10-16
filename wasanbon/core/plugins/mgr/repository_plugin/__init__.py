@@ -146,8 +146,7 @@ class Plugin(PluginFunction):
             if argv[3] != 'all' and argv[3] != rtc.rtcprofile.basicInfo.name:
                 continue
 
-            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose
-)
+            repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
             if repo is None:
                 sys.stdout.write('%s does not have local repository.\n' % rtc.rtcprofile.basicInfo.name)
                 continue
