@@ -13,6 +13,10 @@ class Plugin(PluginFunction):
     def depends(self):
         return ['admin.environment', 'admin.binder', 'admin.package', 'admin.rtc', 'admin.repository']
 
+    def _print_alternatives_for_package(self, argv):
+        argv = [arg for arg in argv if not arg.startswith('-')]
+        if len(argv) == 3:
+            self._print_binders(argv)
     
     def _print_alternatives(self, argv):
         argv = [arg for arg in argv if not arg.startswith('-')]
@@ -87,6 +91,63 @@ class Plugin(PluginFunction):
   url : '%s'
   platform : [%s]
 """ % (repo.name, rtc.rtcprofile.basicInfo.doc.description, repo.url.strip(), wasanbon.platform())
+            print text
+            os.rename(filename, filename + wasanbon.timestampstr())
+            open(filename, 'w').write(text)
+            
+            
+        return 0
+
+
+    @manifest
+    def add_package(self, argv):
+        """ Add This package information to binder
+        $ mgr.py binder add_package $BINDER_NAME
+        """
+        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        options, argv = self.parse_args(argv[:], self._print_alternatives_for_package)
+        verbose = options.verbose_flag # This is default option
+
+        wasanbon.arg_check(argv, 4)
+        binder_name = argv[3]
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+        package_name = package.name
+        sys.stdout.write('# Information of Package will be added to %s binder\n' % (binder_name))
+        
+        binder = admin.binder.get_binder(binder_name, verbose=verbose)
+
+        repo = admin.repository.get_repository_from_path(package.path, verbose=verbose)
+        global filename
+        filename= None
+        packages = [package_.name for package_ in binder.packages]
+        if package_name in packages:
+            sys.stdout.write('# This binder have the same Package information.\n')
+            
+        else:
+            if filename is None:
+                def choice_command(ans):
+                    global filename
+                    filename = os.path.join(binder.packages_path, binder.package_files[ans])
+                    return -1
+                util.choice(binder.package_files, choice_command, 'Select RTC repository file')
+            else:
+                if not filename in binder.package_files:
+                    sys.stdout.write('# File %s is not found.\n' % filenmae)
+                    filename = os.path.join(binder.packages_path, filename)
+                    return -1
+            print filename
+            text = open(filename, 'r').read()
+            #os.rename(filename, filename + wasanbon.timestampstr())
+            #import yaml
+            #repo_dic = yaml.load(open(filename, 'w'))
+
+            text = text + """
+%s :
+  description : "%s"
+  type : git
+  url : '%s'
+  platform : [%s]
+""" % (repo.name, package.description, repo.url.strip(), wasanbon.platform())
             print text
             os.rename(filename, filename + wasanbon.timestampstr())
             open(filename, 'w').write(text)
