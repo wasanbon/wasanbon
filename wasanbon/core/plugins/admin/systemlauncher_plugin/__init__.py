@@ -83,12 +83,27 @@ class Plugin(PluginFunction):
         if verbose: sys.stdout.write('# Terminating Standalone RTCs.\n')
         retval = 0
         for command in package.standalone_rtc_commands:
-            if self.terminate_standalone_rtc(package, command, verbose=verbose) != 0:
+            if self.terminate_standalone_rtc_with_command(package, command, verbose=verbose) != 0:
                 retval = -1
             
         return retval
 
-    def terminate_standalone_rtc(self, package, command, verbose=False):
+    def terminate_standalone_rtc(self, package, rtc, verbose=False):
+        pids = []
+        piddir = os.path.join(package.path, self.piddir)
+        logdir = self.logdir
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+        # if verbose: sys.stdout.write('## Check Standalone RTC (command=%s) is launched\n' % command)
+        rtc_name = rtc.rtcprofile.basicInfo.name
+        for command in package.standalone_rtc_commands:
+            if command.find(rtc_name) >= 0:
+                return self.terminate_standalone_rtc_with_command(package, command, verbose=verbose)
+        return -1
+
+    def terminate_standalone_rtc_with_command(self, package, command, verbose=False):
         # if verbose: sys.stdout.write('# Terminating RTC (command=%s)\n' % command)
         rtcs = admin.rtc.get_rtcs_from_package(package)
         for rtc in rtcs:
@@ -107,6 +122,36 @@ class Plugin(PluginFunction):
                             except psutil.AccessDenied, ex:
                                 sys.stdout.write('## Access Denied to pid(%s).\n' % pid)
         return 0
+
+
+    def launch_standalone_rtc(self, package, rtc, verbose=False, stdout=True):
+        piddir = os.path.join(package.path, self.piddir)
+        logdir = self.logdir
+        if not os.path.isdir(logdir):
+            os.mkdir(logdir)
+        if not os.path.isdir(piddir):
+            os.mkdir(piddir)
+
+        commands = package.standalone_rtc_commands
+        for command in commands:
+            if verbose: sys.stdout.write('## Launch Standalone RTC (command=%s)\n' % command)
+            
+            rtc_name = rtc.rtcprofile.basicInfo.name
+            if command.find(rtc_name) >= 0:
+                if self.is_standalone_rtc_launched(package, command, verbose=verbose):
+                    self.terminate_standalone_rtc(package, command, verbose=verbose)
+                    pass
+                cmds = command.split(' ')
+                import subprocess
+                if not stdout:
+                    out = subprocess.PIPE
+                else:
+                    out = None
+                proc = subprocess.Popen(cmds, stdout=out, stderr=out)
+                pid_file = os.path.join(piddir, 'rtc_' + rtc_name + '_' + str(proc.pid))
+                open(pid_file, 'w').close()
+        return 0
+
 
     def launch_standalone_rtcs(self, package, verbose=False, stdout=True):
         piddir = os.path.join(package.path, self.piddir)

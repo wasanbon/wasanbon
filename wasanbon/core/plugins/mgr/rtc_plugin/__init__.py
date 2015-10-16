@@ -325,12 +325,22 @@ class Plugin(PluginFunction):
         package = admin.package.get_package_from_path(os.getcwd())
         sys.stdout.write('# Starting RTC.\n')
         rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
-        if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
-            return -1
+        standalone = admin.systeminstaller.is_installed(package, rtc, standalone=True, verbose=verbose)
+        if standalone:
+            admin.systemlauncher.launch_standalone_rtc(package, rtc, stdout=True, verbose=verbose)
+            pass
+        else:
+            if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
+                return -1
         wasanbon.sleep(wakeuptimeout)
         sys.stdout.write('# Acquiring RTCProfile from Inactive RTC\n')
         rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
-        self.terminate_rtcd(package, verbose=verbose)
+
+        if standalone:
+
+            pass
+        else:
+            self.terminate_rtcd(package, verbose=verbose)
         sys.stdout.write('# Comparing Acquired RTCProfile and Existing RTCProfile.\n')
         retval = admin.rtcprofile.compare_rtcprofile(rtc.rtcprofile, rtcp, verbose=verbose)
         if retval:
