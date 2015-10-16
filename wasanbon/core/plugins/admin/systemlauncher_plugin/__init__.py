@@ -134,7 +134,7 @@ class Plugin(PluginFunction):
                         out = subprocess.PIPE
                     else:
                         out = None
-                    proc = subprocess.Popen(cmds, stdout=out, stderr=out, shell=True)
+                    proc = subprocess.Popen(cmds, stdout=out, stderr=out)
                     pid_file = os.path.join(piddir, 'rtc_' + rtc_name + '_' + str(proc.pid))
                     open(pid_file, 'w').close()
         return 0

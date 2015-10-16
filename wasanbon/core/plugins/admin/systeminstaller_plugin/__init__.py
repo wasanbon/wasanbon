@@ -87,6 +87,9 @@ class Plugin(PluginFunction):
         else:
             return name in self.get_installed_standalone_rtc_names(package, verbose=verbose)
 
+
+    
+
     def install_rtc_in_package(self, package, rtc, verbose=False, 
                                preload=True, precreate=True, copy_conf=True, 
                                rtcconf_filename="", 

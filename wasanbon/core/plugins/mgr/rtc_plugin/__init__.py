@@ -121,8 +121,13 @@ class Plugin(PluginFunction):
             else:
                 sys.stdout.write('## Success.\n')
                 if not only:
-                    sys.stdout.write('## Installing RTC (standalone=%s).\n' % (standalone is True))
-                    admin.systeminstaller.install_rtc_in_package(pack, rtc, verbose=verbose, standalone=standalone)
+                    if not standalone:
+                        # Confirm if this rtc is 
+                        standalone_flag = admin.systeminstaller.is_installed(pack, rtc, verbose=verbose, standalone=True)
+                    else:
+                        standalone_flag = standalone
+                    sys.stdout.write('## Installing RTC (standalone=%s).\n' % (standalone_flag is True))
+                    admin.systeminstaller.install_rtc_in_package(pack, rtc, verbose=verbose, standalone=standalone_flag)
                     sys.stdout.write('### Success.\n')
 
         if verbose:
