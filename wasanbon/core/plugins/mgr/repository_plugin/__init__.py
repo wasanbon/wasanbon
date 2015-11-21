@@ -73,6 +73,7 @@ class Plugin(PluginFunction):
                             sys.stdout.write('## Success.\n')
                             pass
                         match = True
+                        break
         else:
             match = True
             rtc_name = os.path.basename(url)

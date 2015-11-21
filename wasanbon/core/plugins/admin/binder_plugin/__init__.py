@@ -259,7 +259,10 @@ class Binder(object):
             self._rtcs = []
             path_ = os.path.join(self.path, 'rtcs')
             for f in os.listdir(path_):
+
                 filepath = os.path.join(path_, f)
+                if not filepath.endswith('yaml'):
+                    continue
                 d = yaml.load(open(filepath, 'r'))
                 if type(d) is types.DictType:
                     for name, v in d.items():
@@ -281,6 +284,8 @@ class Binder(object):
             path_ = os.path.join(self.path, 'packages')
             for f in os.listdir(path_):
                 filepath = os.path.join(path_, f)
+                if not filepath.endswith('yaml'):
+                    continue
                 d = yaml.load(open(filepath, 'r'))
                 if type(d) is types.DictType:
                     for name, v in d.items():
