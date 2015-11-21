@@ -15,6 +15,18 @@ class Plugin(PluginFunction):
     def depends(self):
         return ['admin.environment', 'admin.git', 'admin.github']
 
+    def _print_binders(self, argv):
+        binders = self.get_binders()
+        for b in binders:
+            print b.owner
+
+    def _print_alternatives(self, argv):
+        argv = [arg for arg in argv if not arg.startswith('-')]
+        if len(argv) == 4:
+            self._print_binders(argv)
+        else:
+            print ""
+
     @manifest 
     def create(self, argv):
         """ Create Binder. 
@@ -146,6 +158,46 @@ class Plugin(PluginFunction):
                     print '  %s : %s' % ('platform', package.platform)
 
         return 0
+
+
+    @manifest
+    def commit(self, args):
+        """ Commit changes of binder file (.yaml) to local repository.
+        $ wasanbon-admin.py binder commit [binder_owner_name] (comment)
+        """
+        self.parser.add_option('-p', '--push', help='Push simultaneously', default=False, dest='push_flag', action='store_true')
+        options, argv = self.parse_args(args[:], self._print_alternatives)
+        verbose = options.verbose_flag
+        push = options.push_flag
+
+        wasanbon.arg_check(argv, 5)
+        binder_name = argv[3]
+        comment = argv[4]
+        binder = self.get_binder(binder_name, verbose=verbose)
+        sys.stdout.write('# Committing binder %s to local repository\n' % binder_name)        
+
+        p = admin.git.git_command(['commit', '-am', comment], path=binder.path)
+        p.communicate()
+        output = p.stdout.read()
+        if verbose: sys.stdout.write(output)
+        
+        if p.returncode == 0:
+            sys.stdout.write('## Success.\n')
+            if push:
+                sys.stdout.write('# Pushing binder %s\n' % binder_name)
+                remote = 'origin'
+                branch = 'master'
+                p = admin.git.git_command(['push', remote, branch], path=binder.path)
+                p.communicate()
+                output = p.stdout.read()
+                if verbose: sys.stdout.write(output)
+                if p.returncode != 0:
+                    sys.stdout.write('## Failed.\n')
+                    return -1
+                sys.stdout.write('## Success.\n')
+            return 0
+        sys.stdout.write('## Failed.\n')
+        return -1
 
     def get_binders(self, verbose=False):
         return get_binders(verbose=verbose)
