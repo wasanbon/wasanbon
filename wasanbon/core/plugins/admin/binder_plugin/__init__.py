@@ -177,19 +177,18 @@ class Plugin(PluginFunction):
         sys.stdout.write('# Committing binder %s to local repository\n' % binder_name)        
 
         p = admin.git.git_command(['commit', '-am', comment], path=binder.path)
-        p.communicate()
-        output = p.stdout.read()
+        output, stderr = p.communicate()
+        #output = p.stdout.read()
         if verbose: sys.stdout.write(output)
-        
-        if p.returncode == 0:
+        if True:
             sys.stdout.write('## Success.\n')
             if push:
                 sys.stdout.write('# Pushing binder %s\n' % binder_name)
                 remote = 'origin'
                 branch = 'master'
                 p = admin.git.git_command(['push', remote, branch], path=binder.path)
-                p.communicate()
-                output = p.stdout.read()
+                output, stderr = p.communicate()
+                #output = p.stdout.read()
                 if verbose: sys.stdout.write(output)
                 if p.returncode != 0:
                     sys.stdout.write('## Failed.\n')
