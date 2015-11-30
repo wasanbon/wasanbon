@@ -152,16 +152,28 @@ class Plugin(PluginFunction):
         return pids
 
     def remove_nss_pidfile(self, pid=None, path=None, verbose=False, pidFilePath='pid'):
-        if verbose: sys.stdout.write('## checking Nameservice is runing or not with pid file.\n')
+        if verbose: sys.stdout.write('## checking Nameservice is running or not with pid file in %s.\n' % pidFilePath)
+        curdir = os.getcwd()
+        if path != None: os.chdir(path)
+
+        pids = []
+        for file in os.listdir(pidFilePath):
+            
+            if file.startswith('nameserver_'):
+                pid_str = file[len('nameserver_'):]
+                if pid == None or int(pid_str) == pid:
+                    os.remove(os.path.join(pidFilePath, file))
+        pass
+
+    def remove_all_nss_pidfile(self, path=None, verbose=False, pidFilePath='pid'):
+        if verbose: sys.stdout.write('## checking Nameservice is running or not with pid file in %s.\n' % pidFilePath)
         curdir = os.getcwd()
         if path != None: os.chdir(path)
 
         pids = []
         for file in os.listdir(pidFilePath):
             if file.startswith('nameserver_'):
-                pid_str = file[len('nameserver_'):]
-                if pid == None or int(pid_str) == pid:
-                    os.remove(os.path.join(pidFilePath, file))
+                os.remove(os.path.join(pidFilePath, file))
         pass
 
 
@@ -231,11 +243,12 @@ class Plugin(PluginFunction):
         sys.stdout.write('# Stopping Nameserver (%s)\n' % str(ns))
         if self.terminate(ns, verbose=verbose) == 0:
             sys.stdout.write('Success\n')
+            self.remove_all_nss_pidfile(verbose=verbose, pidFilePath=os.path.join(wasanbon.home_path, 'pid'))
             return 0
         else:
             sys.stdout.write('Failed\n')
             return -1
-
+        
     @manifest 
     def restart(self, argv):
         """ Stop and Start NameServer """
