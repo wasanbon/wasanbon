@@ -448,6 +448,8 @@ class Plugin(PluginFunction):
                         process_pid = p.pid
                 except psutil.AccessDenied, e:
                     continue
+                except psutil.ZombieProcess, e:
+                    continue
             if verbose:
                 sys.stdout.write('## Creating PID file (%s)\n' % process_pid)
                 sys.stdout.write('### Filename :%s\n' % os.path.join(os.getcwd(), pidFilePath, 'nameserver_' + str(process_pid)))
