@@ -362,7 +362,9 @@ def platform():
     if sys.platform == 'darwin':
         import platform as plt
         ver = plt.mac_ver()[0]
-        if ver.startswith('10.10'):
+        if ver.startswith('10.11'):
+            _platform = 'osx10.11_' + xcode_check()
+        elif ver.startswith('10.10'):
             _platform = 'osx10.10_' + xcode_check()
         elif ver.startswith('10.9'):
             _platform = 'osx10.9_' + xcode_check()
@@ -370,6 +372,8 @@ def platform():
             _platform = 'osx10.8_' + xcode_check()
         elif ver.startswith('10.7'):
             _platform = 'osx10.7_' + xcode_check()
+        else:
+            raise wasanbon.UnsupportedPlatformException()
     elif sys.platform == 'win32':
         if sys.getwindowsversion()[1] == 1:
             _platform = 'windows7'
