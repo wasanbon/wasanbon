@@ -16,7 +16,10 @@ sigs[0] = 2 ** (signal.SIGINT - 1)
 mask = SIGSET(sigs)
 
 if sys.platform == 'darwin':
-    libc = CDLL('libc.dylib')
+    try:
+        libc = CDLL('libc.dylib')
+    except:
+        libc = CDLL('/usr/lib/libc.dylib')
 elif sys.platform == 'linux2':
     libc = CDLL('libc.so.6')
 

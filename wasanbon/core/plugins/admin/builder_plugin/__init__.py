@@ -83,7 +83,7 @@ def build_rtc_cpp(rtcp, verbose=False):
         sys.stdout.write('# CMake Failed.\n')
         if verbose:
             return (False, None)
-        return (False, p.stderr.read())
+        return (False, std_out[0])
     sys.stdout.write('# CMake Success.\n')
 
     if sys.platform == 'win32':
