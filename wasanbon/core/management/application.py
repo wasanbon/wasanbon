@@ -3,68 +3,20 @@
 import os, sys, types, optparse, traceback, inspect
 
 import wasanbon
-#from wasanbon import help
     
 def get_subcommand_list(package):
-    """
-    Get Subcommand from Directory
+    """ Get Subcommand from Directory
     wasanbon/core/management/%package%
     package can be admin or commands.
     """
-    #mod = __import__('wasanbon.core.management.' + package)
-    #ret = [x[:len(x)-3] for x in os.listdir(os.path.join(wasanbon.core.management.__path__[0], package)) if x.endswith('.py') and not x.startswith("__")]
     ret = []
     ret.append('help')
-    if package == 'admin':
-        for n in wasanbon.plugins.get_admin_plugin_names():
-            if wasanbon.plugins.get_admin_plugin(n).is_manifest_plugin():
+    for n in wasanbon.plugins.get_plugin_names(package):
+        if wasanbon.plugins.get_plugin(package, n).is_manifest_plugin():
+            if not n in ret:
                 ret.append(n)
-
-    if package == 'mgr':
-        for n in wasanbon.plugins.get_mgr_plugin_names():
-            if wasanbon.plugins.get_mgr_plugin(n).is_manifest_plugin():
-                if not n in ret:
-                    ret.append(n)
     return ret
 
-
-"""
-def generate_plugin_help(function):
-    unit_indent = "  "
-    output = ""
-    for line in function.__doc__.splitlines():
-        output = output + line.strip() + '\n'
-    for cmd in dir(function):
-        if cmd == '__call__':
-            command = getattr(function, cmd)
-            output = output + (unit_indent + 'without subcommand : |\n' )
-        elif cmd.startswith('_'):
-            continue
-        else:
-            command = getattr(function, cmd)
-            output = output + (unit_indent + '%s : |\n' % cmd)
-        indent = unit_indent * 2
-        for line in command.__doc__.splitlines():
-            output = output + indent + line.strip() + '\n'
-            
-    sys.stdout.write(output)
-    pass
-        
-
-def show_help_description(package, subcommand, long=False, args=None):
-    if is_plugin_command(package, subcommand):
-        function = getattr(getattr(wasanbon.plugins, package), subcommand )
-        if not 'help' in dir(function):
-            generate_plugin_help(function)
-            return 0
-        else:
-            function.help(args)
-        return 0
-    else:
-        print help.get_help_text(package, subcommand, long)
-
-
-"""
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
@@ -83,12 +35,8 @@ class ArgumentParser(optparse.OptionParser):
                 largs.append(e.opt_str)
 
 def show_plugin_help(package, subcommand):
-    if package == 'admin':
-        name = 'admin.' + subcommand
-        plugin = wasanbon.plugins.get_admin_plugin(subcommand)
-    elif package == 'mgr':
-        name = 'mgr.' + subcommand
-        plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+    name = package +'.' + subcommand
+    plugin = wasanbon.plugins.get_plugin(package, subcommand)
 
     print 'Usage : |'
     if '__doc__' in dir(plugin):

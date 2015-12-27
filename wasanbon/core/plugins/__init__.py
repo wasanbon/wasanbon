@@ -78,6 +78,9 @@ class Loader():
     def __init__(self, directories, verbose=False):
         self._mgr = FunctionList()
         self._admin = FunctionList()
+        self._package = {}
+        self._package['admin'] = self._admin
+        self._package['mgr'] = self._mgr
 
         self._directories = directories
         self._plugin_list = {}
@@ -87,9 +90,18 @@ class Loader():
         for name, dir in self._plugin_list.items():
             self.load_plugin(name, dir, verbose=verbose)
 
+    def get_plugin_names(self, package, nocall=False, verbose=False):
+        """ Get Plugin Names in Package [admin|mgr] """
+        return [p for p in dir(self._package[package]) if not p.startswith('_')]
+
+    def get_plugins(self, package):
+        return [getattr(self._package[package], n) for n in self.get_plugin_names(package)]
+
+    def get_plugin(self, package, name):
+        return getattr(self._package[package], name)
 
     def get_admin_plugin_names(self, nocall=False):
-        return [p for p in dir(self._admin) if not p.startswith('_')]
+        return get_plugin_names('admin', nocall)
 
     def get_admin_plugins(self):
         return [getattr(self._admin, n) for n in self.get_admin_plugin_names()]
