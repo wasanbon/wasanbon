@@ -69,8 +69,7 @@ def print_long_help(command, package):
     subcommands = get_subcommand_list(package) 
     for subcommand in subcommands:
         if is_plugin_command(package, subcommand):
-            if package == 'admin': plugin = wasanbon.plugins.get_admin_plugin(subcommand)
-            elif package == 'mgr': plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+            plugin = wasanbon.plugins.get_plugin(package, subcommand)
             if '__doc__' in dir(plugin):
                 if plugin.__doc__ != None:
                     docs = [s.strip() for s in plugin.__doc__.split('\n')]
@@ -129,15 +128,8 @@ def execute(argv=None):
         return 0
 
     if options.help_flag == True:
-        #show_help_description(package, subcommand, options.longhelp_flag, args)
-        #return
         args = args + ['-h']
 
-    # If not help but option is add
-    #if options.longhelp_flag:
-    #    args = args + ['-l']
-    #if options.verbose_flag:
-    #    args = args + ['-v']
     try:
         if options.alter_flag:
             print_module_alternatives(package, subcommand, args=args)
@@ -148,14 +140,11 @@ def execute(argv=None):
         return 0
 
     except wasanbon.InvalidUsageException, ex:
-        #show_help_description(package, subcommand, args=args)
-        #print_long_help_sub(command, subcommand, package)
         run_command(package, subcommand, ['-h'])
         return -1
     except wasanbon.RTCNotFoundException, ex:
         sys.stdout.write('# RTC Not Found.\n')
     except wasanbon.WasanbonException, ex:
-        #if options.verbose_flag:
         traceback.print_exc()
         sys.stdout.write('## WasanbonError. %s\n' % ex.msg())
         return -1
@@ -168,12 +157,7 @@ def execute(argv=None):
 
 def run_command(package, subcommand, args, options= None):
     if is_plugin_command(package, subcommand):
-        if package == 'admin':
-            plugin = wasanbon.plugins.get_admin_plugin(subcommand)
-        if package == 'mgr':
-            plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
-        #sub_functions = dir( function )
-        #alts = [func for func in sub_functions if not func.startswith('_')]
+        plugin = wasanbon.plugins.get_plugin(package, subcommand)
         alts = plugin.get_manifest_function_names()
         target_function = None
         for arg in args[2:]:
@@ -192,24 +176,13 @@ def run_command(package, subcommand, args, options= None):
         else:
             return getattr(plugin, target_function)(args)
     else:
-        #verbose = False if options is None else options.verbose_flag
-        """
-        verbose = True
-        module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
-        __import__(module_name)
-        mod = sys.modules[module_name]
-        mod.execute_with_argv(args, verbose=verbose)
-        """
         raise wasanbon.InvalidUsageException()
     pass
 
 
 def print_module_alternatives(package, subcommand, args):
     if is_plugin_command(package, subcommand):
-        if package == 'admin':
-            plugin = wasanbon.plugins.get_admin_plugin(subcommand)
-        if package == 'mgr':
-            plugin = wasanbon.plugins.get_mgr_plugin(subcommand)
+        plugin = wasanbon.plugins.get_plugin(package, subcommand)
         
         alts = plugin.get_manifest_function_names()
         can_call = False
@@ -229,14 +202,7 @@ def print_module_alternatives(package, subcommand, args):
         print_alternative(alts)
 
     else:
-        """
-        module_name = 'wasanbon.core.management.%s.%s' % (package, subcommand)
-        __import__(module_name)
-        mod = sys.modules[module_name]
-        """
-        #print_alternative(mod.alternative(args))
         raise wasanbon.InvalidUsageException()
-
     pass
 
 
@@ -249,14 +215,6 @@ def print_alternative(alternative, argv=None):
             sys.stdout.write(' ')
             pass
 
-def get_plugin_commands(package):
-    ret = []
-    if package == 'admin':
-        return wasanbon.plugins.get_admin_plugin_names()
-    elif package == 'mgr':
-        return wasanbon.plugins.get_mgr_plugin_names()
-    return []
-
 def is_plugin_command(package, cmd):
-    cmds = get_plugin_commands(package)
+    cmds = wasanbon.plugins.get_plugin_names(package)
     return True if cmd in cmds else False
