@@ -104,6 +104,7 @@ def execute(argv=None):
         traceback.print_exc()
         return 
 
+    opts.append('plugin')
     
     parser = ArgumentParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=usage, action='store_true', default=False, dest='help_flag')
@@ -120,7 +121,7 @@ def execute(argv=None):
 
     subcommand = args[1]
     
-    opts.append('plugin')
+
 
     if not subcommand in opts:
         subcommand = 'help'

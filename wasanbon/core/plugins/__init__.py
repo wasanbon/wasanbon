@@ -224,5 +224,53 @@ class Loader():
         return plugin
 
     def run_command(self, package, subcommand, args):
-        if args[3] == 'list':
-            print self.get_plugin_names(package)
+        if len(args) < 3:
+            self.print_help(package)
+            return 0
+
+        if '-h' in args or 'help' in args:
+            self.print_help(package)
+            return 0
+
+        if args[2] == 'list':
+            self.print_list_plugins(package)
+            return 0
+
+
+    def print_list_plugins(self, package):
+        names = self.get_plugin_names(package)
+        for name in names:
+            print ' - %s:' % name
+            plugin = self.get_plugin(package, name)
+            if '__doc__' in dir(plugin):
+                if plugin.__doc__ != None:
+                    docs = [s.strip() for s in plugin.__doc__.split('\n')]
+                    for d in docs:
+                        print '   ', d
+                else:
+                    print '   (No Help)'
+            else:
+                print '   (No Help)'
+        
+
+    def print_help(self, package):
+        """ Print Help Message for Plugin command """
+        if package == 'admin':
+            print """
+This command is for plugin administration.
+Usage:
+  $ wasanbon-admin.py plugin [subcommand]
+
+subcommands:
+  list : list plugins for package administration.
+"""
+
+        if package == 'mgr':
+            print """
+This command is for plugin administration.
+Usage:
+  $ mgr.py plugin [subcommand]
+
+subcommands:
+  list : list plugins for package management
+"""
