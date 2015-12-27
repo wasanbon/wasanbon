@@ -119,6 +119,8 @@ def execute(argv=None):
         args.append('help')
 
     subcommand = args[1]
+    
+    opts.append('plugin')
 
     if not subcommand in opts:
         subcommand = 'help'
@@ -127,12 +129,15 @@ def execute(argv=None):
         print_long_help(command, package)
         return 0
 
+
     if options.help_flag == True:
         args = args + ['-h']
 
     try:
         if options.alter_flag:
             print_module_alternatives(package, subcommand, args=args)
+        elif subcommand == 'plugin':
+            return wasanbon.plugins.run_command(package, subcommand, args)
         else:
             return run_command(package, subcommand, args)
 
@@ -156,7 +161,9 @@ def execute(argv=None):
 
 
 def run_command(package, subcommand, args, options= None):
-    if is_plugin_command(package, subcommand):
+    """ Execute Plugin Commands """
+
+    if is_plugin_command(package, subcommand): # Check if subcommands are in alternatives
         plugin = wasanbon.plugins.get_plugin(package, subcommand)
         alts = plugin.get_manifest_function_names()
         target_function = None

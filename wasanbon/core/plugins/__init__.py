@@ -100,6 +100,7 @@ class Loader():
     def get_plugin(self, package, name):
         return getattr(self._package[package], name)
 
+    """
     def get_admin_plugin_names(self, nocall=False):
         return get_plugin_names('admin', nocall)
 
@@ -117,30 +118,26 @@ class Loader():
 
     def get_mgr_plugin(self, name):
         return getattr(self._mgr, name)
+    """
 
     @property
     def plugin_list(self):
         return self._plugin_list
 
+    def list_package_plugins(self, package, directory, verbose=False):
+        admin_dir = os.path.join(directory, package)
+        for d in os.listdir(admin_dir):
+            if d.endswith(self.ext):
+                name = d[:-len(self.ext)]
+                if verbose: sys.stdout.write('# Plugin: %s Found.\n' % name)
+                self._plugin_list[package + '.' + name] = os.path.join(admin_dir, d)
+
+        
     def list_plugins(self, directory, verbose=False):
-        if 'admin' in os.listdir(directory):
-            admin_dir = os.path.join(directory, 'admin')
-            for d in os.listdir(admin_dir):
-                if d.endswith(self.ext):
-                    name = d[:-len(self.ext)]
-                    if verbose: sys.stdout.write('# Plugin: %s Found.\n' % name)
-                    self._plugin_list['admin.' + name] = os.path.join(admin_dir, d)
+        for pkg in ['admin', 'mgr']:
+            if pkg in os.listdir(directory):
+                self.list_package_plugins(pkg, directory, verbose=verbose)
 
-        if 'mgr' in os.listdir(directory):
-            admin_dir = os.path.join(directory, 'mgr')
-            for d in os.listdir(admin_dir):
-                if d.endswith(self.ext):
-                    name = d[:-len(self.ext)]
-                    if verbose: sys.stdout.write('# Plugin: %s Found.\n' % name)
-                    self._plugin_list['mgr.' + name] = os.path.join(admin_dir, d)
-
-
-    
     def load_directory(self, directory):
         sys.path.append(os.path.join(directory))
         for d in os.listdir(directory):
@@ -171,7 +168,6 @@ class Loader():
         if mod is not None:
             return mod
             
-        #sys.path.append(os.path.dirname(directory))
         sys.path.insert(0, os.path.dirname(directory))
         import imp
         try:
@@ -183,15 +179,9 @@ class Loader():
             return None
         if getattr(m, 'admin', None) is None: setattr(m, 'admin', FunctionList())
         if getattr(m, 'mgr', None) is None: setattr(m, 'mgr', FunctionList())
-        #m = __import__(os.path.basename(directory))
         plugin = m.Plugin()
-        #print dir(plugin)
-        #sys.path.pop(-1)
         sys.path.pop(0)
 
-        #import yaml
-        #dict_ = yaml.load(open(os.path.join(directory, 'plugin.yaml'), 'r'))
-        #depends_plugin_names = dict_.get('depends', [])
         depends_plugin_names = plugin.depends()
         if type(depends_plugin_names) == types.StringType:
             depends_plugin_names = [depends_plugin_names]
@@ -200,28 +190,23 @@ class Loader():
             if not n in self._plugin_list.keys():
                 sys.stdout.write('# Plugin %s is not found when loading %s.\n' % (n, name))
                 raise wasanbon.PluginDependencyNotResolvedException()
-            #return -1
-            
 
             if n.startswith('admin.'):
                 if getattr(self._admin, n[6:], None) != None:
                     if verbose: sys.stdout.write('# Plugin %s is already loaded.\n')
                     p = getattr(self._admin, n[6:])
-                    #setattr(plugin.admin, n[6:], p)
-                    #setattr(m.admin, n[6:], p)
                     pass
                 else:
                     if verbose: sys.stdout.write('# Plugin %s is not loaded yet.\n' % n)
                     p = self.load_plugin(n, self._plugin_list[n])
-                    #setattr(plugin.admin, n[6:], p)
+
                 setattr(m.admin, n[6:], p)
 
             elif n.startswith('mgr.'):
                 if getattr(self._mgr, n[4:], None) != None:
                     if verbose: sys.stdout.write('# Plugin %s is already loaded.\n')
                     p = getattr(self._mgr, n[4:])
-                    #setattr(plugin.mgr, n[4:], p)
-                    #setattr(m.mgr, n[4:], p)
+
                     pass
                 else:
                     if verbose: sys.stdout.write('# Plugin %s is not loaded yet.\n' % n)
@@ -237,3 +222,6 @@ class Loader():
 
         if verbose: sys.stdout.write('# Loaded (%s) \n' % name)
         return plugin
+
+    def run_command(self, package, subcommand, args):
+        print self.get_plugin_names(package)
