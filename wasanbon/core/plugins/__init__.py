@@ -224,4 +224,5 @@ class Loader():
         return plugin
 
     def run_command(self, package, subcommand, args):
-        print self.get_plugin_names(package)
+        if args[3] == 'list':
+            print self.get_plugin_names(package)
