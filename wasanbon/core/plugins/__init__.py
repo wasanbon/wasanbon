@@ -23,7 +23,18 @@ def manifest(func):
 
 class PluginFunction(object):
     def __init__(self):
+        self.admin = FunctionList()
+        self.admin.__doc__ = """ This property provides the entrance for admin package plugins.
+To access plugins, add the name of the plugin to be used in the list of return value of depends function """
+        self.mgr   = FunctionList()
+        self.admin.__doc__ = """ This property provides the entrance for mgr package plugins.
+To access plugins, add the name of the plugin to be used in the list of return value of depends function """
+        self.__path__ = []
+
         self.parser = optparse.OptionParser(usage="", add_help_option=False)
+        self.parser.__doc__ = """optparse.OptionParser. This parser has default options '-v/--versbose and -a/--alternative'. 
+Plugin developer does not have to handle -a/--alternative options explicitly. 
+if -v is set, options.verbose_flag is set, which must be handled by developer of each plugin. """
         self.parser.add_option('-v', '--verbose', help='Verbosity option (default=False)', default=False, action='store_true', dest='verbose_flag')
         self.parser.add_option('-a', '--alternative', help='print Alternatives of next argument (default=False)', default=False, action='store_true', dest='alt_flag')
         pass
@@ -75,15 +86,22 @@ class PluginFunction(object):
                 continue
             func = getattr(self, name)
             if type(func) is types.MethodType:
-                functions[name] = func
-        return functions
+                functions_dic[name] = func
+        return functions_dic
+
+    def get_properties(self, verbose=False):
+        properties = {}
+        for name in dir(self):
+            if name.startswith('_'):
+                continue
+            prop = getattr(self, name)
+            if not type(prop) is types.MethodType:
+                properties[name] = prop
+        return properties
         
     def get_function_names(self, verbose=False):
         return self.get_functions(verbose).keys()
 
-    admin = FunctionList()
-    mgr   = FunctionList()
-    path = []
     
 class Loader():
     
@@ -284,18 +302,25 @@ class Loader():
             else:
                 print '   (No Help)'
 
-    def show_api(self, plugin_name, long=False):
+    def show_api(self, package, plugin_name, long=False):
         names = self.get_plugin_names(package)
         if not plugin_name in names:
             self.print_help(package)
             return -1
         plugin = self.get_plugin(package, plugin_name)
         sys.stdout.write('%s :\n' % plugin_name)
-        sys.stdout.write('  path : %s\n' % plugin)
+        sys.stdout.write('  path : %s\n' % plugin.__path__[0])
+        sys.stdout.write('  properties : \n')
+        properties = plugin.get_properties()
+        for name, prop in properties.items():
+            sys.stdout.write('    %s : |\n' % name)
+            if getattr(prop, '__doc__', None):
+                for line in prop.__doc__.split('\n'):
+                    sys.stdout.write('      %s\n' % line)
         sys.stdout.write('  methods :\n')
         functions = plugin.get_functions()
         for name, func in functions.items():
-            sys.stdout.write('  - %s\n' % name)
+            sys.stdout.write('    %s : |\n' % name)
         
 
     def print_help(self, package):
