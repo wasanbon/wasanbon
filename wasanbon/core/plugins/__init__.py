@@ -243,8 +243,6 @@ class Loader():
             self.print_list_plugins(package, long)
             return 0
 
-
-
     def print_list_plugins(self, package, long=False):
         names = self.get_plugin_names(package)
         for name in names:
