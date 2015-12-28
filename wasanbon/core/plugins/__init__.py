@@ -29,7 +29,8 @@ class PluginFunction(object):
         pass
 
     __special_functions = ['depends', 'parse_args', 'get_manifest_functions',
-                           'get_manifest_function_names', 'is_manifest_plugin']
+                           'get_manifest_function_names', 'is_manifest_plugin',
+                           'get_functions', 'get_function_names']
     def depends(self):
         return []
 
@@ -66,6 +67,19 @@ class PluginFunction(object):
 
     def is_manifest_plugin(self):
         return len(self.get_manifest_function_names()) != 0
+
+    def get_functions(self, verbose=False):
+        functions_dic = {}
+        for name in dir(self):
+            if name != '__call__' and name.startswith('_'):
+                continue
+            func = getattr(self, name)
+            if type(func) is types.MethodType:
+                functions[name] = func
+        return functions
+        
+    def get_function_names(self, verbose=False):
+        return self.get_functions(verbose).keys()
 
     admin = FunctionList()
     mgr   = FunctionList()
@@ -226,9 +240,6 @@ class Loader():
         return plugin
 
     def run_command(self, package, subcommand, args):
-        if len(args) < 3:
-            self.print_help(package)
-            return 0
 
         if '-h' in args or 'help' in args:
             self.print_help(package)
@@ -239,9 +250,19 @@ class Loader():
 
         args = [arg for arg in args if not arg.startswith('-')]
 
+        if len(args) < 3:
+            self.print_help(package)
+            return -1
+        
         if args[2] == 'list':
             self.print_list_plugins(package, long)
             return 0
+        elif args[2] == 'api':
+            if len(args) < 4:
+                self.print_help(package)
+                return -1
+            self.show_api(package, args[3], long)
+
 
     def print_list_plugins(self, package, long=False):
         names = self.get_plugin_names(package)
@@ -263,7 +284,18 @@ class Loader():
             else:
                 print '   (No Help)'
 
-        
+    def show_api(self, plugin_name, long=False):
+        names = self.get_plugin_names(package)
+        if not plugin_name in names:
+            self.print_help(package)
+            return -1
+        plugin = self.get_plugin(package, plugin_name)
+        sys.stdout.write('%s :\n' % plugin_name)
+        sys.stdout.write('  path : %s\n' % plugin)
+        sys.stdout.write('  methods :\n')
+        functions = plugin.get_functions()
+        for name, func in functions.items():
+            sys.stdout.write('  - %s\n' % name)
         
 
     def print_help(self, package):
@@ -276,6 +308,7 @@ Usage:
 
 subcommands:
   list : list plugins for package administration.
+  api : list APIs in the specified plugin. use " $ wasanbon-admin.py plugin api $PLUGIN_NAME "
 """
 
         if package == 'mgr':
@@ -286,4 +319,5 @@ Usage:
 
 subcommands:
   list : list plugins for package management
+  api : list APIs in the specified plugin. use " $ mgr.py plugin api $PLUGIN_NAME "
 """
