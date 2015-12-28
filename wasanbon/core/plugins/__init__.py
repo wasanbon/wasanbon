@@ -27,7 +27,7 @@ class PluginFunction(object):
         self.admin.__doc__ = """ This property provides the entrance for admin package plugins.
 To access plugins, add the name of the plugin to be used in the list of return value of depends function """
         self.mgr   = FunctionList()
-        self.admin.__doc__ = """ This property provides the entrance for mgr package plugins.
+        self.mgr.__doc__ = """ This property provides the entrance for mgr package plugins.
 To access plugins, add the name of the plugin to be used in the list of return value of depends function """
         self.__path__ = []
 
@@ -257,7 +257,18 @@ class Loader():
         if verbose: sys.stdout.write('# Loaded (%s) \n' % name)
         return plugin
 
+    def print_alternative(self, package, args):
+        if len(args) >= 3:
+            if args[2] == 'api':
+                for n in self.get_plugin_names(package):
+                    print n,
+        else:
+            print 'list api'
+
     def run_command(self, package, subcommand, args):
+        if '-a' in args:
+            self.print_alternative(package, [arg for arg in args if not arg.startswith('-')])
+            return 0
 
         if '-h' in args or 'help' in args:
             self.print_help(package)

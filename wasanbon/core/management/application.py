@@ -136,7 +136,11 @@ def execute(argv=None):
 
     try:
         if options.alter_flag:
-            print_module_alternatives(package, subcommand, args=args)
+            if subcommand == 'plugin':
+                return wasanbon.plugins.run_command(package, subcommand, args + ['-a'])
+                pass
+            else:
+                print_module_alternatives(package, subcommand, args=args)
         elif subcommand == 'plugin':
             return wasanbon.plugins.run_command(package, subcommand, args)
         else:
