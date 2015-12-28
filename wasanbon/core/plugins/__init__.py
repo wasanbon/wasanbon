@@ -69,6 +69,7 @@ class PluginFunction(object):
 
     admin = FunctionList()
     mgr   = FunctionList()
+    path = []
     
 class Loader():
     
@@ -180,6 +181,7 @@ class Loader():
         if getattr(m, 'admin', None) is None: setattr(m, 'admin', FunctionList())
         if getattr(m, 'mgr', None) is None: setattr(m, 'mgr', FunctionList())
         plugin = m.Plugin()
+        plugin.__path__ = [directory]
         sys.path.pop(0)
 
         depends_plugin_names = plugin.depends()
@@ -231,17 +233,25 @@ class Loader():
         if '-h' in args or 'help' in args:
             self.print_help(package)
             return 0
+        if '-l' in args or 'long' in args:
+            long = True
+        else: long = False
 
         if args[2] == 'list':
-            self.print_list_plugins(package)
+            self.print_list_plugins(package, long)
             return 0
 
 
-    def print_list_plugins(self, package):
+    def print_list_plugins(self, package, long=False):
         names = self.get_plugin_names(package)
         for name in names:
             print ' - %s:' % name
+            
+
             plugin = self.get_plugin(package, name)
+            if long:
+                print '  path : ', plugin.__path__[0]
+                print '  doc : |'
             if '__doc__' in dir(plugin):
                 if plugin.__doc__ != None:
                     docs = [s.strip() for s in plugin.__doc__.split('\n')]
@@ -251,6 +261,8 @@ class Loader():
                     print '   (No Help)'
             else:
                 print '   (No Help)'
+
+        
         
 
     def print_help(self, package):
