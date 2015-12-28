@@ -4,7 +4,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides wasanbon-admin.py make [package] command for building package and rtc outside/inside package """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()

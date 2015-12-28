@@ -6,7 +6,7 @@ from wasanbon.core.plugins import PluginFunction, manifest
 # from rtshell import rtexit, path, rts_exceptions
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides APIs for system launch (Launch RTC-daemons and standalone RTCs) """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()

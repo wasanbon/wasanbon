@@ -3,7 +3,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides APIs to edit System Profile """
     def __init__(self):
         super(Plugin, self).__init__()
         pass

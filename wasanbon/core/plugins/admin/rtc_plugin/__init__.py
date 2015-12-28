@@ -5,7 +5,7 @@ from wasanbon import util
 from wasanbon.core.plugins import PluginFunction
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides search and access APIs from package """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
@@ -21,12 +21,7 @@ class Plugin(PluginFunction):
 
     def get_rtc_from_package(self, package, rtcname, verbose=False):
         if verbose: sys.stdout.write('# Searching RTC (%s) from Package (%s)...\n' % (rtcname, package.name))
-
         rtcs = get_rtcs_from_package(package, verbose=verbose)
-        #if verbose:
-        #    sys.stdout.write('## Listing RTC.\n')
-        #    for rtc in rtcs:
-        #        sys.stdout.write('### - %s\n' % rtc.rtcprofile.basicInfo.name)
 
         for rtc in rtcs:
             if rtc.rtcprofile.basicInfo.name == rtcname:

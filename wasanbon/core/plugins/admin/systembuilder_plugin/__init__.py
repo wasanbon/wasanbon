@@ -4,7 +4,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides building RT-system (connecting and configuring) APIs """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()

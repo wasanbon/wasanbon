@@ -4,7 +4,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ This plugin provides APIs to install RTCs into System (automatically editting rtc.conf for rtcd to load RTCs when launched) """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()

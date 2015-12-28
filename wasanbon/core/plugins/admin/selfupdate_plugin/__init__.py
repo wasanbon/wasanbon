@@ -2,7 +2,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction
 
 class Plugin(PluginFunction):
-
+    """ This provides self update function for wasanbon """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
@@ -18,4 +18,6 @@ class Plugin(PluginFunction):
         verbose = options.verbose_flag # This is default option
         force   = options.force_flag
 
+        print "NOT IMPLEMENTED YET"
+        return -1
         

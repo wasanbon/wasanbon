@@ -3,7 +3,7 @@ import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 class Plugin(PluginFunction):
-
+    """ Github.com repository server management plugin. """
     def __init__(self):
         #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
