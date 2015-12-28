@@ -237,9 +237,12 @@ class Loader():
             long = True
         else: long = False
 
+        args = [arg for arg in args if not arg.startswith('-')]
+
         if args[2] == 'list':
             self.print_list_plugins(package, long)
             return 0
+
 
 
     def print_list_plugins(self, package, long=False):
