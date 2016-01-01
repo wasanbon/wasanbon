@@ -280,6 +280,8 @@ class Plugin(PluginFunction):
                     return True
             except psutil.AccessDenied, e:
                 continue
+            except psutil.ZombieProcess, e:
+                continue
         return False
 
          
