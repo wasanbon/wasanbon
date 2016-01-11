@@ -3,6 +3,7 @@ cmake :
   - "/usr/bin/cmake"
   - "/Applications/CMake 2.8-10.app/Contents/bin/cmake"
   - "/Applications/CMake 2.8-9.app/Contents/bin/cmake"
+  - "/Applications/CMake.app/Contents/bin/cmake"
 doxygen : 
   - "/usr/local/bin/doxygen"
   - "/usr/bin/doxygen"

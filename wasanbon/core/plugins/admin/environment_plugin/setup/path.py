@@ -67,6 +67,8 @@ def check_java_path_in_darwin(cmd, verbose=False):
 
 def check_command(cmd_key, cmd_path, verbose=False):
     if verbose: sys.stdout.write('# Checking Command [%s%s] ...' % (cmd_key, " "*(10-len(cmd_key))))
+    if verbose: sys.stdout.write('#  Checking Path : %s\n' % cmd_path)
+    raw_input()
     if os.path.isfile(cmd_path):
         if verbose: sys.stdout.write('installed in %s\n' % cmd_path)
         return True

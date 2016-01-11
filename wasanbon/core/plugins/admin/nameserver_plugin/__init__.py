@@ -290,12 +290,14 @@ class Plugin(PluginFunction):
         self.parser.add_option('-p', '--port', help='Set TCP Port number for web server', type='int', default=2809, dest='port')
         self.parser.add_option('-l', '--long', help='long format', default=False, action="store_true", dest='long_flag')
         self.parser.add_option('-d', '--detail', help='detail format', default=False, action="store_true", dest='detail_flag')
+        self.parser.add_option('-u', '--url', help='Host Address', default='localhost', action="store", dest='url')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
         long = options.long_flag
         detail = options.detail_flag
         port = options.port
-        ns = NameServer('localhost:%s' % port, pidFilePath='.')
+        url = options.url
+        ns = NameServer(url + ':%s' % port, pidFilePath='.')
         if not self.check_global_running():
             sys.stdout.write('## Nameserver is not running.\n')
             sys.stdout.write('\n')
@@ -470,22 +472,30 @@ class Plugin(PluginFunction):
         nameserver_uris = [n.strip() for n in options.nameservers.split(',')]
 
         nss = [NameServer(path) for path in nameserver_uris]
-        pairs = admin.systemeditor.get_connectable_pairs(nss, verbose=verbose)
-        for pair in pairs:
-            def get_port_fullpath(port):
-                path = ""
-                for p in port.owner.full_path[1:]:
-                    path = path + '/' + p
-                    
-                portName = port.name
-                if portName.find('.') >= 0:
-                    portName = portName.split('.')[1]
 
-                return path + ':' + portName
-            def is_connected(p0, p1):
-                return len(p0.get_connections_by_dest(p1)) > 0
-            sys.stdout.write('%s %s %s\n' % (get_port_fullpath(pair[0]), '==>' if is_connected(pair[0], pair[1]) else '   ',
-                                              get_port_fullpath(pair[1])))
+        import omniORB
+        try:
+            pairs = admin.systemeditor.get_connectable_pairs(nss, verbose=verbose)
+            for pair in pairs:
+                def get_port_fullpath(port):
+                    path = ""
+                    for p in port.owner.full_path[1:]:
+                        path = path + '/' + p
+                        pass
+                    portName = port.name
+                    if portName.find('.') >= 0:
+                        portName = portName.split('.')[1]
+                        pass
+
+                    return path + ':' + portName
+                def is_connected(p0, p1):
+                    return len(p0.get_connections_by_dest(p1)) > 0
+                sys.stdout.write('%s %s %s\n' % (get_port_fullpath(pair[0]), '==>' if is_connected(pair[0], pair[1]) else '   ',
+                                                 get_port_fullpath(pair[1])))
+        except omniORB.CORBA.OBJECT_NOT_EXIST, e:
+            print 'corba'
+            print e
+            pass
 
         return 0
     
@@ -685,11 +695,15 @@ class NameServer(object):
             sys.stdout.write(tab*tablevel + '%s : \n' % name)
             for key, value in conf_set.data.items():
                 sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
+            if len(conf_set.data.keys()) == 0:
+                sys.stdout.write(tab*(tablevel+1) + '{}\n')
         elif detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % name)
             #sys.stdout.write(tab*(tablevel+1) + 'properties : \n')
             for key, value in conf_set.data.items():
                 sys.stdout.write(tab*(tablevel+1) + '%s : %s\n' % (key, value))
+            if len(conf_set.data.keys()) == 0:
+                sys.stdout.write(tab*(tablevel+1) + '{}\n')
         
 
     def _print_port(self, port, long, detail, tablevel):
@@ -732,10 +746,12 @@ class NameServer(object):
     def yaml_dump(self, long=False, detail=False, verbose=False):
         from rtctree import tree as rtctree_tree
         from rtctree import path as rtctree_path
-
         ports = []
         tab = '  '
+        ns_only = True
+
         def show_func(node, tablevel, long=False, detail=False):
+
             if node.is_nameserver:
                 full_path  = node.full_path[1]
                 if full_path.startsWith('/'): full_path = full_path[1:]
@@ -756,26 +772,26 @@ class NameServer(object):
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.outports:
-                            self._print_port(p, long, detail, 3)
+                            self._print_port(p, long, detail, 4)
 
                     sys.stdout.write(tab * (tablevel + 1) + 'DataInPorts:\n')
                     if len(node.inports) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.inports:
-                            self._print_port(p, long, detail, 3)
+                            self._print_port(p, long, detail, 4)
                     sys.stdout.write(tab * (tablevel + 1) + 'ServicePorts:\n')
                     if len(node.svcports) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for p in node.svcports:
-                            self._print_port(p, long, detail, 3)
+                            self._print_port(p, long, detail, 4)
                     sys.stdout.write(tab * (tablevel + 1) + 'ConfigurationSets:\n')
                     if len(node.conf_sets) == 0:
                         sys.stdout.write(tab * (tablevel + 2) + '{}\n')
                     else:
                         for cs in node.conf_sets:
-                            self._print_conf_set(cs, node.conf_sets[cs], long, detail, 3)
+                            self._print_conf_set(cs, node.conf_sets[cs], long, detail, 3+1)
 
                     sys.stdout.write(tab * (tablevel + 1) + 'properties:\n')
                     for key in sorted(node.properties.keys()):
@@ -791,9 +807,13 @@ class NameServer(object):
                         for key in sorted(ec.properties.keys()):
                             value = ec.properties[key]
                             sys.stdout.write(tab * (tablevel + 3) + key + ' : "' + value + '"\n')
+
             if not node.is_manager:
                 for c in node.children:
                     show_func(c, tablevel+1, long, detail)
+                if not node.is_component and not node.is_zombie:
+                    if len(node.children) == 0:
+                        sys.stdout.write(tab * tablevel + tab  + '{}\n');
             
         try_count = 5
         for i in range(0, try_count):
@@ -806,6 +826,8 @@ class NameServer(object):
                 sys.stdout.write('"' + self.path + '":\n')
                 for c in self.dir_node.children:
                     show_func(c, 1, long, detail)
+                if len(self.dir_node.children) == 0:
+                    sys.stdout.write('  {}\n')
                 
                 break
             except Exception, e:

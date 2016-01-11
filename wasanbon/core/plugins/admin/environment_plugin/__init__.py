@@ -83,7 +83,8 @@ class Plugin(PluginFunction):
         self.parser.add_option('-f', '--force', help='Force option (default=Flase)', default=False, action='store_true', dest='force_flag')
         self.parser.add_option('-q', '--quiet', help='Verbosity option (default=Flase)', default=False, action='store_true', dest='quiet_flag')
         options, argv = self.parse_args(args[:], self._print_install_opts)
-        verbose = True #options.verbose_flag
+        #verbose = True 
+        verbose = options.verbose_flag
         if options.quiet_flag: verbose = False
         force = options.force_flag
         
@@ -219,6 +220,7 @@ class Plugin(PluginFunction):
     def _install_commands(self, verbose=False, force=False):
         retval = True
         ret = {}
+        flag = False
         for key, value in self.path.items():
             ret[key] = self._install_command(key, verbose=verbose, force=force)
             if ret[key] != 0:
@@ -232,6 +234,7 @@ class Plugin(PluginFunction):
     def _install_command(self, cmd, verbose=False, force=False):
         if cmd == 'java': return False
         path  = self.path[cmd]
+        verbose = True
         if setup.check_command(cmd, path, verbose=verbose) and not force:
             if verbose: sys.stdout.write('# Command [%s%s] is already installed.\n' %(cmd, " "*(10-len(cmd))))
             return 0
