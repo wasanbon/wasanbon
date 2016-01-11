@@ -181,7 +181,7 @@ class Plugin(PluginFunction):
         pass
 
 
-    def terminate(self, ns, verbose=False, path=None):
+    def terminate(self, ns, verbose=False, path=None, logdir=None):
         if verbose: sys.stdout.write('# Terminating Nameservice in %s\n' % ns.address)
         if ns.address != 'localhost' and ns.address != '127.0.0.1': return -1
         curdir = os.getcwd()
@@ -201,6 +201,14 @@ class Plugin(PluginFunction):
                     proc.kill()
                     self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
         os.chdir(curdir)
+
+        if logdir:
+            for f in os.listdir(logdir):
+                if f.startswith('omninames'):
+                    if verbose:
+                        sys.stdout.write('## Removing file (%s)\n' % os.path.join(logdir, f))
+                    os.remove(os.path.join(logdir, f))
+
         return 0
 
 
@@ -245,7 +253,7 @@ class Plugin(PluginFunction):
         directory = options.directory
         ns = NameServer('localhost:2809', pidFilePath=directory)
         sys.stdout.write('# Stopping Nameserver (%s)\n' % str(ns))
-        if self.terminate(ns, verbose=verbose) == 0:
+        if self.terminate(ns, verbose=verbose, logdir=os.path.join(wasanbon.home_path, 'log')) == 0:
             sys.stdout.write('Success\n')
             self.remove_all_nss_pidfile(verbose=verbose, pidFilePath=os.path.join(wasanbon.home_path, 'pid'))
             return 0
