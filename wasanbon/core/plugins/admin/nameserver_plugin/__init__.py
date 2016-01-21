@@ -725,6 +725,14 @@ class NameServer(object):
             pass
         elif detail:
             sys.stdout.write(tab*tablevel + '%s : \n' % port.name)
+            if port.properties['port.port_type'] == 'CorbaPort':
+                sys.stdout.write(tab*(tablevel+1) + 'interfaces : \n')
+
+                for intf in port.interfaces:
+                    sys.stdout.write(tab*(tablevel+2) + 'ServiceInterface : \n')
+                    sys.stdout.write(tab*(tablevel+3) + 'instance_name : ' + intf.instance_name + '\n')
+                    sys.stdout.write(tab*(tablevel+3) + 'type_name : ' + intf.type_name + '\n')
+                    sys.stdout.write(tab*(tablevel+3) + 'polarity : ' + intf.polarity_as_string(add_colour=False) + '\n')
             sys.stdout.write(tab*(tablevel+1) + 'properties : \n')
             for key, value in port.properties.items():
                 sys.stdout.write(tab*(tablevel+2) + '%s : "%s"\n' % (key, value))
@@ -732,7 +740,6 @@ class NameServer(object):
             if len(port.connections) == 0:
                 sys.stdout.write(tab*(tablevel+2) + '{}\n')
             else:
-
                 for con in port.connections:
                     sys.stdout.write(tab*(tablevel+2) + con.name + ' : \n')
                     #sys.stdout.write(tab*(tablevel+3) + 'name : %s\n' % con.name)
