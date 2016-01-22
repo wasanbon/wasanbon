@@ -80,6 +80,11 @@ class Plugin(PluginFunction):
             
         
     def clone_package(self, package_repo, path=None, verbose=False):
+    	""" Clone package from Repository.
+    	package_repo : 
+    	path :
+    	verbose :
+    	 """
         if verbose: sys.stdout.write('# Cloning package %s\n' % package_repo)
 
         if path is None:  path = package_repo.basename
