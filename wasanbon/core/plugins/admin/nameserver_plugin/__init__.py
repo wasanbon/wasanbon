@@ -143,6 +143,13 @@ class Plugin(PluginFunction):
         return False
 
     def get_running_nss_from_pidfile(self, path=None, verbose=False, pidFilePath='pid'):
+    	""" Get Running Name Services from PID files.
+    	:param path 
+    	:param verbose
+    	:param pidFilePath 
+    	:rtype NameService
+    	:return:
+    	"""
         if verbose: sys.stdout.write('## checking Nameservice is runing or not with pid file.\n')
         curdir = os.getcwd()
         if path != None: os.chdir(path)
