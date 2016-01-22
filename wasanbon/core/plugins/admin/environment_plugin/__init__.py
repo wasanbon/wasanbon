@@ -144,16 +144,19 @@ class Plugin(PluginFunction):
 
     @property
     def setting_path(self):
+    	""" This plugin's setting directory path. This includes OS dependent information like packages. """
         setting_path = os.path.join(__path__[0], 'settings', wasanbon.platform())
         if not os.path.isdir(setting_path):
             raise wasanbon.UnsupportedPlatformException()
         return setting_path
 
     def getIDE(self):
+    	""" Environment's default IDE (Integrated Development Environment) like Visual Studio. """
         return wasanbon.IDE
 
     @property
     def path(self):
+    	""" Environment's command paths. Ex., paths for cmake, doxygen, git, svn, and so on. """
         path_filename = os.path.join(wasanbon.home_path, 'path.yaml')
         if not os.path.isfile(path_filename): return {}
         try:
@@ -164,6 +167,7 @@ class Plugin(PluginFunction):
         
     @manifest
     def setup_bashrc(self, verbose=False):
+    	""" Setup bashrc profile. In Ubuntu, $HOME/.bashrc. In OSX, $HOME/.bash_profile. """
         if sys.platform == 'darwin':
             filename = '.bash_profile'
         elif sys.platform == 'linux2':            
