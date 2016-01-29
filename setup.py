@@ -140,7 +140,7 @@ setup(
         'requests_oauthlib',
         # 'bitbucket-api',
         'freetype-py',
-        'lxml',
+        # 'lxml',
         'jinja2',
         'pillow',
         'nevow',
