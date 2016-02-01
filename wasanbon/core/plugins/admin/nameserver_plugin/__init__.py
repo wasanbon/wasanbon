@@ -408,6 +408,19 @@ class Plugin(PluginFunction):
         comp = self.component(argv[3], lambda c : c.reset_in_ec(ec_id), verbose=verbose)
         return 0
 
+    @manifest
+    def exit_rtc(self, argv):
+        self.parser.add_option('-i', '--id', help='Set EC_ID', 
+                               type='int', default=0, dest='ec_id')
+        options, argv = self.parse_args(argv[:])
+        verbose = options.verbose_flag # This is default option
+        
+        wasanbon.arg_check(argv, 4)
+        sys.stdout.write('# Resetting RTC (%s)\n' % argv[3])
+        ec_id = options.ec_id
+        comp = self.component(argv[3], lambda c : c.exit(), verbose=verbose)
+        return 0
+
     def launch(self, ns, verbose=False, force=False, path=None, pidfile=True, pidFilePath='pid'):
         """ Launch Name Server 
         :param: NameService ns:
