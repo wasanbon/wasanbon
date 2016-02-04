@@ -723,11 +723,11 @@ class NameServer(object):
     def _print_conf_set(self, name, conf_set, long, detail, tablevel):
         tab =  '  '
         if not long and not detail:
-            if name.startsWith('__'):
+            if name.startswith('__'):
                 return
             sys.stdout.write(tab*tablevel + ' - %s\n' % name)
         elif long and not detail:
-            if name.startsWith('__'):
+            if name.startswith('__'):
                 return
             sys.stdout.write(tab*tablevel + '%s : \n' % name)
             for key, value in conf_set.data.items():
@@ -798,7 +798,7 @@ class NameServer(object):
 
             if node.is_nameserver:
                 full_path  = node.full_path[1]
-                if full_path.startsWith('/'): full_path = full_path[1:]
+                if full_path.startswith('/'): full_path = full_path[1:]
                 sys.stdout.write(tab * tablevel + '"' + full_path + '":' + '\n')
             elif node.is_manager:
                 sys.stdout.write(tab * tablevel + '' + node.name + ': {}\n')                
