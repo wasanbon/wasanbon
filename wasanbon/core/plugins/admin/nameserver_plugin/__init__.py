@@ -277,22 +277,31 @@ class Plugin(PluginFunction):
 
     @manifest
     def check_running(self, argv):
+        self.parser.add_option('-p', '--port', help='Set TCP Port number for server', 
+                               type='int', default=2809, dest='port')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
+        port = options.port
         sys.stdout.write('# Checking Nameserver\n')
-        if self.check_global_running():
+        if self.check_global_running(port=port):
             sys.stdout.write('Running\n')
             return 1
         else:
             sys.stdout.write('Not Running\n')
             return 0
 
-    def check_global_running(self):
+    def check_global_running(self, port=None):
         import psutil
         for process in psutil.process_iter():
             try:
                 if process.name().find('omniNames') >= 0:
-                    return True
+                    if port is None:
+                        return True
+                    else:
+                        if str(port) in process.cmdline():
+                            return True
+                        else:
+                            pass # return False
             except psutil.AccessDenied, e:
                 continue
             except psutil.ZombieProcess, e:

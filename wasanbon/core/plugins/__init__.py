@@ -23,6 +23,7 @@ def manifest(func):
 
 class PluginFunction(object):
     def __init__(self):
+        self._default_property_list = ['admin', 'mgr', 'parser']
         self.admin = FunctionList()
         self.admin.__doc__ = """ This property provides the entrance for admin package plugins.
 To access plugins, add the name of the plugin to be used in the list of return value of depends function """
@@ -93,6 +94,8 @@ if -v is set, options.verbose_flag is set, which must be handled by developer of
         properties = {}
         for name in dir(self):
             if name.startswith('_'):
+                continue
+            if name in self._default_property_list:
                 continue
             prop = getattr(self, name)
             if not type(prop) is types.MethodType:
@@ -294,6 +297,9 @@ class Loader():
 
 
     def print_list_plugins(self, package, long=False):
+        """ Print List of Plugin. This is called when application invoked with 
+        plugin list argument
+        """
         names = self.get_plugin_names(package)
         for name in names:
             print ' - %s:' % name
@@ -314,6 +320,8 @@ class Loader():
                 print '   (No Help)'
 
     def show_api(self, package, plugin_name, long=False):
+        """ List api of command
+        """
         names = self.get_plugin_names(package)
         if not plugin_name in names:
             self.print_help(package)
@@ -325,13 +333,21 @@ class Loader():
         properties = plugin.get_properties()
         for name, prop in properties.items():
             sys.stdout.write('    %s : |\n' % name)
-            if getattr(prop, '__doc__', None):
-                for line in prop.__doc__.split('\n'):
-                    sys.stdout.write('      %s\n' % line)
+            doc_ = getattr(getattr(plugin.__class__, name, None), '__doc__', None)
+            if doc_:
+                for line in doc_.split('\n'):
+                    sys.stdout.write('      %s\n' % line.strip())
         sys.stdout.write('  methods :\n')
         functions = plugin.get_functions()
         for name, func in functions.items():
             sys.stdout.write('    %s : |\n' % name)
+            doc_ = getattr(getattr(plugin.__class__, name, None), '__doc__', None)
+            if doc_:
+                for line in doc_.split('\n'):
+                    if len(line.strip()) > 0:
+                        sys.stdout.write('      %s\n' % line.strip())
+            else:
+                sys.stdout.write('      No doc.\n')
         
 
     def print_help(self, package):

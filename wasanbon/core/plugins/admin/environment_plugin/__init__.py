@@ -19,7 +19,10 @@ class Plugin(PluginFunction):
     @manifest
     def init(self, args):
         """ This command must be called first.
-        Install Pip, PyYAML, PyGithub, psutil, python-bitbucket, and several modules if not installed. After that, Initialize $HOME/.wasanbon directory, and search commands used in wasanbon. If some command-line tools are not installed, this will tries to install them.
+        Install Pip, PyYAML, PyGithub, psutil, python-bitbucket, and several modules 
+        if not installed. After that, Initialize $HOME/.wasanbon directory, 
+        and search commands used in wasanbon. If some command-line tools are not installed, 
+        this will tries to install them.
         """
 
         sys.stdout.write('# Starting wasanbon environment initialization...\n')
