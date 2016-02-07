@@ -340,6 +340,7 @@ class Plugin(PluginFunction):
         rtc_full_path = argv[3]
         conf_name = argv[4]
         conf_value = argv[5]
+        found_conf = False
         def func(comp):
             for cs in comp.conf_sets:
                 if cs == set_name:
@@ -347,7 +348,18 @@ class Plugin(PluginFunction):
                     for key, value in cset.data.items():
                         if key == conf_name:
                             comp.set_conf_set_value(set_name, conf_name, conf_value)
-        comp = self.component(rtc_full_path, func, verbose=verbose)
+                            found_conf = True
+        try:
+            comp = self.component(rtc_full_path, func, verbose=verbose)
+        except:
+            sys.stdout.write('Failed. Exception occured.\n');
+            traceback.print_exc()
+
+
+        if found_conf:
+            sys.stdout.write('Success.\n')
+        else:
+            sys.stdout.write('Failed.\n');
 
         return 0
 
@@ -423,7 +435,6 @@ class Plugin(PluginFunction):
                                type='int', default=0, dest='ec_id')
         options, argv = self.parse_args(argv[:])
         verbose = options.verbose_flag # This is default option
-        
         wasanbon.arg_check(argv, 4)
         sys.stdout.write('# Resetting RTC (%s)\n' % argv[3])
         ec_id = options.ec_id
@@ -564,7 +575,11 @@ class Plugin(PluginFunction):
         from rtshell.rtcon import connect_ports
         
         paths = [(arg, path.cmd_path_to_full_path(arg)) for arg in argv[3:]]
-        connect_ports(paths, options, tree=None)
+        try:
+            connect_ports(paths, options, tree=None)
+            sys.stdout.write('Success.\n')
+        except:
+            sys.stdout.write('Failed. Exception occurred.\n')
         
         return 0
 
@@ -579,8 +594,11 @@ class Plugin(PluginFunction):
         from rtshell.rtdis import disconnect_ports
         
         paths = [(arg, path.cmd_path_to_full_path(arg)) for arg in argv[3:]]
-        disconnect_ports(paths, options, tree=None)
-        
+        try:
+            disconnect_ports(paths, options, tree=None)
+            sys.stdout.write('Success.\n')
+        except:
+            sys.stdout.write('Failed. Exception occurred.\n')
         return 0
 
 class NameServer(object):
