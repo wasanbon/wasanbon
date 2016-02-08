@@ -471,6 +471,9 @@ class Plugin(PluginFunction):
 
         if verbose: sys.stdout.write('## Starting Nameserver \n')
 
+        
+
+
         pstdout = None if verbose else subprocess.PIPE 
         pstderr = None if verbose else subprocess.PIPE
         pstdin = subprocess.PIPE
