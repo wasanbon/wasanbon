@@ -165,6 +165,7 @@ class Plugin(PluginFunction):
     def remove_nss_pidfile(self, pid=None, path=None, verbose=False, pidFilePath='pid'):
         if verbose: sys.stdout.write('## checking Nameservice is running or not with pid file in %s.\n' % pidFilePath)
         curdir = os.getcwd()
+
         if path != None: os.chdir(path)
 
         pids = []
@@ -174,6 +175,18 @@ class Plugin(PluginFunction):
                 pid_str = file[len('nameserver_'):]
                 if pid == None or int(pid_str) == pid:
                     os.remove(os.path.join(pidFilePath, file))
+        os.chdir(curdir)
+        pass
+
+    def remove_nss_datfile(self, path=None, verbose=False, logFilePath='.'):
+        if verbose: sys.stdout.write('## remove Nameservice dat file is in %s' % path)
+        curdir = os.getcwd()
+        if path != None: os.chdir(path)
+
+        for file in os.listdir(logFilePath):
+            if file.endswith('.dat'):
+                os.remove(os.path.join(logFilePath, file))
+        os.chdir(curdir)
         pass
 
     def remove_all_nss_pidfile(self, path=None, verbose=False, pidFilePath='pid'):
@@ -468,6 +481,7 @@ class Plugin(PluginFunction):
                         except psutil.AccessDenied, e:
                             sys.stdout.write('### PID(%d) access denyed. Proceeding... \n' % pid)
                         self.remove_nss_pidfile(pid=pid, path=path, verbose=verbose, pidFilePath=ns.pidFilePath)
+            self.remove_nss_datfile(path=path, verbose=verbose)
 
         if verbose: sys.stdout.write('## Starting Nameserver \n')
 
