@@ -71,7 +71,7 @@ class Plugin(PluginFunction):
                 print '    Python : %s' % os.path.basename(p.rtcconf['Python'])
                 print '    Java   : %s' % os.path.basename(p.rtcconf['Java'])
                 print '  defaultSystem : %s' % p.default_system_filepath
-
+                print '  running  : %s' % admin.systemlauncher.is_launched(p)
         return 0
 
     

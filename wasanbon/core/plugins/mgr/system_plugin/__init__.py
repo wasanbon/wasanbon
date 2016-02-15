@@ -83,6 +83,21 @@ class Plugin(PluginFunction):
         return retval
 
     @manifest
+    def is_running(self, args):
+        """ Check System is running or not 
+        $ mgr.py system is_running
+        This command will output True or False on console.
+        """
+        options, argv = self.parse_args(args[:])
+        verbose = options.verbose_flag
+        #background = options.background_flag
+
+        package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
+        print admin.systemlauncher.is_launched(package)
+
+        return 0
+        
+    @manifest
     def terminate(self, args):
         """ Terminate Launched System.
         $ mgr.py system terminate
@@ -121,12 +136,17 @@ class Plugin(PluginFunction):
         self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
         self.parser.add_option('-f', '--file', help='Build System with Specific RTSProfile (must be placed in system_dir', default=None, dest='systemfile', action='store', type='string')
         self.parser.add_option('-p', '--plain', help='Plain Launch. Without building/activating system.', default=False, dest='plain_flag', action='store_true')
+        self.parser.add_option('-q', '--quiet', help='Build system but do not activate RTCs.', default=False, dest='quiet_flag', action='store_true')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         background = options.background_flag
         wakeuptimeout = options.wakeuptimeout
         systemfile = options.systemfile
         plain = options.plain_flag
+        quiet = options.quiet_flag
+
+        if plain:
+            quiet = True
             
         #force  = options.force_flag
         #standalone = options.standalone_flag
@@ -158,9 +178,10 @@ class Plugin(PluginFunction):
                                                  verbose=verbose, 
                                                  system_file=systemfile)
 
-                admin.systembuilder.activate_system(package, 
-                                                    verbose=verbose,
-                                                    system_file=systemfile)
+                if not quiet:
+                    admin.systembuilder.activate_system(package, 
+                                                        verbose=verbose,
+                                                        system_file=systemfile)
 
             if background:
                 return 0
