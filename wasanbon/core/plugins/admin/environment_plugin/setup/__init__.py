@@ -98,7 +98,7 @@ def extract_zip_and_install(filename, verbose=False, distpath='.', force=False):
                     if not os.path.isdir(dst):
                         os.mkdir(dst)
                     if not os.path.isfile(dstfile):
-                        oshutil.move(src, dst)
+                        shutil.move(src, dst)
                 
 
 def extract_tar_and_install(filename, verbose=False, distpath=None):

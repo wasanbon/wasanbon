@@ -311,7 +311,7 @@ class PackageObject(object):
 
     @property
     def description(self):
-        return self.setting.get('description', '')
+        return self.setting.get('description', '""')
 
     @property
     def setting(self):
