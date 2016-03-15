@@ -909,7 +909,7 @@ class NameServer(object):
                 
                 break
             except Exception, e:
-                sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                sys.stdout.write('## Exception occurred when getting tree information from nameserver(%s)\n' % self.path)
                 if verbose:
                     traceback.print_exc()
                 pass
