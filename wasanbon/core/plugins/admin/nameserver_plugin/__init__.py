@@ -375,7 +375,7 @@ class Plugin(PluginFunction):
                             found_conf = True
         
         comps = []
-        def task(args):
+        def taskfunc(args):
             try:
                 comp = self.component(rtc_full_path, func, verbose=verbose)
             except:
@@ -392,7 +392,7 @@ class Plugin(PluginFunction):
 
         from wasanbon.util import task
         interval = 10
-        task.task_with_wdt(task, [], interval)
+        task.task_with_wdt(taskfunc, [], interval)
         if len(comps) == 0:
             sys.stdout.write('Timeout\n')
             return -1
