@@ -8,7 +8,7 @@ class Plugin(PluginFunction):
     """ Environment initialization functions
         Use to initialize wasanbon environment."""
 
-    _install_list = ['setuptools', 'pip', 'yaml', 'github', 'psutil', 'requests', 'requests_oauthlib', 'bitbucket', 'lxml',
+    _install_list = ['setuptools', 'pip', 'yaml', 'github', 'psutil', 'requests', 'requests_oauthlib', 'bitbucket', #'lxml',
                      ]
     _install_rtms = ['rtm_c++', 'rtm_python', 'rtm_java', 'rtctree', 'rtsprofile', 'rtshell']
 

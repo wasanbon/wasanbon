@@ -42,9 +42,9 @@ _urls = {
     'freetype' : {'darwin' : 'http://download.savannah.gnu.org/releases/freetype/freetype-2.4.10.tar.gz'
                   },
 
-    'lxml' : {'darwin' : 'pip install lxml',
-              'linux2' : 'pip install lxml',
-              'win32' : 'pip install lxml'},
+    #'lxml' : {'darwin' : 'pip install lxml',
+    #          'linux2' : 'pip install lxml',
+    #          'win32' : 'pip install lxml'},
 
     #'pillow' : {'darwin' : 'pip install pillow',
     #          'linux2' : 'pip install pillow',

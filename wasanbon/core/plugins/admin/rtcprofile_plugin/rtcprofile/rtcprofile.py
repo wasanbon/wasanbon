@@ -446,6 +446,8 @@ def get_etree(rtcp):
     #open('out.xml', 'w').write(xml.etree.ElementTree.tostring(root))
     #print ' - writing', filename
     # print root
+    return root
+def hoge():
     try:
         encoding = 'utf-8'
         str = xml.etree.ElementTree.tostring(root, encoding=encoding)
@@ -460,9 +462,35 @@ def get_etree(rtcp):
     return None
 
 def tostring(rtcp, pretty_print=False):
-    import lxml.etree
-    tree = get_etree(rtcp)
-    return lxml.etree.tostring(tree, pretty_print=pretty_print)
+    #import lxml.etree
+    #tree = get_etree(rtcp)
+    #return lxml.etree.tostring(tree, pretty_print=pretty_print)
+    root = get_etree(rtcp)
+    encoding = 'utf-8'
+    strbuf = xml.etree.ElementTree.tostring(root, encoding=encoding)
+    if not pretty_print:
+        return strbuf
+
+    output_buf = ''
+    tab = ''
+    for line in strbuf.replace('>', '>\n').split('\n'):
+        if line.startswith('</'):
+            tab = tab[:-2]
+        output_buf = output_buf + tab + line.strip() + '\n'
+        _alone = False
+        if line.endswith('/>'):
+            # do nothing
+            _alone = True
+        elif line.startswith('</'):
+            pass
+        elif line.endswith('>'):
+            tab = tab + '  '
+    
+
+    return output_buf
+#def parse_buf(s, output)
+
+        
     
 class RTCProfile(Node):
 
