@@ -334,13 +334,24 @@ class Plugin(PluginFunction):
         detail = options.detail_flag
         port = options.port
         url = options.url
-        ns = NameServer(url + ':%s' % port, pidFilePath='.')
-        if not self.check_global_running():
-            sys.stdout.write('## Nameserver is not running.\n')
-            sys.stdout.write('\n')
-            return 0
+        nss = []
+        def func(args):
+            ns = NameServer(url + ':%s' % port, pidFilePath='.')
+            if not self.check_global_running():
+                sys.stdout.write('## Nameserver is not running.\n')
+                sys.stdout.write('\n')
+                return 0
+            
+            ns.yaml_dump(long=long, detail=detail)
+            nss.append(ns)
 
-        ns.yaml_dump(long=long, detail=detail)
+        from wasanbon.util import task
+        interval = 10
+        task.task_with_wdt(func, [], interval)
+        if len(nss) == 0:
+            sys.stdout.write('Timeout\n')
+            return -1
+
         return 0
 
     @manifest
@@ -894,6 +905,7 @@ class NameServer(object):
                         sys.stdout.write(tab * tablevel + tab  + '{}\n');
             
         try_count = 5
+        import omniORB
         for i in range(0, try_count):
             try:
                 if not self.tree:
@@ -913,6 +925,8 @@ class NameServer(object):
                 if verbose:
                     traceback.print_exc()
                 pass
+            except omniORB.CORBA.OBJECT_NOT_EXIST_NoMatch, e:
+                sys.stdout.write('## CORBA.OBJECT_NOT_EXIST\n')
             time.sleep(0.5)
         if not self.tree:
             return []
@@ -953,7 +967,7 @@ class NameServer(object):
                 self.dir_node.iterate(func, ports, [filter_func])
                 break
             except Exception, e:
-                sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
+                sys.stdout.write('## Exception occurred when getting service port information from nameserver(%s)\n' % self.path)
                 if verbose:
                     traceback.print_exc()
                 pass
