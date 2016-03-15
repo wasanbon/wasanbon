@@ -373,17 +373,29 @@ class Plugin(PluginFunction):
                         if key == conf_name:
                             comp.set_conf_set_value(set_name, conf_name, conf_value)
                             found_conf = True
-        try:
-            comp = self.component(rtc_full_path, func, verbose=verbose)
-        except:
-            sys.stdout.write('Failed. Exception occured.\n');
-            traceback.print_exc()
+        
+        comps = []
+        def task(args):
+            try:
+                comp = self.component(rtc_full_path, func, verbose=verbose)
+            except:
+                sys.stdout.write('Failed. Exception occured.\n');
+                traceback.print_exc()
+                return
 
+            if found_conf:
+                sys.stdout.write('Success.\n')
+            else:
+                sys.stdout.write('Failed.\n');
 
-        if found_conf:
-            sys.stdout.write('Success.\n')
-        else:
-            sys.stdout.write('Failed.\n');
+            comps.append(comp)
+
+        from wasanbon.util import task
+        interval = 10
+        task.task_with_wdt(task, [], interval)
+        if len(comps) == 0:
+            sys.stdout.write('Timeout\n')
+            return -1
 
         return 0
 
