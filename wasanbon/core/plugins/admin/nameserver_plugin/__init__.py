@@ -744,7 +744,6 @@ class NameServer(object):
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
-                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 self.tree = None
@@ -911,7 +910,6 @@ class NameServer(object):
                 break
             except Exception, e:
                 sys.stdout.write('## Exception occurred when getting dataport information from nameserver(%s)\n' % self.path)
-                traceback.print_exc()
                 if verbose:
                     traceback.print_exc()
                 pass
