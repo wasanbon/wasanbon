@@ -41,7 +41,8 @@ class IDLTypedef(node.IDLNode):
     def type(self):
         return self._type
     
-    def parse_blocks(self, blocks):
+    def parse_blocks(self, blocks, filepath=None):
+        self._filepath = filepath
         type_name_ = ''
         rindex = 1
         name = blocks[-rindex]

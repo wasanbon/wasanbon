@@ -12,7 +12,7 @@ class IDLModule(node.IDLNode):
         self._verbose = False
         if name is None:
             self._name = global_namespace
-
+            
         self._interfaces = []
         self._typedefs = []
         self._structs = []
@@ -44,6 +44,7 @@ class IDLModule(node.IDLNode):
 
     def to_dic(self):
         dic = { 'name' : self.name,
+                'filepath' : self.filepath, 
                 'classname' : self.classname,
                 'interfaces' : [i.to_dic() for i in self.interfaces],
                 'typedefs' : [t.to_dic() for t in self.typedefs],
@@ -54,7 +55,8 @@ class IDLModule(node.IDLNode):
         return dic
     
 
-    def parse_tokens(self, token_buf):
+    def parse_tokens(self, token_buf, filepath=None):
+        self._filepath = filepath
         if not self.name == global_namespace:
             kakko = token_buf.pop()
             if not kakko == '{':
@@ -74,7 +76,7 @@ class IDLModule(node.IDLNode):
                 if m == None:
                     m = IDLModule(name_, self)
                     self._modules.append(m)
-                m.parse_tokens(token_buf)
+                m.parse_tokens(token_buf, filepath=filepath)
             elif token == 'typedef':
                 blocks = []
                 while True:
@@ -87,12 +89,12 @@ class IDLModule(node.IDLNode):
                         blocks.append(t)
                 t = typedef.IDLTypedef(self)
                 self._typedefs.append(t)
-                t.parse_blocks(blocks)
+                t.parse_blocks(blocks, filepath=filepath)
             elif token == 'struct':
                 name_ = token_buf.pop()
                 s_ = self.struct_by_name(name_)
                 s = struct.IDLStruct(name_, self)
-                s.parse_tokens(token_buf)
+                s.parse_tokens(token_buf, filepath=filepath)
                 if s_:
                     if self._verbose: sys.stdout.write('# Error. Same Struct Defined (%s)\n' % name_)
                 #    raise InvalidIDLSyntaxError
@@ -102,7 +104,7 @@ class IDLModule(node.IDLNode):
             elif token == 'interface':
                 name_ = token_buf.pop()
                 s = interface.IDLInterface(name_, self)
-                s.parse_tokens(token_buf)
+                s.parse_tokens(token_buf, filepath=filepath)
 
                 s_ = self.interface_by_name(name_)
                 if s_:
@@ -114,7 +116,7 @@ class IDLModule(node.IDLNode):
             elif token == 'enum':
                 name_ = token_buf.pop()
                 s = enum.IDLEnum(name_, self)
-                s.parse_tokens(token_buf)
+                s.parse_tokens(token_buf, filepath)
                 s_ = self.enum_by_name(name_)
                 if s_:
                     if self._verbose: sys.stdout.write('# Error. Same Enum Defined (%s)\n' % name_)
@@ -138,7 +140,7 @@ class IDLModule(node.IDLNode):
                 for t in values[:-3]:
                     typename = typename + ' ' + t
                 typename = typename.strip()
-                s = const.IDLConst(name_, typename, value_, self)
+                s = const.IDLConst(name_, typename, value_, self, filepath=filepath)
                 s_ = self.const_by_name(name_)
                 if s_:
                     if self._verbose: sys.stdout.write('# Error. Same Const Defined (%s)\n' % name_)

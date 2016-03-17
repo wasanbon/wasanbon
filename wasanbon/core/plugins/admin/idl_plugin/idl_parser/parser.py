@@ -18,6 +18,10 @@ class IDLParser():
     def is_primitive(self, name):
         return idl_type.is_primitive(name)
 
+    @property
+    def dirs(self):
+        return self._dirs
+
     def parse(self, idls=[], idl_dirs=[], except_files=[]):
         """ Parse IDL files. Result of parsing can be accessed via global_module property.
         :param idls: List of IDL files. Must be fullpath.
@@ -40,7 +44,12 @@ class IDLParser():
 
         self._token_buf = token_buffer.TokenBuffer(lines)
 
-        self._global_module.parse_tokens(self._token_buf)
+        self._global_module.parse_tokens(self._token_buf, filepath=idl_path)
+
+    def includes(self, idl_path):
+        included_filepaths = []
+
+        return included_filepaths
 
 
     def forEachIDL(self, func, idl_dirs=[], except_files=[], idls=[]):
@@ -97,6 +106,8 @@ class IDLParser():
                     if p is None:
                         sys.stdout.write(' # IDL (%s) can not be found.\n' % filename)
                         raise IDLFileNotFoundErrorx
+                    self.parse_idl(idl_path = p)
+
                     inc_lines = []
                     f = open(p, 'r')
                     for l in f:
@@ -113,6 +124,9 @@ class IDLParser():
                         sys.stdout.write(' # IDL (%s) can not be found.\n' % filename)
                         raise IDLFileNotFoundErrorx
                     inc_lines = []
+
+                    self.parse_idl(idl_path = p)
+
                     f = open(p, 'r')
                     for l in f:
                         inc_lines.append(l)
@@ -207,9 +221,18 @@ class IDLParser():
 
 
     def generate_constructor_python(self, typ):
+        
+        #print 'generate_constructor_python', typ, 'start'
         code = ''
         if typ.is_sequence:
             code = code + '[]'
+        if typ.is_array:
+            code = code + '['
+            for i in range(typ.size):
+                code = code + self.generate_constructor_python(typ.inner_type)
+                if i != typ.size-1:
+                    code = code + ', '
+            code = code + ']'
         elif typ.is_primitive:
             code = code + '0'
         elif typ.is_typedef:
@@ -222,4 +245,5 @@ class IDLParser():
                 else:
                     code = code + self.generate_constructor_python(m.type.obj) + ', '
             code = code[:-2] + ')'
+        # print 'generate_constructor_python', typ, 'end'
         return code.replace('::', '.')

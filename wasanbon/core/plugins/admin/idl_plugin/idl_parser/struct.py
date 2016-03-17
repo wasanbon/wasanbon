@@ -15,13 +15,15 @@ class IDLValue(node.IDLNode):
     def full_path(self):
         return self.parent.full_path + self.sep + self.name
 
-    def parse_blocks(self, blocks):
+    def parse_blocks(self, blocks, filepath=None):
+        self._filepath = filepath
         name, typ = self._name_and_type(blocks)
         if typ.find('[') >= 0:
-            print self.name, ':',typ
+            # print self.name, ':',typ
+            pass
         if name.find('[') > 0:
             name_ = name[:name.find('[')]
-            print typ
+            # print typ
             typ = typ.strip() + ' ' + name[name.find('['):]
             name = name_
         self._name = name
@@ -41,6 +43,7 @@ class IDLValue(node.IDLNode):
 
     def to_dic(self):
         dic = { 'name' : self.name,
+                'filepath' : self.filepath, 
                 'classname' : self.classname,
                 'type' : str(self.type) }
         return dic
@@ -84,7 +87,8 @@ class IDLStruct(node.IDLNode):
                 'members' : [v.to_dic() for v in self.members] }
         return dic
     
-    def parse_tokens(self, token_buf):
+    def parse_tokens(self, token_buf, filepath=None):
+        self._filepath = filepath
         kakko = token_buf.pop()
         if not kakko == '{':
             if self._verbose: sys.stdout.write('# Error. No kakko "{".\n')
@@ -115,7 +119,7 @@ class IDLStruct(node.IDLNode):
             
     def _parse_block(self, blocks):
         v = IDLValue(self)
-        v.parse_blocks(blocks)
+        v.parse_blocks(blocks, self.filepath)
         self._members.append(v)
     
     def _post_process(self):

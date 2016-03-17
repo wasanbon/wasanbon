@@ -83,12 +83,12 @@ class IDLSequence(IDLTypeBase):
     def __hoge(self):
         global_module = self.root_node
         typs = global_module.find_types(self.inner_type)
-        print self.inner_type
+        # print self.inner_type
         if len(typs) == 0:
-            print 'None'
+            # print 'None'
             return None
         else:
-            print typs[0]
+            # print typs[0]
             return typs[0]
 
     @property
@@ -160,7 +160,7 @@ class IDLArray(IDLTypeBase):
     def __str__(self):
         n = ['%s' % self.primitive_type.name]
         def _apply_size(typ):
-            n[0] = n[0] + '[%s]' % self.size
+            n[0] = n[0] + '[%s]' % typ.size
             if typ.inner_type.is_array:
                 _apply_size(typ.inner_type)
         
@@ -178,12 +178,12 @@ class IDLArray(IDLTypeBase):
     def __hoge(self):
         global_module = self.root_node
         typs = global_module.find_types(self.inner_type)
-        print self.inner_type
+        # print self.inner_type
         if len(typs) == 0:
-            print 'None'
+            # print 'None'
             return None
         else:
-            print typs[0]
+            # print typs[0]
             return typs[0]
 
     @property

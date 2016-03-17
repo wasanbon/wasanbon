@@ -11,7 +11,8 @@ class IDLArgument(node.IDLNode):
         self._dir = 'in'
         self._type = None
 
-    def parse_blocks(self, blocks):
+    def parse_blocks(self, blocks, filepath=None):
+        self._filepath= filepath
         directions = ['in', 'out', 'inout']
         self._dir = 'in'
         if blocks[0] in directions:
@@ -30,7 +31,8 @@ class IDLArgument(node.IDLNode):
         dic = { 'name' : self.name,
                 'classname' : self.classname,
                 'type' : str(self.type),
-                'direction' : self.direction }
+                'direction' : self.direction,
+                'filepath' : self.filepath }
         return dic
 
     @property
@@ -53,7 +55,8 @@ class IDLMethod(node.IDLNode):
         self._returns = None
         self._arguments = []
 
-    def parse_blocks(self, blocks):
+    def parse_blocks(self, blocks, filepath=None):
+        self._filepath=filepath
 
         if blocks[0] == 'oneway':
             self._oneway = True
@@ -81,7 +84,7 @@ class IDLMethod(node.IDLNode):
 
                 a = IDLArgument(self)
                 self._arguments.append(a)
-                a.parse_blocks(argument_blocks)
+                a.parse_blocks(argument_blocks, self.filepath)
 
                 argument_blocks = []
             else:
@@ -95,6 +98,7 @@ class IDLMethod(node.IDLNode):
 
     def to_dic(self):
         dic = { 'name' : self.name,
+                'filepath' : self.filepath,
                 'classname' : self.classname,
                 'returns' : str(self._returns),
                 'arguments' : [a.to_dic() for a in self.arguments]}
@@ -136,11 +140,13 @@ class IDLInterface(node.IDLNode):
 
     def to_dic(self):
         dic = { 'name' : self.name,
+                'filepath' : self.filepath, 
                 'classname' : self.classname,
                 'methods' : [m.to_dic() for m in self.methods] }
         return dic
     
-    def parse_tokens(self, token_buf):
+    def parse_tokens(self, token_buf, filepath=None):
+        self._filepath=filepath
         kakko = token_buf.pop()
         if not kakko == '{':
             if self._verbose: sys.stdout.write('# Error. No kakko "{".\n')
@@ -173,7 +179,7 @@ class IDLInterface(node.IDLNode):
 
     def _parse_block(self, blocks):
         v = IDLMethod(self)
-        v.parse_blocks(blocks)
+        v.parse_blocks(blocks, self.filepath)
         self._methods.append(v)
 
     @property

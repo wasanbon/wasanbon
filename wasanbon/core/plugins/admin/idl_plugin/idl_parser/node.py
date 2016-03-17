@@ -5,6 +5,11 @@ class IDLNode(object):
         self._classname = classname
         self._parent = parent
         self._name = name
+        self._filepath = None
+
+    @property
+    def filepath(self):
+        return self._filepath
 
     @property
     def is_array(self):

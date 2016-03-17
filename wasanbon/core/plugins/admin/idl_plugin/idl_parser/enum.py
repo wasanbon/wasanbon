@@ -9,7 +9,8 @@ class IDLEnumValue(node.IDLNode):
         self._verbose = True
         self._value = value
 
-    def parse_blocks(self, blocks):
+    def parse_blocks(self, blocks, filepath=None):
+        self._filepath = filepath
         if len(blocks) == 1:
             self._name = blocks[0]
         else:
@@ -28,6 +29,7 @@ class IDLEnumValue(node.IDLNode):
 
     def to_dic(self):
         dic = { 'name' : self.name,
+                'filepath' : self.filepath,
                 'classname' : self.classname,
                 'value' : self.value }
         return dic
@@ -63,7 +65,8 @@ class IDLEnum(node.IDLNode):
     def full_path(self):
         return self.parent.full_path + sep + self.name
     
-    def parse_tokens(self, token_buf):
+    def parse_tokens(self, token_buf, filepath=None):
+        self._filepath = filepath
         self._counter = 0
         kakko = token_buf.pop()
         if not kakko == '{':
@@ -96,7 +99,7 @@ class IDLEnum(node.IDLNode):
     def _parse_block(self, blocks):
         v = IDLEnumValue(self._counter, self)
         self._counter = self._counter+ 1
-        v.parse_blocks(blocks)
+        v.parse_blocks(blocks, self.filepath)
         self._members.append(v)
 
     @property
