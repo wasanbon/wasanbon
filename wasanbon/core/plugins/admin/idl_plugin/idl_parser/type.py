@@ -197,13 +197,13 @@ class IDLArray(IDLTypeBase):
     def to_simple_dic(self, quiet=False, full_path=False, recursive=False, member_only=False):
         name = self.full_path if full_path else self.name
         if quiet:
-            return 'sequence<%s>' % str(self.inner_type)
+            return str(self)
 
         if recursive:
             if self.type.is_primitive:
-                return { 'sequence<%s>' % str(self.type) : str(self.type)}
+                return str(self) 
             else:
-                return { 'sequence<%s>' % str(self.type) : self.type.obj.to_simple_dic(recursive=recursive, member_only=True)}
+                return str(self) 
         """
             n = 'typedef ' + str(self.type) +' ' + name
             if not self.type.is_primitive:

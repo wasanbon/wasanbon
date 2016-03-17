@@ -48,7 +48,25 @@ class IDLParser():
 
     def includes(self, idl_path):
         included_filepaths = []
+        included_filenames = []
+        f = open(idl_path, 'r')
+        lines = []
+        for line in f:
+            if line.find('#include') >= 0:
+                if line.find('"') >= 0:
+                    file = line[line.find('"')+1:line.rfind('"')].strip()
+                elif line.find('<') >= 0:
+                    file = line[line.find('<')+1:line.rfind('>')].strip()
+                included_filenames.append(file)
+        def get_fullpath(idl_path):
+            if os.path.basename(idl_path) in included_filenames:
+                included_filepaths.append(idl_path)
+                included_filenames.remove(os.path.basename(idl_path))
 
+        self.forEachIDL(get_fullpath)
+        if len(included_filenames) > 0:
+            raise IDLCanNotFindException()
+                
         return included_filepaths
 
 
