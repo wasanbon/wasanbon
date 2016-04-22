@@ -68,13 +68,14 @@ def create_package(prjname, verbose=False, overwrite=False, force_create=False):
         cmd = ['chmod', '755', os.path.join(prjname, 'mgr.py')]
         subprocess.call(cmd)
 
+    register_package(prjname, appdir)
+    return 0
+
+def register_package(prjname, appdir):
     y = load_workspace()
     y[prjname] = appdir
     save_workspace(y)
     return 0
-
-
-
 def delete_package(name, deletepath=False, verbose=False):
     p = get_package(name)
     
