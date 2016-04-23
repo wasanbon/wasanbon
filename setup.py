@@ -141,6 +141,7 @@ setup(
         # 'bitbucket-api',
         'freetype-py',
         # 'lxml',
+        'pysftp', 
         'jinja2',
         'pillow',
         'nevow',

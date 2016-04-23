@@ -198,7 +198,6 @@ class Plugin(PluginFunction):
         rtc = admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)
         admin.editor.edit_rtc(rtc, verbose=verbose)
 
-
     @manifest
     def run(self, args):
         """ Run just one RTC """

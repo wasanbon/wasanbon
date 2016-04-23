@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-_version = '1.0.0-13'
+_version = '1.0.0-14'
 
 import sys, os, locale, getpass, time #, yaml
 import platform as plt

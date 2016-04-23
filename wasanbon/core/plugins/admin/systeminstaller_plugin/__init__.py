@@ -93,7 +93,7 @@ class Plugin(PluginFunction):
     def install_rtc_in_package(self, package, rtc, verbose=False, 
                                preload=True, precreate=True, copy_conf=True, 
                                rtcconf_filename="", 
-                               copy_bin=True, standalone=False, conffile=None):
+                               copy_bin=True, standalone=False, conffile=None, allow_duplication=False):
         if verbose: sys.stdout.write('# Installing RTC in package %s\n' % package.name)
 
         if not standalone and self.is_installed(package, rtc, standalone=True, verbose=verbose):
@@ -118,7 +118,7 @@ class Plugin(PluginFunction):
                     rtcconf.pop(key)
             targetconf = os.path.join(package.get_confpath(fullpath=False), 'rtc_' + name + '.conf')
             targetconf = targetconf.replace('\\', '/')
-        else:
+        else: # not standalone
             if len(rtcconf_filename) == 0:
                 rtcconf = admin.rtcconf.RTCConf(package.rtcconf[rtc.rtcprofile.language.kind])
             else:
@@ -131,6 +131,7 @@ class Plugin(PluginFunction):
             targetfile = os.path.join(package.get_binpath(fullpath=False), rtc.get_rtc_file_path())
             pass
 
+        rtc_count = 0
         if standalone:
             backup_dir = os.path.join(package.path, 'backup')
             if not os.path.isdir(backup_dir):
@@ -147,21 +148,29 @@ class Plugin(PluginFunction):
             open(setting_filename, 'w').write(yaml.dump(dic, default_flow_style=False))
             pass
 
-        else:
-            if verbose: sys.stdout.write('### Setting manager.modules.load_path:')
+        else: # If not standalone
+            if verbose: sys.stdout.write('### Setting manager.modules.load_path:\n')
             rtcconf.append('manager.modules.load_path', os.path.dirname(targetfile))
+            if verbose: sys.stdout.write('### OK.\n')
             if preload:
-                if verbose: sys.stdout.write('### Setting manager.modules.preload:')
+                if verbose: sys.stdout.write('### Setting manager.modules.preload:\n')
                 rtcconf.append('manager.modules.preload', os.path.basename(targetfile))
+                if verbose: sys.stdout.write('### OK.\n')
             if precreate:
-                rtcconf.append('manager.components.precreate', rtc.rtcprofile.basicInfo.name)
+                if verbose: sys.stdout.write('### Setting manager.components.precreate:\n')
+                rtc_count = rtcconf.append('manager.components.precreate', rtc.rtcprofile.basicInfo.name, verbose=verbose, allow_duplicate=allow_duplication) 
+                if rtc_count > 0:
+                    if verbose: sys.stdout.write('### OK.\n')
+                else:
+                    if verbose: sys.stdout.write('### Failed.\n')
+                    return -1
 
         if conffile == None:
-            confpath = copy_conf_from_rtc(package, rtc, verbose=verbose, force=copy_conf)
+            confpath = copy_conf_from_rtc(package, rtc, verbose=verbose, force=copy_conf, rtc_count=rtc_count-1)
         else:
             confpath = conffile
         if confpath:
-            key = rtc.rtcprofile.basicInfo.category + '.' + rtc.rtcprofile.basicInfo.name + '0.config_file'
+            key = rtc.rtcprofile.basicInfo.category + '.' + rtc.rtcprofile.basicInfo.name + '%s.config_file' % (rtc_count-1)
             if verbose:
                 sys.stdout.write('## Configuring System. Set (%s) to %s\n' % (key, confpath))
             rtcconf.append(key, confpath)
@@ -312,13 +321,13 @@ def copy_binary_from_rtc(package, rtc, verbose=False, standalone=False):
     return targetfile
 
 
-def copy_conf_from_rtc(package, rtc, verbose=False, force=False):
+def copy_conf_from_rtc(package, rtc, verbose=False, force=False, rtc_count=0):
     conffile = rtc.get_rtc_conf_path(verbose=verbose)
     if len(conffile) == 0:
         sys.stdout.write('## No configuration file for RTC (%s) is found.\n' % rtc.rtcprofile.basicInfo.name)
         return []
     targetconf = os.path.join(package.path, 'conf', os.path.basename(conffile))
-    targetconf = targetconf[:-5] + '0' + '.conf'
+    targetconf = targetconf[:-5] + '%s' % rtc_count + '.conf'
     if os.path.isfile(targetconf):
         if verbose:  sys.stdout.write('## Found %s.\n' % targetconf)
         if force:

@@ -17,6 +17,26 @@ class Plugin(PluginFunction):
         pass
 
     @manifest
+    def status(self, args):
+        """ This command shows Environment status for wasanbon. """
+        sys.stdout.write('# Showing the status of wasanbon environment initialization...\n')
+        options, argv = self.parse_args(args[:])
+        verbose = True #options.verbose_flag
+
+        for key, value in self.path.items():
+            sys.stdout.write('%s : %s\n' % (key, value))
+        return 0
+
+    @manifest
+    def update_path(self, args):
+        """ Update Search Path for commands. """
+        options, argv = self.parse_args(args[:])
+        verbose = True #options.verbose_flag
+
+        self._update_path(verbose=verbose)
+        return 0
+
+    @manifest
     def init(self, args):
         """ This command must be called first.
         Install Pip, PyYAML, PyGithub, psutil, python-bitbucket, and several modules 
