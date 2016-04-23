@@ -94,15 +94,32 @@ class RTCConf(object):
         self.dic.pop(key)
         pass
         
-    def append(self, key, value):
+    def append(self, key, value, verbose=False, allow_duplicate=False):
         if not key in self.dic.keys():
+            if verbose: sys.stdout.write('#### Key[%s] not found. Created.\n' % key)
             self.dic[key] = value
+            return 1
         elif len(self.dic[key].strip()) == 0:
             self.dic[key] = value
+            return 1
         else:
             values = [v.strip() for v in self.dic[key].split(',')]
             if not value in values:
                 self.dic[key] = self.dic[key] + ',' + value
+                return 1
+            else:
+                if verbose: sys.stdout.write('#### In Key[%s], Value[%s] is already exists.\n' % (key, value))
+                if allow_duplicate:
+                    count = 0
+                    for v in values:
+                        if v == value:
+                            count = count + 1
+
+                    if verbose: sys.stdout.write('#### Allow duplication. Add Value[%s] to Key[%s].\n' % (value, key))
+                    self.dic[key] = self.dic[key] + ',' + value
+                    count = count + 1
+                    return count
+                return 0
 
     def remove(self, key, value=None, verbose=False):
         if verbose:
