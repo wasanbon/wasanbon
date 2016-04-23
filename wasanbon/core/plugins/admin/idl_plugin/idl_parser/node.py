@@ -14,6 +14,10 @@ class IDLNode(object):
     @property
     def is_array(self):
         return self._classname == 'IDLArray'
+    
+    @property
+    def is_void(self):
+        return self._classname == 'IDLVoid'
 
     @property
     def is_struct(self):
@@ -30,6 +34,10 @@ class IDLNode(object):
     @property
     def is_primitive(self):
         return self._classname == 'IDLPrimitive'
+
+    @property
+    def is_interface(self):
+        return self._classname == 'IDLInterface'
 
     @property
     def is_enum(self):

@@ -1,6 +1,6 @@
 import os, sys, traceback
 
-import node
+import node, type
 import struct, typedef, interface, enum, const
 global_namespace = '__global__'
 sep = '::'
@@ -239,6 +239,8 @@ class IDLModule(node.IDLNode):
             func(m)
 
     def find_types(self, full_typename):
+        if type.is_primitive(full_typename):
+            return [type.IDLType(full_typename, self)]
         typenode = []
 
         def parse_node(s, name=str(full_typename)):
