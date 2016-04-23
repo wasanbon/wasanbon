@@ -104,6 +104,35 @@ class Plugin(PluginFunction):
         return self.create_package(prjname = argv[3], verbose=verbose)
 
     @manifest
+    def register(self, args):
+        """ Register Package 
+        # Usage $ wasanbon-admin.py package reigster [PACKAGE_PATH] """
+        options, argv = self.parse_args(args[:], self.print_packages)
+        verbose = options.verbose_flag
+
+        package_path = argv[3]
+        if not os.path.isabs(package_path):
+            package_path = os.path.normpath(os.path.join(os.getcwd(), package_path))
+            
+        if not os.path.isdir(package_path):
+            sys.stdout.write('# Can not find %s.\n' % package_path)
+            return -1
+
+        setting_file_path = os.path.join(package_path, 'setting.yaml')
+        if not os.path.isfile(setting_file_path):
+            sys.stdout.write('# Setting file %s can not be found.' % setting_file_path)
+            return -1
+
+        p = PackageObject(path=package_path)
+        sys.stdout.write('# Registering Package %s\n' % p.name)
+
+
+        register_package(p.name, p.path)
+
+        return 0
+            
+    
+    @manifest
     def delete(self, args):
         """ Delete Package
         # Usage $ wasanbon-admin.py package delete [PACK_NAME]
@@ -209,12 +238,15 @@ def create_package(prjname, verbose=False, overwrite=False, force_create=False):
     if sys.platform == 'darwin' or sys.platform == 'linux2':
         cmd = ['chmod', '755', os.path.join(prjname, 'mgr.py')]
         subprocess.call(cmd)
+        
+    register_package(prjname, appdir)
+    return 0
 
+def register_package(prjname, appdir):
     y = load_workspace()
     y[prjname] = appdir
     save_workspace(y)
     return 0
-
 
 
 def delete_package(name, deletepath=False, verbose=False):
@@ -264,7 +296,7 @@ def get_package(name, verbose=False):
     y = load_workspace()
     if not name in y.keys():
         raise wasanbon.PackageNotFoundException()
-    return PackageObject(name, y[name])
+    return PackageObject(name=name, path=y[name])
 
 
 def get_package_from_path(path, verbose=False):
@@ -273,7 +305,7 @@ def get_package_from_path(path, verbose=False):
     y = load_workspace()
     for key, value in y.items():
         if value == path:
-            return PackageObject(key, value)
+            return PackageObject(name=key, path=value)
     
 
     raise wasanbon.PackageNotFoundException()
@@ -287,8 +319,8 @@ import os, sys
 
 class PackageObject(object):
 
-    def __init__(self, name, path):
-        self._name = name
+    def __init__(self, name=None, path=None):
+
         self._path = path
         self._setting_file_path = os.path.join(path, 'setting.yaml')
         if not os.path.isfile( self._setting_file_path):
@@ -297,6 +329,11 @@ class PackageObject(object):
         self._setting = None
         self._rtcconf = None
 
+        if name:
+            self._name = name
+        else:
+            self._name = self.setting['name']
+                
     @property
     def name(self):
         return self._name

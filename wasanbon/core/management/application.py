@@ -121,6 +121,7 @@ def execute(argv=None):
 
     subcommand = args[1]
     
+    verbose = '-v' in args
 
 
     if not subcommand in opts:
@@ -152,8 +153,15 @@ def execute(argv=None):
     except wasanbon.InvalidUsageException, ex:
         run_command(package, subcommand, ['-h'])
         return -1
+    except wasanbon.PackageNotFoundException, ex:
+        if verbose:
+            traceback.print_exc()
+        sys.stdout.write('# Package Not Found.\n')
+
     except wasanbon.RTCNotFoundException, ex:
+        
         sys.stdout.write('# RTC Not Found.\n')
+        
     except wasanbon.WasanbonException, ex:
         traceback.print_exc()
         sys.stdout.write('## WasanbonError. %s\n' % ex.msg())

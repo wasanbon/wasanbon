@@ -5,8 +5,8 @@ import os, sys
 
 class PackageObject(object):
 
-    def __init__(self, name, path):
-        self._name = name
+    def __init__(self, name=None, path):
+
         self._path = path
         self._setting_file_path = os.path.join(path, 'setting.yaml')
         if not os.path.isfile( self._setting_file_path):
@@ -15,6 +15,10 @@ class PackageObject(object):
         self._setting = None
         self._rtcconf = None
 
+        if name:
+            self._name = name
+        else:
+            self._name = self.setting['name']
     @property
     def name(self):
         return self._name

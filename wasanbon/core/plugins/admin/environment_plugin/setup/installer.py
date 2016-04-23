@@ -1,18 +1,28 @@
 import os, sys, subprocess, traceback
 
 
-def call_subprocess(cmds, verbose=False, env=None):
+def call_subprocess(cmds, verbose=False, env=None, unrestricted=False):
     out = None if verbose else subprocess.PIPE
-    out = None if verbose else subprocess.PIPE
+    _in = None if verbose else subprocess.PIPE
     if env == None:
         env = os.environ
-    p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
+    if sys.platform == 'win32' and unrestricted:
+        cmd_str = ''
+        for c in cmds:
+            cmd_str = c + ' '
+        cmd_str = cmd_str.strip()
+        admin_cmd = ['@powershell', '-NoProfile', '-ExecutionPolicy', 'unrestricted', '-Command', cmd_str]
+        
+        p = subprocess.Popen(admin_cmd, shell=True, stdout=out, stderr=out, env=env)
+
+    else:
+        p = subprocess.Popen(cmds, stdout=out, stdin=out, env=env)
     return p.wait()
 
 def install_exe(file, verbose=False, path='downloads'):
     if verbose: sys.stdout.write('# Launching %s\n' % file)
     cmds = [ os.path.join(os.getcwd(), path, file) ]
-    return call_subprocess(cmds, verbose)
+    return call_subprocess(cmds, verbose, unrestricted=True)
 
 def install_py(file, verbose=False, path='downloads'):
     if verbose: sys.stdout.write('# Launching %s\n' % file)

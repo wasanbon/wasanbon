@@ -35,9 +35,9 @@ _urls = {
     'requests_oauthlib' : {'darwin' : 'pip install requests-oauthlib',
                   'linux2' : 'pip install requests-oauthlib',
                   'win32' : 'pip install requests-oauthlib'},
-    'bitbucket' : {'darwin' : 'pip install bitbucket-api',
-                   'linux2' : 'pip install bitbucket-api',
-                   'win32' : 'http://sugarsweetrobotics.com/pub/Win32/pybitbucket/bitbucket-api-0.5.0.win32.exe'},
+    'bitbucket' : {'darwin' : 'pip install bitbucket-api --pre',
+                   'linux2' : 'pip install bitbucket-api --pre',
+                   'win32' : 'pip install bitbucket-api --pre',},
 
     'freetype' : {'darwin' : 'http://download.savannah.gnu.org/releases/freetype/freetype-2.4.10.tar.gz'
                   },
