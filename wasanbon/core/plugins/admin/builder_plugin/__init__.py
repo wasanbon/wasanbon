@@ -105,16 +105,15 @@ def build_rtc_cpp(rtcp, verbose=False):
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env)
             std_out, std_err = p.communicate()
             ret = p.returncode
+            errmsg = ""
             if verbose:
                 sys.stdout.write('## Return Code = %s\n' % ret)
-            if not verbose:
-                if p.stderr != None:
-                    errmsg = std_out#p.stderr.read()
+            else:
+                if std_out == None:
+                    errmsg = ''
                 else:
                     errmsg = std_out
-            else:
-                errmsg = ""
-            err_code = (errmsg.find('error') < 0 and errmsg.find('Error') < 0 and p.returncode == 0)
+            err_code = (errmsg.find('error') < 0 and errmsg.find('Error') < 0 and ret == 0)
             return (err_code, errmsg)
 
     elif sys.platform == 'darwin':

@@ -5,7 +5,7 @@ import os, sys
 
 class PackageObject(object):
 
-    def __init__(self, name=None, path):
+    def __init__(self, name=None, path=None):
 
         self._path = path
         self._setting_file_path = os.path.join(path, 'setting.yaml')

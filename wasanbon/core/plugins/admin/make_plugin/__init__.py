@@ -32,7 +32,7 @@ class Plugin(PluginFunction):
         else:
             packages = admin.package.get_packages(verbose=verbose)        
             for package_ in packages:
-                if isparent(package_.path):
+                if isparent(package_.path, verbose=verbose):
 
                     package = package_
                     break
@@ -73,12 +73,16 @@ class Plugin(PluginFunction):
             print p.name
 
 
-def isparent(path):
+def isparent(path, verbose=False):
     def checkparent(p, q):
         #print 'check', p, q
         if q == '/':
             return False
+        if verbose: sys.stdout.write('# Comparing %s == %s \n' % (p, q))
         if os.stat(p) == os.stat(q):
             return True
-        return checkparent(p, os.path.dirname(q))
+        parent= os.path.dirname(q)
+        if q == parent:
+            return False
+        return checkparent(p, parent)
     return checkparent(path, os.getcwd())
