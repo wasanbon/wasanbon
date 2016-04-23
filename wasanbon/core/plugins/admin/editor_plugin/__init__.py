@@ -35,10 +35,14 @@ class Plugin(PluginFunction):
         if not 'HOME' in editenv.keys():
             editenv['HOME'] = wasanbon.get_home_path()
         cmd = [self.get_editor_path()]
+        if len(cmd[0]) == 0:
+            sys.stdout.write('# Error. Editor can not be found.\n')
+            return -1
         if not sys.platform is 'darwin':
             cmd = cmd + ['-nw']
         srcs = find_rtc_srcs(rtc.rtcprofile)
         cmd = cmd + srcs # rtc_obj.packageprofile.getSourceFiles()
+        if verbose: sys.stdout.write('# Edit RTC command=%s\n' % cmd)
         signal.signal(signal.SIGINT, signal_action)
         subprocess.call(cmd, env=editenv)
         pass

@@ -36,10 +36,12 @@ class Plugin(PluginFunction):
         """
         self.parser.add_option('-f', '--force', help='Force option (default=True)', default=True, action='store_true', dest='force_flag')
         self.parser.add_option('-s', '--standalone', help='Install Standalone RTC(default=False)', default=False, action='store_true', dest='standalone_flag')
+        self.parser.add_option('-d', '--duplicate', help='Allow Duplicate RTC Creation(default=False)', default=False, action='store_true', dest='allow_duplicate')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         force  = options.force_flag
         standalone = options.standalone_flag
+        allow_duplicate = options.allow_duplicate
         wasanbon.arg_check(argv, 4)
 
         pack = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
@@ -57,7 +59,10 @@ class Plugin(PluginFunction):
                                                                rtcconf_filename="",
                                                                copy_bin=True,
                                                                standalone=standalone,
-                                                               conffile=None)
+                                                               conffile=None, 
+                                                               allow_duplication=allow_duplicate)
+
+            
             if ret != 0:
                 retval = ret
 
