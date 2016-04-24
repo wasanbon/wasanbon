@@ -163,11 +163,11 @@ def execute(argv=None):
         sys.stdout.write('# RTC Not Found.\n')
         
     except wasanbon.WasanbonException, ex:
-        traceback.print_exc()
+        if verbose: traceback.print_exc()
         sys.stdout.write('## WasanbonError. %s\n' % ex.msg())
         return -1
     except Exception, ex:
-        traceback.print_exc()
+        if verbose: traceback.print_exc()
         sys.stdout.write('## UnknownError.\n')
         return -1
     return -2

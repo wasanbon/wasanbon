@@ -124,6 +124,7 @@ class Loader():
             self.list_plugins(d, verbose=verbose)
 
         for name, dir in self._plugin_list.items():
+            if verbose: sys.stdout.write('# Loading %s plugin\n' % name)
             self.load_plugin(name, dir, verbose=verbose)
 
     def get_plugin_names(self, package, nocall=False, verbose=False):
