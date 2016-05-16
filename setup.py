@@ -139,6 +139,7 @@ setup(
         'requests',
         'requests_oauthlib',
         # 'bitbucket-api',
+        'bitbucket', 
         'freetype-py',
         # 'lxml',
         'pysftp', 
