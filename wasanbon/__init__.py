@@ -391,6 +391,9 @@ def platform():
         
         if distri[0] == 'Ubuntu':
             _platform = 'ubuntu'
+        elif distri[0] == 'debian':
+            _platform = 'debian'
+
             
         #if distri[1] == '12.04':
         #    _platform = _platform + '1204'
