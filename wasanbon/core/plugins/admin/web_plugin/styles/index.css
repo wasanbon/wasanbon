@@ -1,0 +1,105 @@
+// Css file for index.html
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+#toolbar { 
+  margin: 0px;
+  height: 40px;
+  background: #D32F2F;
+}
+
+
+#content {
+  margin: 0;
+  padding: 0;
+  font-family:'Lucida Grande', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, sans-serif;
+}
+
+#container {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+
+
+#top {
+  margin: 0px;
+  padding: 0px;
+  background: #F44336;
+  color: #FFFFFF;
+  padding-top: 0px;
+  padding-left: 20px;
+  height: 200px;
+ /*  box-shadow: 0px 3px 10px 1px rgba(0,0,0,0.4); */
+}
+
+#top h1 {
+  font-size: 36px;
+  margin: 0px;
+  padding-top: 45px;
+  padding-left: 40px;
+}
+
+#top p {
+  margin-top: 0px;
+  padding-top: 0px;
+  padding-left: 40px;
+}
+
+#container ul.plugin_items {
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+ /*  width: 100%; */
+}
+
+#container ul.plugin_items a {
+  text-decoration: none;
+  color: #727272;
+}
+
+#container li.plugin_item {
+  margin: 0px;
+  width: 200px;
+  height: 200px;
+/*  border-bottom: 1px solid #B6B6B6; */
+  float: left;
+  margin: 0px;
+  text-align: center;
+/*  border: 1px solid #000000; */
+}
+
+#container li.plugin_item img {
+  width: 120px;
+  height: 120px;
+  padding: 0px;
+  margin-top: 40px;
+  text-align: center;
+  border: none;
+  background-color: white;
+
+  border-radius: 20px;
+}
+
+#container li.plugin_item h1 {
+  font-size: 18px;
+  color: white;
+  padding: 0px;
+  margin-top: 10px;
+  text-align: center;
+  /*  border: 1px solid #000000; */
+}
+
+#top_menu {
+  margin-left:auto;
+  margin-right:auto;
+  text-align: center;
+  height: 40px;
+  float: none;
+  padding: 0px;
+  align: center;
+  width: 800px;
+}
