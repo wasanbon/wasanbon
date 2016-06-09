@@ -14,7 +14,7 @@ class AdminPackagePlugin(PluginObject):
             if running:
                 sub = sub + ['-r']
             stdout = check_output(*sub)
-
+            #open('log.txt', 'w').write(stdout)
             return self.return_value(True, '', (stdout))
         except Exception, ex:
             traceback.print_exc()

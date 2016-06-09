@@ -161,6 +161,7 @@ class Plugin(PluginFunction):
         from twisted.web import server
         from twisted.internet import reactor
         
+        import site, rpc
         from site import resource
         from rpc import manager
         
