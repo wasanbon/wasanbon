@@ -1,0 +1,42 @@
+<link rel="import" href="../../packages/wasanbon_elements/wasanbon_toolbar.html" >
+<link rel="import" href="../../packages/wasanbon_elements/message_dialog.html" >
+<dom-module id="main-frame">
+    <template>
+        <style>
+            :host #top {
+                margin: 0px;
+                padding: 0px;
+                background: #455A64;
+                color: #FFFFFF;
+                padding-left: 20px;
+                height: 200px;
+                box-shadow: 0px 3px 10px 1px rgba(0,0,0,0.4);
+            }
+
+            :host #top h1 {
+                font-size: 36px;
+                margin: 0px;
+                padding-top: 45px;
+                padding-left: 40px;
+            }
+
+            :host #top p {
+                margin-top: 0px;
+                padding-top: 0px;
+                padding-left: 40px;
+            }
+
+        </style>
+
+        <wasanbon-toolbar id="toolbar"></wasanbon-toolbar>
+
+        <div id="top">
+            <h1>App Template</h1>
+            <p>Application Description</p>
+            <p>Version : 0.0.1</p>
+        </div>
+
+        <confirm-dialog id="message-dlg"></confirm-dialog>
+    </template>
+    <script type="application/dart" src="main_frame.dart"></script>
+</dom-module>

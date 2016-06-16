@@ -1,0 +1,24 @@
+name: apptemplate
+version: 0.0.1
+description: short description
+dependencies:
+  browser: any
+  polymer: 1.0.0-rc.2
+  polymer_elements: 1.0.0-rc.5
+  web_components: ^0.12.0
+  reflectable: ^0.3.0
+  wasanbon_xmlrpc:
+    git : https://github.com/sugarsweetrobotics/wasanbon_xmlrpc.dart
+  wasanbon_elements:
+    git : https://github.com/sugarsweetrobotics/wasanbon_elements.dart
+dev_dependencies:
+  unittest: any
+transformers:
+- web_components:
+    entry_points:
+    - web/index.html
+- reflectable:
+    entry_points:
+    - web/index.dart
+- $dart2js:
+    $include: '**/*.bootstrap.initialize.dart'
