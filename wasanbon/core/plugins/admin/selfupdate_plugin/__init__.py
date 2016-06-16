@@ -37,11 +37,13 @@ class Plugin(PluginFunction):
         os.chdir(wasanbon.temp_path)
 
         if os.path.isdir(os.path.join(wasanbon.temp_path, 'wasanbon')):
+            os.chdir('wasanbon')
             admin.git.git_command(['pull', 'origin', 'release'], verbose=True)
         else:
             url = 'https://github.com/sugarsweetrobotics/wasanbon.git'
-            admin.git.git_command(['clone', url,  'origin', 'release'], verbose=True)
-        
+            admin.git.git_command(['clone', '-b', 'release', url], verbose=True)
+            os.chdir('wasanbon')
+
         command = ['python', 'setup.py', 'install']
         ret = subprocess.call(command)
         os.chdir(cwd)
