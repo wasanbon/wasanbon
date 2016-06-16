@@ -12,6 +12,10 @@ class SettingPlugin(PluginObject):
         self.debug('echo(%s)' % msg)
         return self.return_value(True, '', msg)
 
+    def selfupdate(self):
+        self.debug('selfupdate')
+        stdout = check_output('selfupdate', 'run', '-f')
+        return self.return_value(True, '', 0)
 
     def ready_packages(self):
         self.debug('ready_packages')
