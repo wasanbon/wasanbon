@@ -309,7 +309,11 @@ class Plugin(PluginFunction):
         if not dic:
             dic = {}
         for repo in repos:
-            dic[repo.name] = {'repo_name' : repo.name, 'git': repo.url, 'description':repo.description, 'hash':repo.hash}
+            if getattr(repo, 'url') != None:
+                url = repo.url.strip()
+            else:
+                url = ''
+            dic[repo.name] = {'repo_name' : repo.name, 'git': url, 'description':repo.description, 'hash':repo.hash}
 
         yaml.dump(dic, open(repo_file, 'w'), encoding='utf8', allow_unicode=True, default_flow_style=False)
         pass
@@ -395,11 +399,15 @@ class Plugin(PluginFunction):
     def get_registered_repository_from_rtc(self, rtc, verbose=False):
         """ Search Repository Object from RTC Information """
         target_repo = admin.repository.get_repository_from_rtc(rtc, verbose=verbose)
+        if target_repo is None:
+            return None
         repos = admin.binder.get_rtc_repos()
         result_repo = None
         for repo in repos:
-            if repo.url.strip() == target_repo.url.strip():
-                return repo
+            if getattr(repo, 'url') != None:
+                print getattr(repo, 'url')
+                if repo.url.strip() == target_repo.url.strip():
+                    return repo
 
         return None
 

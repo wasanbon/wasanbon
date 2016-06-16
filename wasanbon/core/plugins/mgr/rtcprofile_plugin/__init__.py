@@ -109,7 +109,7 @@ class Plugin(PluginFunction):
 
         return 0
 
-    def get_html(self, rtc, with_image=False):
+    def get_html(self, rtc, with_image=False, no_repo=True):
         repo = mgr.repository.get_registered_repository_from_rtc(rtc)
         from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader('./', encoding='utf8'))
@@ -118,16 +118,21 @@ class Plugin(PluginFunction):
         os.chdir(template_path)
         tpl = env.get_template('page_template.html')
         os.chdir(cwd)
+
+        if getattr(repo, 'url', None) == None:
+            url = ''
+        else:
+            url = repo.url.strip()
         if repo:
             info = {'name' : rtc.rtcprofile.basicInfo.name,
                     'repo_name' : repo.name,
-                    'url' : repo.url.strip(),
+                    'url' : url,
                     'platform' : repo.platform}
         else:
             repo = admin.repository.get_repository_from_rtc(rtc, verbose=False)
             info = {'name' : rtc.rtcprofile.basicInfo.name,
-                    'repo_name' : repo.name,
-                    'url' : repo.url.strip(),
+                    'repo_name' : '',
+                    'url' : url,
                     'platform' : wasanbon.platform}
             
         html = tpl.render({'rtc': rtc.rtcprofile, 'info':info})
