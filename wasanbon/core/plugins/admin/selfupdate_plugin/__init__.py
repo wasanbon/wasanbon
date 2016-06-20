@@ -45,6 +45,7 @@ class Plugin(PluginFunction):
             os.chdir('wasanbon')
 
         command = ['python', 'setup.py', 'install']
+        print '#Self updating ...'
         ret = subprocess.call(command)
         os.chdir(cwd)
         return ret
