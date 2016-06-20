@@ -26,7 +26,7 @@ def call(*args, **kwargs):
     if sys.platform == 'win32':
         shell = True
     sys.stdout.write('call: %s\n' % str(cmd))
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=shell)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
     #p.wait()
     #return p.stdout
     #std_out_data, std_err_data = p.communicate()
@@ -34,6 +34,7 @@ def call(*args, **kwargs):
 
 
 def check_output(*args, **kwargs):
+    
     cmd = ['wasanbon-admin.py']
     shell = False
     for arg in args:

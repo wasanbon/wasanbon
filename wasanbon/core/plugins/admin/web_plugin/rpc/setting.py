@@ -14,8 +14,9 @@ class SettingPlugin(PluginObject):
 
     def selfupdate(self):
         self.debug('selfupdate')
-        stdout = check_output('selfupdate', 'run', '-f')
-        return self.return_value(True, '', 0)
+        p = call('selfupdate', 'run', '-f')
+        stdout, stderr = p.communicate()
+        return self.return_value(p.returncode==0, '', (stdout, stderr))
 
     def ready_packages(self):
         self.debug('ready_packages')

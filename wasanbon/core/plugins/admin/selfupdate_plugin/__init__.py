@@ -46,7 +46,14 @@ class Plugin(PluginFunction):
 
         command = ['python', 'setup.py', 'install']
         print '#Self updating ...'
-        ret = subprocess.call(command)
+        try:
+            ret = subprocess.call(command)
+        except:
+            sys.stdout.write('# Exception occured in selfupdating.....\n')
+            traceback.print_exc()
         os.chdir(cwd)
+
+        if ret != 0:
+            sys.stdout.write('# Error in selfupdating....\n')
         return ret
 
