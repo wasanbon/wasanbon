@@ -20,15 +20,20 @@ class MainFrame extends PolymerElement {
   MainFrame.created() : super.created();
   
   void attached() {
-    ($$('#toolbar') as WasanbonToolbar).onBack = this.onBack;
-  }
+    ($$('#toolbar') as WasanbonToolbar).onBack.listen((var e) {
+      onBack();
+    });
 
-  @reflectable
-  void onBack(var e, var d) {
     ConfirmDialog dlg = $$('#message-dlg');
-    dlg.eventListener.ok.add((var dlg_) {
+    dlg.ptr.onOK.listen((var dlg_) {
       html.window.location.href='http://${Uri.base.host}:${Uri.base.port}';
     });
-    dlg.show('Confirm', 'Really exit from App Template?');
+
+
+  }
+
+  void onBack() {
+    ConfirmDialog dlg = $$('#message-dlg');
+    dlg.show('Confirm', 'Really exit from Apps?');
   }
 }
