@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, traceback
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
@@ -219,12 +219,40 @@ class Plugin(PluginFunction):
         sys.stdout.write('# Stopping Web Application in %s\n' % directory)
 
         pid_file = os.path.join(pid_dir, 'pid')
+
         if not os.path.isfile(pid_file):
             sys.stdout.write(' - Server not found.\n')
             return -1
         import signal
         pid = int(open(pid_file, 'r').read())
-        os.kill(pid, signal.SIGINT)
+        if verbose: sys.stdout.write('# Stopping Web Service (PID = %s)\n' % pid)
+        try:
+            os.kill(pid, signal.SIGINT)
+        except:
+            print '# Exception in Stopping Web Service.'
+            traceback.print_exc()
+            
+            print '# Searching wasanbon-admin.py processes......'
+            import psutil
+            for p in psutil.process_iter():
+                try:
+                    cl = p.cmdline()
+                    python_flag = False
+                    wsbadm_flag = False
+                    web_flag = False
+                    start_flag = False
+                    for c in cl:
+                        if c.find('python') >= 0: python_flag = True
+                        if c.find('wasanbon-admin.py') >= 0: wsbadm_flag = True
+                        if c.find('web') >= 0: web_flag = True
+                        if c.find('start') >= 0: start_flag = True
+
+                    if all([python_flag, wsbadm_flag, web_flag, start_flag]):
+                        print '# Found wasanbon-admin.py web process(PID=%s)', p.pid
+                        # Found
+                        p.kill()
+                except:
+                    continue
 
         return 0
         
