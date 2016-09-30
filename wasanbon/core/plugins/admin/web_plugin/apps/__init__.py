@@ -30,7 +30,8 @@ def upload(filepath, user, password, list_filename, hostname, dir, description="
     upload_list(usr, psswd, filename=list_filename, hostname=hostname, dir=dir)
     upload_file(usr, psswd, filepath, hostname=hostname, dir=dir)
     
-def update_cache(url, target=None):
+def update_cache(url, target=None, verbose=False):
+    if verbose: sys.stdout.write('# Update Cache in %s\n' % url)
     if target is None:
         target = os.path.join(wasanbon.get_wasanbon_home(), 'web')
     if not os.path.isdir(target):
@@ -39,7 +40,10 @@ def update_cache(url, target=None):
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
     page_content = response.read()
-
+    
+    if verbose: sys.stdout.write('############### Content #################\n')
+    if verbose: sys.stdout.write(page_content)
+    if verbose: sys.stdout.write('############### Content #################\n')
     target_file = os.path.join(target, _list_page)
     open(target_file, 'w').write(page_content)
 

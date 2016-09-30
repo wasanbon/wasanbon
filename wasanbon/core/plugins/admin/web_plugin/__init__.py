@@ -466,7 +466,7 @@ class Plugin(PluginFunction):
             sys.stdout.write(' - file (%s) not found.\n')
         
         import apps
-        apps.update_cache(url=self.applist_url)
+        apps.update_cache(url=self.applist_url, verbose=verbose)
         dic = self.get_setting_dic()
         user = dic['user']
         password = dic['password']
@@ -519,10 +519,10 @@ class Plugin(PluginFunction):
             dic = default_setting_dic
         return dic
 
-    def get_app_dict(self):
+    def get_app_dict(self, verbose=False):
         # print self.applist_url
         import apps
-        apps.update_cache(url=self.applist_url)
+        apps.update_cache(url=self.applist_url, verbose=verbose)
         dic = apps.cache_to_dict()
         return dic
         
@@ -533,7 +533,7 @@ class Plugin(PluginFunction):
         #self.parser.add_option('-p', '--port', help='Set TCP Port number for web server', type='int', default=8000, dest='port')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag # This is default option
-        dic = self.get_app_dict()
+        dic = self.get_app_dict(verbose=verbose)
         import yaml
         print yaml.dump(dic, default_flow_style=False)
         return 0
