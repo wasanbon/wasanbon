@@ -1,0 +1,33 @@
+cmake :
+  - "/usr/local/bin/cmake"
+  - "/usr/bin/cmake"
+  - "/Applications/CMake 2.8-10.app/Contents/bin/cmake"
+  - "/Applications/CMake 2.8-9.app/Contents/bin/cmake"
+  - "/Applications/CMake.app/Contents/bin/cmake"
+doxygen : 
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
+  - "/Applications/Doxygen.app/Contents/Resources/doxygen"
+git :
+  - "/usr/local/bin/git"
+  - "/usr/bin/git"
+  - "/usr/local/git/bin/git"
+java :
+  - "/usr/local/bin/java"
+  - "/usr/bin/java"
+javac :
+  - "/usr/local/bin/javac"
+  - "/usr/bin/javac"
+svn :
+  - "/usr/local/bin/doxygen"
+  - "/usr/bin/doxygen"
+emacs :
+  - "/usr/local/bin/emacs"
+  - "/usr/bin/emacs"
+hg :
+  - "/usr/bin/hg"
+  - "/usr/local/bin/hg"
+pkg-config :
+  - "/usr/bin/pkg-config"
+  - "/opt/local/bin/pkg-config"
+  - "/usr/local/bin/pkg-config"
