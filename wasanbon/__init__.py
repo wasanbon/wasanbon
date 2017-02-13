@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-_version = '1.1.0-0'
+_version = '1.1.1'
 
 import sys, os, locale, getpass, time #, yaml
 import platform as plt
@@ -362,6 +362,7 @@ def platform():
     if sys.platform == 'darwin':
         import platform as plt
         ver = plt.mac_ver()[0]
+
         if ver.startswith('10.11'):
             _platform = 'osx10.11_' + xcode_check()
         elif ver.startswith('10.10'):
@@ -373,7 +374,9 @@ def platform():
         elif ver.startswith('10.7'):
             _platform = 'osx10.7_' + xcode_check()
         else:
-            raise wasanbon.UnsupportedPlatformException()
+            _platform = 'osx'
+            #sys.stdout.write('#Error. platform.mac_ver() = %s\n' % ver)
+            #raise wasanbon.UnsupportedPlatformException()
     elif sys.platform == 'win32':
         if sys.getwindowsversion()[1] == 1:
             _platform = 'windows7'

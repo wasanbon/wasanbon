@@ -170,6 +170,7 @@ class Plugin(PluginFunction):
     	""" This plugin's setting directory path. This includes OS dependent information like packages. """
         setting_path = os.path.join(__path__[0], 'settings', wasanbon.platform())
         if not os.path.isdir(setting_path):
+            sys.stdout.write('# Error. UnsupportedPlatform (%s)\n' % wasanbon.platform())
             raise wasanbon.UnsupportedPlatformException()
         return setting_path
 
