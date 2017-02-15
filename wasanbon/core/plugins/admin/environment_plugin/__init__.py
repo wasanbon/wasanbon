@@ -452,7 +452,7 @@ class Plugin(PluginFunction):
 
     def _is_rtmcpp_installed(self):
         if sys.platform == 'darwin':
-            paths = ['/usr/local/include/openrtm-1.1/rtm', '/usr/include/openrtm-1.1/rtm']
+            paths = ['/usr/local/include/openrtm-1.1/rtm', '/usr/include/openrtm-1.1/rtm', '/opt/local/include/openrtm-1.1/rtm']
             if ('RTM_ROOT' in os.environ.keys()):
                 paths.append(os.path.join(os.environ['RTM_ROOT'], 'rtm'))
             return self._find_file(paths, 'version.txt')
