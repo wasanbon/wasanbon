@@ -128,11 +128,11 @@ class Plugin(PluginFunction):
             return -1
         curdir = os.getcwd()
         os.chdir(os.path.join(curdir, rtc_repo.name))
-        process_ = admin.git.git_command(['submodule', 'init'], verbose=verbose)
-        if process_.returncode != 0:
-            if verbose: sys.stdout.write('### Init Submodule RTC (%s) failed.\n' % rtc_repo.name)
-            return -2
-        process_ = admin.git.git_command(['submodule', 'update'], verbose=verbose)
+        # process_ = admin.git.git_command(['submodule', 'init'], verbose=verbose)
+        # if process_.returncode != 0:
+        #     if verbose: sys.stdout.write('### Init Submodule RTC (%s) failed.\n' % rtc_repo.name)
+        #    return -2
+        process_ = admin.git.git_command(['submodule', 'update', '--init', '--recursive'], verbose=verbose)
         if process_.returncode != 0:
             if verbose: sys.stdout.write('### Update Submodule RTC (%s) failed.\n' % rtc_repo.name)
             return -3
