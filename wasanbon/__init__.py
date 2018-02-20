@@ -425,6 +425,7 @@ def sleep(interval, verbose=True):
 
     sys.stdout.write('\n')
     
+rtm_root_hints = ['/usr/include/openrtm-1.1', '/usr/local/include/openrtm-1.1', '/opt/local/include/openrtm-1.1']
 def get_rtm_root():
     if 'RTM_ROOT' in os.environ.keys():
         return os.environ['RTM_ROOT']

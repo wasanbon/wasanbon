@@ -13,7 +13,7 @@ def manifest(func):
         if '__doc__' in dir(func):
             usage = func.__doc__
         else:
-            usgae = "%s (No Comments Found)" % str(func)
+            usage = "%s (No Comments Found)" % str(func)
         self.parser = optparse.OptionParser(usage=usage)
         self.parser.add_option('-v', '--verbose', help='Verbosity option (default=False)', default=False, action='store_true', dest='verbose_flag')
         self.parser.add_option('-a', '--alternative', help='print Alternatives of next argument (default=False)', default=False, action='store_true', dest='alt_flag')
