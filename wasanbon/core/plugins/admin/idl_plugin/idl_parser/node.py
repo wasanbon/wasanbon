@@ -14,7 +14,7 @@ class IDLNode(object):
     @property
     def is_array(self):
         return self._classname == 'IDLArray'
-    
+
     @property
     def is_void(self):
         return self._classname == 'IDLVoid'
@@ -54,7 +54,7 @@ class IDLNode(object):
     @property
     def basename(self):
         if self.name.find('::') > 0:
-            return self.name[self.name.rfind('::')+2:]
+            return self.name[self.name.rfind('::') + 2:]
         return self.name
 
     @property
@@ -62,7 +62,6 @@ class IDLNode(object):
         if self.name.find('::') > 0:
             return self.name[:self.name.rfind('::')]
         return ''
-
 
     @property
     def parent(self):
@@ -83,6 +82,7 @@ class IDLNode(object):
     @property
     def root_node(self):
         roots = []
+
         def find_root(n):
             if n.is_root:
                 roots.append(n)
@@ -94,11 +94,11 @@ class IDLNode(object):
     def refine_typename(self, typ):
         global_module = self.root_node
         if typ.find('sequence') >= 0:
-            typ_ = typ[typ.find('<')+1 : typ.find('>')]
+            typ_ = typ[typ.find('<') + 1: typ.find('>')]
             typ__ = self.refine_typename(typ_)
             return 'sequence < ' + typ__ + ' >'
         else:
-        #f True:
+            # f True:
             typs = global_module.find_types(typ)
             if len(typs) == 0:
                 return typ

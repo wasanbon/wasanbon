@@ -1,7 +1,7 @@
 
 
 class TokenBuffer():
-    
+
     def __init__(self, lines):
         self._tokens = []
         self._token_offset = 0
@@ -21,5 +21,3 @@ class TokenBuffer():
         t = self._tokens[self._token_offset].strip()
         self._token_offset = self._token_offset + 1
         return t.strip()
-
-    

@@ -1,13 +1,16 @@
-import os, sys, traceback, types
+import os
+import sys
+import traceback
+import types
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
-class Plugin(PluginFunction):
-    """ Repository management plugin (mainly for package repository) """
 
+class Plugin(PluginFunction):
+    """ Repository management Plugin. (mainly for package repository) """
 
     def __init__(self):
-        #PluginFunction.__init__(self)
+        # PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         #import repository
         #repository.plugin_obj = self
@@ -18,39 +21,43 @@ class Plugin(PluginFunction):
         pass
 
     def depends(self):
-        return ['admin.environment', 
-                'admin.package', 
+        return ['admin.environment',
+                'admin.package',
                 'admin.rtc',
                 'admin.git',
                 'admin.binder']
 
     def _list_package_repos(self, args):
         for r in admin.binder.get_package_repos():
-            print r.name
-    
-    #@property
-    #def repository(self):
+            print(r.name)
+
+    # @property
+    # def repository(self):
     #    import repository
     #    return repository
 
     @manifest
     def list(self, args):
-        """ Listing Repository in Binder """
+        """ Listing Repository in Binder.
+        $ wasanbon-admin.py repository list
+        """
         admin.binder.packages(args)
-        
+
     @manifest
     def clone(self, args):
-        """ Cloning Package from repository. 
-        $ wasanbon-admin.py repository clone [PACKAGE_REPOSITORY_NAME] """
+        """ Cloning Package from repository.
+        $ wasanbon-admin.py repository clone <PACKAGE_REPOSITORY_NAME>
+        """
         #self.parser.add_option('-r', '--remove', help='Remove All Files (default=False)', default=False, action='store_true', dest='remove_flag')
-        self.parser.add_option('-u', '--url', help='Directory point the url of repository  (default="None")', default="None", type="string", dest="url")
+        self.parser.add_option('-u', '--url', help='Directory point the url of repository  (default="None")',
+                               default="None", type="string", dest="url")
         self.parser.add_option('-t', '--type', help='Set the type of repository  (default="git")', default="git", type="string", dest="type")
         options, argv = self.parse_args(args[:], self._list_package_repos)
         verbose = options.verbose_flag
         url = options.url
         typ = options.type
 
-        if url is "None":
+        if url == "None":
             wasanbon.arg_check(argv, 4)
             repo_name = argv[3]
             package_repo = admin.binder.get_package_repo(repo_name)
@@ -77,17 +84,18 @@ class Plugin(PluginFunction):
                     return -1
             except:
                 return -1
-            
-        
-    def clone_package(self, package_repo, path=None, verbose=False):
-    	""" Clone package from Repository.
-    	package_repo : 
-    	path :
-    	verbose :
-    	 """
-        if verbose: sys.stdout.write('# Cloning package %s\n' % package_repo)
 
-        if path is None:  path = package_repo.basename
+    def clone_package(self, package_repo, path=None, verbose=False):
+        """ Clone package from Repository.
+        package_repo : 
+        path :
+        verbose :
+        """
+        if verbose:
+            sys.stdout.write('# Cloning package %s\n' % package_repo)
+
+        if path is None:
+            path = package_repo.basename
         url = package_repo.url
 
         import wasanbon
@@ -96,9 +104,12 @@ class Plugin(PluginFunction):
             raise wasanbon.PackageAlreadyExistsException()
         except:
             pass
-        
-        admin.git.git_command(['clone', url, path], verbose=verbose)
-    
+
+        if type(package_repo._platform) is dict and wasanbon.platform() in package_repo._platform:
+            admin.git.git_command(['clone', '-b', package_repo._platform[wasanbon.platform()], url, path], verbose=verbose)
+        else:
+            admin.git.git_command(['clone', url, path], verbose=verbose)
+
         admin.package.create_package(path, verbose=verbose, force_create=True, overwrite=False)
         pack = admin.package.get_package(path, verbose=verbose)
         admin.package.validate_package(pack, verbose=verbose, autofix=True, ext_only=True)
@@ -113,7 +124,7 @@ class Plugin(PluginFunction):
                 if self.clone_rtc(repo, verbose=verbose) != 0:
                     retval = -1
                 pass
-        except Exception, ex:
+        except Exception as ex:
             traceback.print_exc()
             raise ex
         finally:
@@ -122,47 +133,57 @@ class Plugin(PluginFunction):
 
     def clone_rtc(self, rtc_repo, verbose=False):
         import wasanbon
-        process_ = admin.git.git_command(['clone', rtc_repo.url, rtc_repo.name], verbose=verbose)
+        if type(rtc_repo._platform) is dict and wasanbon.platform() in rtc_repo._platform:
+            process_ = admin.git.git_command(['clone', '-b', rtc_repo._platform[wasanbon.platform()], rtc_repo.url, rtc_repo.name], verbose=verbose)
+        else:
+            process_ = admin.git.git_command(['clone', rtc_repo.url, rtc_repo.name], verbose=verbose)
+
         if process_.returncode != 0:
-            if verbose: sys.stdout.write('### Cloning RTC (%s) failed.\n' % rtc_repo.name)
+            if verbose:
+                sys.stdout.write('### Cloning RTC (%s) failed.\n' % rtc_repo.name)
             return -1
         curdir = os.getcwd()
         os.chdir(os.path.join(curdir, rtc_repo.name))
-        process_ = admin.git.git_command(['submodule', 'init'], verbose=verbose)
+        if hasattr(rtc_repo, '_rtc_hash'):
+            process_ = admin.git.git_command(['checkout', rtc_repo._rtc_hash], verbose=verbose)
         if process_.returncode != 0:
-            if verbose: sys.stdout.write('### Init Submodule RTC (%s) failed.\n' % rtc_repo.name)
+            if verbose:
+                sys.stdout.write('### Checkout hash RTC (%s) failed.\n' % rtc_repo.name)
             return -2
-        process_ = admin.git.git_command(['submodule', 'update'], verbose=verbose)
-        if process_.returncode != 0:
-            if verbose: sys.stdout.write('### Update Submodule RTC (%s) failed.\n' % rtc_repo.name)
-            return -3
         os.chdir(curdir)
         return 0
 
     def get_rtc_repositories_from_package(self, package_obj, verbose=False):
-        if verbose: sys.stdout.write('# Loading Repository File from package(%s)\n' % (package_obj.name))
+        if verbose:
+            sys.stdout.write('# Loading Repository File from package(%s)\n' % (package_obj.name))
         repos = []
         import wasanbon
         import yaml
-        dict_ = yaml.load(open(package_obj.rtc_repository_file, 'r'))
+        dict_ = yaml.safe_load(open(package_obj.rtc_repository_file, 'r'))
         if not dict_ is None:
-            for name, value in dict_.items():
-                if 'git' in value.keys():
+            for name, value in list(dict_.items()):
+                if 'git' in list(value.keys()):
                     typ = 'git'
                     url = value[typ]
                     pass
-                elif 'url'in value.keys():
+                elif 'url' in list(value.keys()):
                     typ = value['type']
                     url = value['url']
-                if verbose: sys.stdout.write('## Loading Repository (name=%s, url=%s)\n'%(name, url))
+                if verbose:
+                    sys.stdout.write('## Loading Repository (name=%s, url=%s)\n' % (name, url))
                 path = None
                 try:
                     rtc = admin.rtc.get_rtc_from_package(package_obj, name)
                     path = rtc.path
                 except wasanbon.RTCNotFoundException:
                     pass
+                rtc_hash = None
+                if 'hash' in list(value.keys()):
+                    rtc_hash = value['hash']
 
-                repo = admin.binder.Repository(name=name, type=typ, url=url, platform=wasanbon.platform(), description=value['description'], path=path)
+                repo = admin.binder.Repository(name=name, type=typ, url=url, platform=wasanbon.platform(),
+                                               description=value['description'], path=path)
+                setattr(repo, '_rtc_hash', rtc_hash)
                 repos.append(repo)
                 pass
             pass
@@ -175,20 +196,22 @@ class Plugin(PluginFunction):
         else:
             return None
 
-
     def get_repository_from_path(self, path, verbose=False, description=""):
         if '.git' in os.listdir(path):
             return self.get_git_repository_from_path(path, verbose=verbose, description=description)
         return None
-        
+
     def get_git_repository_from_path(self, path, verbose=False, description=""):
         typ = 'git'
         p = admin.git.git_command(['config', '--get', 'remote.origin.url'], path=path)
         p.wait()
-        url = p.stdout.read().strip()
+        stdout_data, stderr_data = p.communicate()
+        url = stdout_data.strip()
         name = os.path.basename(url).strip()
+        name = name.decode(encoding='utf-8')
         desc = description.strip()
-        if name.endswith('.git'): name = name[:-4]
+        if name.endswith('.git'):
+            name = name[:-4]
         repo = admin.binder.Repository(name=name, type=typ, url=url, description=desc, platform=wasanbon.platform(), path=path)
         return repo
 
@@ -197,31 +220,34 @@ class Plugin(PluginFunction):
         name = rtc.rtcprofile.basicInfo.name
         p = admin.git.git_command(['config', '--get', 'remote.origin.url'], path=rtc.path)
         p.wait()
-        url = p.stdout.read()
-        repo = admin.binder.Repository(name=rtc.rtcprofile.basicInfo.name, type=typ, url=url, description=rtc.rtcprofile.basicInfo.description, platform=wasanbon.platform(), path=rtc.path)
+        stdout_data, stderr_data = p.communicate()
+        url = stdout_data.strip()
+        repo = admin.binder.Repository(name=rtc.rtcprofile.basicInfo.name, type=typ, url=url,
+                                       description=rtc.rtcprofile.basicInfo.description, platform=wasanbon.platform(), path=rtc.path)
         return repo
 
     def get_repository_hash(self, repo):
         if repo.type == 'git':
             p = admin.git.git_command(['rev-parse', 'HEAD'], path=repo.path)
             p.wait()
-            hash = p.stdout.read()
-            return hash.strip()
+            stdout_data, stderr_data = p.communicate()
+            return stdout_data.strip()
         return None
 
     def init_git_repository_to_path(self, path, verbose=False):
-        if verbose: sys.stdout.write('# Initializing git repository to %s\n' % path)
-        p =admin.git.git_command(['init'], path=path, verbose=verbose)
+        if verbose:
+            sys.stdout.write('# Initializing git repository to %s\n' % path)
+        p = admin.git.git_command(['init'], path=path, verbose=verbose)
         p.wait()
         if p.returncode != 0:
-            if verbose: sys.stdout.write('## Error git command returns non zero value (%s)\n' % p.returncode)
+            if verbose:
+                sys.stdout.write('## Error git command returns non zero value (%s)\n' % p.returncode)
             return None
         return self.get_git_repository_from_path(path, verbose=verbose)
-    
+
     def is_rtc_repo(self, repo, verbose=False):
         filepath = os.path.join(repo.path, 'RTC.xml')
         return os.path.isfile(filepath)
-
 
     def add_default_dot_gitignore(self, repo, verbose=False):
         if self.is_rtc_repo(repo, verbose):
@@ -248,10 +274,12 @@ class Plugin(PluginFunction):
 
         filepath = os.path.join(repo.path, '.gitignore')
         if not os.path.isfile(filepath):
-            if verbose: sys.stdout.write('## No gitignore file in %s\n'% repo.name)
+            if verbose:
+                sys.stdout.write('## No gitignore file in %s\n' % repo.name)
             return self.add_default_dot_gitignore(repo, verbose)
 
-        if verbose: sys.stdout.write('## .gitignore found.\n')
+        if verbose:
+            sys.stdout.write('## .gitignore found.\n')
         f = open(filepath, 'r')
         foundCount = 0
         lines = []
@@ -262,16 +290,17 @@ class Plugin(PluginFunction):
                 tokens.remove(line.strip())
         f.close()
         if len(tokens) == 0:
-            if verbose: sys.stdout.write('### .gitignore covers default options.\n')
+            if verbose:
+                sys.stdout.write('### .gitignore covers default options.\n')
             return True
         if verbose:
             sys.stdout.write('### WARNING! .gitignore does not cover default options.\n')
             for token in tokens:
                 sys.stdout.write(' - %s\n' % token)
-                
+
             sys.stdout.write('### Fixing automatically.\n')
             pass
-        
+
         os.rename(filepath, filepath + wasanbon.timestampstr())
         f = open(filepath, 'w')
         lines = lines + tokens
@@ -280,7 +309,7 @@ class Plugin(PluginFunction):
 
         f.close()
         return False
-        
+
     def is_updated(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("modified") > 0) or (output.find("Untracked") > 0)
@@ -296,7 +325,7 @@ class Plugin(PluginFunction):
     def is_added(self, repo, verbose=False):
         output = self.get_status(repo, verbose=verbose)
         return (output.find("new file:") > 0)
-            
+
     def get_status(self, repo, verbose=False):
         if not repo.is_local():
             sys.stdout.write('# Given Repository is not local repository.\n')
@@ -304,7 +333,8 @@ class Plugin(PluginFunction):
         if repo.type == 'git':
             p = admin.git.git_command(['status'], path=repo.path)
             p.wait()
-            output = p.stdout.read()
+            output, stderr_data = p.communicate()
+            output = output.decode(encoding='utf-8')
             if verbose:
                 sys.stdout.write(output)
             return output
@@ -312,72 +342,89 @@ class Plugin(PluginFunction):
 
     def commit(self, repo, comment, verbose=False):
         if repo.type == 'git':
-            if verbose: sys.stdout.write('## Committing GIT type repository (%s)\n' % repo.name)
+            if verbose:
+                sys.stdout.write('## Committing GIT type repository (%s)\n' % repo.name)
             p = admin.git.git_command(['commit', '-am', comment], path=repo.path)
             p.wait()
-            output = p.stdout.read()
-            if verbose: sys.stdout.write(output)
+            output, stderr_data = p.communicate()
+            output = output.decode(encoding='utf-8')
+            if verbose:
+                sys.stdout.write(output)
             return 0
-            
+
     def push(self, repo, verbose=False, remote='origin', branch='master'):
         if repo.type == 'git':
-            if verbose: sys.stdout.write('## Pushing GIT type repository (%s)\n' % repo.name)
-            p = admin.git.git_command(['push', remote, branch], path=repo.path)
+            if verbose:
+                sys.stdout.write('## Pushing GIT type repository (%s)\n' % repo.name)
+
+            if sys.platform == 'win32':
+                verbose = True
+            p = admin.git.git_command(['push', remote, branch], path=repo.path, verbose=verbose)
             p.wait()
-            output = p.stdout.read()
-            if verbose: sys.stdout.write(output)
+            output, stderr_data = p.communicate()
+            if output is not None:
+                output = output.decode(encoding='utf-8')
+            else:
+                output = ''
+            if verbose:
+                sys.stdout.write(output)
             return p.returncode
 
     def pull(self, repo, verbose=False, remote='origin'):
         if repo.type == 'git':
-            if verbose: sys.stdout.write('## Pulling GIT type repository (%s)\n' % repo.name)
+            if verbose:
+                sys.stdout.write('## Pulling GIT type repository (%s)\n' % repo.name)
             p = admin.git.git_command(['pull', 'origin', 'master'], path=repo.path)
             p.wait()
-            output = p.stdout.read()
-            if verbose: sys.stdout.write(output)
+            output, stderr_data = p.communicate()
+            output = output.decode(encoding='utf-8')
+            if verbose:
+                sys.stdout.write(output)
             return p.returncode
 
     def add(self, repo, filelist, verbose=False):
-        if  not type(filelist) is types.ListType:
+        if not type(filelist) is list:
             filelist = [filelist]
         if repo.type == 'git':
-            if verbose: sys.stdout.write('## Adding File to GIT type repository (%s)\n' % repo.name)
+            if verbose:
+                sys.stdout.write('## Adding File to GIT type repository (%s)\n' % repo.name)
             for f in filelist:
                 p = admin.git.git_command(['add', f], path=repo.path)
                 p.wait()
-                if verbose: sys.stdout.write(p.stdout.read())
+                output, stderr_data = p.communicate()
+                output = output.decode(encoding='utf-8')
+                if verbose:
+                    sys.stdout.write(output)
             return p.returncode
 
         return -1
 
-
     def add_files(self, repo, verbose=False, exclude_if_git_repo=True, exclude_path=[], exclude_pattern='^\.|.*\.pyc$|.*~$|.*\.log$'):
         directory = repo.path
-    
+
         def list_filepath_not_under_git(directory, output, verbose=False):
             import re
             if re.compile(exclude_pattern).match(os.path.basename(directory)):
                 return
 
             for p in exclude_path:
-                if directory.startswith( p.replace('/', '\\') ):
+                if directory.startswith(p.replace('/', '\\')):
                     return
             if os.path.isdir(directory):
                 dirs = os.listdir(directory)
                 if '.git' in dirs and exclude_if_git_repo:
-                    return # Do nothing
+                    return  # Do nothing
                 for d in dirs:
                     fullpath = os.path.join(directory, d)
                     list_filepath_not_under_git(fullpath, output, verbose=verbose)
             elif os.path.isfile(directory):
                 output.append(directory)
-                
+
         filelist = []
         for d in os.listdir(directory):
             fullpath = os.path.join(directory, d)
             if not fullpath in exclude_path:
                 list_filepath_not_under_git(fullpath, filelist, verbose=True)
-        
 
         if self.add(repo, filelist, verbose=verbose) != 0:
             sys.stdout.write('## Add File failed.\n')
