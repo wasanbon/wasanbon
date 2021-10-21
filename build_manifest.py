@@ -7,7 +7,7 @@ wasanbon_dir = 'wasanbon'
 
 for dirpath, dirnames, filenames in os.walk(wasanbon_dir):
     # Ignore dirnames that start with '.'
-    #for i, dirname in enumerate(dirnames):
+    # for i, dirname in enumerate(dirnames):
     #    if dirname.startswith('.'): del dirnames[i]
     if '__init__.py' in filenames:
         pass
