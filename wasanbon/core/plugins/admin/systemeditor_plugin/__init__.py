@@ -1,9 +1,12 @@
-import os, sys
+import os
+import sys
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
+
 class Plugin(PluginFunction):
     """ This plugin provides APIs to edit System Profile """
+
     def __init__(self):
         super(Plugin, self).__init__()
         pass
@@ -28,7 +31,7 @@ class Plugin(PluginFunction):
         for outport in outports:
             inports = []
             for ns in nameservers:
-                inports = inports + ns.dataports(port_type='DataInPort', 
+                inports = inports + ns.dataports(port_type='DataInPort',
                                                  data_type=outport.properties['dataport.data_type'],
                                                  verbose=verbose)
             for inport in inports:
@@ -49,22 +52,20 @@ class Plugin(PluginFunction):
                         pairs.append([provport, reqport])
         return pairs
 
-    
-    
     def save_to_file(self, nameservers, filepath, verbose=False, system_name='DefaultSystem',
                      version='1.0', vendor='DefaultVendor', abstract='RT System'):
-        argv = ['-n', system_name, 
-                '-a', abstract, 
+        argv = ['-n', system_name,
+                '-a', abstract,
                 '-v', version,
                 '-e', vendor,
                 '-o', filepath]
-        
+
         for ns in nameservers:
             argv.append(ns.path)
 
-        if verbose: sys.stdout.write('## rtcryo %s\n' % argv)
+        if verbose:
+            sys.stdout.write('## rtcryo %s\n' % argv)
         from rtshell import rtcryo
         rtcryo.main(argv=argv)
 
         return 0
-

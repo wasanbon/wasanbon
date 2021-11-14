@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys, types, optparse, traceback, inspect
+import os
+import sys
+import types
+import optparse
+import traceback
+import inspect
 
 import wasanbon
-    
+
+
 def get_subcommand_list(package):
     """ Get Subcommand from Directory
     wasanbon/core/management/%package%
@@ -20,69 +26,71 @@ def get_subcommand_list(package):
 
 class ArgumentParser(optparse.OptionParser):
     def __init__(self, usage, add_help_option):
-        optparse.OptionParser.__init__(self,usage=usage, add_help_option=add_help_option)
+        optparse.OptionParser.__init__(self, usage=usage, add_help_option=add_help_option)
         self.__usage = usage
-    
+
     def print_help(self):
-        print self.__usage
+        print(self.__usage)
         pass
 
     def _process_args(self, largs, rargs, values):
         while rargs:
             try:
-                optparse.OptionParser._process_args(self,largs,rargs,values)
-            except (optparse.BadOptionError, optparse.AmbiguousOptionError), e:
+                optparse.OptionParser._process_args(self, largs, rargs, values)
+            except (optparse.BadOptionError, optparse.AmbiguousOptionError) as e:
                 largs.append(e.opt_str)
 
+
 def show_plugin_help(package, subcommand):
-    name = package +'.' + subcommand
+    name = package + '.' + subcommand
     plugin = wasanbon.plugins.get_plugin(package, subcommand)
 
-    print 'Usage : |'
+    print('Usage : |')
     if '__doc__' in dir(plugin):
         if plugin.__doc__ != None:
             docs = [s.strip() for s in plugin.__doc__.split('\n')]
             for d in docs:
-                print '  ', d
+                print('  ', d)
         else:
-            print '  %s (No Help)' % subcommand
+            print('  %s (No Help)' % subcommand)
     else:
-        print '  %s (No Help)' % subcommand
-    
+        print('  %s (No Help)' % subcommand)
+
     alts = plugin.get_manifest_function_names()
-    print 'Subcommand :'
+    print('Subcommand :')
     for a in alts:
-        print '  %s : |' % a
+        print('  %s : |' % a)
         func = getattr(plugin, a, None)
-        if  not func.__doc__ is None:
+        if not func.__doc__ is None:
             docs = [s.strip() for s in func.__doc__.split('\n')]
             for d in docs:
                 if not len(d) == 0:
-                    print '    %s' % d
+                    print('    %s' % d)
         else:
-            print '    %s' % 'No Help'
+            print('    %s' % 'No Help')
+
 
 def print_long_help(command, package):
-    print 'Usage : '
-    print '  ', command, ' [command] (for help, use -h option with subcommand.)'
-    print 'Commands :'
-    subcommands = get_subcommand_list(package) 
+    print('Usage : ')
+    print('  ', command, '<COMMAND> (for help, use -h option with subcommand.)')
+    print('Commands :')
+    subcommands = get_subcommand_list(package)
     for subcommand in subcommands:
         if is_plugin_command(package, subcommand):
             plugin = wasanbon.plugins.get_plugin(package, subcommand)
             if '__doc__' in dir(plugin):
                 if plugin.__doc__ != None:
                     docs = [s.strip() for s in plugin.__doc__.split('\n')]
-                    print '  ', subcommand, ': |'
+                    print('  ', subcommand, ': |')
                     for d in docs:
-                        print '    ', d
+                        print('    ', d)
                 else:
-                    print '  ', subcommand, ' ' *(15-len(subcommand)) + ': "No Help"'
+                    print('  ', subcommand, ' ' * (15 - len(subcommand)) + ': "No Help"')
             else:
-                print '  ', subcommand
+                print('  ', subcommand)
         else:
-            print '  ', subcommand
-        
+            print('  ', subcommand)
+
 
 def execute(argv=None):
     if argv == None:
@@ -96,16 +104,16 @@ def execute(argv=None):
 
     opts = get_subcommand_list(package)
     try:
-        usage  = '[Usage]\n$ ' + command + ' [subcommand] (for help, use -h option with subcommand.)\n\n'
+        usage = '[Usage]\n$ ' + command + ' [subcommand] (for help, use -h option with subcommand.)\n\n'
         usage = usage + '[subcommands]\n'
         for opt in opts:
             usage = usage + ' - ' + opt + '\n'
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
-        return 
+        return
 
     opts.append('plugin')
-    
+
     parser = ArgumentParser(usage=usage, add_help_option=False)
     parser.add_option('-h', '--help', help=usage, action='store_true', default=False, dest='help_flag')
     #parser.add_option('-l', '--longmessage', help='Show long help message', action='store_true', default=False, dest='longhelp_flag')
@@ -115,14 +123,13 @@ def execute(argv=None):
 
     if options.alter_flag and len(args) == 1:
         return print_alternative(opts)
-        
+
     if len(args) == 1:
         args.append('help')
 
     subcommand = args[1]
-    
-    verbose = '-v' in args
 
+    verbose = '-v' in args
 
     if not subcommand in opts:
         subcommand = 'help'
@@ -130,7 +137,6 @@ def execute(argv=None):
     if subcommand == 'help':
         print_long_help(command, package)
         return 0
-
 
     if options.help_flag == True:
         args = args + ['-h']
@@ -147,41 +153,44 @@ def execute(argv=None):
         else:
             return run_command(package, subcommand, args)
 
-    except wasanbon.PrintAlternativeException, ex:
+    except wasanbon.PrintAlternativeException as ex:
         return 0
 
-    except wasanbon.InvalidUsageException, ex:
+    except wasanbon.InvalidUsageException as ex:
         run_command(package, subcommand, ['-h'])
         return -1
-    except wasanbon.PackageNotFoundException, ex:
+    except wasanbon.PackageNotFoundException as ex:
         if verbose:
             traceback.print_exc()
         sys.stdout.write('# Package Not Found.\n')
 
-    except wasanbon.RTCNotFoundException, ex:
-        
+    except wasanbon.RTCNotFoundException as ex:
+
         sys.stdout.write('# RTC Not Found.\n')
-        
-    except wasanbon.WasanbonException, ex:
-        if verbose: traceback.print_exc()
+
+    except wasanbon.WasanbonException as ex:
+        if verbose:
+            traceback.print_exc()
         sys.stdout.write('## WasanbonError. %s\n' % ex.msg())
         return -1
-    except Exception, ex:
-        if verbose: traceback.print_exc()
+    except Exception as ex:
+        if verbose:
+            traceback.print_exc()
         sys.stdout.write('## UnknownError.\n')
         return -1
     return -2
 
 
-def run_command(package, subcommand, args, options= None):
+def run_command(package, subcommand, args, options=None):
     """ Execute Plugin Commands """
 
-    if is_plugin_command(package, subcommand): # Check if subcommands are in alternatives
+    if is_plugin_command(package, subcommand):  # Check if subcommands are in alternatives
         plugin = wasanbon.plugins.get_plugin(package, subcommand)
         alts = plugin.get_manifest_function_names()
         target_function = None
         for arg in args[2:]:
-            if arg.startswith('-'): continue
+            if arg.startswith('-'):
+                continue
             if arg in alts:
                 target_function = arg
                 break
@@ -203,7 +212,7 @@ def run_command(package, subcommand, args, options= None):
 def print_module_alternatives(package, subcommand, args):
     if is_plugin_command(package, subcommand):
         plugin = wasanbon.plugins.get_plugin(package, subcommand)
-        
+
         alts = plugin.get_manifest_function_names()
         can_call = False
         if '__call__' in alts:
@@ -234,6 +243,7 @@ def print_alternative(alternative, argv=None):
         else:
             sys.stdout.write(' ')
             pass
+
 
 def is_plugin_command(package, cmd):
     cmds = wasanbon.plugins.get_plugin_names(package)

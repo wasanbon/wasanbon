@@ -1,103 +1,106 @@
-import os, sys, signal, time, traceback, threading
+import os
+import sys
+import signal
+import time
+import traceback
+import threading
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
 ev = threading.Event()
 endflag = False
+
+
 class Plugin(PluginFunction):
-    """ Manage RT-Component in Package """
+    """ RT-Component in Package management Plugin. """
 
     def __init__(self):
-        #PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         pass
 
     def depends(self):
-        return ['admin.environment', 
-                'admin.package', 
-                'admin.rtc', 
+        return ['admin.environment',
+                'admin.package',
+                'admin.rtc',
                 'admin.rtcconf',
-                'admin.rtcprofile', 
-                'admin.builder', 
+                'admin.rtcprofile',
+                'admin.builder',
                 'admin.systeminstaller',
                 'admin.systemlauncher',
                 'admin.editor']
-
-
-    #@property
-    #def rtc(self):
-    #    import rtc
-    #    return rtc
 
     def _print_rtcs(self, args):
         pack = admin.package.get_package_from_path(os.getcwd())
         rtcs = admin.rtc.get_rtcs_from_package(pack)
         for r in rtcs:
-            print r.rtcprofile.basicInfo.name
+            print(r.rtcprofile.basicInfo.name)
 
     @manifest
     def list(self, args):
-        """ List RTC in current Package """
+        """ List RTC in current Package.
+        $ ./mgr.py rtc list
+        """
         self.parser.add_option('-l', '--long', help='Long Format (default=False)', default=False, action='store_true', dest='long_flag')
-        self.parser.add_option('-d', '--detail', help='Long Format (default=False)', default=False, action='store_true', dest='detail_flag')        
+        self.parser.add_option('-d', '--detail', help='Long Format (default=False)', default=False, action='store_true', dest='detail_flag')
         options, argv = self.parse_args(args)
         verbose = options.verbose_flag
-        long  = options.long_flag
+        long = options.long_flag
         detail = options.detail_flag
-        if detail: long = True
-        #package = wasanbon.plugins.admin.package.package
-        #package = admin.package
+        if detail:
+            long = True
 
-        #admin_rtc = admin.rtc.rtc
         pack = admin.package.get_package_from_path(os.getcwd())
 
         rtcs = admin.rtc.get_rtcs_from_package(pack, verbose=verbose)
         for r in rtcs:
             if not long:
-                print ' - ' + r.rtcprofile.basicInfo.name
+                print(' - ' + r.rtcprofile.basicInfo.name)
             elif long:
-                print r.rtcprofile.basicInfo.name + ' : '
-                print '  basicInfo : '
-                print '    description : ' + r.rtcprofile.basicInfo.description
-                print '    category    : ' + r.rtcprofile.basicInfo.category
-                print '    vendor      : ' + r.rtcprofile.basicInfo.vendor
+                print(r.rtcprofile.basicInfo.name + ' : ')
+                print('  basicInfo : ')
+                print('    description : ' + r.rtcprofile.basicInfo.description)
+                print('    category    : ' + r.rtcprofile.basicInfo.category)
+                print('    vendor      : ' + r.rtcprofile.basicInfo.vendor)
                 if len(r.rtcprofile.dataports):
-                    print '  dataports : '
+                    print('  dataports : ')
                     for d in r.rtcprofile.dataports:
                         if not detail:
-                            print '     - ' + d.name
+                            print('     - ' + d.name)
                         else:
-                            print '    ' + d.name + ':'
-                            #print '      name     : ' + d.name
-                            print '      portType : ' + d.portType
-                            print '      type     : ' + d.type
+                            print('    ' + d.name + ':')
+                            print('      portType : ' + d.portType)
+                            print('      type     : ' + d.type)
                 if len(r.rtcprofile.serviceports):
-                    print '  serviceports :'
+                    print('  serviceports :')
                     for s in r.rtcprofile.serviceports:
                         if not detail:
-                            print '     - ' + s.name
+                            print('     - ' + s.name)
                         else:
-                            print '    ' + s.name + ':'
-                            #print '      name     : ' + s.name
+                            print('    ' + s.name + ':')
                             for i in s.serviceInterfaces:
-                                print '      ' + i.name + ':'
-                                print '        type         : ' + i.type
-                                print '        instanceName : ' + i.instanceName
+                                print('      ' + i.name + ':')
+                                print('        type         : ' + i.type)
+                                print('        instanceName : ' + i.instanceName)
             if detail:
-                print '  language : '
-                print '    kind        : ' + r.rtcprofile.language.kind
+                print('  language : ')
+                print('    kind        : ' + r.rtcprofile.language.kind)
             if long or detail:
-                print ''
+                print('')
         return 0
-                
+
     @manifest
     def build(self, args):
+        """ Build RTC in current Package.
+        $ ./mgr.py rtc build <all or RTC_NAME>
+        """
         self.parser.add_option('-o', '--only', help='Build Only (Not Install) (default=False)', default=False, action='store_true', dest='only_flag')
-        self.parser.add_option('-s', '--standalone', help='Install Standalone Mode (default=False)', default=False, action='store_true', dest='standalone_flag')
+        self.parser.add_option('-s', '--standalone', help='Install Standalone Mode (default=False)',
+                               default=False, action='store_true', dest='standalone_flag')
         options, argv = self.parse_args(args, self._print_rtcs)
         verbose = options.verbose_flag
         if sys.platform == 'win32':
-            if verbose: sys.stdout.write('# In Windows, always build with verbose option.\n')
+            if verbose:
+                sys.stdout.write('# In Windows, always build with verbose option.\n')
             verbose = True
         only = options.only_flag
         standalone = options.standalone_flag
@@ -108,7 +111,7 @@ class Plugin(PluginFunction):
             rtcs = admin.rtc.get_rtcs_from_package(pack, verbose=verbose)
         else:
             rtcs = [admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)]
-            
+
         return_value_map = {}
         retval = 0
         for rtc in rtcs:
@@ -122,7 +125,7 @@ class Plugin(PluginFunction):
                 sys.stdout.write('## Success.\n')
                 if not only:
                     if not standalone:
-                        # Confirm if this rtc is 
+                        # Confirm if this rtc is
                         standalone_flag = admin.systeminstaller.is_installed(pack, rtc, verbose=verbose, standalone=True)
                     else:
                         standalone_flag = standalone
@@ -132,17 +135,20 @@ class Plugin(PluginFunction):
 
         if verbose:
             sys.stdout.write('Build Summary:\n')
-            for key, value in return_value_map.items():
-                sys.stdout.write(' - Build RTC (' + key + ')' + ' '*(25-len(key)) + ('Success' if value else 'False') + '\n')
+            for key, value in list(return_value_map.items()):
+                sys.stdout.write(' - Build RTC (' + key + ')' + ' ' * (25 - len(key)) + ('Success' if value else 'False') + '\n')
         return retval
-
 
     @manifest
     def clean(self, args):
+        """ Clean RTC in current Package.
+        $ ./mgr.py rtc clean <all or RTC_NAME>
+        """
         options, argv = self.parse_args(args, self._print_rtcs)
         verbose = options.verbose_flag
 
-        if verbose: sys.stdout.write('# Cleanup RTCs\n')
+        if verbose:
+            sys.stdout.write('# Cleanup RTCs\n')
 
         wasanbon.arg_check(argv, 4)
         pack = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
@@ -153,23 +159,22 @@ class Plugin(PluginFunction):
 
         retval = 0
         for rtc in rtcs:
-            if verbose: sys.stdout.write('# Cleanuping RTC %s\n' % rtc.rtcprofile.basicInfo.name)
-            
+            if verbose:
+                sys.stdout.write('# Cleanuping RTC %s\n' % rtc.rtcprofile.basicInfo.name)
+
             ret, msg = admin.builder.clean_rtc(rtc.rtcprofile, verbose=verbose)
             if not ret:
                 retval = -1
 
         return retval
 
-
     @manifest
     def delete(self, args):
-        """ Delete Package
-        # Usage $ wasanbon-admin.py package delete [PACK_NAME]"""
-        self.parser.add_option('-f', '--force', help='Force option (default=False)', default=False, action='store_true', dest='force_flag')
+        """ Delete RTC from Package
+        $ ./mgr.py rtc delete <all or RTC_NAME>
+        """
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
-        force = options.force_flag
 
         pack = admin.package.get_package_from_path(os.getcwd())
         if argv[3] == 'all':
@@ -180,29 +185,41 @@ class Plugin(PluginFunction):
         for rtc in rtcs:
             if os.path.isdir(rtc.path):
                 sys.stdout.write('# Deleting RTC (%s)\n' % rtc.rtcprofile.basicInfo.name)
+
                 def remShut(*args):
                     import stat
-                    func, path, _ = args 
+                    func, path, _ = args
                     os.chmod(path, stat.S_IWRITE)
                     os.remove(path)
                     pass
-                shutil.rmtree(rtc.path, onerror = remShut)
-                    
+                shutil.rmtree(rtc.path, onerror=remShut)
+        return 0
 
     @manifest
     def edit(self, args):
-        """ Edit RTC with editor """
+        """ Edit RTC with editor.
+        $ ./mgr.py rtc edit <RTC_NAME>
+        """
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
+
+        wasanbon.arg_check(argv, 4)
+
         pack = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(pack, argv[3], verbose=verbose)
         admin.editor.edit_rtc(rtc, verbose=verbose)
+        return 0
 
     @manifest
     def run(self, args):
-        """ Run just one RTC """
+        """ Run just one RTC.
+        $ ./mgr.py rtc run <RTC_NAME>
+        """
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
+
+        wasanbon.arg_check(argv, 4)
+
         package = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
         return self.run_rtc_in_package(package, rtc, verbose=verbose)
@@ -210,8 +227,9 @@ class Plugin(PluginFunction):
     def run_rtc_in_package(self, package, rtc, verbose=False, background=False):
         global endflag
         endflag = False
+
         def signal_action(num, frame):
-            print ' - SIGINT captured'
+            print(' - SIGINT captured')
             ev.set()
             global endflag
             endflag = True
@@ -223,7 +241,7 @@ class Plugin(PluginFunction):
             sys.stdout.write(' - Escaping SIGBREAK...\n')
             signal.signal(signal.SIGBREAK, signal_action)
             pass
-        
+
         sys.stdout.write('# Executing RTC %s\n' % rtc.rtcprofile.basicInfo.name)
         rtcconf_path = package.rtcconf[rtc.rtcprofile.language.kind]
         rtcconf = admin.rtcconf.RTCConf(rtcconf_path, verbose=verbose)
@@ -234,7 +252,6 @@ class Plugin(PluginFunction):
         rtcconf.sync(verbose=True, outfilename=rtc_temp)
         admin.systeminstaller.uninstall_all_rtc_from_package(package, rtcconf_filename=rtc_temp, verbose=True)
         admin.systeminstaller.install_rtc_in_package(package, rtc, rtcconf_filename=rtc_temp, copy_conf=False)
-
         try:
             admin.systemlauncher.launch_rtcd(package, rtc.rtcprofile.language.kind, rtcconf=rtc_temp, verbose=True)
             if background:
@@ -242,51 +259,62 @@ class Plugin(PluginFunction):
             while not endflag:
                 try:
                     time.sleep(0.1)
-                except IOError, e:
-                    print e
+                except IOError as e:
+                    print(e)
                     pass
                 pass
             pass
         except:
             traceback.print_exc()
             return -1
-        if verbose: sys.stdout.write('## Exitting RTC Manager.\n')
+        if verbose:
+            sys.stdout.write('## Exitting RTC Manager.\n')
         admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
         admin.systemlauncher.terminate_system(package, verbose=verbose)
         return 0
 
     def terminate_rtcd(self, package, verbose=False):
-        if verbose: sys.stdout.write('# Terminating RTCDs.\n')
+        if verbose:
+            sys.stdout.write('# Terminating RTCDs.\n')
         admin.systemlauncher.exit_all_rtcs(package, verbose=verbose)
         admin.systemlauncher.terminate_system(package, verbose=verbose)
         return 0
 
-    @manifest 
+    @manifest
     def download_profile(self, args):
-        """ Run just one RTC """
-        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
+        """ Run just one RTC and Show launched RTC profile.
+        $ ./mgr.py rtc download_profile <RTC_NAME>
+        """
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons',
+                               default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         wakeuptimeout = options.wakeuptimeout
+
+        wasanbon.arg_check(argv, 4)
 
         package = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(package, argv[3], verbose=verbose)
         if self.run_rtc_in_package(package, rtc, verbose=verbose, background=True) != 0:
             return -1
-        wasanbon.sleep(wakeuptimeout)        
+        wasanbon.sleep(wakeuptimeout)
         rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
-        print admin.rtcprofile.tostring(rtcp)
+        print(admin.rtcprofile.tostring(rtcp))
         self.terminate_rtcd(package, verbose=verbose)
         return 0
-        
-    
-    @manifest 
+
+    @manifest
     def verify_profile(self, args):
-        """ Run just one RTC """
-        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
+        """ Run just one RTC and compare the profile between the existing RTC.xml and launched RTC.
+        $ ./mgr.py rtc verify_profile <RTC_NAME>
+        """
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons',
+                               default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         wakeuptimeout = options.wakeuptimeout
+
+        wasanbon.arg_check(argv, 4)
 
         package = admin.package.get_package_from_path(os.getcwd())
         sys.stdout.write('# Starting RTC.\n')
@@ -304,14 +332,17 @@ class Plugin(PluginFunction):
             return -1
         sys.stdout.write('Succeeded.\n# RTCProfile is currently matches to binary.\n')
         return 0
-        
 
-    @manifest 
+    @manifest
     def update_profile(self, args):
-        """ Run just one RTC and compare the profile between the existing RTC.xml and launched RTC, then save RTC.xml """
-        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
+        """ Run just one RTC and compare the profile between the existing RTC.xml and launched RTC, then save RTC.xml.
+        $ ./mgr.py rtc update_profile <RTC_NAME>
+        """
+        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")',
+                               default='RTC.xml', dest='filename', action='store', type='string')
         self.parser.add_option('-d', '--dryrun', help='Just output on console', default=False, dest='dry_flag', action='store_true')
-        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons', default=5, dest='wakeuptimeout', action='store', type='float')
+        self.parser.add_option('-w', '--wakeuptimeout', help='Timeout of Sleep Function when waiting for the wakeup of RTC-Daemons',
+                               default=5, dest='wakeuptimeout', action='store', type='float')
         options, argv = self.parse_args(args[:], self._print_rtcs)
         verbose = options.verbose_flag
         dry = options.dry_flag
@@ -336,7 +367,6 @@ class Plugin(PluginFunction):
         rtcp = admin.rtcprofile.create_rtcprofile(rtc, verbose=verbose)
 
         if standalone:
-
             pass
         else:
             self.terminate_rtcd(package, verbose=verbose)
@@ -362,8 +392,6 @@ class Plugin(PluginFunction):
                 sys.stdout.write(admin.rtcprofile.tostring(retval, pretty_print=True))
 
             sys.stdout.write('Succeed.\n')
-            
             return 0
         sys.stdout.write('Succeed.\n')
         return 0
-        

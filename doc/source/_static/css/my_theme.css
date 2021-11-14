@@ -1,0 +1,11 @@
+@import url("theme.css");
+
+table, tr, th, td {
+  font-size: 13px;
+}
+.wy-table-responsive table td, .wy-table-responsive table th {
+  font-size: 13px;
+}
+.wy-nav-content {
+  max-width: 2000px;
+}

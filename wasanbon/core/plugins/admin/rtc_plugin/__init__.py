@@ -1,17 +1,16 @@
-
-import os, sys
+import os
+import sys
 import wasanbon
 from wasanbon import util
 from wasanbon.core.plugins import PluginFunction
 
+
 class Plugin(PluginFunction):
     """ This plugin provides search and access APIs from package """
+
     def __init__(self):
-        #PluginFunction.__init__(self)
+        # PluginFunction.__init__(self)
         super(Plugin, self).__init__()
-        import rtc
-        rtc.plugin_obj = self
-        pass
 
     def depends(self):
         return ['admin.environment', 'admin.rtcprofile']
@@ -20,7 +19,8 @@ class Plugin(PluginFunction):
         return get_rtcs_from_package(package, verbose=verbose)
 
     def get_rtc_from_package(self, package, rtcname, verbose=False):
-        if verbose: sys.stdout.write('# Searching RTC (%s) from Package (%s)...\n' % (rtcname, package.name))
+        if verbose:
+            sys.stdout.write('# Searching RTC (%s) from Package (%s)...\n' % (rtcname, package.name))
         rtcs = get_rtcs_from_package(package, verbose=verbose)
 
         for rtc in rtcs:
@@ -46,12 +46,10 @@ class RTCPackage(object):
     @property
     def rtcprofile(self):
         if self._rtcprofile is None:
-            #rtcprofile = plugin_obj.admin.rtcprofile.rtcprofile
-            #from __init__ import admin
             rtcprofile = admin.rtcprofile.rtcprofile
             self._rtcprofile = rtcprofile.RTCProfile(self._rtcprofile_path)
         return self._rtcprofile
-    
+
     def get_rtc_profile_path(self, verbose=False):
         return self._rtcprofile_path
 
@@ -64,6 +62,7 @@ class RTCPackage(object):
     def get_rtc_conf_path(self, verbose=False):
         return find_rtc_conf(self.rtcprofile)
 
+
 def get_rtcs_from_package(package, verbose=False):
     import wasanbon
     rtcs = []
@@ -75,10 +74,9 @@ def get_rtcs_from_package(package, verbose=False):
         try:
             rtc = RTCPackage(rtc_fullpath, verbose=verbose)
             rtcs.append(rtc)
-        except wasanbon.RTCProfileNotFoundException, ex:
+        except wasanbon.RTCProfileNotFoundException as ex:
             pass
     return rtcs
-
 
 
 def find_rtc_srcs(rtcp):
@@ -91,6 +89,7 @@ def find_rtc_srcs(rtcp):
         hdrs = util.search_file(path, rtcp.basicInfo.name + '.h')
         srcs = util.search_file(path, rtcp.basicInfo.name + '.cpp')
         return hdrs + srcs
+
 
 def find_rtc_exec(rtcp):
     if rtcp.language.kind == 'C++':
@@ -106,18 +105,18 @@ def find_rtc_exec(rtcp):
         return find_rtc_bin(rtcp)
     elif rtcp.language.kind == 'Java':
         return find_rtc_bin(rtcp)
-        
+
 
 def get_rtc_bin_filename(rtcp):
     if rtcp.language.kind == 'C++':
         if sys.platform == 'win32':
             bin_ext = 'dll'
-        elif sys.platform == 'linux2':
+        elif sys.platform == 'linux':
             bin_ext = 'so'
         elif sys.platform == 'darwin':
             bin_ext = 'dylib'
         else:
-            raise wasanbon.UnsupportedSystemException()
+            raise wasanbon.UnsupportedPlatformException()
             return
         rtc_file_name_list = rtcp.basicInfo.name + '.' + bin_ext
     elif rtcp.language.kind == 'Python':
@@ -141,7 +140,7 @@ def find_rtc_bin(rtcp):
         return ""
 
     rtcs_files_available = []
-        
+
     for file in rtcs_files:
         if file.count('Debug') > 0:
             sys.stdout.write('RTC file (%s) seems to build in Debug mode.\n' % file)
@@ -158,13 +157,13 @@ def find_rtc_bin(rtcp):
     else:
         return on_multiple_rtcfile(rtcs_files)
 
-    
+
 def on_multiple_rtcfile(files):
     for f in files:
-        print '# -' + f
-    
-    print '# Current Version cannot handle this warning.'
-    print '# Use %s' % files[0]
+        print('# -' + f)
+
+    print('# Current Version cannot handle this warning.')
+    print('# Use %s' % files[0])
     return files[0]
 
 
@@ -183,13 +182,12 @@ def find_rtc_conf(rtcp):
     else:
         return on_multiple_conffile(conf_files)
 
+
 def on_multiple_conffile(files):
-    print 'Multiple RTC.conf files are found:'
+    print('Multiple RTC.conf files are found:')
     for f in files:
-        print '--' + f
-    
-    print 'Current Version cannot handle this warning.'
-    print 'Use %s' % files[0]
+        print('--' + f)
+
+    print('Current Version cannot handle this warning.')
+    print('Use %s' % files[0])
     return files[0]
-
-

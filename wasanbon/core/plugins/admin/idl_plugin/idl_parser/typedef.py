@@ -1,9 +1,10 @@
-import node
-import type as idl_type
+from . import node
+from . import type as idl_type
 sep = '::'
 
+
 class IDLTypedef(node.IDLNode):
-    
+
     def __init__(self, parent):
         super(IDLTypedef, self).__init__('IDLTypedef', '', parent)
         self._verbose = True
@@ -19,28 +20,28 @@ class IDLTypedef(node.IDLNode):
             return 'typedef ' + name
 
         if recursive:
-            n = 'typedef ' + str(self.type) +' ' + name
+            n = 'typedef ' + str(self.type) + ' ' + name
             if not self.type.is_primitive:
-                dic = { n : (self.type.obj.to_simple_dic(recursive=recursive, member_only=True))}
+                dic = {n: (self.type.obj.to_simple_dic(recursive=recursive, member_only=True))}
             else:
-                dic = { n : str(self.type) }
+                dic = {n: str(self.type)}
             if member_only:
                 return dic
-            return {name : dic}
+            return {name: dic}
 
         dic = 'typedef %s %s' % (self.type, name)
         return dic
 
     def to_dic(self):
-        dic = { 'name' : self.name,
-                'classname' : self.classname,
-                'type' : str(self.type) }
+        dic = {'name': self.name,
+               'classname': self.classname,
+               'type': str(self.type)}
         return dic
 
     @property
     def type(self):
         return self._type
-    
+
     def parse_blocks(self, blocks, filepath=None):
         self._filepath = filepath
         type_name_ = ''
@@ -49,7 +50,7 @@ class IDLTypedef(node.IDLNode):
         while True:
             if name.find('[') < 0:
                 break
-            
+
             if name.find('[') > 0:
                 type_name_ = name[name.find('['):]
                 name = name[:name.find('[')]
@@ -68,9 +69,3 @@ class IDLTypedef(node.IDLNode):
 
         self._type = idl_type.IDLType(type_name, self)
         self._name = name
-
-        self._post_process()
-
-    def _post_process(self):
-        #self._type = self.refine_typename(self.type)
-        pass
