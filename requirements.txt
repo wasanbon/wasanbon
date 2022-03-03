@@ -1,40 +1,92 @@
-appdirs==1.4.4            # via setuptools
-attrs==21.2.0             # via automat
-Automat==20.2.0           # via twisted
+attrs==21.2.0
+    # via
+    #   automat
+    #   twisted
+automat==20.2.0
+    # via twisted
+bcrypt==3.2.0
+    # via paramiko
 bitbucket==0.4a0
-cffi==1.14.6              # via cryptography
-constantly==15.1.0        # via twisted
-cryptography==2.8         # via paramiko
-ecdsa==0.18.0b1           # via python-jose
-enum34==1.1.10            # via cryptography
+    # via -r requirements.in
+certifi==2021.10.8
+    # via requests
+cffi==1.14.6
+    # via
+    #   bcrypt
+    #   cryptography
+    #   pynacl
+charset-normalizer==2.0.12
+    # via requests
+constantly==15.1.0
+    # via twisted
+cryptography==2.8
+    # via paramiko
+deprecated==1.2.13
+    # via pygithub
 freetype-py==2.2.0
-future==0.18.2            # via python-jose
-idna==2.8                 # via cryptography
-incremental==21.3.0       # via twisted
-ipaddress==1.0.23         # via cryptography
+    # via -r requirements.in
+hyperlink==21.0.0
+    # via twisted
+idna==2.8
+    # via
+    #   hyperlink
+    #   requests
+incremental==21.3.0
+    # via twisted
 jinja2==3.0.1
-MarkupSafe==2.0.1         # via jinja2
+    # via -r requirements.in
+markupsafe==2.0.1
+    # via jinja2
 nevow==0.14.5
-oauthlib==3.1.0           # via requests-oauthlib
-olefile==0.46             # via pillow
-packaging==21.0           # via setuptools
-paramiko==2.6.0           # via pysftp
+    # via -r requirements.in
+oauthlib==3.1.0
+    # via requests-oauthlib
+paramiko==2.6.0
+    # via pysftp
 pillow==7.0.0
+    # via -r requirements.in
 psutil==5.8.0
-pyasn1==0.4.8             # via cryptography, paramiko
-pycparser==2.20           # via cffi
-pycryptodome==3.10.1      # via python-jose
+    # via -r requirements.in
+pycparser==2.20
+    # via cffi
 pygithub==1.55
-pyparsing==3.0.0b3        # via packaging
+    # via -r requirements.in
+pyjwt==2.3.0
+    # via pygithub
+pynacl==1.5.0
+    # via
+    #   paramiko
+    #   pygithub
 pysftp==0.2.9
-python-jose==3.3.0        # via pygithub
+    # via -r requirements.in
 python-wordpress-xmlrpc==2.3
+    # via -r requirements.in
 pyyaml==5.3.1
-requests-oauthlib==1.3.0
+    # via -r requirements.in
 requests==2.26.0
-six==1.14.0               # via automat, cryptography, packaging, python-jose, setuptools
-twisted==21.7.0
-zope.interface==5.4.0     # via twisted
+    # via
+    #   -r requirements.in
+    #   pygithub
+    #   requests-oauthlib
+requests-oauthlib==1.3.0
+    # via -r requirements.in
+six==1.14.0
+    # via
+    #   automat
+    #   bcrypt
+    #   cryptography
+twisted==22.2.0
+    # via
+    #   -r requirements.in
+    #   nevow
+typing-extensions==4.1.1
+    # via twisted
+urllib3==1.26.8
+    # via requests
+wrapt==1.13.3
+    # via deprecated
+zope-interface==5.4.0
+    # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools                # via cryptography, zope.interface
+# setuptools
