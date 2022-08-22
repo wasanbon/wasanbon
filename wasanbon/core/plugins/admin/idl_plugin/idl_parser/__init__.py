@@ -1,1 +1,1 @@
-from parser import IDLParser
+from .parser import IDLParser

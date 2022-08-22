@@ -1,12 +1,15 @@
-import os, sys
+import os
+import sys
 
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
+
 class Plugin(PluginFunction):
+    """ Rtcprofile management Plugin. """
 
     def __init__(self):
-        #PluginFunction.__init__(self)
+        # PluginFunction.__init__(self)
         super(Plugin, self).__init__()
         pass
 
@@ -17,44 +20,41 @@ class Plugin(PluginFunction):
         pack = admin.package.get_package_from_path(os.getcwd())
         rtcs = admin.rtc.get_rtcs_from_package(pack)
         for r in rtcs:
-            print r.rtcprofile.basicInfo.name
+            print(r.rtcprofile.basicInfo.name)
 
     @manifest
     def dump(self, argv):
-        """ Dump RTCProfile to STDOUT
-        $ mgr.py rtcprofile dump [RTC_NAME] """
-        options, argv = self.parse_args(argv[:], self._print_rtcs)
-        verbose = options.verbose_flag # This is default option
+        """ Dump RTCProfile to STDOUT.
+        $ ./mgr.py rtcprofile dump <RTC_NAME>
+        """
+        _, argv = self.parse_args(argv[:], self._print_rtcs)
 
         wasanbon.arg_check(argv, 4)
-        
+
         pack = admin.package.get_package_from_path(os.getcwd())
         rtc = admin.rtc.get_rtc_from_package(pack, argv[3])
 
-        
-        #path = rtc.get_rtc_profile_path()
-        #with open(path, 'r') as f:
-        #    sys.stdout.write(f.read())
-        sys.stdout.write(admin.rtcprofile.tostring(rtc.rtcprofile, pretty_print=True))        
+        sys.stdout.write(admin.rtcprofile.tostring(rtc.rtcprofile, pretty_print=True))
 
         return 0
 
     @manifest
     def html(self, argv):
-        """ Dump HTML Document to STDOUT
-        $ mgr.py rtcprofile html [RTC_NAME] """
-        self.parser.add_option('-i', '--image', help="Output HTML document with Image link (default='False')", default=False, action="store_true", dest="image_flag")
+        """ Dump HTML Document to STDOUT.
+        $ ./mgr.py rtcprofile html <all or RTC_NAME>
+        """
+        self.parser.add_option('-i', '--image', help="Output HTML document with Image link (default='False')",
+                               default=False, action="store_true", dest="image_flag")
         self.parser.add_option('-s', '--save', help="Save to html file (default='False')", default=False, action="store_true", dest="save_flag")
-        self.parser.add_option('-c', '--css', help="Add style file include. Use with document option (-d) (default='None')", default=None, action="store", dest="css_name")
-        self.parser.add_option('-d', '--doc', help="Generate html as stand alone document. (default='False')", default=False, action="store_true", dest="doc_flag")
-        self.parser.add_option('-x', '--index', help='Add index.html file. Use with all argument. (default="False")', default=False, action="store_true", dest="index_flag")
+        self.parser.add_option('-c', '--css', help="Add style file include. Use with document option (-d) (default='None')",
+                               default=None, action="store", dest="css_name")
+        self.parser.add_option('-d', '--doc', help="Generate html as stand alone document. (default='False')",
+                               default=False, action="store_true", dest="doc_flag")
         options, argv = self.parse_args(argv[:], self._print_rtcs)
-        verbose = options.verbose_flag # This is default option
         image_flag = options.image_flag
         save_flag = options.save_flag
         css_name = options.css_name
         doc_flag = options.doc_flag
-        index_flag = options.index_flag
 
         wasanbon.arg_check(argv, 4)
 
@@ -67,15 +67,11 @@ class Plugin(PluginFunction):
         if argv[3] == 'all':
             rtc_names = [rtc.rtcprofile.basicInfo.name for rtc in admin.rtc.get_rtcs_from_package(package)]
         else:
-            if index_flag:
-                sys.stdout.write('# Error. Use -x option with all argument.\n')
-                return -1
-
             rtc_names = [argv[3]]
         for rtc_name in rtc_names:
 
             rtc = admin.rtc.get_rtc_from_package(package, rtc_name)
-        
+
             html = self.get_html(rtc, image_flag)
             if doc_flag:
                 if not css_name is None:
@@ -95,9 +91,10 @@ class Plugin(PluginFunction):
                 f = open(html_path, 'w')
                 f.write(html)
                 f.close()
+                sys.stdout.write('# Saved HTML File to %s\n' % html_path)
                 pass
             else:
-                print html
+                print(html)
 
             if image_flag:
                 image_path = os.path.join(package.path, 'image')
@@ -106,6 +103,7 @@ class Plugin(PluginFunction):
                 filepath = os.path.join(image_path, rtc.rtcprofile.basicInfo.name + '.png')
                 im = mgr.imaging.get_image(rtc.rtcprofile)
                 im.save(filepath)
+                sys.stdout.write('# Saved Image File to %s\n' % image_path)
 
         return 0
 
@@ -124,19 +122,19 @@ class Plugin(PluginFunction):
         else:
             url = repo.url.strip()
         if repo:
-            info = {'name' : rtc.rtcprofile.basicInfo.name,
-                    'repo_name' : repo.name,
-                    'url' : url,
-                    'platform' : repo.platform}
+            info = {'name': rtc.rtcprofile.basicInfo.name,
+                    'repo_name': repo.name,
+                    'url': url,
+                    'platform': repo.platform}
         else:
             repo = admin.repository.get_repository_from_rtc(rtc, verbose=False)
-            info = {'name' : rtc.rtcprofile.basicInfo.name,
-                    'repo_name' : '',
-                    'url' : url,
-                    'platform' : wasanbon.platform}
-            
-        html = tpl.render({'rtc': rtc.rtcprofile, 'info':info})
-        
+            info = {'name': rtc.rtcprofile.basicInfo.name,
+                    'repo_name': '',
+                    'url': url,
+                    'platform': wasanbon.platform}
+
+        html = tpl.render({'rtc': rtc.rtcprofile, 'info': info})
+
         if with_image:
             line = '<img src="image/%s.png" />' % rtc.rtcprofile.basicInfo.name
             return html.replace("[post_thumbnail size='full']", line)
@@ -144,13 +142,14 @@ class Plugin(PluginFunction):
 
     @manifest
     def image(self, argv):
-        """ Create image from RTCProfile. This will saved to ${path_to_package}/images/[RTC_NAME].png
-        $ mgr.py rtcprofile image [RTC_NAME] """
+        """ Create image from RTCProfile. This will saved to images/<RTC_NAME>.png
+        $ ./mgr.py rtcprofile image <RTC_NAME>
+        """
         options, argv = self.parse_args(argv[:], self._print_rtcs)
-        verbose = options.verbose_flag # This is default option
+        verbose = options.verbose_flag  # This is default option
 
         wasanbon.arg_check(argv, 4)
-        
+
         package = admin.package.get_package_from_path(os.getcwd())
         image_path = os.path.join(package.path, 'image')
         if not os.path.isdir(image_path):
@@ -159,13 +158,18 @@ class Plugin(PluginFunction):
         filepath = os.path.join(image_path, rtc.rtcprofile.basicInfo.name + '.png')
         im = mgr.imaging.get_image(rtc.rtcprofile)
         im.save(filepath)
+        sys.stdout.write('# Saved Image File to %s\n' % filepath)
         return 0
-
 
     @manifest
     def cat(self, args):
-        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")', default='RTC.xml', dest='filename', action='store', type='string')
-        self.parser.add_option('-i', '--inputfile', help='Input from RTCProfile filename (default=None)', default=None, dest='inputfile', action='store', type='string')
+        """ Cat input data to RTC.xml.
+        $ ./mgr.py rtcprofile cat <RTC_NAME> <INPUT_DATA>
+        """
+        self.parser.add_option('-f', '--file', help='RTCProfile filename (default="RTC.xml")',
+                               default='RTC.xml', dest='filename', action='store', type='string')
+        self.parser.add_option('-i', '--inputfile', help='Input from RTCProfile filename (default=None)',
+                               default=None, dest='inputfile', action='store', type='string')
         options, argv = self.parse_args(args[:])
         verbose = options.verbose_flag
         filename = options.filename
@@ -175,24 +179,32 @@ class Plugin(PluginFunction):
             wasanbon.arg_check(argv, 4)
         else:
             wasanbon.arg_check(argv, 5)
+            sys.stdout.write('## Input Data is %s\n' % argv[4])
         rtc_name = argv[3]
         package = admin.package.get_package_from_path(os.getcwd(), verbose=verbose)
         rtc = admin.rtc.get_rtc_from_package(package, rtc_name, verbose=verbose)
         filepath = os.path.join(rtc.path, filename)
 
+        if inputfile:
+            if os.path.exists(inputfile):
+                inputData = open(inputfile, 'r').read()
+            else:
+                sys.stdout.write('## Input File Not Found.\n')
+                return -1
+        else:
+            inputData = argv[4]
+        from wasanbon import util
+        if util.yes_no(('## Write Input Data to {}?').format(filename)) == 'no':
+            sys.stdout.write('## Aborted.\n')
+            return -1
+
         if os.path.isfile(filepath):
             file = filepath + wasanbon.timestampstr()
             os.rename(filepath, file)
 
-        if inputfile:
-            inputData = open(inputfile, 'r').read()
-        else:
-            inputData = argv[4]
         fout = open(filepath, 'w')
         fout.write(inputData)
         fout.close()
 
-        sys.stdout.write('Success\n')
+        sys.stdout.write('## Success.\n')
         return 0
-
-

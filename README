@@ -7,7 +7,7 @@ Each RTC has ports as data-trasnporting endpoints, and a statemachine. To constr
 
 Requirements
 ------------
-* Python 2.7
+* Python 3.8
 
 Features
 --------
@@ -24,6 +24,11 @@ Setup
    $ easy_install wasanbon
 
 History
+-------
+1.2.0 (2021-10-30)
+~~~~~~~~~~~~~~~~~~
+* convert to Python3.8 / OpenRTM1.2.2
+
 -------
 1.0.0b (2015-7-30)
 ~~~~~~~~~~~~~~~~~~

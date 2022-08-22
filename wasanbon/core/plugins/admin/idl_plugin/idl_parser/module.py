@@ -1,18 +1,23 @@
-import os, sys, traceback
+import os
+import sys
+import traceback
 
-import node, type
-import struct, typedef, interface, enum, const
+#from . import node, type
+# from . import struct, typedef, interface, enum, const
+from wasanbon.core.plugins.admin.idl_plugin.idl_parser import node, type
+from wasanbon.core.plugins.admin.idl_plugin.idl_parser import struct, typedef, interface, enum, const
 global_namespace = '__global__'
 sep = '::'
 
+
 class IDLModule(node.IDLNode):
 
-    def __init__(self, name=None, parent = None):
+    def __init__(self, name=None, parent=None):
         super(IDLModule, self).__init__('IDLModule', name, parent)
         self._verbose = False
         if name is None:
             self._name = global_namespace
-            
+
         self._interfaces = []
         self._typedefs = []
         self._structs = []
@@ -23,53 +28,54 @@ class IDLModule(node.IDLNode):
     @property
     def is_global(self):
         return self.name == global_namespace
-        
+
     @property
     def full_path(self):
         if self.parent is None:
-            return '' # self.name
+            return ''  # self.name
         else:
             if len(self.parent.full_path) == 0:
                 return self.name
             return self.parent.full_path + sep + self.name
 
     def to_simple_dic(self, quiet=False):
-        dic = {'module %s' % self.name : [s.to_simple_dic(quiet) for s in self.structs] +
+        dic = {'module %s' % self.name: [s.to_simple_dic(quiet) for s in self.structs] +
                [i.to_simple_dic(quiet) for i in self.interfaces] +
-               [m.to_simple_dic(quiet) for m in self.modules] + 
-               [e.to_simple_dic(quiet) for e in self.enums] + 
-               [t.to_simple_dic(quiet) for t in self.typedefs] + 
+               [m.to_simple_dic(quiet) for m in self.modules] +
+               [e.to_simple_dic(quiet) for e in self.enums] +
+               [t.to_simple_dic(quiet) for t in self.typedefs] +
                [t.to_simple_dic(quiet) for t in self.consts]}
         return dic
 
     def to_dic(self):
-        dic = { 'name' : self.name,
-                'filepath' : self.filepath, 
-                'classname' : self.classname,
-                'interfaces' : [i.to_dic() for i in self.interfaces],
-                'typedefs' : [t.to_dic() for t in self.typedefs],
-                'structs' : [s.to_dic() for s in self.structs],
-                'enums' : [e.to_dic() for e in self.enums],
-                'modules' : [m.to_dic() for m in self.modules],
-                'consts' : [c.to_dic() for c in self.consts] }
+        dic = {'name': self.name,
+               'filepath': self.filepath,
+               'classname': self.classname,
+               'interfaces': [i.to_dic() for i in self.interfaces],
+               'typedefs': [t.to_dic() for t in self.typedefs],
+               'structs': [s.to_dic() for s in self.structs],
+               'enums': [e.to_dic() for e in self.enums],
+               'modules': [m.to_dic() for m in self.modules],
+               'consts': [c.to_dic() for c in self.consts]}
         return dic
-    
 
     def parse_tokens(self, token_buf, filepath=None):
         self._filepath = filepath
         if not self.name == global_namespace:
             kakko = token_buf.pop()
             if not kakko == '{':
-                if self._verbose: sys.stdout.write('# Error. No kakko "{".\n')
-                raise InvalidIDLSyntaxError()
+                if self._verbose:
+                    sys.stdout.write('# Error. No kakko "{".\n')
+                raise SyntaxError()
 
         while True:
             token = token_buf.pop()
             if token == None:
                 if self.name == global_namespace:
                     break
-                if self._verbose: sys.stdout.write('# Error. No kokka "}".\n')
-                raise InvalidIDLSyntaxError()
+                if self._verbose:
+                    sys.stdout.write('# Error. No kokka "}".\n')
+                raise SyntaxError()
             elif token == 'module':
                 name_ = token_buf.pop()
                 m = self.module_by_name(name_)
@@ -82,7 +88,7 @@ class IDLModule(node.IDLNode):
                 while True:
                     t = token_buf.pop()
                     if t == None:
-                        raise InvalidIDLSyntaxError()
+                        raise SyntaxError()
                     elif t == ';':
                         break
                     else:
@@ -96,8 +102,9 @@ class IDLModule(node.IDLNode):
                 s = struct.IDLStruct(name_, self)
                 s.parse_tokens(token_buf, filepath=filepath)
                 if s_:
-                    if self._verbose: sys.stdout.write('# Error. Same Struct Defined (%s)\n' % name_)
-                #    raise InvalidIDLSyntaxError
+                    if self._verbose:
+                        sys.stdout.write('# Error. Same Struct Defined (%s)\n' % name_)
+                #    raise SyntaxError
                 else:
                     self._structs.append(s)
 
@@ -108,19 +115,21 @@ class IDLModule(node.IDLNode):
 
                 s_ = self.interface_by_name(name_)
                 if s_:
-                    if self._verbose: sys.stdout.write('# Error. Same Interface Defined (%s)\n' % name_)
-                #    raise InvalidIDLSyntaxError
+                    if self._verbose:
+                        sys.stdout.write('# Error. Same Interface Defined (%s)\n' % name_)
+                #    raise SyntaxError
                 else:
                     self._interfaces.append(s)
-            
+
             elif token == 'enum':
                 name_ = token_buf.pop()
                 s = enum.IDLEnum(name_, self)
                 s.parse_tokens(token_buf, filepath)
                 s_ = self.enum_by_name(name_)
                 if s_:
-                    if self._verbose: sys.stdout.write('# Error. Same Enum Defined (%s)\n' % name_)
-                #    raise InvalidIDLSyntaxError
+                    if self._verbose:
+                        sys.stdout.write('# Error. Same Enum Defined (%s)\n' % name_)
+                #    raise SyntaxError
                 else:
                     self._enums.append(s)
 
@@ -143,16 +152,15 @@ class IDLModule(node.IDLNode):
                 s = const.IDLConst(name_, typename, value_, self, filepath=filepath)
                 s_ = self.const_by_name(name_)
                 if s_:
-                    if self._verbose: sys.stdout.write('# Error. Same Const Defined (%s)\n' % name_)
+                    if self._verbose:
+                        sys.stdout.write('# Error. Same Const Defined (%s)\n' % name_)
                 else:
                     self._consts.append(s)
-                
+
             elif token == '}':
                 break
-            
+
         return True
-
-
 
     @property
     def modules(self):

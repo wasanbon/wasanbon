@@ -1,8 +1,10 @@
-import node
+import sys
 
-import type as idl_type
+from . import node
+from . import type as idl_type
 
 sep = '::'
+
 
 class IDLArgument(node.IDLNode):
     def __init__(self, parent):
@@ -12,7 +14,7 @@ class IDLArgument(node.IDLNode):
         self._type = None
 
     def parse_blocks(self, blocks, filepath=None):
-        self._filepath= filepath
+        self._filepath = filepath
         directions = ['in', 'out', 'inout']
         self._dir = 'in'
         if blocks[0] in directions:
@@ -28,11 +30,11 @@ class IDLArgument(node.IDLNode):
         return dic
 
     def to_dic(self):
-        dic = { 'name' : self.name,
-                'classname' : self.classname,
-                'type' : str(self.type),
-                'direction' : self.direction,
-                'filepath' : self.filepath }
+        dic = {'name': self.name,
+               'classname': self.classname,
+               'type': str(self.type),
+               'direction': self.direction,
+               'filepath': self.filepath}
         return dic
 
     @property
@@ -47,7 +49,7 @@ class IDLArgument(node.IDLNode):
         #self._type = self.refine_typename(self.type)
         pass
 
-        
+
 class IDLMethod(node.IDLNode):
     def __init__(self, parent):
         super(IDLMethod, self).__init__('IDLValue', '', parent)
@@ -56,7 +58,7 @@ class IDLMethod(node.IDLNode):
         self._arguments = []
 
     def parse_blocks(self, blocks, filepath=None):
-        self._filepath=filepath
+        self._filepath = filepath
 
         if blocks[0] == 'oneway':
             self._oneway = True
@@ -69,9 +71,10 @@ class IDLMethod(node.IDLNode):
         self._arguments = []
 
         if not blocks[2] == '(':
-            print ' -- Invalid Interface Token (%s)' % interface_name
-            print blocks
-            
+            print(' -- Invalid Interface Token (missing "(" )')
+            print(blocks)
+            raise SyntaxError()
+
         index = 3
         argument_blocks = []
         while True:
@@ -92,16 +95,16 @@ class IDLMethod(node.IDLNode):
             index = index + 1
 
     def to_simple_dic(self):
-        return {self.name : {
-                'returns' : str(self.returns),
-                'params' : [a.to_simple_dic() for a in self.arguments]}}
+        return {self.name: {
+                'returns': str(self.returns),
+                'params': [a.to_simple_dic() for a in self.arguments]}}
 
     def to_dic(self):
-        dic = { 'name' : self.name,
-                'filepath' : self.filepath,
-                'classname' : self.classname,
-                'returns' : str(self._returns),
-                'arguments' : [a.to_dic() for a in self.arguments]}
+        dic = {'name': self.name,
+               'filepath': self.filepath,
+               'classname': self.classname,
+               'returns': str(self._returns),
+               'arguments': [a.to_dic() for a in self.arguments]}
         return dic
 
     @property
@@ -121,13 +124,14 @@ class IDLMethod(node.IDLNode):
         #self.forEachArgument(lambda a : a.post_process())
         pass
 
+
 class IDLInterface(node.IDLNode):
-    
+
     def __init__(self, name, parent):
         super(IDLInterface, self).__init__('IDLInterface', name, parent)
         self._verbose = True
         self._methods = []
-        
+
     @property
     def full_path(self):
         return self.parent.full_path + sep + self.name
@@ -135,38 +139,44 @@ class IDLInterface(node.IDLNode):
     def to_simple_dic(self, quiet=False, full_path=False, recursive=False, member_only=False):
         if quiet:
             return 'interface %s' % self.name
-        dic = { 'interface ' + self.name : [m.to_simple_dic() for m in self.methods] }
+        dic = {'interface ' + self.name: [m.to_simple_dic() for m in self.methods]}
         return dic
 
     def to_dic(self):
-        dic = { 'name' : self.name,
-                'filepath' : self.filepath, 
-                'classname' : self.classname,
-                'methods' : [m.to_dic() for m in self.methods] }
+        dic = {'name': self.name,
+               'filepath': self.filepath,
+               'classname': self.classname,
+               'methods': [m.to_dic() for m in self.methods]}
         return dic
-    
+
     def parse_tokens(self, token_buf, filepath=None):
-        self._filepath=filepath
+        self._filepath = filepath
         kakko = token_buf.pop()
+        if kakko == ';':
+            return
+
         if not kakko == '{':
-            if self._verbose: sys.stdout.write('# Error. No kakko "{".\n')
-            raise InvalidIDLSyntaxError()
-        
-        block_tokens = []        
+            if self._verbose:
+                sys.stdout.write('# Error. No kakko "{".\n')
+            raise SyntaxError()
+
+        block_tokens = []
         while True:
 
             token = token_buf.pop()
             if token == None:
-                if self._verbose: sys.stdout.write('# Error. No kokka "}".\n')
-                raise InvalidIDLSyntaxError()
-            
+                if self._verbose:
+                    sys.stdout.write('# Error. No kokka "}".\n')
+                raise SyntaxError()
+
             elif token == '}':
                 token = token_buf.pop()
                 if not token == ';':
-                    if self._verbose: sys.stdout.write('# Error. No semi-colon after "}".\n')
-                    raise InvalidIDLSyntaxError()
+                    if self._verbose:
+                        sys.stdout.write('# Error. No semi-colon after "}".\n')
+                    raise SyntaxError()
                 break
-            
+
             if token == ';':
                 self._parse_block(block_tokens)
                 block_tokens = []
@@ -175,7 +185,7 @@ class IDLInterface(node.IDLNode):
         self._post_process()
 
     def _post_process(self):
-        self.forEachMethod(lambda m : m.post_process())
+        self.forEachMethod(lambda m: m.post_process())
 
     def _parse_block(self, blocks):
         v = IDLMethod(self)
@@ -189,5 +199,3 @@ class IDLInterface(node.IDLNode):
     def forEachMethod(self, func):
         for m in self.methods:
             func(m)
-
-        
