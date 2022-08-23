@@ -43,7 +43,7 @@ class TestPlugin(unittest.TestCase):
 
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='win32'))
     @mock.patch('subprocess.PIPE', new_callable=PropertyMock(return_value=-1))
-    @mock.patch('os.environ', new_callable=PropertyMock(return_value={'RTM_ROOT': None}))
+    @mock.patch('os.environ', new_callable=PropertyMock(return_value={'PATH':'path', 'RTM_ROOT': None}))
     @mock.patch('subprocess.Popen')
     @mock.patch('wasanbon.get_rtm_root')
     @mock.patch('os.path.isdir')
@@ -66,7 +66,7 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual(0, self.plugin.launch_eclipse())
         if sys.platform == 'win32':
-            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
+            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'PATH': 'rtm_rootjre\\bin;path', 'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
         elif sys.platform == 'darwin':
             mock_Popen.assert_called_once_with(['eclipse_cmd'], env={'RTM_ROOT': 'rtm_root'}, stdout=-1, stderr=-1)
         else:
@@ -99,7 +99,7 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual(0, self.plugin.launch_eclipse())
         if sys.platform == 'win32':
-            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
+            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'PATH': 'rtm_rootjre\\bin;path', 'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
         elif sys.platform == 'darwin':
             mock_Popen.assert_called_once_with(['eclipse_cmd'], env={'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
         else:
@@ -131,7 +131,7 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual(0, self.plugin.launch_eclipse())
         if sys.platform == 'win32':
-            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
+            mock_Popen.assert_called_once_with(['eclipse_cmd'], creationflags=512, env={'PATH': 'rtm_rootjre\\bin;path', 'RTM_ROOT': 'rtm_root'}, stdout=None, stderr=None)
         elif sys.platform == 'darwin':
             mock_Popen.assert_called_once_with(['eclipse_cmd'], env={'RTM_ROOT': 'rtm_root'}, stdout=-1, stderr=-1)
         else:

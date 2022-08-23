@@ -10,6 +10,11 @@ sys.path.append('../../')
 
 import wasanbon
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -47,10 +52,11 @@ class TestPlugin(unittest.TestCase):
         self.test.parse_and_copy('src_path', 'dist_path', {'key1': 'new1'})
         write.assert_called_once_with(b'new1, key2')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.path.isfile', return_value=False)
     @mock.patch('builtins.open')
     @mock.patch('sys.stdout.write')
-    def test_load_workspace_1(self, mock_write, mock_open, mock_isfile):
+    def test_load_workspace_1(self, mock_write, mock_open, mock_isfile, mock_join):
         """load_workspace not file case"""
 
         ### test ###
@@ -59,11 +65,12 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call(' - Can not find workspace.yaml: ~/.wasanbon/workspace.yaml\n')
         mock_open.assert_called_once_with('~/.wasanbon/workspace.yaml', 'w')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('builtins.open')
     @mock.patch('yaml.safe_load', return_value='load_result')
     @mock.patch('sys.stdout.write')
-    def test_load_workspace_2(self, mock_write, mock_safe_load, mock_open, mock_isfile):
+    def test_load_workspace_2(self, mock_write, mock_safe_load, mock_open, mock_isfile, mock_join):
         """load_workspace exists file case"""
 
         ### test ###
@@ -71,10 +78,11 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual('load_result', self.test.load_workspace(True))
         mock_open.assert_called_once_with('~/.wasanbon/workspace.yaml', 'r')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('builtins.open')
     @mock.patch('yaml.dump')
     @mock.patch('sys.stdout.write')
-    def test_save_workspace_1(self, mock_write, mock_dump, mock_open):
+    def test_save_workspace_1(self, mock_write, mock_dump, mock_open, mock_join):
         """save_workspace not file case"""
 
         ### test ###
@@ -82,11 +90,12 @@ class TestPlugin(unittest.TestCase):
         self.test.save_workspace('dict')
         mock_open.assert_called_once_with('~/.wasanbon/workspace.yaml', 'w')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.get_packages')
     @mock.patch('os.getcwd', return_value='.')
     @mock.patch('os.path.isdir', return_value=True)
     @mock.patch('sys.stdout.write')
-    def test_create_package_2(self, mock_write, mock_isdir, mock_getcwd, mock_get_packages):
+    def test_create_package_2(self, mock_write, mock_isdir, mock_getcwd, mock_get_packages, mock_join):
         """create_package same package case"""
 
         prj = MagicMock()
@@ -99,6 +108,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call(' - There seems to be test_project02 here. Please change application name.\n')
         mock_isdir.assert_called_once_with('./test_project02')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.get_packages')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.parse_and_copy')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.register_package')
@@ -110,7 +120,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.walk', return_value=[('wasanbon/temlate', ['dir'], ['file'])])
     @mock.patch('subprocess.call')
     @mock.patch('sys.stdout.write')
-    def test_create_package_3(self, mock_write, mock_call, mock_walk, mock_mkdir, mock_isfile, mock_isdir, mock_getcwd, mock_platform, mock_register_package, mock_parse_and_copy, mock_get_packages):
+    def test_create_package_3(self, mock_write, mock_call, mock_walk, mock_mkdir, mock_isfile, mock_isdir, mock_getcwd, mock_platform, mock_register_package, mock_parse_and_copy, mock_get_packages, mock_join):
         """create_package normal case"""
 
         prj = MagicMock()
@@ -123,6 +133,7 @@ class TestPlugin(unittest.TestCase):
         mock_call.assert_called_once_with(['chmod', '755', 'test_project02/mgr.py'])
         mock_register_package.assert_called_once_with('test_project02', './test_project02')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.get_packages')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.parse_and_copy')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.register_package')
@@ -134,7 +145,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.walk', return_value=[('wasanbon/temlate', ['dir'], ['file'])])
     @mock.patch('subprocess.call')
     @mock.patch('sys.stdout.write')
-    def test_create_package_4(self, mock_write, mock_call, mock_walk, mock_mkdir, mock_isfile, mock_isdir, mock_getcwd, mock_platform, mock_register_package, mock_parse_and_copy, mock_get_packages):
+    def test_create_package_4(self, mock_write, mock_call, mock_walk, mock_mkdir, mock_isfile, mock_isdir, mock_getcwd, mock_platform, mock_register_package, mock_parse_and_copy, mock_get_packages, mock_join):
         """create_package win32 normal case"""
 
         prj = MagicMock()
@@ -158,12 +169,13 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(0, self.test.register_package('test_project02', '/path/to/test_project02'))
         mock_save_workspace.assert_called_once_with({'test_project01': '/path/to/test_project01', 'test_project02': '/path/to/test_project02'})
 
+    @mock.patch('shutil.rmtree')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.get_package')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.load_workspace')
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.save_workspace')
     @mock.patch('os.chmod')
     @mock.patch('os.remove')
-    def test_delete_package(self, mock_remove, mock_chmod, mock_save_workspace, mock_load_workspace, mock_get_package):
+    def test_delete_package(self, mock_remove, mock_chmod, mock_save_workspace, mock_load_workspace, mock_get_package, mock_rmtree):
         """delete_package normal case"""
 
         prj = MagicMock()
@@ -175,7 +187,7 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual(0, self.test.delete_package('test_project02', deletepath=True))
         mock_save_workspace.assert_called_once_with({'test_project01': '/path/to/test_project01'})
-        mock_remove.assert_called_once_with('/path/to/test_project02')
+        mock_rmtree.assert_called_once()
 
     def test_validate_package(self):
         """validate_package normal case"""

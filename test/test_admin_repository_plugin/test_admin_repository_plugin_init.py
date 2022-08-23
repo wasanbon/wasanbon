@@ -248,15 +248,17 @@ class TestPlugin(unittest.TestCase):
         ]
         self.admin_mock.git.git_command.assert_has_calls(git_calls)
 
+    @mock.patch('traceback.print_exc')
     @mock.patch('os.chdir')
     @mock.patch('wasanbon.platform')
     @mock.patch('sys.stdout.write')
     @mock.patch('wasanbon.core.plugins.admin.repository_plugin.Plugin.get_rtc_repositories_from_package')
     @mock.patch('wasanbon.core.plugins.admin.repository_plugin.Plugin.clone_rtc')
-    def test_clone_package_without_branch_clone_error(self, clone_rtc_mock, get_rtc_repos_mock, sys_stdout_write, platform_mock, _):
+    def test_clone_package_without_branch_clone_error(self, clone_rtc_mock, get_rtc_repos_mock, sys_stdout_write, platform_mock, _, print_exc_mock):
         """clone_package branch not specified, raise Exception while cloning"""
         # mock patch settings
-        clone_rtc_mock.side_effect = Exception('test')
+        # clone_rtc_mock.side_effect = Exception('test')
+        clone_rtc_mock.side_effect = Exception()
         get_rtc_repos_mock.return_value = ['test_repo']
         test_platform = 'test_platform'
         platform_mock.return_value = test_platform
@@ -277,24 +279,30 @@ class TestPlugin(unittest.TestCase):
         ]
         self.admin_mock.git.git_command.assert_has_calls(git_calls)
 
+    class rtc_repo_class:
+        def __init__(self):
+            self._platform = {}
+            self.url = 'url'
+            self.name = 'name'
+            self._rtc_hash = 'rtc_hash'            
+
     @mock.patch('os.chdir')
     @mock.patch('wasanbon.platform')
     @mock.patch('sys.stdout.write')
-    @mock.patch('builtins.hasattr')
-    def test_clone_rtc_with_branch(self, has_attr_mock, sys_stdout_write, platform_mock, _):
+    def test_clone_rtc_with_branch(self, sys_stdout_write, platform_mock, _):
         """clone_rtc branch not specified, fail to clone"""
         # mock patch settings
-        has_attr_mock.return_value = True
         test_platform = 'test_platform'
         platform_mock.return_value = test_platform
         # admin mock settings
-        repo_mock = MagicMock()
+        repo_mock = self.rtc_repo_class()
         repo_mock.name = 'repo'
         test_branch = 'test1'
         repo_mock._platform = {test_platform: test_branch}
+        setattr(repo_mock, '_rtc_hash', 1)
         self.admin_mock.package.get_package.return_value = repo_mock
         process_mock = MagicMock()
-        process_mock.returncode = 0
+        type(process_mock).returncode = 0
         self.admin_mock.git.git_command.return_value = process_mock
         # test
         inst = self.__make_plugin_instance()
@@ -311,15 +319,13 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.chdir')
     @mock.patch('wasanbon.platform')
     @mock.patch('sys.stdout.write')
-    @mock.patch('builtins.hasattr')
-    def test_clone_rtc_without_branch_clone_fail(self, has_attr_mock, sys_stdout_write, platform_mock, _):
+    def test_clone_rtc_without_branch_clone_fail(self, sys_stdout_write, platform_mock, _):
         """clone_rtc branch not specified, fail to clone"""
         # mock patch settings
-        has_attr_mock.return_value = True
         test_platform = 'test_platform'
         platform_mock.return_value = test_platform
         # admin mock settings
-        repo_mock = MagicMock()
+        repo_mock = self.rtc_repo_class()
         repo_mock.name = 'repo'
         test_branch = 'test1'
         repo_mock._platform = {}
@@ -343,15 +349,13 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.chdir')
     @mock.patch('wasanbon.platform')
     @mock.patch('sys.stdout.write')
-    @mock.patch('builtins.hasattr')
-    def test_clone_rtc_without_branch_hash_error(self, has_attr_mock, sys_stdout_write, platform_mock, _):
+    def test_clone_rtc_without_branch_hash_error(self, sys_stdout_write, platform_mock, _):
         """clone_rtc branch not specified, no hash """
         # mock patch settings
-        has_attr_mock.return_value = True
         test_platform = 'test_platform'
         platform_mock.return_value = test_platform
         # admin mock settings
-        repo_mock = MagicMock()
+        repo_mock = self.rtc_repo_class()
         repo_mock.name = 'repo'
         repo_mock._platform = {}
         self.admin_mock.package.get_package.return_value = repo_mock

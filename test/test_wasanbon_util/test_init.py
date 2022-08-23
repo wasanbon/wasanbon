@@ -56,11 +56,11 @@ class TestPlugin(unittest.TestCase):
         ret = util.yes_no(test_msg)
         self.assertEqual(ret, 'yes')
         # test(else)
-        input_mock.return_value = 'aaa'
+        input_mock.side_effect = ['aaa', 'n']
         test_msg = 'test_msg'
         ret = util.yes_no(test_msg)
         self.assertEqual(ret, 'no')
-        sys_stdout_write.assert_has_calls([call('%s (Y/n)' % test_msg)])
+        sys_stdout_write.assert_has_calls([call('%s (Y/n)' % test_msg), call('%s (Y/n)' % test_msg), call('%s (Y/n)' % test_msg), call('%s (Y/n)' % test_msg)])
 
     @mock.patch('builtins.input')
     @mock.patch('sys.stdout.write')
@@ -77,11 +77,11 @@ class TestPlugin(unittest.TestCase):
         ret = util.no_yes(test_msg)
         self.assertEqual(ret, 'yes')
         # test(else)
-        input_mock.return_value = 'aaa'
+        input_mock.side_effect = ['aaa', 'n']
         test_msg = 'test_msg'
         ret = util.no_yes(test_msg)
         self.assertEqual(ret, 'no')
-        sys_stdout_write.assert_has_calls([call('%s (y/N)' % test_msg)])
+        sys_stdout_write.assert_has_calls([call('%s (y/N)' % test_msg), call('%s (y/N)' % test_msg), call('%s (y/N)' % test_msg), call('%s (y/N)' % test_msg)])
 
     @mock.patch('os.listdir')
     @mock.patch('os.path.isdir')
