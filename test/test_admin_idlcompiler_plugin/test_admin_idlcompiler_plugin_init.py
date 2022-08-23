@@ -10,11 +10,14 @@ sys.path.append('../../')
 
 from wasanbon.core.plugins.admin.idlcompiler_plugin import Plugin
 
-
 class TestPlugin(unittest.TestCase):
 
     def setUp(self):
-        self.plugin = Plugin()
+        import wasanbon.core.plugins.admin.idlcompiler_plugin as m
+        self.admin_mock = MagicMock(spec=['idl'])
+        self.admin_mock.idl(spec=['parse', 'get_idl_parser'])
+        setattr(m, 'admin', self.admin_mock)
+        self.plugin = m.Plugin()        
 
     @mock.patch('wasanbon.core.plugins.PluginFunction.__init__')
     def test_init(self, mock_init):
@@ -30,9 +33,9 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.core.plugins.admin.idlcompiler_plugin.dart_converter.generate_converter')
     def test_dart(self, mock_generate_converter):
         """dart normal case"""
-        self.assertEqual(0, self.plugin.Idlcompiler())
-        mock_generate_converter.assert_called_once()
-
+        self.assertEqual(0, self.plugin.dart([]))
+        self.admin_mock.idl.parse.assert_called_once()
+        self.admin_mock.idl.get_idl_parser.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()

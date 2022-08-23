@@ -10,6 +10,11 @@ sys.path.append('../../')
 
 import wasanbon
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -207,6 +212,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('### OK.\n')
         mock_write.assert_any_call('### Setting manager.components.precreate:\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -220,7 +226,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('sys.stdout.write')
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='linux'))
     @mock.patch('os.environ.copy', return_value={'RTM_JAVA_ROOT': '/'})
-    def test_install_rtc_in_package_3(self, mock_env_copy, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_3(self, mock_env_copy, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone Java ubuntu case"""
 
         package = MagicMock()
@@ -249,17 +255,19 @@ class TestPlugin(unittest.TestCase):
         application = {'standalone': []}
         mock_safe_load.return_value = {'application': application}
 
+        import os
         ### test ###
         self.assertEqual(0, self.plugin.install_rtc_in_package(package, rtc, standalone=False, verbose=True, rtcconf_filename='rtcconf_filename'))
         rtcconf.append.assert_has_calls([call('category.rtc_name-1.config_file', 'conf_path')])
         mock_open.assert_has_calls([call('package_path/backup/setting.yaml20211001000000', 'r'), call('package_path/setting.yaml', 'w')])
         mock_dump.assert_called_once_with(
-            {'application': {'standalone': ['java -cp "target/targetfile:/jar/*" rtc_nameComp -f conf/rtc_rtc_name.conf']}}, default_flow_style=False)
+            {'application': {'standalone': ['java -cp "target/targetfile:'+os.path.join(os.environ.copy()["RTM_JAVA_ROOT"], 'jar', '*')+'" rtc_nameComp -f conf/rtc_rtc_name.conf']}}, default_flow_style=False)
         mock_write.assert_any_call('# Installing RTC in package package_name\n')
         mock_write.assert_any_call('## RTC (rtc_name) is already installed as standalone.\n')
         mock_write.assert_any_call('## Install standalone again.\n')
         mock_write.assert_any_call('## Configuring System. Set (category.rtc_name-1.config_file) to conf_path\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -273,7 +281,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('sys.stdout.write')
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='win32'))
     @mock.patch('os.environ.copy', return_value={'RTM_JAVA_ROOT': '/'})
-    def test_install_rtc_in_package_4(self, mock_env_copy, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_4(self, mock_env_copy, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone Java win32 case"""
 
         package = MagicMock()
@@ -302,17 +310,19 @@ class TestPlugin(unittest.TestCase):
         application = {'standalone': []}
         mock_safe_load.return_value = {'application': application}
 
+        import os
         ### test ###
         self.assertEqual(0, self.plugin.install_rtc_in_package(package, rtc, standalone=False, verbose=True, rtcconf_filename='rtcconf_filename'))
         rtcconf.append.assert_has_calls([call('category.rtc_name-1.config_file', 'conf_path')])
         mock_open.assert_has_calls([call('package_path/backup/setting.yaml20211001000000', 'r'), call('package_path/setting.yaml', 'w')])
         mock_dump.assert_called_once_with(
-            {'application': {'standalone': ['java -cp "target/targetfile;/jar/*" rtc_nameComp -f conf/rtc_rtc_name.conf']}}, default_flow_style=False)
+            {'application': {'standalone': ['java -cp "target/targetfile;'+os.path.join(os.environ.copy()["RTM_JAVA_ROOT"], 'jar', '*')+'" rtc_nameComp -f conf/rtc_rtc_name.conf']}}, default_flow_style=False)
         mock_write.assert_any_call('# Installing RTC in package package_name\n')
         mock_write.assert_any_call('## RTC (rtc_name) is already installed as standalone.\n')
         mock_write.assert_any_call('## Install standalone again.\n')
         mock_write.assert_any_call('## Configuring System. Set (category.rtc_name-1.config_file) to conf_path\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -325,7 +335,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='linux'))
-    def test_install_rtc_in_package_5(self, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_5(self, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone Python ubuntu case"""
 
         package = MagicMock()
@@ -365,6 +375,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('## Install standalone again.\n')
         mock_write.assert_any_call('## Configuring System. Set (category.rtc_name-1.config_file) to conf_path\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -377,7 +388,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='win32'))
-    def test_install_rtc_in_package_6(self, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_6(self, mock_platform, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone Python win32 case"""
 
         package = MagicMock()
@@ -417,6 +428,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('## Install standalone again.\n')
         mock_write.assert_any_call('## Configuring System. Set (category.rtc_name-1.config_file) to conf_path\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -428,7 +440,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
-    def test_install_rtc_in_package_7(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_7(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone C++ and select conffile case"""
 
         package = MagicMock()
@@ -468,6 +480,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('## Install standalone again.\n')
         mock_write.assert_any_call('## Configuring System. Set (category.rtc_name-1.config_file) to conffile\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=True)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_binary_from_rtc', return_value='target/targetfile')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.copy_conf_from_rtc', return_value='conf_path')
@@ -479,7 +492,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
-    def test_install_rtc_in_package_7(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed):
+    def test_install_rtc_in_package_8(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, ock_mkdir, mock_isdir, mock_copy, mock_copy_conf_from_rtc, mock_copy_binary_from_rtc, mock_is_installed, mock_join):
         """install_rtc_in_package standalone same command case"""
 
         package = MagicMock()
@@ -577,10 +590,11 @@ class TestPlugin(unittest.TestCase):
         with self.assertRaises(wasanbon.UnsupportedLanguageException):
             self.assertEqual(True, self.plugin.uninstall_rtc_from_package(package, rtc))
 
+    @mock.patch('wasanbon.get_bin_file_ext', return_value='.so')
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.is_installed', return_value=False)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin.uninstall_standalone_rtc_from_package', return_value=True)
     @mock.patch('sys.stdout.write')
-    def test_uninstall_rtc_from_package_3(self, mock_write, mock_uninstall_standalone_rtc_from_package, mock_is_installed):
+    def test_uninstall_rtc_from_package_3(self, mock_write, mock_uninstall_standalone_rtc_from_package, mock_is_installed, mock_get_bin_file_ext):
         """uninstall_rtc_from_package C++ case"""
 
         package = MagicMock()
@@ -779,6 +793,7 @@ class TestPlugin(unittest.TestCase):
                                  call('manager.modules.preload'),
                                  call('manager.modules.load_path')])
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin._Plugin__get_rtc_name_from_standalone_command', return_value='rtc_name')
     @mock.patch('shutil.copy')
     @mock.patch('os.path.isdir')
@@ -788,7 +803,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
-    def test_uninstall_standalone_rtc_from_package_1(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, mock_mkdir, mock_isdir, mock_copy, mock_get_rtc_name_from_standalone_command):
+    def test_uninstall_standalone_rtc_from_package_1(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, mock_mkdir, mock_isdir, mock_copy, mock_get_rtc_name_from_standalone_command, mock_join):
         """uninstall_all_rtc_from_package delete all command case"""
 
         package = MagicMock()
@@ -825,6 +840,7 @@ class TestPlugin(unittest.TestCase):
         mock_open.assert_has_calls([call('package_path/backup/setting.yaml20211001000000', 'r'), call('package_path/setting.yaml', 'w')])
         mock_dump.assert_called_once_with({'application': {}}, default_flow_style=False)
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.systeminstaller_plugin.Plugin._Plugin__get_rtc_name_from_standalone_command', return_value='rtc_name')
     @mock.patch('shutil.copy')
     @mock.patch('os.path.isdir')
@@ -834,7 +850,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
-    def test_uninstall_standalone_rtc_from_package_2(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, mock_mkdir, mock_isdir, mock_copy, mock_get_rtc_name_from_standalone_command):
+    def test_uninstall_standalone_rtc_from_package_2(self, mock_write, mock_timestampstr, mock_dump, mock_safe_load, mock_open, mock_mkdir, mock_isdir, mock_copy, mock_get_rtc_name_from_standalone_command, mock_join):
         """uninstall_all_rtc_from_package delete one command case"""
 
         package = MagicMock()
@@ -902,11 +918,12 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual('file_path', self.Func.copy_binary_from_rtc(package, rtc, verbose=True, standalone=False))
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.path.isdir', return_value=True)
     @mock.patch('os.mkdir')
     @mock.patch('shutil.copy')
     @mock.patch('sys.stdout.write')
-    def test_copy_binary_from_rtc_2(self, mock_write, mock_copy, mock_mkdir, mock_isdir):
+    def test_copy_binary_from_rtc_2(self, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_join):
         """copy_binary_from_rtc standalone C++"""
 
         package = MagicMock()
@@ -936,13 +953,14 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual('bin/executable_file_path', self.Func.copy_binary_from_rtc(package, rtc, verbose=True, standalone=True))
         mock_copy.assert_called_once_with('./executable_file_path', 'bin/executable_file_path')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='linux'))
     @mock.patch('os.path.isdir', return_value=True)
     @mock.patch('os.mkdir')
     @mock.patch('shutil.copy')
     @mock.patch('os.listdir', return_value=['file_path.so'])
     @mock.patch('sys.stdout.write')
-    def test_copy_binary_from_rtc_3(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform):
+    def test_copy_binary_from_rtc_3(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform, mock_join):
         """copy_binary_from_rtc not standalone C++ linux"""
 
         package = MagicMock()
@@ -973,13 +991,14 @@ class TestPlugin(unittest.TestCase):
         mock_copy.assert_has_calls([call('./file_path.aaa', 'bin/file_path.aaa'),
                                     call('./file_path.aaa', 'bin/file_path.so')])
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='win32'))
     @mock.patch('os.path.isdir', return_value=True)
     @mock.patch('os.mkdir')
     @mock.patch('shutil.copy')
     @mock.patch('os.listdir', return_value=['file_path.dll'])
     @mock.patch('sys.stdout.write')
-    def test_copy_binary_from_rtc_4(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform):
+    def test_copy_binary_from_rtc_4(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform, mock_join):
         """copy_binary_from_rtc not standalone C++ win32"""
 
         package = MagicMock()
@@ -1010,13 +1029,14 @@ class TestPlugin(unittest.TestCase):
         mock_copy.assert_has_calls([call('./file_path.aaa', 'bin/file_path.aaa'),
                                     call('./file_path.aaa', 'bin/file_path.dll')])
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='darwin'))
     @mock.patch('os.path.isdir', return_value=True)
     @mock.patch('os.mkdir')
     @mock.patch('shutil.copy')
     @mock.patch('os.listdir', return_value=['file_path.dylib'])
     @mock.patch('sys.stdout.write')
-    def test_copy_binary_from_rtc_5(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform):
+    def test_copy_binary_from_rtc_5(self, mock_listdir, mock_write, mock_copy, mock_mkdir, mock_isdir, mock_platform, mock_join):
         """copy_binary_from_rtc not standalone C++ darwin"""
 
         package = MagicMock()
@@ -1115,11 +1135,12 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual('conf/rtc_conf0.conf', self.Func.copy_conf_from_rtc(package, rtc, verbose=True, force=False))
         mock_write.assert_any_call('## Do not copy.\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('sys.platform', new_callable=PropertyMock(return_value='win32'))
     @mock.patch('shutil.copy')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('sys.stdout.write')
-    def test_copy_conf_from_rtc_2(self, mock_write, mock_isfile, mock_copy, mock_platform):
+    def test_copy_conf_from_rtc_2(self, mock_write, mock_isfile, mock_copy, mock_platform, mock_join):
         """copy_conf_from_rtc aforce case"""
 
         package = MagicMock()

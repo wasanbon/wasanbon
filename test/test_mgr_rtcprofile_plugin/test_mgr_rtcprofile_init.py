@@ -12,6 +12,11 @@ from wasanbon.core.plugins.mgr.rtcprofile_plugin import Plugin
 import importlib
 import copy
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -157,13 +162,14 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('# Saved HTML File to package_path/test_name.html\n')
         mock_write.assert_any_call('# Saved Image File to package_path/image\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('wasanbon.core.plugins.mgr.rtcprofile_plugin.Plugin.get_html')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isdir')
     @mock.patch('os.mkdir')
-    def test_html_2(self, mock_mkdir, mock_isdir, mock_open, mock_get_html, mock_write, mock_parse_args):
+    def test_html_2(self, mock_mkdir, mock_isdir, mock_open, mock_get_html, mock_write, mock_parse_args, mock_join):
         """html rtc case"""
 
         args = ['./mgr.py', 'rtcprofile', 'html', 'rtc_name']
@@ -197,11 +203,12 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('# Saved HTML File to package_path/rtc_name.html\n')
         mock_write.assert_any_call('# Saved Image File to package_path/image\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isdir')
     @mock.patch('os.mkdir')
-    def test_image(self, mock_mkdir, mock_isdir, mock_write, mock_parse_args):
+    def test_image(self, mock_mkdir, mock_isdir, mock_write, mock_parse_args, mock_join):
         """image normal case"""
 
         args = ['./mgr.py', 'rtcprofile', 'image', 'rtc_name']
@@ -256,32 +263,33 @@ class TestPlugin(unittest.TestCase):
 
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
-    @mock.patch('os.path.exists')
     @mock.patch('builtins.open')
     @mock.patch('wasanbon.util.yes_no')
-    def test_cat_2(self, mock_yes_no, mock_open, mock_exists, mock_write, mock_parse_args):
-        """cat inputfile and abort case"""
+    @mock.patch('os.path.isfile')
+    @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
+    @mock.patch('os.rename')
+    def test_cat_2(self, mock_rename, mock_timestampstr, mock_isfile, mock_yes_no, mock_open, mock_write, mock_parse_args):
+        """cat inputdata abort case"""
 
-        args = ['./mgr.py', 'rtcprofile', 'cat', 'rtc_name']
+        args = ['./mgr.py', 'rtcprofile', 'cat', 'rtc_name', 'input_data']
         options = MagicMock()
         type(options).verbose_flag = True
         type(options).filename = 'RTC.xml'
-        type(options).inputfile = 'inputfile'
+        type(options).inputfile = None
         mock_parse_args.return_value = options, args
 
         type(self.admin_mock.package).get_package_from_path = MagicMock()
         type(self.admin_mock.rtc).get_rtc_from_package = MagicMock(return_value=self.get_rtc())
 
-        mock_exists.side_effect = [False, False, False, False, True]
         mock_yes_no.side_effect = ['no']
+        mock_isfile.retun_value = True
 
         ### test ###
         self.assertEqual(-1, self.plugin.cat(args))
-        mock_exists.assert_any_call('inputfile')
-        mock_write.assert_any_call('## Input File is inputfile\n')
+        mock_write.assert_any_call('## Input Data is input_data\n')
         mock_write.assert_any_call('## Aborted.\n')
-        mock_open.assert_called_once_with('inputfile', 'r')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('builtins.open')
@@ -289,8 +297,8 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.path.isfile')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('os.rename')
-    def test_cat_3(self, mock_rename, mock_timestampstr, mock_isfile, mock_yes_no, mock_open, mock_write, mock_parse_args):
-        """cat inputdaa normal case"""
+    def test_cat_3(self, mock_rename, mock_timestampstr, mock_isfile, mock_yes_no, mock_open, mock_write, mock_parse_args, mock_join):
+        """cat inputdata normal case"""
 
         args = ['./mgr.py', 'rtcprofile', 'cat', 'rtc_name', 'input_data']
         options = MagicMock()

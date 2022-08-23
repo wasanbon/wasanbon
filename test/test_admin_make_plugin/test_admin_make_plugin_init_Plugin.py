@@ -116,8 +116,7 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(4, mock_isparent.call_count)
         self.assertEqual(1, self.admin_mock.builder.build_rtc.call_count)
         self.assertEqual(0, self.admin_mock.systeminstaller.install_rtc_in_package.call_count)
-        mock_write.assert_any_call('# Found Pcakage package_name\n')
-        # mock_write.assert_any_call('# Found Package package_name\n')
+        mock_write.assert_any_call('# Found Package package_name\n')
         mock_write.assert_any_call('## Found RTC rtc_name\n')
 
     @mock.patch('sys.stdout.write')
@@ -155,8 +154,7 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(4, mock_isparent.call_count)
         self.assertEqual(1, self.admin_mock.builder.build_rtc.call_count)
         self.assertEqual(0, self.admin_mock.systeminstaller.install_rtc_in_package.call_count)
-        mock_write.assert_any_call('# Found Pcakage package_name\n')
-        # mock_write.assert_any_call('# Found Package package_name\n')
+        mock_write.assert_any_call('# Found Package package_name\n')
         mock_write.assert_any_call('## Found RTC rtc_name\n')
 
     @mock.patch('wasanbon.core.plugins.admin.package_plugin.get_package')

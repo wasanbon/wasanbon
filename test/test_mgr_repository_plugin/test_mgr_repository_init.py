@@ -10,6 +10,11 @@ sys.path.append('../../')
 
 import wasanbon
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -1065,6 +1070,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('# Pulling RTC (test_name) \n')
         mock_write.assert_any_call('## Failed\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.remove')
@@ -1074,7 +1080,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='2021100100000000')
     @mock.patch('sys.stdout.write')
-    def test_sync_1(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args):
+    def test_sync_1(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args, mock_join):
         """sunc no rtc case"""
         rtcs = []
 
@@ -1100,6 +1106,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('# Writing repository.yaml for package distribution\n')
         mock_write.assert_any_call('## Parsing RTC directory\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.remove')
@@ -1109,7 +1116,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='2021100100000000')
     @mock.patch('sys.stdout.write')
-    def test_sync_2(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args):
+    def test_sync_2(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args, mock_join):
         """sunc founded rtc case"""
         rtcs = [self.get_rtc()]
 
@@ -1144,6 +1151,7 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('## Parsing RTC directory\n')
         mock_write.assert_any_call('### RTC test_name\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.remove')
@@ -1153,7 +1161,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('yaml.dump')
     @mock.patch('wasanbon.timestampstr', return_value='2021100100000000')
     @mock.patch('sys.stdout.write')
-    def test_sync_3(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args):
+    def test_sync_3(self, mock_write, mock_timestampstr, mock_dump, mock_open, mock_safe_load, mock_copy, mock_remove, mock_isfile, mock_parse_args, mock_join):
         """sunc founded rtc with url case"""
         rtcs = [self.get_rtc()]
 

@@ -135,11 +135,11 @@ class TestPlugin(unittest.TestCase):
         mock_subprocess_call.return_value = -1
         mock_subprocess_call.side_effect = Exception()
         ### test ###
-        self.assertEqual(-1, self.plugin.run(['argv']))
+        self.assertEqual(0, self.plugin.run(['argv']))
         url = 'https://github.com/wasanbon/wasanbon.git'
         self.admin_mock.git.git_command.assert_called_once_with(['clone', '-b', 'release', url], verbose=True)
         mock_subprocess_call.assert_called_once_with(['python', 'setup.py', 'install'])
-        mock_write.assert_any_call('# Exception occured in selfupdating....\n')
+        mock_write.assert_any_call('# Exception occured in selfupdating.....\n')
 
     @mock.patch('builtins.print')
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')

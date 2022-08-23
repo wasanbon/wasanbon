@@ -205,19 +205,21 @@ class TestPlugin(unittest.TestCase):
         ret = wasanbon.platform()
         self.assertEqual(ret, 'macos')
 
-    @mock.patch('sys.platform', new='linux')
-    @mock.patch('distro.linux_distribution', return_value=['Ubuntu'])
-    def test_platform_linux_ubuntu(self, _):
-        """test for platform linux ubuntu"""
-        ret = wasanbon.platform()
-        self.assertEqual(ret, 'ubuntu')
+    import sys
+    if sys.platform == 'linux':
+        @mock.patch('sys.platform', new='linux')
+        @mock.patch('distro.linux_distribution', return_value=['Ubuntu'])
+        def test_platform_linux_ubuntu(self, _):
+            """test for platform linux ubuntu"""
+            ret = wasanbon.platform()
+            self.assertEqual(ret, 'ubuntu')
 
-    @mock.patch('sys.platform', new='linux')
-    @mock.patch('distro.linux_distribution', return_value=['debian'])
-    def test_platform_linux_debian(self, _):
-        """test for platform linux debian"""
-        ret = wasanbon.platform()
-        self.assertEqual(ret, 'debian')
+        @mock.patch('sys.platform', new='linux')
+        @mock.patch('distro.linux_distribution', return_value=['debian'])
+        def test_platform_linux_debian(self, _):
+            """test for platform linux debian"""
+            ret = wasanbon.platform()
+            self.assertEqual(ret, 'debian')
 
     @mock.patch('sys.stdout.write')
     def test_sleep(self, sys_stdout_write):

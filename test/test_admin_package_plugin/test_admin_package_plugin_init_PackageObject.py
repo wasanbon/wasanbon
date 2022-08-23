@@ -9,6 +9,11 @@ from wasanbon.core.plugins.admin.package_plugin import PackageObject
 
 import wasanbon
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -22,10 +27,11 @@ class TestPlugin(unittest.TestCase):
         setting = {'application': application}
         return setting
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile', return_value=True)
-    def test_PackageObject_properties_1(self, mock_isfile, mock_open, mock_safe_load):
+    def test_PackageObject_properties_1(self, mock_isfile, mock_open, mock_safe_load, mock_join):
         """PackageObject properties with name, path"""
 
         mock_safe_load.return_value = self.get_setting()
@@ -50,10 +56,11 @@ class TestPlugin(unittest.TestCase):
 
         mock_open.assert_called_once_with('/path/to/test_project01/setting.yaml', 'r')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile', return_value=True)
-    def test_PackageObject_properties_2(self, mock_isfile, mock_open, mock_safe_load):
+    def test_PackageObject_properties_2(self, mock_isfile, mock_open, mock_safe_load, mock_join):
         """PackageObject properties with path"""
 
         mock_safe_load.return_value = self.get_setting()
@@ -88,7 +95,8 @@ class TestPlugin(unittest.TestCase):
 
         ### test ###
         pObj = PackageObject(path='/path/to/test_project01')
-        self.assertEqual('/path/to/test_project01/system/DefaultSystem.xml', pObj.default_system_filepath)
+        import os
+        self.assertEqual(os.path.join('/path/to/test_project01',os.path.join('/path/to/test_project01','system'),'DefaultSystem.xml'), pObj.default_system_filepath)
 
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
@@ -101,13 +109,15 @@ class TestPlugin(unittest.TestCase):
 
         ### test ###
         pObj = PackageObject(path='/path/to/test_project01')
-        self.assertEqual('/path/to/test_project01/DefaultSystem.xml', pObj.default_system_filepath)
+        import os
+        self.assertEqual(os.path.join('/path/to/test_project01','DefaultSystem.xml'), pObj.default_system_filepath)
         mock_write.assert_called_once_with('# This package contains old manner system description\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile', side_effect=[True, False, True, False, True, False, True])
-    def test_rtcconf_1(self, mock_isfile, mock_open, mock_safe_load):
+    def test_rtcconf_1(self, mock_isfile, mock_open, mock_safe_load, mock_join):
         """rtcconf normal case"""
 
         mock_safe_load.return_value = self.get_setting()
@@ -120,11 +130,12 @@ class TestPlugin(unittest.TestCase):
         pObj = PackageObject(path='/path/to/test_project01')
         self.assertEqual(expect, pObj.rtcconf)
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile', side_effect=[True, True, True, True, True, True, True])
     @mock.patch('sys.stdout.write')
-    def test_rtcconf_2(self, mock_write, mock_isfile, mock_open, mock_safe_load):
+    def test_rtcconf_2(self, mock_write, mock_isfile, mock_open, mock_safe_load, mock_join):
         """rtcconf old case"""
 
         mock_safe_load.return_value = self.get_setting()
@@ -140,16 +151,20 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('# conf.Java must be filename, and path of conffile must be writtein in CONF_DIR\n'),
         mock_write.assert_any_call('# conf.Python must be filename, and path of conffile must be writtein in CONF_DIR\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('yaml.safe_load')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile', side_effect=[True, False, False, False, False, False, False])
     @mock.patch('sys.stdout.write')
-    def test_rtcconf_3(self, mock_write, mock_isfile, mock_open, mock_safe_load):
+    def test_rtcconf_3(self, mock_write, mock_isfile, mock_open, mock_safe_load, mock_join):
         """rtcconf file not found case"""
 
         mock_safe_load.return_value = self.get_setting()
 
         expect = {}
+
+        import os
+        os.sep = '/'
 
         ### test ###
         pObj = PackageObject(path='/path/to/test_project01')

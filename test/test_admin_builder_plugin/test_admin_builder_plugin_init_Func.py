@@ -197,7 +197,7 @@ class Test(unittest.TestCase):
         mock_dirname.assert_called_once_with('msbuild_path')
         mock_getIDE.assert_called_once()  # win32
         mock_makedirs.assert_not_called()
-        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release'], stdout=None,
+        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release', '/clp:ErrorsOnly'], stdout=None,
                                    stderr=None, env={'PATH': 'path;msbuild_dir;omni_root', 'OMNI_ROOT': 'omni_root'})
         mock_basename.assert_called_once()
 
@@ -246,7 +246,7 @@ class Test(unittest.TestCase):
         mock_dirname.assert_called_once_with('msbuild_path')
         mock_getIDE.assert_called_once()  # win32
         mock_makedirs.assert_not_called()
-        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release'], stdout=None,
+        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release', '/clp:ErrorsOnly'], stdout=None,
                                    stderr=None, env={'PATH': 'path;msbuild_dir;omni_root', 'OMNI_ROOT': 'omni_root'})
         mock_basename.assert_called_once()
 
@@ -295,7 +295,7 @@ class Test(unittest.TestCase):
         mock_dirname.assert_called_once_with('msbuild_path')
         mock_getIDE.assert_called_once()  # win32
         mock_makedirs.assert_not_called()
-        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release'], stdout=None,
+        mock_Popen.assert_any_call(['msbuild_path', 'rtcp_name.sln', '/p:Configuration=Release', '/clp:ErrorsOnly'], stdout=None,
                                    stderr=None, env={'PATH': 'path;msbuild_dir;omni_root', 'OMNI_ROOT': 'omni_root'})
         mock_basename.assert_called_once()
 
