@@ -35,3 +35,4 @@ eclipse :
   - "/usr/local/bin/openrtp"
   - "/usr/bin/openrtp"
   - "/usr/share/openrtp"
+  - "/usr/bin/openrtp2"
