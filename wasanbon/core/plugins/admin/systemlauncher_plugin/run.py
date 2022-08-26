@@ -46,7 +46,7 @@ def start_cpp_rtcd(filepath, verbose=True):
     args['stdin'] = None if verbose else subprocess.PIPE
     if sys.platform == 'win32':
         args['creationflags'] = 512
-    cmd = ['rtcd', '-f', filepath]
+    cmd = ['rtcd2', '-f', filepath]
     return subprocess.Popen(cmd, **args)
 
 
