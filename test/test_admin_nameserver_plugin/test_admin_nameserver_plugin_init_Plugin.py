@@ -11,6 +11,12 @@ sys.path.append('../../')
 import wasanbon
 
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
+
 class TestPlugin(unittest.TestCase):
 
     def setUp(self):
@@ -123,17 +129,6 @@ class TestPlugin(unittest.TestCase):
 
     @mock.patch('os.chdir')
     @mock.patch('os.listdir', return_value=['nameserver_123'])
-    @mock.patch('os.remove')
-    @mock.patch('sys.stdout.write')
-    def test_remove_nss_pidfile(self, mock_write, mock_remove, mock_listdir, mock_chdir):
-        """get_running_nss_from_pidfile normal case"""
-
-        ### test ###
-        self.plugin.remove_nss_pidfile(path='path', verbose=True, pid=123)
-        mock_remove.assert_called_once_with('pid/nameserver_123')
-
-    @mock.patch('os.chdir')
-    @mock.patch('os.listdir', return_value=['nameserver_123'])
     @mock.patch('sys.stdout.write')
     def test_get_running_nss_from_pidfile(self, mock_write, mock_listdir, mock_chdir):
         """get_running_nss_from_pidfile normal case"""
@@ -141,33 +136,36 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual([123], self.plugin.get_running_nss_from_pidfile(path='path', verbose=True))
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.chdir')
     @mock.patch('os.listdir', return_value=['nameserver_123'])
     @mock.patch('os.remove')
     @mock.patch('sys.stdout.write')
-    def test_remove_nss_pidfile(self, mock_write, mock_remove, mock_listdir, mock_chdir):
+    def test_remove_nss_pidfile(self, mock_write, mock_remove, mock_listdir, mock_chdir, mock_join):
         """remove_nss_pidfile normal case"""
 
         ### test ###
         self.plugin.remove_nss_pidfile(path='path', verbose=True, pid=123)
         mock_remove.assert_called_once_with('pid/nameserver_123')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.chdir')
     @mock.patch('os.listdir', return_value=['log.dat'])
     @mock.patch('os.remove')
     @mock.patch('sys.stdout.write')
-    def test_remove_nss_datfile(self, mock_write, mock_remove, mock_listdir, mock_chdir):
+    def test_remove_nss_datfile(self, mock_write, mock_remove, mock_listdir, mock_chdir, mock_join):
         """remove_nss_datfile normal case"""
 
         ### test ###
         self.plugin.remove_nss_datfile(path='path', verbose=True)
         mock_remove.assert_called_once_with('./log.dat')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.chdir')
     @mock.patch('os.listdir', return_value=['nameserver_123'])
     @mock.patch('os.remove')
     @mock.patch('sys.stdout.write')
-    def test_remove_all_nss_pidfile(self, mock_write, mock_remove, mock_listdir, mock_chdir):
+    def test_remove_all_nss_pidfile(self, mock_write, mock_remove, mock_listdir, mock_chdir, mock_join):
         """remove_all_nss_pidfile normal case"""
 
         ### test ###
@@ -196,6 +194,7 @@ class TestPlugin(unittest.TestCase):
         ### test ###
         self.assertEqual(-2, self.plugin.terminate(ns, verbose=True, path='path'))
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.admin.nameserver_plugin.Plugin.get_running_nss_from_pidfile', return_value=[123])
     @mock.patch('wasanbon.core.plugins.admin.nameserver_plugin.Plugin.remove_nss_pidfile')
     @mock.patch('os.chdir')
@@ -204,7 +203,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('os.remove')
     @mock.patch('psutil.process_iter')
     @mock.patch('sys.stdout.write')
-    def test_terminate_3(self, mock_write, mock_process_iter, mock_remove, mock_listdir, mock_isdir, mock_chdir, mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile):
+    def test_terminate_3(self, mock_write, mock_process_iter, mock_remove, mock_listdir, mock_isdir, mock_chdir, mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile, mock_join):
         """terminate pidFilePath normal case"""
 
         ns = MagicMock()
@@ -592,6 +591,7 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(0, self.plugin.exit_rtc(args))
         mock_write.assert_any_call('# Exiting RTC (rtc_path)\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.path.isdir', return_value=False)
     @mock.patch('os.mkdir')
     @mock.patch('os.chdir')
@@ -607,7 +607,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.core.plugins.admin.nameserver_plugin.disable_sig')
     @mock.patch('sys.stdout.write')
     def test_launch_1(self, mock_write, mock_disable_sig, mock_sleep, mock_open, mock_getcwd, mock_Popen, mock_platform, mock_remove_nss_datfile,
-                      mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile, mock_process_iter, mock_chdir, mock_mkdir, mock_isdir):
+                      mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile, mock_process_iter, mock_chdir, mock_mkdir, mock_isdir, mock_join):
         """launch not win32 normal case"""
 
         ns = MagicMock()
@@ -628,19 +628,16 @@ class TestPlugin(unittest.TestCase):
 
         ### test ###
         self.assertEqual(0, self.plugin.launch(ns, verbose=True, force=True, path='path'))
-        mock_remove_nss_pidfile.assert_has_calls([call(pid=123, path='path', verbose=True, pidFilePath='pidFilePath'),
-                                                  call(pid=123, path='path', verbose=True, pidFilePath='pidFilePath')])
         mock_remove_nss_datfile.assert_called_once_with(path='path', verbose=True)
-        mock_Popen.assert_called_once_with(['rtm-naming', '-p', 2809], creationflags=0, stdout=None,
-                                           stdin=-1, stderr=None, preexec_fn=mock_disable_sig)
+        mock_Popen.assert_called_once_with(['rtm-naming', '-p', 2809, '-f'], creationflags=0, stdout=None,
+                                           stdin=None, stderr=None, preexec_fn=mock_disable_sig)
         mock_open.assert_called_once_with('pid/nameserver_123', 'w')
-        mock_write.assert_any_call('## Stopping Nameservice of PID (123)\n')
-        mock_write.assert_any_call('### PID(123) access denyed. Proceeding... \n')
-        mock_write.assert_any_call('## Stopping Nameservice of PID (123)\n')
-        mock_write.assert_any_call("### Command:['rtm-naming', '-p', 2809]\n")
+        mock_write.assert_any_call("### Command:['rtm-naming', '-p', 2809, '-f']\n")
         mock_write.assert_any_call('## Creating PID file (123)\n')
         mock_write.assert_any_call('### Filename :./pid/nameserver_123\n')
 
+    @mock.patch('os.environ', new_callable=PropertyMock(return_value={'RTM_ROOT':'/usr/include/openrtm-1.2'}))
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('os.path.isdir', return_value=False)
     @mock.patch('os.mkdir')
     @mock.patch('os.chdir')
@@ -656,7 +653,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.core.plugins.admin.nameserver_plugin.disable_sig')
     @mock.patch('sys.stdout.write')
     def test_launch_2(self, mock_write, mock_disable_sig, mock_sleep, mock_open, mock_getcwd, mock_Popen, mock_platform, mock_remove_nss_datfile,
-                      mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile, mock_process_iter, mock_chdir, mock_mkdir, mock_isdir):
+                      mock_remove_nss_pidfile, mock_get_running_nss_from_pidfile, mock_process_iter, mock_chdir, mock_mkdir, mock_isdir, mock_join, mock_environ):
         """launch win32 normal case"""
 
         ns = MagicMock()
@@ -677,16 +674,11 @@ class TestPlugin(unittest.TestCase):
 
         ### test ###
         self.assertEqual(0, self.plugin.launch(ns, verbose=True, force=True, path='path'))
-        mock_remove_nss_pidfile.assert_has_calls([call(pid=123, path='path', verbose=True, pidFilePath='pidFilePath'),
-                                                  call(pid=123, path='path', verbose=True, pidFilePath='pidFilePath')])
         mock_remove_nss_datfile.assert_called_once_with(path='path', verbose=True)
-        mock_Popen.assert_called_once_with(['/usr/include/openrtm-1.2/bin/rtm-naming.bat', 2809],
-                                           creationflags=512, stdout=None, stdin=-1, stderr=None, preexec_fn=None)
+        mock_Popen.assert_called_once_with(['/usr/include/openrtm-1.2/bin/rtm-naming.bat', 2809, '-f'],
+                                           creationflags=512, stdout=None, stdin=None, stderr=None, preexec_fn=None)
         mock_open.assert_called_once_with('pid/nameserver_123', 'w')
-        mock_write.assert_any_call('## Stopping Nameservice of PID (123)\n')
-        mock_write.assert_any_call('### PID(123) access denyed. Proceeding... \n')
-        mock_write.assert_any_call('## Stopping Nameservice of PID (123)\n')
-        mock_write.assert_any_call("### Command:['/usr/include/openrtm-1.2/bin/rtm-naming.bat', 2809]\n")
+        mock_write.assert_any_call("### Command:['/usr/include/openrtm-1.2/bin/rtm-naming.bat', 2809, '-f']\n")
         mock_write.assert_any_call('## Creating PID file (123)\n')
         mock_write.assert_any_call('### Filename :./pid/nameserver_123\n')
 

@@ -298,9 +298,8 @@ class TestPlugin(unittest.TestCase):
         hashcode = MagicMock(spec=['decode'])
         hashcode.decode.return_value = 'hashcode'
         type(self.admin_mock.repository).get_repository_hash = MagicMock(return_value=hashcode)
-        repo_dict = {'repo_name': {'description': 'description', 'type': 'repo_type', 'url': 'repo_url', 'hash': 'hashcode'},
-                     'repo_name2': {'description': 'description', 'type': 'repo_type', 'url': 'repo_url', 'hash': 'hashcode'}}
-
+        repo_dict = {'repo_name': {'description': 'description', 'type': 'repo_type', 'url': 'repo_url', 'hash': 'hashcode', 'name': 'repo_name'}, 
+                    'repo_name2': {'description': 'description', 'type': 'repo_type', 'url': 'repo_url', 'hash': 'hashcode', 'name': 'repo_name2'}}
         ### check ###
         self.assertEqual(0, self.plugin.sync(['args']))
         mock_dump.assert_called_once_with(repo_dict, 'file', encoding='utf8', allow_unicode=True, default_flow_style=False)

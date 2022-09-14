@@ -277,12 +277,13 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(-1, self.plugin.update_rtc(args))
         mock_write.assert_any_call('# Binder is not found. \n')
 
+    @mock.patch('wasanbon.platform', return_value='platform')
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('builtins.open')
     @mock.patch('yaml.safe_load')
     @mock.patch('yaml.safe_dump')
     @mock.patch('sys.stdout.write')
-    def test_update_rtc_3(self, mock_write, mock_safe_dump, mock_safe_load, mock_open, mock_parse_args):
+    def test_update_rtc_3(self, mock_write, mock_safe_dump, mock_safe_load, mock_open, mock_parse_args, mock_platform):
         """update_rtc success case"""
 
         args = ['./mgr.py', 'binder', 'update_rtc', 'binder_name', 'rtc_name']
@@ -402,15 +403,16 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(-1, self.plugin.update_package(['argv']))
         mock_write.assert_any_call('# Binder is not found. \n')
 
+    @mock.patch('wasanbon.platform', return_value='platform')
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('builtins.open')
     @mock.patch('yaml.safe_load')
     @mock.patch('yaml.safe_dump')
     @mock.patch('sys.stdout.write')
-    def test_update_package_4(self, mock_write, mock_safe_dump, mock_safe_load, mock_open, mock_parse_args):
+    def test_update_package_4(self, mock_write, mock_safe_dump, mock_safe_load, mock_open, mock_parse_args, mock_platform):
         """update_package success case"""
 
-        args = ['./mgr.py', 'binder', 'update_package', 'binder_name', 'rtc_name']
+        args = ['./mgr.py', 'binder', 'update_package', 'binder_name']
         options = MagicMock()
         type(options).verbose_flag = True
         mock_parse_args.return_value = options, args

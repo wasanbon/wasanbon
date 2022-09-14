@@ -13,6 +13,11 @@ sys.path.append('../../')
 
 import wasanbon
 
+def mock_join_func( *args ):
+    ret = ""
+    for val in args:
+        ret = ret + str(val) + '/'
+    return ret.rstrip('/')
 
 class TestPlugin(unittest.TestCase):
 
@@ -892,6 +897,7 @@ class TestPlugin(unittest.TestCase):
         mock_choice.assert_called_once()
         mock_write.assert_any_call('## Aborted.')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('time.sleep')
     @mock.patch('wasanbon.util.no_yes', side_effect=['yes'])
@@ -904,7 +910,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('os.rename')
     @mock.patch('traceback.print_exc')
-    def test_build_4(self, mock_print_exc, mock_rename, mock_timestampstr, mock_isfile, mock_input, mock_choice, mock_write, mock_getcwd, mock_yes_no, mock_no_yes, mock_sleep, mock_parse_args):
+    def test_build_4(self, mock_print_exc, mock_rename, mock_timestampstr, mock_isfile, mock_input, mock_choice, mock_write, mock_getcwd, mock_yes_no, mock_no_yes, mock_sleep, mock_parse_args, mock_join):
         """build terminate_failed case"""
 
         args = ['./mgr.py', 'system', 'build']
@@ -993,6 +999,7 @@ class TestPlugin(unittest.TestCase):
         exit_all_rtcs.assert_called_once()
         terminate_system.assert_called_once()
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('time.sleep')
     @mock.patch('wasanbon.util.no_yes', side_effect=['yes'])
@@ -1005,7 +1012,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('os.rename')
     @mock.patch('traceback.print_exc')
-    def test_build_5(self, mock_print_exc, mock_rename, mock_timestampstr, mock_isfile, mock_input, mock_choice, mock_write, mock_getcwd, mock_yes_no, mock_no_yes, mock_sleep, mock_parse_args):
+    def test_build_5(self, mock_print_exc, mock_rename, mock_timestampstr, mock_isfile, mock_input, mock_choice, mock_write, mock_getcwd, mock_yes_no, mock_no_yes, mock_sleep, mock_parse_args, mock_join):
         """build success case"""
 
         args = ['./mgr.py', 'system', 'build']
@@ -1275,6 +1282,7 @@ class TestPlugin(unittest.TestCase):
         get_package_from_path.assert_called_once()
         mock_choice.assert_called_once()
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.listdir')
     @mock.patch('wasanbon.util.choice')
@@ -1286,7 +1294,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('builtins.open')
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('sys.stdout.write')
-    def test_switch_1(self, mock_write, mock_timestampstr, mock_open, mock_dump, mock_rename, mock_mkdir, mock_isdir, mock_safe_load, mock_choice, mock_listdir, mock_parse_args):
+    def test_switch_1(self, mock_write, mock_timestampstr, mock_open, mock_dump, mock_rename, mock_mkdir, mock_isdir, mock_safe_load, mock_choice, mock_listdir, mock_parse_args, mock_join):
         """switch choice filename case"""
 
         args = ['./mgr.py', 'system', 'switch', 'DefaultSystem.xml']
@@ -1339,13 +1347,14 @@ class TestPlugin(unittest.TestCase):
         get_package_from_path.assert_called_once()
         mock_write.assert_any_call('- DefaultSystem.xml\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.listdir', return_value=['DefaultSystem.xml', '.ngdata', 'notxml'])
     @mock.patch('sys.stdout.write')
     @mock.patch('builtins.open', return_value='open_result')
     @mock.patch('rtsprofile.rts_profile.RtsProfile', side_effect=Exception())
     @mock.patch('traceback.print_exc')
-    def test_list_3(self, mock_print_exc, mock_RtsProfile, mock_open, mock_write, mock_listdir, mock_parse_args):
+    def test_list_3(self, mock_print_exc, mock_RtsProfile, mock_open, mock_write, mock_listdir, mock_parse_args, mock_join):
         """list long rtsprofile exception case"""
 
         args = ['./mgr.py', 'system', 'list']
@@ -1372,13 +1381,14 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('  status : error\n')
         mock_print_exc.assert_called_once()
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('os.listdir', return_value=['DefaultSystem.xml', '.ngdata', 'notxml'])
     @mock.patch('sys.stdout.write')
     @mock.patch('builtins.open', return_value='open_result')
     @mock.patch('rtsprofile.rts_profile.RtsProfile')
     @mock.patch('traceback.print_exc')
-    def test_list_4(self, mock_print_exc, mock_RtsProfile, mock_open, mock_write, mock_listdir, mock_parse_args):
+    def test_list_4(self, mock_print_exc, mock_RtsProfile, mock_open, mock_write, mock_listdir, mock_parse_args, mock_join):
         """list long case"""
 
         args = ['./mgr.py', 'system', 'list']
@@ -1471,11 +1481,12 @@ class TestPlugin(unittest.TestCase):
         mock_write.assert_any_call('    nameservers    : corba.nameservers_data\n'),
         mock_write.assert_any_call('    installed_rtcs : manager.components.precreate_data\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=False)
     @mock.patch('builtins.print')
-    def test_dump_1(self, mock_print, mock_isfile, mock_write, mock_parse_args):
+    def test_dump_1(self, mock_print, mock_isfile, mock_write, mock_parse_args, mock_dump):
         """dump file not found case"""
 
         args = ['./mgr.py', 'system', 'dump']
@@ -1527,13 +1538,14 @@ class TestPlugin(unittest.TestCase):
         mock_open.assert_called_once_with('default_system_filepath', 'r')
         mock_write.assert_called_once_with('open_line_data')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('builtins.print')
     @mock.patch('builtins.open', return_value=['open_line_data'])
     @mock.patch('wasanbon.util.yes_no', side_effect=['no'])
-    def test_cat_1(self, mock_yes_no, mock_open, mock_print, mock_isfile, mock_write, mock_parse_args):
+    def test_cat_1(self, mock_yes_no, mock_open, mock_print, mock_isfile, mock_write, mock_parse_args, mock_join):
         """cat abort case"""
 
         args = ['./mgr.py', 'system', 'cat', 'input_data']
@@ -1588,10 +1600,11 @@ class TestPlugin(unittest.TestCase):
         mock_rename.assert_called_once_with('default_system_filepath', 'default_system_filepath20211001000000')
         mock_open.assert_called_once_with('default_system_filepath', 'w')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=False)
-    def test_copy_1(self, mock_isfile, mock_write, mock_parse_args):
+    def test_copy_1(self, mock_isfile, mock_write, mock_parse_args, mock_join):
         """copy file not founded case"""
 
         args = ['./mgr.py', 'system', 'copy', 'src_file_name', 'dest_file_name']
@@ -1612,11 +1625,12 @@ class TestPlugin(unittest.TestCase):
         mock_isfile.assert_called_once_with('./system/src_file_name')
         mock_write.assert_any_call('## No System File exists.\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('wasanbon.util.no_yes', side_effect=['no'])
-    def test_copy_2(self, mock_no_yes, mock_isfile, mock_write, mock_parse_args):
+    def test_copy_2(self, mock_no_yes, mock_isfile, mock_write, mock_parse_args, mock_join):
         """copy abort case"""
 
         args = ['./mgr.py', 'system', 'copy', 'src_file_name', 'dest_file_name']
@@ -1638,6 +1652,7 @@ class TestPlugin(unittest.TestCase):
         mock_no_yes.assert_called_once_with('# Overwrite? (./system/dest_file_name):')
         mock_write.assert_any_call('## Aborted.\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=True)
@@ -1645,7 +1660,7 @@ class TestPlugin(unittest.TestCase):
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('os.rename')
     @mock.patch('shutil.copyfile')
-    def test_copy_3(self, mock_copyfile, mock_rename, mock_timestampstr, mock_no_yes, mock_isfile, mock_write, mock_parse_args):
+    def test_copy_3(self, mock_copyfile, mock_rename, mock_timestampstr, mock_no_yes, mock_isfile, mock_write, mock_parse_args, mock_join):
         """copy normal case"""
 
         args = ['./mgr.py', 'system', 'copy', 'src_file_name', 'dest_file_name']
@@ -1669,10 +1684,11 @@ class TestPlugin(unittest.TestCase):
         mock_copyfile.assert_called_once_with('./system/src_file_name', './system/dest_file_name')
         mock_write.assert_any_call('## Success\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=False)
-    def test_delete_1(self, mock_isfile, mock_write, mock_parse_args):
+    def test_delete_1(self, mock_isfile, mock_write, mock_parse_args, mock_join):
         """delete file not founded case"""
 
         args = ['./mgr.py', 'system', 'delete', 'src_file_name']
@@ -1693,11 +1709,12 @@ class TestPlugin(unittest.TestCase):
         mock_isfile.assert_called_once_with('./system/src_file_name')
         mock_write.assert_any_call('## No System File exists.\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('wasanbon.util.no_yes', side_effect=['no'])
-    def test_delete_2(self, mock_no_yes, mock_isfile, mock_write, mock_parse_args):
+    def test_delete_2(self, mock_no_yes, mock_isfile, mock_write, mock_parse_args, mock_join):
         """delete abort case"""
 
         args = ['./mgr.py', 'system', 'delete', 'src_file_name']
@@ -1719,13 +1736,14 @@ class TestPlugin(unittest.TestCase):
         mock_no_yes.assert_called_once_with('# Delete? (./system/src_file_name):')
         mock_write.assert_any_call('## Aborted.\n')
 
+    @mock.patch('os.path.join', side_effect=mock_join_func)
     @mock.patch('wasanbon.core.plugins.PluginFunction.parse_args')
     @mock.patch('sys.stdout.write')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('wasanbon.util.no_yes', side_effect=['yes'])
     @mock.patch('wasanbon.timestampstr', return_value='20211001000000')
     @mock.patch('os.rename')
-    def test_delete_3(self, mock_rename, mock_timestampstr, mock_no_yes, mock_isfile, mock_write, mock_parse_args):
+    def test_delete_3(self, mock_rename, mock_timestampstr, mock_no_yes, mock_isfile, mock_write, mock_parse_args, mock_join):
         """delete normal case"""
 
         args = ['./mgr.py', 'system', 'delete', 'src_file_name']
